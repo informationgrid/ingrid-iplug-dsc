@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<document>
+  <properties>
+    <title>History Ingrid DSC (scripted) iPlug</title>
+    <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
+  </properties>
+  <body>
+    <release version="3.0.0-SNAPSHOT" date="2011-xx-xx" description="Initial Release">
+    </release>
+  </body>
+</document>

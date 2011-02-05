@@ -1,0 +1,59 @@
+<project name="PortalU Installation">
+    <description>
+        iPlug-Opensearch Installation Script
+    </description>
+	<!-- set global properties for this build -->
+	<property name="iPlugName" 			value="${project.artifactId}-${project.version}"/>
+	<property name="xml-communication" 	value="${installDir}/conf/communication.xml"/>
+    <property name="start-script"       value="${installDir}/start.sh"/>
+	
+	<target name="extract" description="Extract all files to the installation directory.">
+		<unzip src="${antinstaller.jar}" dest="${installDir}">
+			<patternset>
+				<include name="${iPlugName}/**/*.*"/>
+			</patternset>
+		</unzip>
+		
+		<move toDir="${installDir}">
+			<fileset dir="${installDir}/${iPlugName}"/>
+		</move>
+		
+		<mkdir dir="${installDir}/logs"/>
+        
+        <replace file="${start-script}" token="@SERVER_PORT@" value="${localServerPort}"/>
+    
+        <condition property="copy.plugDescription">
+          <not>
+            <equals arg1="${plugDescription}" arg2="noPlugDescription"/>
+          </not>
+        </condition>
+	</target>
+  
+	<target name="startIPlug">
+		<echo>
+=================
+Weiteres Vorgehen
+=================
+
+		</echo>
+		<echo>
+Gehen Sie ins Verzeichnis:
+${installDir}
+und rufen sie von der Kommandozeile folgendes auf
+"sh start.sh start", um im Webbrowser das iPlug unter
+der folgenden Adresse "http://localhost:${localServerPort}"
+zu konfigurieren. Anstelle von localhost koennen Sie
+auch die IP-Adresse des Computers eingeben!
+Bitte lesen Sie bzgl. der Administration die Kapitel unter
+"http://www.kst.portalu.de/wiki/index.php/IPlug_Opensearch".
+
+Bevor das iPlug benutzt werden kann, muss es in der iBus-
+Administration (im Portal) eingeschaltet werden.
+
+Weitere Informationen entnehmen Sie bitte dem
+Online-Handbuch unter 
+http://www.kst.portalu.de/wiki/index.php/InGrid_Installation.
+		</echo>
+	</target>
+	
+</project>

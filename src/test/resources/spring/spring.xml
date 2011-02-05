@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<import resource="metadata-injectors.xml" />
+	<import resource="pre-post-processors.xml" />
+
+
+    <bean id="plugDescription" class="de.ingrid.iplug.PlugServer" factory-method="getPlugDescription">
+        <constructor-arg value="src\test\resources\plugdescription.xml"/>
+    </bean>
+  
+</beans>
