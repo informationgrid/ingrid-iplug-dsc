@@ -67,7 +67,7 @@
   <string>md5Hash</string>
   <string>/torwald-group:torwald-iplug-opensearch-test</string>
   <string>iPlugClass</string>
-  <string>de.ingrid.iplug.opensearch.OpenSearchPlug</string>
+  <string>de.ingrid.iplug.dsc.DscSearchPlug</string>
   <string>provider</string>
   <list>
     <string>bw_lu</string>

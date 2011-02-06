@@ -11,5 +11,14 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <bean id="plugDescription" class="de.ingrid.iplug.PlugServer" factory-method="getPlugDescription">
         <constructor-arg value="src\test\resources\plugdescription.xml"/>
     </bean>
+    
+    <bean id="dscDocumentProducer" class="de.ingrid.dsc.index.DscDocumentProducer">
+        <property name="recordProducer" ref="recordMapper" />
+        <property name="recordMapper" ref="recordMapper" />
+    </bean>
+
+    <bean id="recordProducer" class="de.ingrid.dsc.index.PlugDescriptionConfiguredDatabaseRecordProducer" />
+
+    <bean id="recordMapper" class="de.ingrid.dsc.index.SimpleDatabaseRecord2DocumentMapper" />
   
 </beans>
