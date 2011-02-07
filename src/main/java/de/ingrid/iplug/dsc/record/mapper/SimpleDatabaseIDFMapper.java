@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.ingrid.iplug.dsc.index.mapper;
+package de.ingrid.iplug.dsc.record.mapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,36 +9,39 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
+import de.ingrid.iplug.dsc.om.IdfNamespaceContext;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.utils.xml.XPathUtils;
 
 /**
- * Maps a {@link DatabaseSourceRecord} to a lucene document. The source database
- * record is retrieved from the database via the connection and the record id
- * specified in the {@link DatabaseSourceRecord}.
+ * Maps a {@link DatabaseSourceRecord} into an InGrid Detail data Format (IDF).
+ * <p />
+ * A SQL string can be set to retrieve a record from the database, based in the
+ * id and the connection supplied by the {@link DatabaseSourceRecord}.
+ * <p/>
+ * The mapper expects a base IDF format already present in {@link doc}.
  * 
- * A SQL string can be defined to be executed to retrieve the database record.
  * 
  * 
  * @author joachim@wemove.com
  * 
  */
-public class SimpleDatabaseRecord2DocumentMapper implements IRecordMapper {
+public class SimpleDatabaseIDFMapper implements IIdfMapper {
 
     protected static final Logger log = Logger
-            .getLogger(SimpleDatabaseRecord2DocumentMapper.class);
+            .getLogger(SimpleDatabaseIDFMapper.class);
 
     private String sql;
 
     @Override
-    public Document map(SourceRecord record, Document doc) throws Exception {
+    public void map(SourceRecord record, Document doc) throws Exception {
         if (!(record instanceof DatabaseSourceRecord)) {
             throw new IllegalArgumentException("Record is no DatabaseRecord!");
         }
-
         String id = (String) record.get(DatabaseSourceRecord.ID);
         Connection connection = (Connection) record
                 .get(DatabaseSourceRecord.CONNECTION);
@@ -51,14 +54,18 @@ public class SimpleDatabaseRecord2DocumentMapper implements IRecordMapper {
             for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
                 String colName = rs.getMetaData().getColumnName(i);
                 String colValue = rs.getString(i);
-                doc.add(new Field(colName, colValue, Field.Store.YES,
-                        Field.Index.ANALYZED));
+                XPathUtils.getXPathInstance().setNamespaceContext(new IdfNamespaceContext());
+                Node body = XPathUtils.getNode(doc, "/html/body");
+                Node p = body.appendChild(doc.createElementNS("http://www.portalu.de/IDF/1.0", "p"));
+                p.appendChild(doc.createElementNS("http://www.portalu.de/IDF/1.0", "strong")
+                            .appendChild(doc.createTextNode(colName+": ")));
+                p.appendChild(doc.createTextNode(colValue));        
             }
         } catch (SQLException e) {
             log.error("Error mapping Record.", e);
             throw e;
         }
-        return doc;
+
     }
 
     public String getSql() {
@@ -68,5 +75,5 @@ public class SimpleDatabaseRecord2DocumentMapper implements IRecordMapper {
     public void setSql(String sql) {
         this.sql = sql;
     }
-
+    
 }

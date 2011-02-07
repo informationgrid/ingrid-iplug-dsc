@@ -19,7 +19,9 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
         <property name="recordSql" value="SELECT * FROM t01_object WHERE work_state='V' AND publish_id='1';" />
     </bean>
 
-    <bean id="simpleDbRecordMapper" class="de.ingrid.iplug.dsc.index.mapper.SimpleDatabaseRecord2DocumentMapper" />
+    <bean id="simpleDbRecordMapper" class="de.ingrid.iplug.dsc.index.mapper.SimpleDatabaseRecord2DocumentMapper">
+        <property name="sql" value="SELECT * FROM t01_object WHERE obj_id=?" />
+    </bean>
     <bean id="simpleDbProfileMapper" class="de.ingrid.iplug.dsc.index.mapper.SimpleDatabaseRecord2DocumentMapper" />
 
 
@@ -27,7 +29,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
         <property name="dscRecordProducer" ref="dscRecordProducer" />
     </bean>
     
-    <bean id="dscRecordProducer" class="de.ingrid.iplug.dsc.record.DscRecordProducer">
+    <bean id="dscRecordProducer" class="de.ingrid.iplug.dsc.record.DscRecordCreator">
         <property name="recordProducer" ref="recordProducer" />
         <property name="record2IdfMapperList">
             <list>
@@ -36,9 +38,9 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
         </property>
     </bean>
     
-    <bean id="recordProducer" class="de.ingrid.iplug.dsc.record.PlugDescriptionConfiguredDatabaseRecordProducer" />
+    <bean id="recordProducer" class="de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer" />
     
-    <bean id="simpleRecord2IdfMapper" class="de.ingrid.iplug.dsc.record.SimpleDatabaseRecord2IDFMapper" />
+    <bean id="simpleRecord2IdfMapper" class="de.ingrid.iplug.dsc.record.mapper.SimpleDatabaseIDFMapper" />
 
 
 </beans>

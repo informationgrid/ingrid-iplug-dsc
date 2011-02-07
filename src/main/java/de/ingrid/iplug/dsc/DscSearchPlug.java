@@ -16,7 +16,7 @@ import de.ingrid.admin.search.IngridIndexSearcher;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.iplug.IPlugdescriptionFieldFilter;
 import de.ingrid.iplug.PlugDescriptionFieldFilters;
-import de.ingrid.iplug.dsc.record.DscRecordProducer;
+import de.ingrid.iplug.dsc.record.DscRecordCreator;
 import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.IngridHit;
 import de.ingrid.utils.IngridHitDetail;
@@ -41,7 +41,7 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
      */
     private static Log log = LogFactory.getLog(DscSearchPlug.class);
 
-    private DscRecordProducer dscRecordProducer = null;
+    private DscRecordCreator dscRecordProducer = null;
     
     private final IngridIndexSearcher _indexSearcher;    
     
@@ -110,11 +110,11 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
         return details;
     }
     
-    public DscRecordProducer getDscRecordProducer() {
+    public DscRecordCreator getDscRecordProducer() {
         return dscRecordProducer;
     }
 
-    public void setDscRecordProducer(DscRecordProducer dscRecordProducer) {
+    public void setDscRecordProducer(DscRecordCreator dscRecordProducer) {
         this.dscRecordProducer = dscRecordProducer;
     }
     

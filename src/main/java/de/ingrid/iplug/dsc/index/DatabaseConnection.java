@@ -4,7 +4,7 @@
  * $Source: /cvs/asp-search/src/java/com/ms/aspsearch/PermissionDeniedException.java,v $
  */
 
-package de.ingrid.iplug.dsc.om;
+package de.ingrid.iplug.dsc.index;
 
 import de.ingrid.utils.IDataSourceConnection;
 

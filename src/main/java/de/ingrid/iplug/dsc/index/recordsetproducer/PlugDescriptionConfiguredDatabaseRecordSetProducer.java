@@ -15,7 +15,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import de.ingrid.iplug.dsc.om.DatabaseConnection;
+import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.utils.IConfigurable;
@@ -124,7 +124,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
                 ResultSet rs = ps.executeQuery();
                 try {
                     while (rs.next()) {
-                        recordIds.add(rs.getString(0));
+                        recordIds.add(rs.getString(1));
                     }
                     recordIdIterator = recordIds.listIterator();
                 } catch (Exception e) {

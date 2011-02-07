@@ -53,7 +53,7 @@ public class DscDocumentProducer implements IDocumentProducer {
      */
     @Override
     public Document next() {
-        Document doc = null;
+        Document doc = new Document();
         try {
             SourceRecord record = recordSetProducer.next();
             for (IRecordMapper mapper : recordMapperList) {
@@ -75,8 +75,6 @@ public class DscDocumentProducer implements IDocumentProducer {
     @Override
     public void configure(PlugDescription arg0) {
         log.info("DscDocumentProducer: configuring...");
-        // TODO Auto-generated method stub
-
     }
 
     public IRecordSetProducer getRecordSetProducer() {

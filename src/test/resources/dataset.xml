@@ -1,0 +1,8 @@
+<dataset>
+    <TEST_TABLE id="1" 
+                COL1="row 0 col 1"
+                COL2="row 0 col 2"/> 
+    <TEST_TABLE id="2"
+                COL1="row 1 col 1"
+                COL2="row 1 col 2"/> 
+</dataset>
