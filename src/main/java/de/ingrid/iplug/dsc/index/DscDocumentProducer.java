@@ -79,11 +79,11 @@ public class DscDocumentProducer implements IDocumentProducer {
 
     }
 
-    public IRecordSetProducer getRecordProducer() {
+    public IRecordSetProducer getRecordSetProducer() {
         return recordSetProducer;
     }
 
-    public void setRecordProducer(IRecordSetProducer recordProducer) {
+    public void setRecordSetProducer(IRecordSetProducer recordProducer) {
         this.recordSetProducer = recordProducer;
     }
 
@@ -91,7 +91,7 @@ public class DscDocumentProducer implements IDocumentProducer {
         return recordMapperList;
     }
 
-    public void setRecordMapper(List<IRecordMapper> recordMapperList) {
+    public void setRecordMapperList(List<IRecordMapper> recordMapperList) {
         this.recordMapperList = recordMapperList;
     }
 
