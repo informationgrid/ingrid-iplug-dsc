@@ -55,10 +55,10 @@ public class SimpleDatabaseIDFMapper implements IIdfMapper {
                 String colName = rs.getMetaData().getColumnName(i);
                 String colValue = rs.getString(i);
                 XPathUtils.getXPathInstance().setNamespaceContext(new IdfNamespaceContext());
-                Node body = XPathUtils.getNode(doc, "/html/body");
+                Node body = XPathUtils.getNode(doc, "/idf:html/idf:body");
                 Node p = body.appendChild(doc.createElementNS("http://www.portalu.de/IDF/1.0", "p"));
-                p.appendChild(doc.createElementNS("http://www.portalu.de/IDF/1.0", "strong")
-                            .appendChild(doc.createTextNode(colName+": ")));
+                Node strong = p.appendChild(doc.createElementNS("http://www.portalu.de/IDF/1.0", "strong"));
+                strong.appendChild(doc.createTextNode(colName+": "));
                 p.appendChild(doc.createTextNode(colValue));        
             }
         } catch (SQLException e) {

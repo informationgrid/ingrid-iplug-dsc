@@ -51,6 +51,18 @@ public class DscRecordCreatorTest extends IgcDbUnitEnabledTestCase {
                         Field.Index.ANALYZED));
         Record r = dc.getRecord(idxDoc);
         assertNotNull(r.get("data"));
+        assertTrue(r.getString("compressed").equals("false"));
+        System.out.println("Size of uncompressed IDF document: " + r.getString("data").length());
+        
+        idxDoc = new Document();
+        idxDoc.add(new Field("ID", "1", Field.Store.YES,
+                        Field.Index.ANALYZED));
+        dc.setCompressed(true);
+        Record rCompressed = dc.getRecord(idxDoc);
+        assertNotNull(rCompressed.get("data"));
+        assertTrue(rCompressed.getString("compressed").equals("true"));
+        System.out.println("Size of compressed IDF document: " + rCompressed.getString("data").length());
+        
     }
 
 }

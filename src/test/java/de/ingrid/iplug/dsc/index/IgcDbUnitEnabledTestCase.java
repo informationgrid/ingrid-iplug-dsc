@@ -15,6 +15,7 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ITableMetaData;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
+import org.mortbay.log.Log;
 
 public class IgcDbUnitEnabledTestCase extends DBTestCase {
 
@@ -32,6 +33,7 @@ public class IgcDbUnitEnabledTestCase extends DBTestCase {
     
     @Override
     protected void setUp() throws Exception {
+        System.out.println("Try creating tables from data source file: " + datasourceFileName);
         IDataSet ds = new FlatXmlDataSetBuilder().build(new FileInputStream(datasourceFileName));
         createHsqldbTables(ds, this.getConnection().getConnection());
         super.setUp();
@@ -40,6 +42,7 @@ public class IgcDbUnitEnabledTestCase extends DBTestCase {
 
     @Override
     protected IDataSet getDataSet() throws Exception {
+        System.out.println("Populating from data source file: " + datasourceFileName);
         IDataSet ds = new FlatXmlDataSetBuilder().build(new FileInputStream(datasourceFileName));
         return ds;
     }
