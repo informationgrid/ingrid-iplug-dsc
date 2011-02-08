@@ -47,7 +47,7 @@ public class DatabaseProfileMapper implements IRecordMapper {
      * dsc.index.IRecord)
      */
     @Override
-    public Document map(SourceRecord record, Document doc) {
+    public void map(SourceRecord record, Document doc) {
         if (!(record instanceof DatabaseSourceRecord)) {
             throw new IllegalArgumentException("Record is no DatabaseRecord!");
         }
@@ -88,7 +88,6 @@ public class DatabaseProfileMapper implements IRecordMapper {
         } catch (Exception e) {
             log.error("Error mapping profile data.", e);
         }
-        return doc;
     }
 
 }

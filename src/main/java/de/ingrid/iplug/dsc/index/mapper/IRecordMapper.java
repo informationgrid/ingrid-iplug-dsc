@@ -25,6 +25,6 @@ public interface IRecordMapper {
      * @param doc
      * @return
      */
-    Document map(SourceRecord record, Document doc) throws Exception;
+    void map(SourceRecord record, Document doc) throws Exception;
 
 }

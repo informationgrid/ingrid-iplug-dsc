@@ -1,4 +1,4 @@
-package de.ingrid.iplug.dsc.index;
+package de.ingrid.iplug.dsc.utils;
 
 import java.io.FileInputStream;
 import java.sql.Connection;

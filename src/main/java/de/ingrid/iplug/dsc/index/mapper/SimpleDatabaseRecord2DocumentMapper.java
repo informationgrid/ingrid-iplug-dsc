@@ -34,7 +34,7 @@ public class SimpleDatabaseRecord2DocumentMapper implements IRecordMapper {
     private String sql;
 
     @Override
-    public Document map(SourceRecord record, Document doc) throws Exception {
+    public void map(SourceRecord record, Document doc) throws Exception {
         if (!(record instanceof DatabaseSourceRecord)) {
             throw new IllegalArgumentException("Record is no DatabaseRecord!");
         }
@@ -58,7 +58,6 @@ public class SimpleDatabaseRecord2DocumentMapper implements IRecordMapper {
             log.error("Error mapping Record.", e);
             throw e;
         }
-        return doc;
     }
 
     public String getSql() {

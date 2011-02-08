@@ -57,7 +57,14 @@ public class DscDocumentProducer implements IDocumentProducer {
         try {
             SourceRecord record = recordSetProducer.next();
             for (IRecordMapper mapper : recordMapperList) {
-                doc = mapper.map(record, doc);
+                long start = 0;
+                if (log.isDebugEnabled()) {
+                    start = System.currentTimeMillis();
+                }
+                mapper.map(record, doc);
+                if (log.isDebugEnabled()) {
+                    log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
+                }
             }
             return doc;
         } catch (Exception e) {

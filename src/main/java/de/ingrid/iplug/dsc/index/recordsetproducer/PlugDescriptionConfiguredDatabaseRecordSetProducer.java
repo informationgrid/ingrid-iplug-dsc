@@ -62,8 +62,8 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         } else {
             recordIdIterator =  null;
             closeConnection();
+            return false;
         }
-        return recordIdIterator.hasNext();
     }
 
     /*

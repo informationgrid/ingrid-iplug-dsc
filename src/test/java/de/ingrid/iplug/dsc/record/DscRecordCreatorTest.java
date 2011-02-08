@@ -1,4 +1,4 @@
-package de.ingrid.iplug.dsc.index;
+package de.ingrid.iplug.dsc.record;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,6 +12,7 @@ import de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.SimpleDatabaseIDFMapper;
 import de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer;
+import de.ingrid.iplug.dsc.utils.IgcDbUnitEnabledTestCase;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
