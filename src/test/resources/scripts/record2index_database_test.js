@@ -4,7 +4,7 @@
  *
  * The following global variable are passed from the application:
  *
- * @param sourceRecord A CSWRecord instance, that defines the input
+ * @param sourceRecord A SourceRecord instance, that defines the input
  * @param luceneDoc A lucene Document instance, that defines the output
  * @param log A Log instance
  *
