@@ -15,7 +15,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
         </property>
     </bean>
 
-    <bean id="recordSetProducer" class="de.ingrid.iplug.dsc.index.recordsetproducer.PlugDescriptionConfiguredDatabaseRecordSetProducer">
+    <bean id="recordSetProducer" class="de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer">
         <property name="recordSql" value="SELECT * FROM t01_object WHERE work_state='V' AND publish_id='1';" />
     </bean>
 

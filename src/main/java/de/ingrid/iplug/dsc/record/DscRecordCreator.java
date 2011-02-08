@@ -62,7 +62,14 @@ public class DscRecordCreator {
             DocumentBuilder docBuilder = dbf.newDocumentBuilder();
             org.w3c.dom.Document idfDoc = docBuilder.newDocument();
             for (IIdfMapper record2IdfMapper : record2IdfMapperList) {
+                long start = 0;
+                if (log.isDebugEnabled()) {
+                    start = System.currentTimeMillis();
+                }
                 record2IdfMapper.map(sourceRecord, idfDoc);
+                if (log.isDebugEnabled()) {
+                    log.debug("Mapping of source record with " + record2IdfMapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
+                }
             }
             Record record = new Record();
             String data = XMLUtils.toString(idfDoc);

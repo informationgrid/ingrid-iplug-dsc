@@ -8,7 +8,7 @@ import org.apache.lucene.document.Document;
 
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.mapper.SimpleDatabaseRecord2DocumentMapper;
-import de.ingrid.iplug.dsc.index.recordsetproducer.PlugDescriptionConfiguredDatabaseRecordSetProducer;
+import de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer;
 import de.ingrid.iplug.dsc.utils.IgcDbUnitEnabledTestCase;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;

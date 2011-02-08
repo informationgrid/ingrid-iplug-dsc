@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.ingrid.iplug.dsc.index.mapper;
+package de.ingrid.iplug.dsc.record.mapper;
 
 import java.io.InputStreamReader;
 
@@ -12,25 +12,28 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.document.Document;
 import org.springframework.core.io.Resource;
+import org.w3c.dom.Document;
 
 import de.ingrid.iplug.dsc.om.SourceRecord;
-import de.ingrid.iplug.dsc.record.DscRecordCreator;
 
 /**
- * Script based source record to lucene document mapping. This class takes a
- * {@link Resource} as parameter to specify the mapping script. The scripting
- * engine will be automatically determined from the extension of the mapping
- * script.
+ * 
+ * Maps a {@link SourceRecord} into an InGrid Detail data Format (IDF).
+ * <p />
+ * This class takes a {@link Resource} as parameter to specify the mapping
+ * script. The scripting engine will be automatically determined from the
+ * extension of the mapping script.
  * <p />
  * If the {@link compile} parameter is set to true, the script is compiled, if
  * the ScriptEngine supports compilation.
+ * <p/>
+ * The mapper expects a base IDF format already present in {@link doc}. *
  * 
  * @author joachim@wemove.com
  * 
  */
-public class ScriptedDatabaseDocumentMapper implements IRecordMapper {
+public class ScriptedIdfMapper implements IIdfMapper {
 
     private Resource mappingScript;
 
@@ -39,7 +42,7 @@ public class ScriptedDatabaseDocumentMapper implements IRecordMapper {
     private ScriptEngine engine;
     private CompiledScript compiledScript;
 
-    private static final Logger log = Logger.getLogger(DscRecordCreator.class);
+    private static final Logger log = Logger.getLogger(ScriptedIdfMapper.class);
 
     @Override
     public void map(SourceRecord record, Document doc) throws Exception {
@@ -65,7 +68,7 @@ public class ScriptedDatabaseDocumentMapper implements IRecordMapper {
             }
             Bindings bindings = engine.createBindings();
             bindings.put("sourceRecord", record);
-            bindings.put("luceneDoc", doc);
+            bindings.put("idfDoc", doc);
             bindings.put("log", log);
             if (compiledScript != null) {
                 compiledScript.eval(bindings);
@@ -74,7 +77,7 @@ public class ScriptedDatabaseDocumentMapper implements IRecordMapper {
                         .getInputStream()), bindings);
             }
         } catch (Exception e) {
-            log.error("Error mapping source record to lucene document.", e);
+            log.error("Error mapping source record to idf document.", e);
             throw e;
         }
     }

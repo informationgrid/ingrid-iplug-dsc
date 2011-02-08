@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.ingrid.iplug.dsc.index.recordsetproducer;
+package de.ingrid.iplug.dsc.index.producer;
 
 import de.ingrid.iplug.dsc.om.SourceRecord;
 

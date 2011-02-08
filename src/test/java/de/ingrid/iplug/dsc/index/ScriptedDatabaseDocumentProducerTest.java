@@ -8,8 +8,8 @@ import org.apache.lucene.document.Document;
 import org.springframework.core.io.ClassPathResource;
 
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
-import de.ingrid.iplug.dsc.index.mapper.ScriptedDatabaseDocumentMapper;
-import de.ingrid.iplug.dsc.index.recordsetproducer.PlugDescriptionConfiguredDatabaseRecordSetProducer;
+import de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper;
+import de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer;
 import de.ingrid.iplug.dsc.utils.IgcDbUnitEnabledTestCase;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
@@ -33,7 +33,7 @@ public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCa
         p.setRecordSql("SELECT * FROM TEST_TABLE");
         p.configure(pd);
 
-        ScriptedDatabaseDocumentMapper m = new ScriptedDatabaseDocumentMapper();
+        ScriptedDocumentMapper m = new ScriptedDocumentMapper();
         m.setMappingScript(new ClassPathResource("scripts/record2index_database_test.js"));
         m.setCompile(false);
 

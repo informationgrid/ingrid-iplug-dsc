@@ -11,7 +11,7 @@ import org.apache.lucene.document.Document;
 
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
-import de.ingrid.iplug.dsc.index.recordsetproducer.IRecordSetProducer;
+import de.ingrid.iplug.dsc.index.producer.IRecordSetProducer;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.utils.PlugDescription;
 
