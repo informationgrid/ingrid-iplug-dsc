@@ -10,6 +10,10 @@
       <directory>src/main/release/conf</directory>
       <outputDirectory>${project.artifactId}-${project.version}/conf</outputDirectory>
     </fileSet>
+    <fileSet>
+      <directory>src/main/resources/mapping</directory>
+      <outputDirectory>${project.artifactId}-${project.version}/conf/mapping</outputDirectory>
+    </fileSet>
 	<fileSet>
       <directory>src/main/release/scripts</directory>
       <outputDirectory>${project.artifactId}-${project.version}/</outputDirectory>
