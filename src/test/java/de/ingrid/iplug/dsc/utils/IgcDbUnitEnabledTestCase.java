@@ -15,7 +15,6 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ITableMetaData;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
-import org.mortbay.log.Log;
 
 public class IgcDbUnitEnabledTestCase extends DBTestCase {
 
@@ -37,6 +36,15 @@ public class IgcDbUnitEnabledTestCase extends DBTestCase {
         IDataSet ds = new FlatXmlDataSetBuilder().build(new FileInputStream(datasourceFileName));
         createHsqldbTables(ds, this.getConnection().getConnection());
         super.setUp();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        System.out.println("Drop all tables.");
+        PreparedStatement pp = this.getConnection().getConnection().prepareStatement("DROP SCHEMA PUBLIC CASCADE");
+        pp.executeUpdate();
+        pp.close();
     }
 
 
@@ -80,6 +88,7 @@ public class IgcDbUnitEnabledTestCase extends DBTestCase {
           sql += "); ";
           PreparedStatement pp = connection.prepareStatement(sql);
           pp.executeUpdate();
+          pp.close();
         }
     }
 
