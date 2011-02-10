@@ -1,8 +1,11 @@
 package de.ingrid.iplug.dsc;
 
+import java.util.Random;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.servlet.HashSessionIdManager;
 import org.mortbay.jetty.webapp.WebAppContext;
 
 /**
@@ -31,6 +34,10 @@ public class JettyStarter {
         WebAppContext webAppContext = new WebAppContext(System.getProperty("jetty.webapp", DEFAULT_WEBAPP_DIR), "/");
 
         Server server = new Server(Integer.getInteger("jetty.port", DEFAULT_JETTY_PORT));
+        // fix slow startup time on virtual machine env.
+        HashSessionIdManager hsim = new HashSessionIdManager();
+        hsim.setRandom(new Random());
+        server.setSessionIdManager(hsim);
         server.setHandler(webAppContext);
         server.start();
     }
