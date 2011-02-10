@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 import de.ingrid.admin.object.AbstractDataType;
 
 @Service
-public class DefaultDataType extends AbstractDataType {
+public class MyDefaultDataType extends AbstractDataType {
 
-    public DefaultDataType() {
+    public MyDefaultDataType() {
         super("default");
     }
 
