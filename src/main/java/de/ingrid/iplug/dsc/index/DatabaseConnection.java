@@ -11,10 +11,11 @@ import de.ingrid.utils.IDataSourceConnection;
 /**
  * Class for creating a database connection.
  */
-public class DatabaseConnection implements IDataSourceConnection{
+public class DatabaseConnection implements IDataSourceConnection {
 
-    private static final long serialVersionUID = DatabaseConnection.class.getName().hashCode();
-    
+    private static final long serialVersionUID = DatabaseConnection.class
+            .getName().hashCode();
+
     public static final String DRIVER_MYSQL = "com.mysql.jdbc.Driver";
     public static final String DRIVER_ORACLE = "oracle.jdbc.driver.OracleDriver";
     public static final String DRIVER_MS_2000 = "com.microsoft.jdbc.sqlserver.SQLServerDriver";
@@ -30,8 +31,12 @@ public class DatabaseConnection implements IDataSourceConnection{
 
     private String fPassword;
 
-	private String fSchema;
-    
+    private String fSchema;
+
+    public DatabaseConnection() {
+        super();
+    }
+
     /**
      * @param driver
      * @param connectionurl
@@ -39,7 +44,8 @@ public class DatabaseConnection implements IDataSourceConnection{
      * @param password
      * @param schema
      */
-    public DatabaseConnection(String driver, String connectionurl, String user, String password, String schema) {
+    public DatabaseConnection(String driver, String connectionurl, String user,
+            String password, String schema) {
         this.fDriver = driver;
         this.fConnectionurl = connectionurl;
         this.fUser = user;
@@ -49,41 +55,67 @@ public class DatabaseConnection implements IDataSourceConnection{
 
     /**
      * Returns the database driver.
+     * 
      * @return The driver.
      */
     public String getDataBaseDriver() {
         return this.fDriver;
     }
 
+    public void setDataBaseDriver(String fDriver) {
+        this.fDriver = fDriver;
+    }
+
     /**
      * Returns the database connection url.
+     * 
      * @return The connection URL.
      */
     public String getConnectionURL() {
         return this.fConnectionurl;
     }
 
+    public void setConnectionURL(String fConnectionurl) {
+        this.fConnectionurl = fConnectionurl;
+    }
+
     /**
      * Returns the database user.
+     * 
      * @return The user.
      */
     public String getUser() {
         return this.fUser;
     }
 
+    public void setUser(String fUser) {
+        this.fUser = fUser;
+    }
+
     /**
      * Returns the database password for the given user.
+     * 
      * @return The password.
      */
     public String getPassword() {
         return this.fPassword;
     }
 
+    public void setPassword(String fPassword) {
+        this.fPassword = fPassword;
+    }
+
     /**
      * Returns the database schema.
+     * 
      * @return The schema.
      */
     public String getSchema() {
-		return this.fSchema;
-	}
+        return this.fSchema;
+    }
+
+    public void setSchema(String fSchema) {
+        this.fSchema = fSchema;
+    }
+
 }

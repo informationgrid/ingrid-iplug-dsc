@@ -10,7 +10,6 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
         <property name="recordMapperList">
             <list>
                 <ref bean="recordMapper"/>
-                <ref bean="profileMapper"/>
             </list>
         </property>
     </bean>
@@ -23,7 +22,6 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
         <property name="mappingScript" value="classpath:mapping/igc-3.0.0_to_lucene.js" />
         <property name="compile" value="false" />
     </bean>
-    <bean id="profileMapper" class="de.ingrid.iplug.dsc.index.mapper.SimpleDatabaseRecord2DocumentMapper" />
 
 
     <bean id="dscSearchPlug" class="de.ingrid.iplug.dsc.DscSearchPlug">

@@ -89,6 +89,14 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>ojdbc</groupId>
+        <artifactId>ojdbc</artifactId>
+    </dependency>
 	<dependency>
 	    <groupId>org.dbunit</groupId>
 	    <artifactId>dbunit</artifactId>

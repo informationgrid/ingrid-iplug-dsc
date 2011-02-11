@@ -10,4 +10,5 @@ To debug the iplug in eclipse:
 - set up a java application Run configuration
 - start Class is de.ingrid.iplug.dsc.JettyStarter
 - add the VM argument -Djetty.webapp=src/main/webapp to the Configuration
+- add src/main/resources to class path
   

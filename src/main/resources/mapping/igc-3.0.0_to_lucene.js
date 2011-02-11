@@ -1,6 +1,6 @@
 /**
  * SourceRecord to Lucene Document mapping
- * Copyright (c) 2008 wemove digital solutions. All rights reserved.
+ * Copyright (c) 2011 wemove digital solutions. All rights reserved.
  *
  * The following global variable are passed from the application:
  *
@@ -24,8 +24,9 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 
 var id = sourceRecord.get(DatabaseSourceRecord.ID);
 var connection = sourceRecord.get(DatabaseSourceRecord.CONNECTION);
+var ps;
 try {
-    var ps = connection.prepareStatement("SELECT * FROM TEST_TABLE WHERE id=?");
+    ps = connection.prepareStatement("SELECT * FROM t01_object WHERE id=?");
     ps.setString(1, id);
     var rs = ps.executeQuery();
     rs.next();
@@ -33,10 +34,20 @@ try {
     for (var i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
         var colName = rs.getMetaData().getColumnName(i);
         var colValue = rs.getString(i);
+        if (colValue == null) {
+        	colValue = "";
+        }
+        log.debug("Add field '" + colName + "' with value '" + colValue + "' to lucene document.");
         luceneDoc.add(new Field(colName, colValue, Field.Store.YES,
                 Field.Index.ANALYZED));
+        
     }
+    rs.close();
 } catch (e) {
     log.error("Error mapping Record." + e);
     throw e;
+} finally {
+	if (ps) {
+		ps.close();
+	}
 }
