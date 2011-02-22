@@ -7,7 +7,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.lucene.document.Document;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper;
@@ -30,6 +30,7 @@ public class ScriptedDatabaseDocumentProducerTestLocal extends TestCase {
         		"t01_object obj " +
         		"WHERE " +
         		"oNode.obj_id_published = obj.id " +
+        		// INTERNET
         		"AND obj.publish_id = 1 "
         		// single record
         		+ "AND obj.id = 3776"
@@ -38,7 +39,7 @@ public class ScriptedDatabaseDocumentProducerTestLocal extends TestCase {
         p.configure(pd);
 
         ScriptedDocumentMapper m = new ScriptedDocumentMapper();
-        m.setMappingScript(new ClassPathResource("scripts/record2index_database_test_local.js"));
+        m.setMappingScript(new FileSystemResource("src/main/resources/mapping/igc-3.0.0_to_lucene.js"));
         m.setCompile(false);
 
         List<IRecordMapper> mList = new ArrayList<IRecordMapper>();
