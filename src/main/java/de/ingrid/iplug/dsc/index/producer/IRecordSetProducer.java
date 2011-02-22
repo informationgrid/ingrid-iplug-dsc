@@ -8,7 +8,8 @@ import de.ingrid.iplug.dsc.om.SourceRecord;
 /**
  * This interface must be implemented from all record producing classes. Record
  * producer are objects that know how to produce a list of source records, that
- * can be mapped into other formats later.
+ * can be mapped into other formats later (i.e. Lucene Documents).
+ * They need to be configured with the appropriate datasource access parameters.
  * 
  * @author joachim@wemove.com
  * 

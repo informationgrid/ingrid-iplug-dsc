@@ -16,8 +16,13 @@ import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.utils.PlugDescription;
 
 /**
+ * Implements de.ingrid.admin.object.IDocumentProducer from the base webapp 
+ * interface. It is triggered by the base webapp during indexing of a 
+ * datasource. The DocumentProducer iterates over all records of the 
+ * datasource and maps each record into a LuceneDocument.
+ * This producer is configured with a IRecordSetProducer and one or more
+ * IRecordMapper. 
  * @author joachim
- * 
  */
 public class DscDocumentProducer implements IDocumentProducer {
 

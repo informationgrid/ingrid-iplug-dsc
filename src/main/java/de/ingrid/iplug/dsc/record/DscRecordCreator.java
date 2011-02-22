@@ -25,7 +25,7 @@ import de.ingrid.utils.xml.XMLUtils;
  * from a lucene document.
  * <p/>
  * The Class can be configured with a data source specific record producer
- * implementing the {@link IRecordProducer} interface. And a list of IDF (InGrid
+ * implementing the {@link IRecordProducer} interface and a list of IDF (InGrid
  * Detaildata Format) mapper, implementing the {@link IIdfMapper} interface.
  * <p/>
  * The IDF data can optionally be compressed using a {@link GZIPOutputStream} by

@@ -8,7 +8,10 @@ import org.apache.lucene.document.Document;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 
 /**
- * Interface for all source record to lucene document mapper classes.
+ * Interface for all "source record to lucene document mapper" classes.
+ * Document mapper have knowledge of the underlying datasource and how to
+ * retrieve a dataset from the datasource based on a record from a
+ * IRecordSetProducer and map the dataset to a LuceneDocument.
  * 
  * @author joachim@wemove.com
  * 

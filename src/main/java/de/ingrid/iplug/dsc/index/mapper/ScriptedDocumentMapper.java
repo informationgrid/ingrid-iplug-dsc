@@ -16,7 +16,6 @@ import org.apache.lucene.document.Document;
 import org.springframework.core.io.Resource;
 
 import de.ingrid.iplug.dsc.om.SourceRecord;
-import de.ingrid.iplug.dsc.record.DscRecordCreator;
 
 /**
  * Script based source record to lucene document mapping. This class takes a

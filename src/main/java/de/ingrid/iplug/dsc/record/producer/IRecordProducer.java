@@ -9,8 +9,8 @@ import de.ingrid.iplug.dsc.om.SourceRecord;
 
 /**
  * Defines all aspects a record producer must implement. The record producer is
- * used to retrieve ONE record from the data source for further processing.
- * 
+ * used to retrieve ONE record from the data source, based on a 
+ * LuceneDocument for further processing.
  * 
  * @author joachim@wemove.com
  * 
