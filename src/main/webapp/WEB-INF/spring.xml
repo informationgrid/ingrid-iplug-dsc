@@ -1,233 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="
-http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:context="http://www.springframework.org/schema/context"
+xsi:schemaLocation="http://www.springframework.org/schema/beans 
+      http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-    <bean id="cswFactory" class="de.ingrid.iplug.csw.dsc.cswclient.CSWFactory">
-        <property name="clientImpl"
-            value="de.ingrid.iplug.csw.dsc.cswclient.impl.GenericClient" />
-        <property name="requestImpl" ref="cswRequestImpl" />
-        <property name="capabilitiesImpl"
-            value="de.ingrid.iplug.csw.dsc.cswclient.impl.GenericCapabilities" />
-        <property name="recordDescriptionImpl"
-            value="de.ingrid.iplug.csw.dsc.cswclient.impl.GenericRecordDescription" />
-        <property name="queryImpl"
-            value="de.ingrid.iplug.csw.dsc.cswclient.impl.GenericQuery" />
-        <property name="searchResultImpl"
-            value="de.ingrid.iplug.csw.dsc.cswclient.impl.GenericSearchResult" />
-        <property name="recordImpl"
-            value="de.ingrid.iplug.csw.dsc.cswclient.impl.GenericRecord" />
-    </bean>
-
-    <bean id="cswRequestImpl" class="org.springframework.beans.factory.config.MapFactoryBean">
-      <property name="sourceMap">
-          <map>
-            <entry key="GetCapabilities" value="de.ingrid.iplug.csw.dsc.cswclient.impl.SoapRequest"/>
-            <entry key="DescribeRecord" value="de.ingrid.iplug.csw.dsc.cswclient.impl.SoapRequest"/>
-            <entry key="GetDomain" value="de.ingrid.iplug.csw.dsc.cswclient.impl.SoapRequest"/>
-            <entry key="GetRecords" value="de.ingrid.iplug.csw.dsc.cswclient.impl.SoapRequest"/>
-            <entry key="GetRecordById" value="de.ingrid.iplug.csw.dsc.cswclient.impl.SoapRequest"/>
-          </map>
-      </property>
-    </bean> 
-
-    <bean id="cswQueryTemplate" class="de.ingrid.iplug.csw.dsc.cswclient.impl.GenericQuery">
-        <property name="schema" value="CSW_2_0_2" />
-        <property name="outputSchema" value="GMD" />
-        <property name="outputFormat" value="APPLICATION_XML" />
-        <property name="version" value="2.0.2" />
-        <property name="elementSetName" value="BRIEF" />
-        <property name="typeNames">
-            <list>
-                <value type="de.ingrid.iplug.csw.dsc.cswclient.constants.TypeName">MD_METADATA</value>
-            </list>
-        </property>
-        <property name="resultType" value="RESULTS" />
-        <property name="constraintLanguage" value="FILTER" />
-        <property name="constraintLanguageVersion" value="1.1.0" />
-    </bean>
-
-    <bean id="cswCache" class="de.ingrid.iplug.csw.dsc.cache.impl.DefaultFileCache">
-        <property name="cachePath" value="./csw_cache" />
-    </bean>
-
-    <!--
-        Define the CSW filter queries to query the CSW data source. Duplicates resulting from
-        the queries will be detected based on the Identifier and be removed.
-        
-        To produce one CSW Query without a Constraint element, please remove any <value> elements.
-        Many systems support this to get all results from the CSW data source.
-     -->
-    <bean id="cswHarvestFilter" class="org.springframework.beans.factory.config.SetFactoryBean">
-        <property name="sourceSet">
-            <set>
-<!-- 
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>0*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>1*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>2*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>3*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>4*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>5*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>6*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>7*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>8*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>9*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>a*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>b*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>c*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>d*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>e*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
-                <value>
-                    <![CDATA[<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-                    <ogc:PropertyIsLike escapeChar="\\" singleChar="?" wildCard="*">
-                    <ogc:PropertyName>Identifier</ogc:PropertyName>
-                    <ogc:Literal>f*</ogc:Literal>
-                    </ogc:PropertyIsLike>
-                    </ogc:Filter>]]>
-                </value>
--->
-            </set>
-        </property>
-    </bean>
-    
-    <bean id="cswUpdateStrategies" class="org.springframework.beans.factory.config.MapFactoryBean">
-        <property name="sourceMap">
-            <map>
-                <entry key="default" value="cswDefaultUpdateStrategy"/>
-                <entry key="incremental" value="cswIncrementalUpdateStrategy"/>
-                <entry key="incremental-optimized" value="cswIncrementalUpdateOptimizedStrategy"/>
-            </map>
-        </property>
-    </bean>
-
-    <bean id="cswDefaultUpdateStrategy" class="de.ingrid.iplug.csw.dsc.cache.impl.DefaultUpdateStrategy">
-        <property name="requestPause" value="1000" />
-        <property name="recordsPerCall" value="10" />
-    </bean>
-    <bean id="cswIncrementalUpdateStrategy" class="de.ingrid.iplug.csw.dsc.cache.impl.IncrementalUpdateStrategy">
-        <constructor-arg type="java.lang.String">
-            <value>
-                <![CDATA[<ogc:PropertyIsGreaterThanOrEqualTo>
-                <ogc:PropertyName>Modified</ogc:PropertyName>
-                <ogc:Literal>{LAST_UPDATE_DATE}</ogc:Literal>
-                </ogc:PropertyIsGreaterThanOrEqualTo>]]>
-            </value>
-        </constructor-arg>
-        <property name="requestPause" value="1000" />
-        <property name="recordsPerCall" value="10" />
-    </bean>
-    <bean id="cswIncrementalUpdateOptimizedStrategy" class="de.ingrid.iplug.csw.dsc.cache.impl.IncrementalUpdateOptimizedStrategy">
-        <property name="requestPause" value="1000" />
-        <property name="recordsPerCall" value="10" />
-    </bean>
-    
-    <bean id="cswDscDocumentProducer" class="de.ingrid.iplug.csw.dsc.index.CswDscDocumentProducer">
+    <bean id="dscDocumentProducer" class="de.ingrid.iplug.dsc.index.DscDocumentProducer">
         <property name="recordSetProducer" ref="recordSetProducer" />
         <property name="recordMapperList">
             <list>
@@ -236,38 +14,33 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         </property>
     </bean>
 
-    <bean id="recordSetProducer" class="de.ingrid.iplug.dsc.index.producer.CswRecordSetProducer" init-method="init">
-        <property name="cache" ref="cswCache" />
-        <property name="factory" ref="cswFactory" />
+    <bean id="recordSetProducer" class="de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer">
+        <property name="recordSql" value="SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND publish_id='1';" />
     </bean>
 
-    <bean id="recordMapper" class="de.ingrid.iplug.csw.dsc.index.mapper.ScriptedDocumentMapper">
-        <property name="mappingScript" value="classpath:mapping/csw-2.0.2-AP-ISO-1.0_to_lucene-igc-1.0.3.js" />
+    <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
+        <property name="mappingScript" value="classpath:mapping/igc-3.0.0_to_lucene.js" />
         <property name="compile" value="false" />
     </bean>
-    
-    <bean id="cswDscSearchPlug" class="de.ingrid.iplug.csw.dsc.CswDscSearchPlug">
+
+
+    <bean id="dscSearchPlug" class="de.ingrid.iplug.dsc.DscSearchPlug">
         <property name="dscRecordProducer" ref="dscRecordProducer" />
     </bean>
     
-    <bean id="dscRecordProducer" class="de.ingrid.iplug.csw.dsc.record.DscRecordCreator">
+    <bean id="dscRecordProducer" class="de.ingrid.iplug.dsc.record.DscRecordCreator">
         <property name="recordProducer" ref="recordProducer" />
         <property name="record2IdfMapperList">
             <list>
-                <ref bean="createIdfMapper"/>
                 <ref bean="idfMapper"/>
             </list>
         </property>
     </bean>
     
-    <bean id="recordProducer" class="de.ingrid.iplug.csw.dsc.record.producer.CswRecordProducer">
-        <property name="cache" ref="cswCache" />
-    </bean>
+    <bean id="recordProducer" class="de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer" />
     
-    <bean id="createIdfMapper" class="de.ingrid.iplug.csw.dsc.record.mapper.CreateIdfMapper" />
-    
-    <bean id="idfMapper" class="de.ingrid.iplug.csw.dsc.record.mapper.ScriptedIdfMapper">
-        <property name="mappingScript" value="classpath:mapping/csw-2.0.2-AP-ISO-1.0_to_ingrid-igc-1.0.3.js" />
+    <bean id="idfMapper" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
+        <property name="mappingScript" value="classpath:mapping/igc-3.0.0_to_idf-1.0.js" />
         <property name="compile" value="false" />
     </bean>
 

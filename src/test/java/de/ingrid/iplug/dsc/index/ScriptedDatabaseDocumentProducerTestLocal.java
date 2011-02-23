@@ -24,16 +24,9 @@ public class ScriptedDatabaseDocumentProducerTestLocal extends TestCase {
                 .deSerialize(plugDescriptionFile);
 
         PlugDescriptionConfiguredDatabaseRecordSetProducer p = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
-        String sql = "SELECT distinct obj.id " +
-        		"FROM " +
-        		"object_node oNode, " +
-        		"t01_object obj " +
-        		"WHERE " +
-        		"oNode.obj_id_published = obj.id " +
-        		// INTERNET
-        		"AND obj.publish_id = 1 "
+        String sql = "SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND publish_id='1'"
         		// single record
-        		+ "AND obj.id = 3776"
+        		+ " AND id = 3776"
         		;
         p.setRecordSql(sql);
         p.configure(pd);
