@@ -7,6 +7,8 @@
  * @param sourceRecord A SourceRecord instance, that defines the input
  * @param luceneDoc A lucene Document instance, that defines the output
  * @param log A Log instance
+ * @param SQL SQL helper class encapsulating utility methods
+ * @param IDX Lucene index helper class encapsulating utility methods for output
  *
  */
 importPackage(Packages.java.sql);
@@ -34,10 +36,10 @@ for (i=0; i<rows.size(); i++ ) {
         var colValue = row.get(colName);
         if (!hasValue(colValue)) {
             colValue = "";
+            IDX.add(colName, colValue, IDX.NO_TOKENIZE, IDX.NO_STORE);
+        } else {
+            IDX.add(colName, colValue);
         }
-        log.debug("Add field '" + colName + "' with value '" + colValue + "' to lucene document.");
-        luceneDoc.add(new Field(colName, colValue, Field.Store.YES,
-                Field.Index.ANALYZED));
 	}
 }
 

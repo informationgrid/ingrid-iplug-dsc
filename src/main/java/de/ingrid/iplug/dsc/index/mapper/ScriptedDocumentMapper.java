@@ -18,6 +18,7 @@ import org.springframework.core.io.Resource;
 
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.iplug.dsc.utils.IndexUtils;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
 
 /**
@@ -69,12 +70,14 @@ public class ScriptedDocumentMapper implements IRecordMapper {
             // create utils for script
             Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
             SQLUtils sqlUtils = SQLUtils.getInstance(connection);
+            IndexUtils idxUtils = IndexUtils.getInstance(doc);
             
             Bindings bindings = engine.createBindings();
             bindings.put("sourceRecord", record);
             bindings.put("luceneDoc", doc);
             bindings.put("log", log);
             bindings.put("SQL", sqlUtils);
+            bindings.put("IDX", idxUtils);
 
             if (compiledScript != null) {
                 compiledScript.eval(bindings);
