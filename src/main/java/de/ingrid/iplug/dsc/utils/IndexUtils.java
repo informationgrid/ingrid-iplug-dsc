@@ -39,12 +39,18 @@ public class IndexUtils {
 	}
 	
 	/** Add a index field with the value to the index document.
-	 * The field will be tokenized and stored by default
+	 * The field will be TOKENIZE and STORE by default. If field
+	 * value is null (or "") then "" is set in index with NO_TOKENIZE
+	 * and NO_STORE.
 	 * @param fieldName name of the field in the index
 	 * @param value field value to process
 	 */
 	public void add(String fieldName, String value) {
-		add(fieldName, value, TOKENIZE, STORE);
+		if (value == null || value.trim().length() == 0) {
+			add(fieldName, "", NO_TOKENIZE, NO_STORE);
+		} else {
+			add(fieldName, value, TOKENIZE, STORE);
+		}
 	}
 
 	/** Add a index field with the value to the index document.

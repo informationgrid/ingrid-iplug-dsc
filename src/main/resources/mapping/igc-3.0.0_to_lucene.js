@@ -34,12 +34,7 @@ for (i=0; i<rows.size(); i++ ) {
     for (var i in colNames) {
         var colName = colNames[i];
         var colValue = row.get(colName);
-        if (!hasValue(colValue)) {
-            colValue = "";
-            IDX.add(colName, colValue, IDX.NO_TOKENIZE, IDX.NO_STORE);
-        } else {
-            IDX.add(colName, colValue);
-        }
+        IDX.add(colName, colValue);
 	}
 }
 
