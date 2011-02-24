@@ -37,6 +37,7 @@ for (i=0; i<objRows.size(); i++) {
 	}
 */
     addT01Object(objRows.get(i));
+    var catalogId = objRows.get(i).get("cat_id");
 
     // ---------- t0110_avail_format ----------
     var rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [objId]);
@@ -132,6 +133,107 @@ for (i=0; i<objRows.size(); i++) {
             addT011ObjServUrl(subRows.get(k));
         }
     }
+    // ---------- t011_obj_geo ----------
+    var rows = SQL.all("SELECT * FROM t011_obj_geo WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addT011ObjGeo(rows.get(j));
+        var objGeoId = rows.get(j).get("id");
+
+        // ---------- t011_obj_geo_keyc ----------
+        var subRows = SQL.all("SELECT * FROM t011_obj_geo_keyc WHERE obj_geo_id=?", [objGeoId]);
+        for (k=0; k<subRows.size(); k++) {
+            addT011ObjGeoKeyc(subRows.get(k));
+        }
+        // ---------- t011_obj_geo_scale ----------
+        var subRows = SQL.all("SELECT * FROM t011_obj_geo_scale WHERE obj_geo_id=?", [objGeoId]);
+        for (k=0; k<subRows.size(); k++) {
+            addT011ObjGeoScale(subRows.get(k));
+        }
+        // ---------- t011_obj_geo_spatial_rep ----------
+        var subRows = SQL.all("SELECT * FROM t011_obj_geo_spatial_rep WHERE obj_geo_id=?", [objGeoId]);
+        for (k=0; k<subRows.size(); k++) {
+            addT011ObjGeoSpatialRep(subRows.get(k));
+        }
+        // ---------- t011_obj_geo_supplinfo ----------
+        var subRows = SQL.all("SELECT * FROM t011_obj_geo_supplinfo WHERE obj_geo_id=?", [objGeoId]);
+        for (k=0; k<subRows.size(); k++) {
+            addT011ObjGeoSupplinfo(subRows.get(k));
+        }
+        // ---------- t011_obj_geo_symc ----------
+        var subRows = SQL.all("SELECT * FROM t011_obj_geo_symc WHERE obj_geo_id=?", [objGeoId]);
+        for (k=0; k<subRows.size(); k++) {
+            addT011ObjGeoSymc(subRows.get(k));
+        }
+        // ---------- t011_obj_geo_vector ----------
+        var subRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=?", [objGeoId]);
+        for (k=0; k<subRows.size(); k++) {
+            addT011ObjGeoVector(subRows.get(k));
+        }
+    }
+    // ---------- t03_catalogue ----------
+    var rows = SQL.all("SELECT * FROM t03_catalogue WHERE id=?", [catalogId]);
+    for (j=0; j<rows.size(); j++) {
+        addT03Catalogue(rows.get(j));
+    }
+    // ---------- t0112_media_option ----------
+    var rows = SQL.all("SELECT * FROM t0112_media_option WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addT0112MediaOption(rows.get(j));
+    }
+    // ---------- t017_url_ref ----------
+    var rows = SQL.all("SELECT * FROM t017_url_ref WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addT017UrlRef(rows.get(j));
+    }
+    // ---------- searchterm_obj ----------
+    var rows = SQL.all("SELECT * FROM searchterm_obj WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addSearchtermObj(rows.get(j));
+        var searchtermId = rows.get(j).get("searchterm_id");
+
+        // ---------- searchterm_value ----------
+        var subRows = SQL.all("SELECT * FROM searchterm_value WHERE id=?", [searchtermId]);
+        for (k=0; k<subRows.size(); k++) {
+            addSearchtermValue(subRows.get(k));
+            var searchtermSnsId = subRows.get(k).get("searchterm_sns_id");           
+            if (hasValue(searchtermSnsId)) {
+	            // ---------- searchterm_sns ----------
+	            var subSubRows = SQL.all("SELECT * FROM searchterm_sns WHERE id=?", [searchtermSnsId]);
+	            for (l=0; l<subSubRows.size(); l++) {
+	                addSearchtermSns(subSubRows.get(l));
+	            }
+            }
+        }
+    }
+    // ---------- t012_obj_adr ----------
+    var rows = SQL.all("SELECT * FROM t012_obj_adr WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addT012ObjAdr(rows.get(j));
+        var adrUuid = rows.get(j).get("adr_uuid");
+
+        // ---------- referenced address_node ----------
+        var subRows = SQL.all("SELECT * FROM address_node WHERE addr_uuid=?", [adrUuid]);
+        for (k=0; k<subRows.size(); k++) {
+            var addrIdPublished = subRows.get(k).get("addr_id_published");
+
+	        // ---------- t02_address ----------
+	        var subSubRows = SQL.all("SELECT * FROM t02_address WHERE id=?", [addrIdPublished]);
+	        for (l=0; l<subSubRows.size(); l++) {
+	            addT02Address(subSubRows.get(l));
+	        }
+	        // ---------- t021_communication ----------
+	        var subSubRows = SQL.all("SELECT * FROM t021_communication WHERE adr_id=?", [addrIdPublished]);
+	        for (l=0; l<subSubRows.size(); l++) {
+	            addT021Communication(subSubRows.get(l));
+	        }
+            // ---------- address_node CHILDREN ----------
+            var subSubRows = SQL.all("SELECT * FROM address_node WHERE fk_addr_uuid=?", [adrUuid]);
+            for (l=0; l<subSubRows.size(); l++) {
+                addAddressNodeChildren(subSubRows.get(l));
+            }
+        }
+    }
+
 
     // TODO: - Coord mapping
 }
@@ -289,8 +391,143 @@ function addT011ObjServUrl(row) {
     IDX.add("t011_obj_serv_url.url", row.get("url"));
     IDX.add("t011_obj_serv_url.description", row.get("description"));
 }
+function addT011ObjGeo(row) {
+    IDX.add("t011_obj_geo.special_base", row.get("special_base"));
+    IDX.add("t011_obj_geo.data_base", row.get("data_base"));
+    IDX.add("t011_obj_geo.method", row.get("method"));
+    IDX.add("t011_obj_geo.referencesystem_id", row.get("referencesystem_value"));
+    IDX.add("t011_obj_geo.referencesystem_key", row.get("referencesystem_key"));
+    IDX.add("t011_obj_geo.rec_exact", row.get("rec_exact"));
+    IDX.add("t011_obj_geo.rec_grade", row.get("rec_grade"));
+    IDX.add("t011_obj_geo.hierarchy_level", row.get("hierarchy_level"));
+    IDX.add("t011_obj_geo.vector_topology_level", row.get("vector_topology_level"));
+    IDX.add("t011_obj_geo.pos_accuracy_vertical", row.get("pos_accuracy_vertical"));
+    IDX.add("t011_obj_geo.keyc_incl_w_dataset", row.get("keyc_incl_w_dataset"));
+    IDX.add("t011_obj_geo.datasource_uuid", row.get("datasource_uuid"));
+}
+function addT011ObjGeoKeyc(row) {
+    IDX.add("t011_obj_geo_keyc.line", row.get("line"));
+    IDX.add("t011_obj_geo_keyc.keyc_key", row.get("keyc_key"));
+    IDX.add("t011_obj_geo_keyc.subject_cat", row.get("keyc_value"));
+    IDX.add("t011_obj_geo_keyc.key_date", row.get("key_date"));
+    IDX.add("t011_obj_geo_keyc.edition", row.get("edition"));
+}
+function addT011ObjGeoScale(row) {
+    IDX.add("t011_obj_geo_scale.line", row.get("line"));
+    IDX.add("t011_obj_geo_scale.scale", row.get("scale"));
+    IDX.add("t011_obj_geo_scale.resolution_ground", row.get("resolution_ground"));
+    IDX.add("t011_obj_geo_scale.resolution_scan", row.get("resolution_scan"));
+}
+function addT011ObjGeoSpatialRep(row) {
+    IDX.add("t011_obj_geo_spatial_rep.line", row.get("line"));
+    IDX.add("t011_obj_geo_spatial_rep.type", row.get("type"));
+}
+function addT011ObjGeoSupplinfo(row) {
+    IDX.add("t011_obj_geo_supplinfo.line", row.get("line"));
+    IDX.add("t011_obj_geo_supplinfo.feature_type", row.get("feature_type"));
+}
+function addT011ObjGeoSymc(row) {
+    IDX.add("t011_obj_geo_symc.line", row.get("line"));
+    IDX.add("t011_obj_geo_symc.symbol_cat_key", row.get("symbol_cat_key"));
+    IDX.add("t011_obj_geo_symc.symbol_cat", row.get("symbol_cat_value"));
+    IDX.add("t011_obj_geo_symc.symbol_date", row.get("symbol_date"));
+    IDX.add("t011_obj_geo_symc.edition", row.get("edition"));
+}
+function addT011ObjGeoVector(row) {
+    IDX.add("t011_obj_geo_vector.line", row.get("line"));
+    IDX.add("t011_obj_geo_vector.geometric_object_type", row.get("geometric_object_type"));
+    IDX.add("t011_obj_geo_vector.geometric_object_count", row.get("geometric_object_count"));
+}
+function addT03Catalogue(row) {
+    IDX.add("t03_catalogue.cat_uuid", row.get("cat_uuid"));
+    IDX.add("t03_catalogue.cat_name", row.get("cat_name"));
+    IDX.add("t03_catalogue.country_key", row.get("country_key"));
+    IDX.add("t03_catalogue.country_code", row.get("country_value"));
+    IDX.add("t03_catalogue.language_key", row.get("language_key"));
+    IDX.add("t03_catalogue.language_code", row.get("language_value"));
+    IDX.add("t03_catalogue.workflow_control", row.get("workflow_control"));
+    IDX.add("t03_catalogue.expiry_duration", row.get("expiry_duration"));
+    IDX.add("t03_catalogue.create_time", row.get("create_time"));
+    IDX.add("t03_catalogue.mod_uuid", row.get("mod_uuid"));
+    IDX.add("t03_catalogue.mod_time", row.get("mod_time"));
+}
+function addT0112MediaOption(row) {
+    IDX.add("t0112_media_option.line", row.get("line"));
+    IDX.add("t0112_media_option.medium_note", row.get("medium_note"));
+    IDX.add("t0112_media_option.medium_name", row.get("medium_name"));
+    IDX.add("t0112_media_option.transfer_size", row.get("transfer_size"));
+}
+function addT017UrlRef(row) {
+    IDX.add("t017_url_ref.line", row.get("line"));
+    IDX.add("t017_url_ref.url_link", row.get("url_link"));
+    IDX.add("t017_url_ref.special_ref", row.get("special_ref"));
+    IDX.add("t017_url_ref.special_name", row.get("special_name"));
+    IDX.add("t017_url_ref.content", row.get("content"));
+    IDX.add("t017_url_ref.datatype_key", row.get("datatype_key"));
+    IDX.add("t017_url_ref.datatype", row.get("datatype_value"));
+    IDX.add("t017_url_ref.volume", row.get("volume"));
+    IDX.add("t017_url_ref.icon", row.get("icon"));
+    IDX.add("t017_url_ref.icon_text", row.get("icon_text"));
+    IDX.add("t017_url_ref.descr", row.get("descr"));
+    IDX.add("t017_url_ref.url_type", row.get("url_type"));
+}
+function addSearchtermObj(row) {
+    IDX.add("t04_search.line", row.get("line"));
+}
+function addSearchtermValue(row) {
+    IDX.add("t04_search.type", row.get("type"));
+    IDX.add("t04_search.searchterm", row.get("term"));
+    IDX.add("searchterm_value.alternate_term", row.get("alternate_term"));
+}
+function addSearchtermSns(row) {
+    IDX.add("searchterm_sns.sns_id", row.get("sns_id"));
+}
+function addT012ObjAdr(row) {
+    IDX.add("t012_obj_adr.adr_id", row.get("adr_uuid"));
+    IDX.add("t012_obj_adr.typ", row.get("type"));
+    IDX.add("t012_obj_adr.line", row.get("line"));
+    IDX.add("t012_obj_adr.special_ref", row.get("special_ref"));
+    IDX.add("t012_obj_adr.special_name", row.get("special_name"));
+    IDX.add("t012_obj_adr.mod_time", row.get("mod_time"));
+}
+function addT02Address(row) {
+    IDX.add("t02_address.adr_id", row.get("adr_uuid"));
+    IDX.add("t02_address.org_adr_id", row.get("org_adr_id"));
+    IDX.add("t02_address.typ", row.get("adr_type"));
+    IDX.add("t02_address.institution", row.get("institution"));
+    IDX.add("t02_address.lastname", row.get("lastname"));
+    IDX.add("t02_address.firstname", row.get("firstname"));
+    IDX.add("t02_address.address_key", row.get("address_key"));
+    IDX.add("t02_address.address_value", row.get("address_value"));
+    IDX.add("t02_address.title_key", row.get("title_key"));
+    IDX.add("t02_address.title", row.get("title_value"));
+    IDX.add("t02_address.street", row.get("street"));
+    IDX.add("t02_address.postcode", row.get("postcode"));
+    IDX.add("t02_address.postbox", row.get("postbox"));
+    IDX.add("t02_address.postbox_pc", row.get("postbox_pc"));
+    IDX.add("t02_address.city", row.get("city"));
+    IDX.add("t02_address.country_key", row.get("country_key"));
+    IDX.add("t02_address.country_code", row.get("country_value"));
+    IDX.add("t02_address.job", row.get("job"));
+    IDX.add("t02_address.descr", row.get("descr"));
+    IDX.add("t02_address.create_time", row.get("create_time"));
+    IDX.add("t02_address.mod_time", row.get("mod_time"));
+    IDX.add("t02_address.mod_uuid", row.get("mod_uuid"));
+    IDX.add("t02_address.responsible_uuid", row.get("responsible_uuid"));
+}
+function addT021Communication(row) {
+    IDX.add("t021_communication.line", row.get("line"));
+    IDX.add("t021_communication.commtype_key", row.get("commtype_key"));
+    IDX.add("t021_communication.comm_type", row.get("commtype_value"));
+    IDX.add("t021_communication.comm_value", row.get("comm_value"));
+    IDX.add("t021_communication.descr", row.get("descr"));
+}
+function addAddressNodeChildren(row) {
+    IDX.add("t022_adr_adr.adr_from_id", row.get("fk_addr_uuid"));
+    IDX.add("t022_adr_adr.adr_to_id", row.get("addr_uuid"));
+}
 
-/*
+
 function hasValue(val) {
     if (typeof val == "undefined") {
         return false; 
@@ -302,4 +539,3 @@ function hasValue(val) {
       return true;
     }
 }
-*/

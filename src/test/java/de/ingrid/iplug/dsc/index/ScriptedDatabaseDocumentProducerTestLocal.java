@@ -32,6 +32,7 @@ public class ScriptedDatabaseDocumentProducerTestLocal extends TestCase {
         		+ " OR id=3820" // t011_obj_data
         		+ " OR id=8781824" // t011_obj_serv
         		+ " OR id=7897095" // t011_obj_serv with urls
+        		+ " OR id=6672" // t011_obj_geo
         		;
         p.setRecordSql(sql);
         p.configure(pd);
