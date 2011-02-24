@@ -38,6 +38,7 @@ for (i=0; i<objRows.size(); i++) {
 */
     addT01Object(objRows.get(i));
     var catalogId = objRows.get(i).get("cat_id");
+    var objUuid = objRows.get(i).get("obj_uuid");
 
     // ---------- t0110_avail_format ----------
     var rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [objId]);
@@ -227,7 +228,8 @@ for (i=0; i<objRows.size(); i++) {
 	            addT021Communication(subSubRows.get(l));
 	        }
             // ---------- address_node CHILDREN ----------
-            var subSubRows = SQL.all("SELECT * FROM address_node WHERE fk_addr_uuid=?", [adrUuid]);
+            // only published ones !
+            var subSubRows = SQL.all("SELECT * FROM address_node WHERE fk_addr_uuid=? AND addr_id_published IS NOT NULL", [adrUuid]);
             for (l=0; l<subSubRows.size(); l++) {
                 addAddressNodeChildren(subSubRows.get(l));
             }
@@ -253,6 +255,35 @@ for (i=0; i<objRows.size(); i++) {
             }
         }
     }
+    // ---------- object_node CHILDREN ----------
+    // only published ones !
+    var rows = SQL.all("SELECT * FROM object_node WHERE fk_obj_uuid=? AND obj_id_published IS NOT NULL", [objUuid]);
+    for (j=0; j<rows.size(); j++) {
+        addObjectNodeChildren(rows.get(j));
+    }
+    // ---------- object_node PARENT ----------
+    // NOTICE: Has to be published !
+    var rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
+    for (j=0; j<rows.size(); j++) {
+        addObjectNodeParent(rows.get(j));
+    }
+    // ---------- object_reference TO ----------
+    var rows = SQL.all("SELECT * FROM object_reference WHERE obj_from_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addObjectReferenceTo(rows.get(j));
+    }
+    // ---------- object_reference FROM ----------
+    var rows = SQL.all("SELECT * FROM object_reference WHERE obj_to_uuid=?", [objUuid]);
+    for (j=0; j<rows.size(); j++) {
+        addObjectReferenceFrom(rows.get(j));
+        var objFromId = rows.get(j).get("obj_from_id");
+
+        // ---------- t01_object FROM ----------
+        var subRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objFromId]);
+        for (k=0; k<subRows.size(); k++) {
+            addT01ObjectFrom(subRows.get(k));
+        }
+    }
 
 
     // TODO: - Coord mapping
@@ -269,9 +300,12 @@ function addT01Object(row) {
     IDX.add("t01_object.info_note", row.get("info_note"));
     IDX.add("t01_object.loc_descr", row.get("loc_descr"));
 
-    // time: add t0, t1, t2 fields dependent from time_type
-    TRANSF.processTimeFields(row.get("time_from"), row.get("time_to"), row.get("time_type"));
+    // time: first add pure database values (not needed, but we can do this now ;)
+    IDX.add("t01_object.time_from", row.get("time_from"));
+    IDX.add("t01_object.time_to", row.get("time_to"));
     IDX.add("t01_object.time_type", row.get("time_type"));
+    // time: then add t0, t1, t2 fields dependent from time_type
+    TRANSF.processTimeFields(row.get("time_from"), row.get("time_to"), row.get("time_type"));
     IDX.add("t01_object.time_descr", row.get("time_descr"));
     IDX.add("t01_object.time_period", row.get("time_period"));
     IDX.add("t01_object.time_interval", row.get("time_interval"));
@@ -503,9 +537,9 @@ function addSearchtermSns(row) {
     IDX.add("searchterm_sns.sns_id", row.get("sns_id"));
 }
 function addT012ObjAdr(row) {
+    IDX.add("t012_obj_adr.line", row.get("line"));
     IDX.add("t012_obj_adr.adr_id", row.get("adr_uuid"));
     IDX.add("t012_obj_adr.typ", row.get("type"));
-    IDX.add("t012_obj_adr.line", row.get("line"));
     IDX.add("t012_obj_adr.special_ref", row.get("special_ref"));
     IDX.add("t012_obj_adr.special_name", row.get("special_name"));
     IDX.add("t012_obj_adr.mod_time", row.get("mod_time"));
@@ -577,6 +611,30 @@ function addSpatialRefValue(row) {
 function addSpatialRefSns(row) {
     IDX.add("spatial_ref_sns.sns_id", row.get("sns_id"));
     IDX.add("spatial_ref_sns.expired_at", row.get("expired_at"));
+}
+function addObjectNodeChildren(row) {
+    IDX.add("children.object_node.obj_uuid", row.get("obj_uuid"));
+}
+function addObjectNodeParent(row) {
+    IDX.add("parent.object_node.obj_uuid", row.get("fk_obj_uuid"));
+}
+function addObjectReferenceTo(row) {
+    IDX.add("object_reference.line", row.get("line"));
+    IDX.add("object_reference.obj_from_id", row.get("obj_from_id"));
+    IDX.add("object_reference.obj_to_uuid", row.get("obj_to_uuid"));
+    IDX.add("object_reference.special_ref", row.get("special_ref"));
+    IDX.add("object_reference.special_name", row.get("special_name"));
+    IDX.add("object_reference.descr", row.get("descr"));
+}
+function addObjectReferenceFrom(row) {
+    IDX.add("refering.object_reference.line", row.get("line"));
+    IDX.add("refering.object_reference.obj_id", row.get("obj_from_id"));
+    IDX.add("refering.object_reference.special_ref", row.get("special_ref"));
+    IDX.add("refering.object_reference.special_name", row.get("special_name"));
+    IDX.add("refering.object_reference.descr", row.get("descr"));
+}
+function addT01ObjectFrom(row) {
+    IDX.add("refering.object_reference.obj_uuid", row.get("obj_uuid"));
 }
 
 

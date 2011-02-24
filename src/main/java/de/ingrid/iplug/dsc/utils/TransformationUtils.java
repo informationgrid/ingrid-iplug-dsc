@@ -46,7 +46,6 @@ public class TransformationUtils {
 	/** Add time_from, time_to to Index as t0/t1/t2 dependent from time_type.
 	 * Also do some preprocessing of values.*/
 	public void processTimeFields(String time_from, String time_to, String time_type) {
-		// "von"
 		if ("von".equals(time_type)) {
 			IDX.add("t1", preprocessTimeField("t1", time_from));
 			IDX.add("t2", preprocessTimeField("t2", time_to));
