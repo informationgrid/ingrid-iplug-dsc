@@ -233,6 +233,26 @@ for (i=0; i<objRows.size(); i++) {
             }
         }
     }
+    // ---------- spatial_reference ----------
+    var rows = SQL.all("SELECT * FROM spatial_reference WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addSpatialReference(rows.get(j));
+        var spatialRefId = rows.get(j).get("spatial_ref_id");
+
+        // ---------- spatial_ref_value ----------
+        var subRows = SQL.all("SELECT * FROM spatial_ref_value WHERE id=?", [spatialRefId]);
+        for (k=0; k<subRows.size(); k++) {
+            addSpatialRefValue(subRows.get(k));
+            var spatialRefSnsId = subRows.get(k).get("spatial_ref_sns_id");           
+            if (hasValue(spatialRefSnsId)) {
+                // ---------- spatial_ref_sns ----------
+                var subSubRows = SQL.all("SELECT * FROM spatial_ref_sns WHERE id=?", [spatialRefSnsId]);
+                for (l=0; l<subSubRows.size(); l++) {
+                    addSpatialRefSns(subSubRows.get(l));
+                }
+            }
+        }
+    }
 
 
     // TODO: - Coord mapping
@@ -525,6 +545,38 @@ function addT021Communication(row) {
 function addAddressNodeChildren(row) {
     IDX.add("t022_adr_adr.adr_from_id", row.get("fk_addr_uuid"));
     IDX.add("t022_adr_adr.adr_to_id", row.get("addr_uuid"));
+}
+function addSpatialReference(row) {
+    IDX.add("spatial_reference.line", row.get("line"));
+}
+function addSpatialRefValue(row) {
+    IDX.add("spatial_ref_value.type", row.get("type"));
+    IDX.add("spatial_ref_value.name_key", row.get("name_key"));
+
+    // map "name_value" also as location !
+    IDX.add("spatial_ref_value.name_value", row.get("name_value"));
+    IDX.add("location", row.get("name_value"));
+    // map "nativekey" also as areaid !
+    IDX.add("spatial_ref_value.nativekey", row.get("nativekey"));
+    IDX.add("areaid", row.get("nativekey"));
+    // map "x1" also as x1 !
+    IDX.add("spatial_ref_value.x1", row.get("x1"));
+    IDX.add("x1", row.get("x1"));
+    // map "y1" also as y1 !
+    IDX.add("spatial_ref_value.y1", row.get("y1"));
+    IDX.add("y1", row.get("y1"));
+    // map "x2" also as x2 !
+    IDX.add("spatial_ref_value.x2", row.get("x2"));
+    IDX.add("x2", row.get("x2"));
+    // map "y2" also as y2 !
+    IDX.add("spatial_ref_value.y2", row.get("y2"));
+    IDX.add("y2", row.get("y2"));
+
+    IDX.add("spatial_ref_value.topic_type", row.get("topic_type"));
+}
+function addSpatialRefSns(row) {
+    IDX.add("spatial_ref_sns.sns_id", row.get("sns_id"));
+    IDX.add("spatial_ref_sns.expired_at", row.get("expired_at"));
 }
 
 
