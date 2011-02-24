@@ -22,54 +22,90 @@ public class IndexUtils {
     public static boolean STORE = true;
     public static boolean NO_STORE = false;
 
+    public static boolean ADD_TO_CONTENT_FIELD = true;
+    public static boolean NO_ADD_TO_CONTENT_FIELD = false;
+
+    private static String CONTENT_FIELD_NAME = "content";
+
     private Document luceneDoc = null;
 
 	private static IndexUtils myInstance;
 
-	/** Get The Singleton */
+	/** Get The Singleton.
+	 * NOTICE: Resets internal state (uses passed luceneDoc). */
 	public static synchronized IndexUtils getInstance(Document luceneDoc) {
 		if (myInstance == null) {
-	        myInstance = new IndexUtils(luceneDoc);
-	      }
+	        myInstance = new IndexUtils();
+		}
+		myInstance.initialize(luceneDoc);
+
 		return myInstance;
 	}
 
-	private IndexUtils(Document luceneDoc) {
+	private IndexUtils() {
+	}
+	private void initialize(Document luceneDoc) {
 		this.luceneDoc = luceneDoc;
 	}
 	
 	/** Add a index field with the value to the index document.
-	 * The field will be TOKENIZE and STORE by default. If field
-	 * value is null (or "") then "" is set in index with NO_TOKENIZE
-	 * and NO_STORE.
+	 * The field will be TOKENIZE and STORE and ADD_TO_CONTENT_FIELD by default.
+	 * If field value is null (or "") then "" is set as value with NO_TOKENIZE
+	 * and NO_STORE and NO_ADD_TO_CONTENT_FIELD.
 	 * @param fieldName name of the field in the index
 	 * @param value field value to process
 	 */
 	public void add(String fieldName, String value) {
 		if (value == null || value.trim().length() == 0) {
-			add(fieldName, "", NO_TOKENIZE, NO_STORE);
+			add(fieldName, "", NO_TOKENIZE, NO_STORE, NO_ADD_TO_CONTENT_FIELD);
 		} else {
-			add(fieldName, value, TOKENIZE, STORE);
+			add(fieldName, value, TOKENIZE, STORE, ADD_TO_CONTENT_FIELD);
 		}
 	}
 
 	/** Add a index field with the value to the index document.
-	 * The field will be tokenized and stored according to the supplied parameters
+	 * The field will be tokenized and stored according to the supplied parameters.
+	 * Also the field value will be added to the "content" field if requested.
 	 * @param fieldName name of the field in the index
 	 * @param value field value to process
-	 * @param tokenized use static TOKENIZE, NO_TOKENIZE consts in this class
-	 * @param stored use static STORE, NO_STORE consts in this class
+	 * @param tokenized use static TOKENIZE, NO_TOKENIZE consts
+	 * @param stored use static STORE, NO_STORE consts
+	 * @param addToContentField use static ADD_TO_CONTENT_FIELD, NO_ADD_TO_CONTENT_FIELD consts
 	 */
-	public void add(String fieldName, String value, boolean tokenized, boolean stored) {
-        log.debug("Add field '" + fieldName + "' with value '" + value + "' to lucene document " +
-        		"(tokenized=" + tokenized + ", stored=" + stored +")");
-
+	public void add(String fieldName, String value,
+			boolean tokenized,
+			boolean stored,
+			boolean addToContentField) {
+		if (log.isDebugEnabled()) {
+	        log.debug("Add field '" + fieldName + "' with value '" + value + "' to lucene document " +
+	        		"(tokenized=" + tokenized + ", stored=" + stored + ", addToContentField=" + addToContentField +")");			
+		}
+        
 		luceneDoc.add(new Field(fieldName,
 				value,
 				mapBooleanToFieldStore(stored),
 				mapBooleanToFieldIndex(tokenized)));
+
+		// also add to "content" field if requested !
+		if (addToContentField) {
+			luceneDoc.add(new Field(CONTENT_FIELD_NAME,
+					value,
+					mapBooleanToFieldStore(stored),
+					mapBooleanToFieldIndex(tokenized)));			
+		}
 	}
-	
+
+	/** Remove Fields.
+	 * @param fieldName name of field to remove.
+	 */
+	public void removeFields(String fieldName) {
+		if (log.isDebugEnabled()) {
+	        log.debug("Removed ALL fields with name '" + fieldName + "'.");			
+		}
+
+		luceneDoc.removeFields(fieldName);
+	}
+
 	private Field.Store mapBooleanToFieldStore(boolean stored) {
 		if (stored) {
 			return Field.Store.YES;

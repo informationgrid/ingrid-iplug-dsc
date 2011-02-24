@@ -47,7 +47,7 @@ public class ScriptedDatabaseDocumentProducerTestLocal extends TestCase {
                 Document doc = dp.next();
                 assertNotNull(doc);
                 // when single record fetched !
-                assertEquals(doc.getField("obj_uuid").stringValue(), "7AC6048A-7018-11D3-A599-C70A0FEBD4FC");
+                assertEquals(doc.getField("t01_object.obj_id").stringValue(), "7AC6048A-7018-11D3-A599-C70A0FEBD4FC");
             }
         } else {
             fail("No document produced");

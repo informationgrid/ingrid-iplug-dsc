@@ -20,6 +20,7 @@ import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.utils.IndexUtils;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
+import de.ingrid.iplug.dsc.utils.TransformationUtils;
 
 /**
  * Script based source record to lucene document mapping. This class takes a
@@ -71,6 +72,7 @@ public class ScriptedDocumentMapper implements IRecordMapper {
             Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
             SQLUtils sqlUtils = SQLUtils.getInstance(connection);
             IndexUtils idxUtils = IndexUtils.getInstance(doc);
+            TransformationUtils trafoUtils = TransformationUtils.getInstance(idxUtils);
             
             Bindings bindings = engine.createBindings();
             bindings.put("sourceRecord", record);
@@ -78,6 +80,7 @@ public class ScriptedDocumentMapper implements IRecordMapper {
             bindings.put("log", log);
             bindings.put("SQL", sqlUtils);
             bindings.put("IDX", idxUtils);
+            bindings.put("TRANSF", trafoUtils);
 
             if (compiledScript != null) {
                 compiledScript.eval(bindings);
