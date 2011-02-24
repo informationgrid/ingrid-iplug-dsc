@@ -73,6 +73,65 @@ for (i=0; i<objRows.size(); i++) {
     for (j=0; j<rows.size(); j++) {
         addT011ObjData(rows.get(j));
     }
+    // ---------- t011_obj_data_para ----------
+    var rows = SQL.all("SELECT * FROM t011_obj_data_para WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addT011ObjDataPara(rows.get(j));
+    }
+    // ---------- t011_obj_serv ----------
+    var rows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addT011ObjServ(rows.get(j));
+        var objServId = rows.get(j).get("id");
+
+        // ---------- t011_obj_serv_operation ----------
+        var subRows = SQL.all("SELECT * FROM t011_obj_serv_operation WHERE obj_serv_id=?", [objServId]);
+        for (k=0; k<subRows.size(); k++) {
+            addT011ObjServOperation(subRows.get(k));
+            var objServOpId = subRows.get(k).get("id");
+
+            // ---------- t011_obj_serv_op_connpoint ----------
+            var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [objServOpId]);
+            for (l=0; l<subSubRows.size(); l++) {
+                addT011ObjServOpConnpoint(subSubRows.get(l));
+            }
+            // ---------- t011_obj_serv_op_depends ----------
+            var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_depends WHERE obj_serv_op_id=?", [objServOpId]);
+            for (l=0; l<subSubRows.size(); l++) {
+                addT011ObjServOpDepends(subSubRows.get(l));
+            }
+            // ---------- t011_obj_serv_op_para ----------
+            var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_para WHERE obj_serv_op_id=?", [objServOpId]);
+            for (l=0; l<subSubRows.size(); l++) {
+                addT011ObjServOpPara(subSubRows.get(l));
+            }
+            // ---------- t011_obj_serv_op_platform ----------
+            var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_platform WHERE obj_serv_op_id=?", [objServOpId]);
+            for (l=0; l<subSubRows.size(); l++) {
+                addT011ObjServOpPlatform(subSubRows.get(l));
+            }
+        }
+        // ---------- t011_obj_serv_version ----------
+        var subRows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [objServId]);
+        for (k=0; k<subRows.size(); k++) {
+            addT011ObjServVersion(subRows.get(k));
+        }
+        // ---------- t011_obj_serv_scale ----------
+        var subRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServId]);
+        for (k=0; k<subRows.size(); k++) {
+            addT011ObjServScale(subRows.get(k));
+        }
+        // ---------- t011_obj_serv_type ----------
+        var subRows = SQL.all("SELECT * FROM t011_obj_serv_type WHERE obj_serv_id=?", [objServId]);
+        for (k=0; k<subRows.size(); k++) {
+            addT011ObjServType(subRows.get(k));
+        }
+        // ---------- t011_obj_serv_url ----------
+        var subRows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [objServId]);
+        for (k=0; k<subRows.size(); k++) {
+            addT011ObjServUrl(subRows.get(k));
+        }
+    }
 
     // TODO: - Coord mapping
 }
@@ -167,6 +226,68 @@ function addT011ObjProject(row) {
 function addT011ObjData(row) {
     IDX.add("t011_obj_data.base", row.get("base"));
     IDX.add("t011_obj_data.description", row.get("description"));
+}
+function addT011ObjDataPara(row) {
+    IDX.add("t011_obj_data_para.line", row.get("line"));
+    IDX.add("t011_obj_data_para.parameter", row.get("parameter"));
+    IDX.add("t011_obj_data_para.unit", row.get("unit"));
+}
+function addT011ObjServ(row) {
+    IDX.add("t011_obj_serv.type_key", row.get("type_key"));
+    IDX.add("t011_obj_serv.type", row.get("type_value"));
+    IDX.add("t011_obj_serv.history", row.get("history"));
+    IDX.add("t011_obj_serv.environment", row.get("environment"));
+    IDX.add("t011_obj_serv.base", row.get("base"));
+    IDX.add("t011_obj_serv.description", row.get("description"));
+    IDX.add("t011_obj_serv.has_access_constraint", row.get("has_access_constraint"));
+}
+function addT011ObjServOperation(row) {
+    IDX.add("t011_obj_serv_operation.line", row.get("line"));
+    IDX.add("t011_obj_serv_operation.name_key", row.get("name_key"));
+    IDX.add("t011_obj_serv_operation.name", row.get("name_value"));
+    IDX.add("t011_obj_serv_operation.descr", row.get("descr"));
+    IDX.add("t011_obj_serv_operation.invocation_name", row.get("invocation_name"));
+}
+function addT011ObjServOpConnpoint(row) {
+    IDX.add("t011_obj_serv_op_connpoint.line", row.get("line"));
+    IDX.add("t011_obj_serv_op_connpoint.connect_point", row.get("connect_point"));
+}
+function addT011ObjServOpDepends(row) {
+    IDX.add("t011_obj_serv_op_depends.line", row.get("line"));
+    IDX.add("t011_obj_serv_op_depends.depends_on", row.get("depends_on"));
+}
+function addT011ObjServOpPara(row) {
+    IDX.add("t011_obj_serv_op_para.line", row.get("line"));
+    IDX.add("t011_obj_serv_op_para.name", row.get("name"));
+    IDX.add("t011_obj_serv_op_para.direction", row.get("direction"));
+    IDX.add("t011_obj_serv_op_para.descr", row.get("descr"));
+    IDX.add("t011_obj_serv_op_para.optional", row.get("optional"));
+    IDX.add("t011_obj_serv_op_para.repeatability", row.get("repeatability"));
+}
+function addT011ObjServOpPlatform(row) {
+    IDX.add("t011_obj_serv_op_platform.line", row.get("line"));
+    IDX.add("t011_obj_serv_op_platform.platform", row.get("platform"));
+}
+function addT011ObjServVersion(row) {
+    IDX.add("t011_obj_serv_version.line", row.get("line"));
+    IDX.add("t011_obj_serv_version.version", row.get("serv_version"));
+}
+function addT011ObjServScale(row) {
+    IDX.add("t011_obj_serv_scale.line", row.get("line"));
+    IDX.add("t011_obj_serv_scale.scale", row.get("scale"));
+    IDX.add("t011_obj_serv_scale.resolution_ground", row.get("resolution_ground"));
+    IDX.add("t011_obj_serv_scale.resolution_scan", row.get("resolution_scan"));
+}
+function addT011ObjServType(row) {
+    IDX.add("t011_obj_serv_type.line", row.get("line"));
+    IDX.add("t011_obj_serv_type.serv_type_key", row.get("serv_type_key"));
+    IDX.add("t011_obj_serv_type.serv_type_value", row.get("serv_type_value"));
+}
+function addT011ObjServUrl(row) {
+    IDX.add("t011_obj_serv_url.line", row.get("line"));
+    IDX.add("t011_obj_serv_url.name", row.get("name"));
+    IDX.add("t011_obj_serv_url.url", row.get("url"));
+    IDX.add("t011_obj_serv_url.description", row.get("description"));
 }
 
 /*
