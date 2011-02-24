@@ -26,7 +26,7 @@ public class ScriptedDatabaseDocumentProducerTestLocal extends TestCase {
         PlugDescriptionConfiguredDatabaseRecordSetProducer p = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
         String sql = "SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND publish_id='1'"
         		// single record
-        		+ " AND id = 3776"
+        		+ " AND id = 3778"
         		;
         p.setRecordSql(sql);
         p.configure(pd);
@@ -47,7 +47,7 @@ public class ScriptedDatabaseDocumentProducerTestLocal extends TestCase {
                 Document doc = dp.next();
                 assertNotNull(doc);
                 // when single record fetched !
-                assertEquals(doc.getField("t01_object.obj_id").stringValue(), "7AC6048A-7018-11D3-A599-C70A0FEBD4FC");
+                assertEquals(doc.getField("t01_object.obj_id").stringValue(), "E13A483B-4FAB-11D3-AE6B-00104B57C66D");
             }
         } else {
             fail("No document produced");
