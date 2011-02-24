@@ -26,7 +26,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 // ---------- t01_object ----------
 var objId = sourceRecord.get(DatabaseSourceRecord.ID);
 var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
-for (i=0; i<objRows.size(); i++ ) {
+for (i=0; i<objRows.size(); i++) {
 /*
     // Example iterating all columns !
     var objRow = objRows.get(i);
@@ -40,20 +40,38 @@ for (i=0; i<objRows.size(); i++ ) {
 
     // ---------- t0110_avail_format ----------
     var rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [objId]);
-    for (i=0; i<rows.size(); i++ ) {
-        addT0110AvailFormat(rows.get(i));
+    for (j=0; j<rows.size(); j++) {
+        addT0110AvailFormat(rows.get(j));
     }
-
     // ---------- t0113_dataset_reference ----------
     var rows = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=?", [objId]);
-    for (i=0; i<rows.size(); i++ ) {
-        addT0113DatasetReference(rows.get(i));
+    for (j=0; j<rows.size(); j++) {
+        addT0113DatasetReference(rows.get(j));
     }
-
     // ---------- t014_info_impart ----------
     var rows = SQL.all("SELECT * FROM t014_info_impart WHERE obj_id=?", [objId]);
-    for (i=0; i<rows.size(); i++ ) {
-        addT014InfoImpart(rows.get(i));
+    for (j=0; j<rows.size(); j++) {
+        addT014InfoImpart(rows.get(j));
+    }
+    // ---------- t015_legist ----------
+    var rows = SQL.all("SELECT * FROM t015_legist WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addT015Legist(rows.get(j));
+    }
+    // ---------- t011_obj_literature ----------
+    var rows = SQL.all("SELECT * FROM t011_obj_literature WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addT011ObjLiterature(rows.get(j));
+    }
+    // ---------- t011_obj_project ----------
+    var rows = SQL.all("SELECT * FROM t011_obj_project WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addT011ObjProject(rows.get(j));
+    }
+    // ---------- t011_obj_data ----------
+    var rows = SQL.all("SELECT * FROM t011_obj_data WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addT011ObjData(rows.get(j));
     }
 
     // TODO: - Coord mapping
@@ -101,7 +119,6 @@ function addT01Object(row) {
     IDX.add("t01_object.mod_uuid", row.get("mod_uuid"));
     IDX.add("t01_object.responsible_uuid", row.get("responsible_uuid"));
 }
-
 function addT0110AvailFormat(row) {
     IDX.add("t0110_avail_format.line", row.get("line"));
     IDX.add("t0110_avail_format.name", row.get("format_value"));
@@ -110,17 +127,46 @@ function addT0110AvailFormat(row) {
     IDX.add("t0110_avail_format.file_decompression_technique", row.get("file_decompression_technique"));
     IDX.add("t0110_avail_format.specification", row.get("specification"));
 }
-
 function addT0113DatasetReference(row) {
     IDX.add("t0113_dataset_reference.line", row.get("line"));
     IDX.add("t0113_dataset_reference.reference_date", row.get("reference_date"));
     IDX.add("t0113_dataset_reference.type", row.get("type"));
 }
-
 function addT014InfoImpart(row) {
     IDX.add("t014_info_impart.line", row.get("line"));
     IDX.add("t014_info_impart.impart_value", row.get("impart_value"));
     IDX.add("t014_info_impart.impart_key", row.get("impart_key"));
+}
+function addT015Legist(row) {
+    IDX.add("t015_legist.line", row.get("line"));
+    IDX.add("t015_legist.name", row.get("legist_value"));
+    IDX.add("t015_legist.legist_key", row.get("legist_key"));
+}
+function addT011ObjLiterature(row) {
+    IDX.add("t011_obj_literatur.autor", row.get("author"));
+    IDX.add("t011_obj_literatur.publisher", row.get("publisher"));
+    IDX.add("t011_obj_literature.type_key", row.get("type_key"));
+    IDX.add("t011_obj_literatur.typ", row.get("type_value"));
+    IDX.add("t011_obj_literatur.publish_in", row.get("publish_in"));
+    IDX.add("t011_obj_literatur.volume", row.get("volume"));
+    IDX.add("t011_obj_literatur.sides", row.get("sides"));
+    IDX.add("t011_obj_literatur.publish_year", row.get("publish_year"));
+    IDX.add("t011_obj_literatur.publish_loc", row.get("publish_loc"));
+    IDX.add("t011_obj_literatur.loc", row.get("loc"));
+    IDX.add("t011_obj_literatur.doc_info", row.get("doc_info"));
+    IDX.add("t011_obj_literatur.base", row.get("base"));
+    IDX.add("t011_obj_literatur.isbn", row.get("isbn"));
+    IDX.add("t011_obj_literatur.publishing", row.get("publishing"));
+    IDX.add("t011_obj_literatur.description", row.get("description"));
+}
+function addT011ObjProject(row) {
+    IDX.add("t011_obj_project.leader", row.get("leader"));
+    IDX.add("t011_obj_project.member", row.get("member"));
+    IDX.add("t011_obj_project.description", row.get("description"));
+}
+function addT011ObjData(row) {
+    IDX.add("t011_obj_data.base", row.get("base"));
+    IDX.add("t011_obj_data.description", row.get("description"));
 }
 
 /*
