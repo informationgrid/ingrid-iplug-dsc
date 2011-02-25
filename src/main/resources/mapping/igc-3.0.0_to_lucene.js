@@ -294,9 +294,26 @@ for (i=0; i<objRows.size(); i++) {
     for (j=0; j<rows.size(); j++) {
         addT0114EnvTopic(rows.get(j));
     }
-
-
-    // TODO: - Coord mapping
+    // ---------- t011_obj_topic_cat ----------
+    var rows = SQL.all("SELECT * FROM t011_obj_topic_cat WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addT011ObjTopicCat(rows.get(j));
+    }
+    // ---------- object_access ----------
+    var rows = SQL.all("SELECT * FROM object_access WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addObjectAccess(rows.get(j));
+    }
+    // ---------- object_use ----------
+    var rows = SQL.all("SELECT * FROM object_use WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addObjectUse(rows.get(j));
+    }
+    // ---------- object_conformity ----------
+    var rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addObjectConformity(rows.get(j));
+    }
 }
 
 function addT01Object(row) {
@@ -651,16 +668,34 @@ function addT0114EnvCategory(row) {
     IDX.add("t0114_env_category.cat_key", row.get("cat_key"));
     // add syslist value to index (in all languages)
     TRANSF.addSyslistEntryNameToIndex(1400, row.get("cat_key"),
-        ["funct_category", "t0114_env_category.cat_value"],
-        "t0114_env_category.cat_value_language")
+        ["funct_category", "t0114_env_category.cat_value"])
 }
 function addT0114EnvTopic(row) {
     IDX.add("t0114_env_topic.line", row.get("line"));
     IDX.add("t0114_env_topic.topic_key", row.get("topic_key"));
     // add syslist value to index (in all languages)
     TRANSF.addSyslistEntryNameToIndex(1410, row.get("topic_key"),
-        ["topic", "t0114_env_topic.topic_name"],
-        "t0114_env_topic.topic_name_language")
+        ["topic", "t0114_env_topic.topic_value"])
+}
+function addT011ObjTopicCat(row) {
+    IDX.add("t011_obj_topic_cat.line", row.get("line"));
+    IDX.add("t011_obj_topic_cat.topic_category", row.get("topic_category"));
+}
+function addObjectAccess(row) {
+    IDX.add("object_access.line", row.get("line"));
+    IDX.add("object_access.restriction_key", row.get("restriction_key"));
+    IDX.add("object_access.restriction_value", row.get("restriction_value"));
+}
+function addObjectUse(row) {
+    IDX.add("object_use.line", row.get("line"));
+    IDX.add("object_use.terms_of_use", row.get("terms_of_use"));
+}
+function addObjectConformity(row) {
+    IDX.add("object_conformity.line", row.get("line"));
+    IDX.add("object_conformity.specification", row.get("specification"));
+    IDX.add("object_conformity.degree_key", row.get("degree_key"));
+    IDX.add("object_conformity.degree_value", row.get("degree_value"));
+    IDX.add("object_conformity.publication_date", row.get("publication_date"));
 }
 
 

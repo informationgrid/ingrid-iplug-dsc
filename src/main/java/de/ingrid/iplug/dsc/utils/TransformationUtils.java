@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.utils.udk.UtilsLanguageCodelist;
+
 /**
  * Singleton helper class encapsulating functionality for transforming or processing values (e.g. used in mapping script).
  *  
@@ -49,38 +51,42 @@ public class TransformationUtils {
 		this.recordInfo.clear();
 	}
 
-	/** Add the name of the given entry in given syslist in all found languages to Index.
+	/** Add the name of the given entry in given syslist IN THE LANGUAGE OF THE CATALOG to the Index.
 	 * @param listId id of syslist
 	 * @param entryId id of entry in syslist
-	 * @param idxFieldsEntryName name of index fields where found name(s) of entry are stored (all languages).
-	 * 		NOTICE: Pass multiple field names, if values should be stored in several fields !
+	 * @param idxFields name of index fields where entry name is stored.
+	 * 		NOTICE: Pass multiple fields, if value should be stored in several fields !
 	 */
-	public void addSyslistEntryNameToIndex(int listId, int entryId, String[] idxFieldsEntryName)
+	public void addSyslistEntryNameToIndex(int listId, int entryId, String[] idxFields)
 	throws SQLException {
-		addSyslistEntryNameToIndex(listId, entryId, idxFieldsEntryName, null);
-	}
-	
-	/** Add the name of the given entry in given syslist in all found languages to Index.
-	 * @param listId id of syslist
-	 * @param entryId id of entry in syslist
-	 * @param idxFieldsEntryName name of index fields where found name(s) of entry are stored (all languages).
-	 * 		NOTICE: Pass multiple field names, if values should be stored in several fields !
-	 * @param idxFieldLanguage name of index field where found language(s) of entry name are stored.
-	 * 		PASS NULL IF NO language field should be stored in index.
-	 */
-	public void addSyslistEntryNameToIndex(int listId, int entryId,
-			String[] idxFieldsEntryName, String idxFieldLanguage)
-	throws SQLException {
+		// get catalog language in "syslist format" (de, en, ...)
+		Integer catLangKey = getIGCCatalogLanguageKey();
+		String catLangShortcut = UtilsLanguageCodelist.getShortcutFromCode(catLangKey);
+
 		List<Map<String, String>> rows =
-			SQL.all("SELECT * FROM sys_list WHERE lst_id=? AND entry_id=?", new Object[]{listId, entryId});
+			SQL.all("SELECT * FROM sys_list WHERE lst_id=? AND entry_id=? and lang_id=?",
+					new Object[]{listId, entryId, catLangShortcut});
 	    for (Map<String, String> row : rows) {
-	    	for (String fieldName : idxFieldsEntryName) {
+	    	for (String fieldName : idxFields) {
 		        IDX.add(fieldName, row.get("name"));
 	    	}
-	        if (idxFieldLanguage != null) {
-		        IDX.add(idxFieldLanguage, row.get("lang_id"));
-	        }
 	    }
+	}
+
+	/** Get language of catalog (entry id of language syslist). 
+	 * @return Null if catalog not found !?
+	 * @throws SQLException
+	 */
+	private Integer getIGCCatalogLanguageKey() throws SQLException {
+		Integer languageKey = null;
+
+		List<Map<String, String>> rows = SQL.all("SELECT language_key FROM t03_catalogue");
+	    for (Map<String, String> row : rows) {
+	    	languageKey = new Integer(row.get("language_key"));
+	    	break;
+	    }
+
+	    return languageKey;
 	}
 
 	/** Add time_from, time_to to Index as t0/t1/t2 dependent from time_type.
