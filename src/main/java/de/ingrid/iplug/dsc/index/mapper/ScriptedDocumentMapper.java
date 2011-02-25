@@ -72,7 +72,7 @@ public class ScriptedDocumentMapper implements IRecordMapper {
             Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
             SQLUtils sqlUtils = SQLUtils.getInstance(connection);
             IndexUtils idxUtils = IndexUtils.getInstance(doc);
-            TransformationUtils trafoUtils = TransformationUtils.getInstance(idxUtils);
+            TransformationUtils trafoUtils = TransformationUtils.getInstance(idxUtils, sqlUtils);
             
             Bindings bindings = engine.createBindings();
             bindings.put("sourceRecord", record);

@@ -28,15 +28,20 @@ public class SQLUtils {
 
 	private static SQLUtils myInstance;
 
-	/** Get The Singleton */
+	/** Get The Singleton.
+	 * NOTICE: Resets internal state (uses passed connection). */
 	public static synchronized SQLUtils getInstance(Connection connection) {
 		if (myInstance == null) {
-	        myInstance = new SQLUtils(connection);
-	      }
+	        myInstance = new SQLUtils();
+		}
+		myInstance.initialize(connection);
+
 		return myInstance;
 	}
 
-	private SQLUtils(Connection connection) {
+	private SQLUtils() {
+	}
+	private void initialize(Connection connection) {
 		this.connection = connection;
 	}
 

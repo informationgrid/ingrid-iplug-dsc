@@ -284,6 +284,16 @@ for (i=0; i<objRows.size(); i++) {
             addT01ObjectFrom(subRows.get(k));
         }
     }
+    // ---------- t0114_env_category ----------
+    var rows = SQL.all("SELECT * FROM t0114_env_category WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addT0114EnvCategory(rows.get(j));
+    }
+    // ---------- t0114_env_topic ----------
+    var rows = SQL.all("SELECT * FROM t0114_env_topic WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addT0114EnvTopic(rows.get(j));
+    }
 
 
     // TODO: - Coord mapping
@@ -635,6 +645,22 @@ function addObjectReferenceFrom(row) {
 }
 function addT01ObjectFrom(row) {
     IDX.add("refering.object_reference.obj_uuid", row.get("obj_uuid"));
+}
+function addT0114EnvCategory(row) {
+    IDX.add("t0114_env_category.line", row.get("line"));
+    IDX.add("t0114_env_category.cat_key", row.get("cat_key"));
+    // add syslist value to index (in all languages)
+    TRANSF.addSyslistEntryNameToIndex(1400, row.get("cat_key"),
+        ["funct_category", "t0114_env_category.cat_value"],
+        "t0114_env_category.cat_value_language")
+}
+function addT0114EnvTopic(row) {
+    IDX.add("t0114_env_topic.line", row.get("line"));
+    IDX.add("t0114_env_topic.topic_key", row.get("topic_key"));
+    // add syslist value to index (in all languages)
+    TRANSF.addSyslistEntryNameToIndex(1410, row.get("topic_key"),
+        ["topic", "t0114_env_topic.topic_name"],
+        "t0114_env_topic.topic_name_language")
 }
 
 

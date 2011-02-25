@@ -3,7 +3,10 @@
  */
 package de.ingrid.iplug.dsc.utils;
 
+import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -16,8 +19,10 @@ public class TransformationUtils {
 
     private static final Logger log = Logger.getLogger(TransformationUtils.class);
 
-    /** For adding additional fields to index if needed (e.g. from / to time ...) */
+    /** For adding additional fields to index if needed (e.g. t0, t1, t2 dependent from time_from/time_to ...) */
     private IndexUtils IDX = null;
+    /** e.g. for selecting values from syslist */
+    private SQLUtils SQL = null;
 
     /** HashMap for remembering processed values/fields of a record !
      * Values/fields are added and cleared in according methods ! */
@@ -26,21 +31,56 @@ public class TransformationUtils {
 	private static TransformationUtils myInstance;
 
 	/** Get The Singleton.
-	 * NOTICE: Resets internal state again to initial state (no temp field info, use passed indexUtils). */
-	public static synchronized TransformationUtils getInstance(IndexUtils indexUtils) {
+	 * NOTICE: Resets internal state (no temporary field info), uses passed indexUtils, sqlUtils .... */
+	public static synchronized TransformationUtils getInstance(IndexUtils indexUtils, SQLUtils sqlUtils) {
 		if (myInstance == null) {
 	        myInstance = new TransformationUtils();
 		}
-		myInstance.initialize(indexUtils);
+		myInstance.initialize(indexUtils, sqlUtils);
 
 		return myInstance;
 	}
 
 	private TransformationUtils() {
 	}
-	private void initialize(IndexUtils indexUtils) {
+	private void initialize(IndexUtils indexUtils, SQLUtils sqlUtils) {
 		this.IDX = indexUtils;
+		this.SQL = sqlUtils;
 		this.recordInfo.clear();
+	}
+
+	/** Add the name of the given entry in given syslist in all found languages to Index.
+	 * @param listId id of syslist
+	 * @param entryId id of entry in syslist
+	 * @param idxFieldsEntryName name of index fields where found name(s) of entry are stored (all languages).
+	 * 		NOTICE: Pass multiple field names, if values should be stored in several fields !
+	 */
+	public void addSyslistEntryNameToIndex(int listId, int entryId, String[] idxFieldsEntryName)
+	throws SQLException {
+		addSyslistEntryNameToIndex(listId, entryId, idxFieldsEntryName, null);
+	}
+	
+	/** Add the name of the given entry in given syslist in all found languages to Index.
+	 * @param listId id of syslist
+	 * @param entryId id of entry in syslist
+	 * @param idxFieldsEntryName name of index fields where found name(s) of entry are stored (all languages).
+	 * 		NOTICE: Pass multiple field names, if values should be stored in several fields !
+	 * @param idxFieldLanguage name of index field where found language(s) of entry name are stored.
+	 * 		PASS NULL IF NO language field should be stored in index.
+	 */
+	public void addSyslistEntryNameToIndex(int listId, int entryId,
+			String[] idxFieldsEntryName, String idxFieldLanguage)
+	throws SQLException {
+		List<Map<String, String>> rows =
+			SQL.all("SELECT * FROM sys_list WHERE lst_id=? AND entry_id=?", new Object[]{listId, entryId});
+	    for (Map<String, String> row : rows) {
+	    	for (String fieldName : idxFieldsEntryName) {
+		        IDX.add(fieldName, row.get("name"));
+	    	}
+	        if (idxFieldLanguage != null) {
+		        IDX.add(idxFieldLanguage, row.get("lang_id"));
+	        }
+	    }
 	}
 
 	/** Add time_from, time_to to Index as t0/t1/t2 dependent from time_type.
