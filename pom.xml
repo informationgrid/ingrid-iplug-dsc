@@ -67,6 +67,10 @@
       <classifier>res</classifier>
       <type>zip</type>
     </dependency>
+    <dependency>
+      <groupId>de.ingrid</groupId>
+      <artifactId>ingrid-utils-geo</artifactId>
+    </dependency>
 <!-- The two following dependencies are needed for Jetty -->
     <dependency>
       <groupId>org.mortbay.jetty</groupId>

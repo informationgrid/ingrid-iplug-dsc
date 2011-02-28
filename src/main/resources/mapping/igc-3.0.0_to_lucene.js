@@ -14,6 +14,7 @@
 importPackage(Packages.java.sql);
 importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
+importPackage(Packages.de.ingrid.geo.utils.transformation);
 
 if (log.isDebugEnabled()) {
 	log.debug("Mapping source record to lucene document: " + sourceRecord.toString());
@@ -332,7 +333,7 @@ function addT01Object(row) {
     IDX.add("t01_object.time_to", row.get("time_to"));
     IDX.add("t01_object.time_type", row.get("time_type"));
     // time: then add t0, t1, t2 fields dependent from time_type
-    TRANSF.processTimeFields(row.get("time_from"), row.get("time_to"), row.get("time_type"));
+    TRANSF.processIGCTimeFields(row.get("time_from"), row.get("time_to"), row.get("time_type"));
     IDX.add("t01_object.time_descr", row.get("time_descr"));
     IDX.add("t01_object.time_period", row.get("time_period"));
     IDX.add("t01_object.time_interval", row.get("time_interval"));
@@ -620,18 +621,30 @@ function addSpatialRefValue(row) {
     // map "nativekey" also as areaid !
     IDX.add("spatial_ref_value.nativekey", row.get("nativekey"));
     IDX.add("areaid", row.get("nativekey"));
-    // map "x1" also as x1 !
-    IDX.add("spatial_ref_value.x1", row.get("x1"));
+
+    // --------------
+    // BB Coordinates ! stored as WGS84 in fields x1, y1, x2, y2 in index (will be queried) !
+/*
+    // Example transforming single point (x,y) into WGS84 and store in x1, x2 !
+    // Pass given Coordinate System, allowed values:
+    // COORDS_ETRS89_UTM31N, COORDS_ETRS89_UTM32N, COORDS_ETRS89_UTM33N, COORDS_ETRS89_UTM34N, COORDS_GK2, COORDS_GK3, COORDS_GK4, COORDS_GK5, COORDS_WGS84
+    var transfPoint = TRANSF.transformPointToWGS84(row.get("x1"), row.get("y1"), CoordTransformUtil.CoordType.COORDS_ETRS89_UTM31N)
+    IDX.add("x1", transfPoint[0]);
+    IDX.add("y1", transfPoint[1]);
+*/
+    // we already have WGS84, so we use orig values
     IDX.add("x1", row.get("x1"));
-    // map "y1" also as y1 !
-    IDX.add("spatial_ref_value.y1", row.get("y1"));
     IDX.add("y1", row.get("y1"));
-    // map "x2" also as x2 !
-    IDX.add("spatial_ref_value.x2", row.get("x2"));
+    // also store orig coordinates in index
+    IDX.add("spatial_ref_value.x1", row.get("x1"));
+    IDX.add("spatial_ref_value.y1", row.get("y1"));
+    // and fields x2, y2 for query
     IDX.add("x2", row.get("x2"));
-    // map "y2" also as y2 !
-    IDX.add("spatial_ref_value.y2", row.get("y2"));
     IDX.add("y2", row.get("y2"));
+    // also store orig coordinates in index
+    IDX.add("spatial_ref_value.x2", row.get("x2"));
+    IDX.add("spatial_ref_value.y2", row.get("y2"));
+    // --------------
 
     IDX.add("spatial_ref_value.topic_type", row.get("topic_type"));
 }
@@ -666,15 +679,15 @@ function addT01ObjectFrom(row) {
 function addT0114EnvCategory(row) {
     IDX.add("t0114_env_category.line", row.get("line"));
     IDX.add("t0114_env_category.cat_key", row.get("cat_key"));
-    // add syslist value to index (in all languages)
-    TRANSF.addSyslistEntryNameToIndex(1400, row.get("cat_key"),
+    // add syslist value to index
+    TRANSF.addIGCSyslistEntryNameToIndex(1400, row.get("cat_key"),
         ["funct_category", "t0114_env_category.cat_value"])
 }
 function addT0114EnvTopic(row) {
     IDX.add("t0114_env_topic.line", row.get("line"));
     IDX.add("t0114_env_topic.topic_key", row.get("topic_key"));
-    // add syslist value to index (in all languages)
-    TRANSF.addSyslistEntryNameToIndex(1410, row.get("topic_key"),
+    // add syslist value to index
+    TRANSF.addIGCSyslistEntryNameToIndex(1410, row.get("topic_key"),
         ["topic", "t0114_env_topic.topic_value"])
 }
 function addT011ObjTopicCat(row) {

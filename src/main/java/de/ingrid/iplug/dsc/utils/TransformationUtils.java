@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.geo.utils.transformation.CoordTransformUtil;
+import de.ingrid.geo.utils.transformation.CoordTransformUtil.CoordType;
 import de.ingrid.utils.udk.UtilsLanguageCodelist;
 
 /**
@@ -57,7 +59,7 @@ public class TransformationUtils {
 	 * @param idxFields name of index fields where entry name is stored.
 	 * 		NOTICE: Pass multiple fields, if value should be stored in several fields !
 	 */
-	public void addSyslistEntryNameToIndex(int listId, int entryId, String[] idxFields)
+	public void addIGCSyslistEntryNameToIndex(int listId, int entryId, String[] idxFields)
 	throws SQLException {
 		// get catalog language in "syslist format" (de, en, ...)
 		Integer catLangKey = getIGCCatalogLanguageKey();
@@ -91,19 +93,19 @@ public class TransformationUtils {
 
 	/** Add time_from, time_to to Index as t0/t1/t2 dependent from time_type.
 	 * Also do some preprocessing of values.*/
-	public void processTimeFields(String time_from, String time_to, String time_type) {
+	public void processIGCTimeFields(String time_from, String time_to, String time_type) {
 		if ("von".equals(time_type)) {
-			IDX.add("t1", preprocessTimeField("t1", time_from));
-			IDX.add("t2", preprocessTimeField("t2", time_to));
+			IDX.add("t1", preprocessIGCTimeField("t1", time_from));
+			IDX.add("t2", preprocessIGCTimeField("t2", time_to));
 
 		} else if ("seit".equals(time_type)) {
-			IDX.add("t1", preprocessTimeField("t1", time_from));
+			IDX.add("t1", preprocessIGCTimeField("t1", time_from));
 
 		} else if ("am".equals(time_type)) {
-			IDX.add("t0", preprocessTimeField("t0", time_from));
+			IDX.add("t0", preprocessIGCTimeField("t0", time_from));
 
 		} else if ("bis".equals(time_type)) {
-			IDX.add("t2", preprocessTimeField("t2", time_to));
+			IDX.add("t2", preprocessIGCTimeField("t2", time_to));
 		}
 		
 	    /*
@@ -137,7 +139,7 @@ public class TransformationUtils {
 	}
 	
 	/** Preprocess time value and remember time field/value for later postprocessing. */
-	private String preprocessTimeField(String fieldName, String value) {
+	private String preprocessIGCTimeField(String fieldName, String value) {
 		if (value == null) {
 			value = "";
 		}
@@ -156,4 +158,23 @@ public class TransformationUtils {
         
         return value;
 	}
+
+	/** Transform a Point (x,y) into WGS84. If problems occur point will be unchanged.
+	 * @param x x coordinate in givenCoordType (as String as read from row via SQLUtils)
+	 * @param y y coordinate in givenCoordType (as String as read from row via SQLUtils)
+	 * @param givenCoordType coordination system of coordinates, e.g. Gauss Krueger ...), use Enumeration !
+	 * @return transformed coords as String[]. Same values as passed if problems occured (logged) !
+	 */
+	public String[] transformPointToWGS84(String x, String y, CoordType givenCoordType) {
+        String[] coord = {x, y};
+        try {
+            double[] coordDouble =
+            	CoordTransformUtil.getInstance().transformToWGS84(new Double(x), new Double(y), givenCoordType);
+            coord[0] = new Double(coordDouble[0]).toString();
+            coord[1] = new Double(coordDouble[1]).toString();
+        } catch (final Exception e) {
+        	log.warn("Could not transform Coord to WGS84, we do NOT transform ! -> x: " + x + ", y: " + y + ", type: " + givenCoordType);
+        }
+        return coord;
+    }
 }
