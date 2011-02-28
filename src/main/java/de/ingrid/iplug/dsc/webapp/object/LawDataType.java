@@ -8,7 +8,7 @@ import de.ingrid.admin.object.AbstractDataType;
 public class LawDataType extends AbstractDataType {
 
     public LawDataType() {
-        super("fis");
+        super("law");
     }
 
 }
