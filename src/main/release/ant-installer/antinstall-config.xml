@@ -6,7 +6,7 @@
 			verbose		          ="true"
 			debug		            ="true"
 			lookAndFeel	        ="org.tp23.jgoodies.plaf.plastic.PlasticXPLookAndFeel"
-			name		            ="iPlug-Opensearch Installation"
+			name		            ="InGrid iPlug-DSC Installation"
 			windowIcon	        ="/resources/icons/logoIcon.gif"
 			defaultImageResource="/resources/makewavesdawn.png"
 			minJavaVersion		  ="1.6"
@@ -16,7 +16,7 @@
 	<page
 			type		="input"
 			name		="intro"
-			displayText	="Willkommen zur iPlug-Opensearch Installation"
+			displayText	="Willkommen zur InGrid iPlug-DSC Installation"
 			target		="extract">
 			<comment displayText="" bold="true" explanatoryText="Dieser Assistent hilft Ihnen bei der Installation sowie Konfiguration des iPlugs."/>
       <comment displayText="Hinweis: " bold="true"/>
@@ -26,7 +26,7 @@
     <page
             type        ="input"
             name        ="componentOptions"
-            displayText ="Einstellungen fuer das iPlug-OpenSearch">
+            displayText ="Einstellungen fuer das iPlug">
             
             <comment displayText="" explanatoryText="Lokaler Port, unter dem die Administrationsoberfläche des Opensearch-iPlugs erreichbar sein soll."/>           
             <text property="localServerPort" displayText="Port für Adminoberfläche:" defaultValue="9667"/>
@@ -50,6 +50,6 @@
 			name		="progress"
 			displayText	="Installationsfortschritt"
 			showTargets	="true"
-			target		="startIPlug">
+			target		="startComponent">
 	</page>
 </installer>
