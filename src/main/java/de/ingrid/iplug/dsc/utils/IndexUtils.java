@@ -61,7 +61,7 @@ public class IndexUtils {
 	 */
 	public void add(String fieldName, String value) {
 		if (value == null || value.trim().length() == 0) {
-			add(fieldName, "", NO_TOKENIZE, NO_STORE, NO_ADD_TO_CONTENT_FIELD);
+			add(fieldName, "", NO_TOKENIZE, STORE, NO_ADD_TO_CONTENT_FIELD);
 		} else {
 			add(fieldName, value, TOKENIZE, STORE, ADD_TO_CONTENT_FIELD);
 		}
