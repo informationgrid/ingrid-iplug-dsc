@@ -315,6 +315,28 @@ for (i=0; i<objRows.size(); i++) {
     for (j=0; j<rows.size(); j++) {
         addObjectConformity(rows.get(j));
     }
+    // ---------- object_data_quality ----------
+    var rows = SQL.all("SELECT * FROM object_data_quality WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addObjectDataQuality(rows.get(j));
+    }
+    // ---------- object_format_inspire ----------
+    var rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addObjectFormatInspire(rows.get(j));
+    }
+    // ---------- additional_field_data TOP Elements (single field, table field) ----------
+    var rows = SQL.all("SELECT * FROM additional_field_data WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addAdditionalFieldData(rows.get(j));
+        var tableId = rows.get(j).get("id");
+
+        // ---------- additional_field_data SUB Elements (table columns)----------
+        var subRows = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=?", [tableId]);
+        for (k=0; k<subRows.size(); k++) {
+            addAdditionalFieldData(subRows.get(k));
+        }
+    }
 }
 
 function addT01Object(row) {
@@ -709,6 +731,26 @@ function addObjectConformity(row) {
     IDX.add("object_conformity.degree_key", row.get("degree_key"));
     IDX.add("object_conformity.degree_value", row.get("degree_value"));
     IDX.add("object_conformity.publication_date", row.get("publication_date"));
+}
+function addObjectDataQuality(row) {
+    IDX.add("object_data_quality.line", row.get("line"));
+    IDX.add("object_data_quality.dq_element_id", row.get("dq_element_id"));
+    IDX.add("object_data_quality.name_of_measure_key", row.get("name_of_measure_key"));
+    IDX.add("object_data_quality.name_of_measure_value", row.get("name_of_measure_value"));
+    IDX.add("object_data_quality.result_value", row.get("result_value"));
+    IDX.add("object_data_quality.measure_description", row.get("measure_description"));
+}
+function addObjectFormatInspire(row) {
+    IDX.add("object_format_inspire.line", row.get("line"));
+    IDX.add("object_format_inspire.format_key", row.get("format_key"));
+    IDX.add("object_format_inspire.format_value", row.get("format_value"));
+}
+function addAdditionalFieldData(row) {
+    IDX.add("additional_field_data.sort", row.get("sort"));
+    IDX.add("additional_field_data.field_key", row.get("field_key"));
+    IDX.add("additional_field_data.list_item_id", row.get("list_item_id"));
+    IDX.add("additional_field_data.data", row.get("data"));
+    IDX.add("additional_field_data.parent_field_id", row.get("parent_field_id"));
 }
 
 

@@ -55,7 +55,8 @@ public class IndexUtils {
 	 * The field will be TOKENIZE and STORE and will be added to a separate
 	 * "content" field (ADD_TO_CONTENT_FIELD) by default.
 	 * If the field value is null (or "") then "" is set as value with NO_TOKENIZE
-	 * and NO_STORE and nothing will be added to separate "content" field (NO_ADD_TO_CONTENT_FIELD).
+	 * (but STORE, so the field is added) and nothing will be added to separate "content"
+	 * field (NO_ADD_TO_CONTENT_FIELD).
 	 * @param fieldName name of the field in the index
 	 * @param value field value to process
 	 */
