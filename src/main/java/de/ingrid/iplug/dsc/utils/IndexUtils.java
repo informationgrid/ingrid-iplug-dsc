@@ -3,7 +3,13 @@
  */
 package de.ingrid.iplug.dsc.utils;
 
+import java.io.IOException;
+import java.io.StringReader;
+
 import org.apache.log4j.Logger;
+import org.apache.lucene.analysis.Token;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.de.GermanAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
@@ -16,20 +22,13 @@ public class IndexUtils {
 
     private static final Logger log = Logger.getLogger(IndexUtils.class);
 
-    /* Helper static consts for passing to methods */
-    public static boolean TOKENIZE = true;
-    public static boolean NO_TOKENIZE = false;
-
-    public static boolean STORE = true;
-    public static boolean NO_STORE = false;
-
-    public static boolean ADD_TO_CONTENT_FIELD = true;
-    public static boolean NO_ADD_TO_CONTENT_FIELD = false;
-
     private static String CONTENT_FIELD_NAME = "content";
 
-    // the Lucene Document where the fields are added !
+    /** the Lucene Document where the fields are added ! */
     private Document luceneDoc = null;
+
+    /** analyzer for stemming ! always german one ??? */
+    private static GermanAnalyzer analyzer = new GermanAnalyzer(new String[0]);
 
     // our single instance !
 	private static IndexUtils myInstance;
@@ -54,50 +53,27 @@ public class IndexUtils {
 	/** Add a index field with the value to the index document.
 	 * The field will be TOKENIZE and STORE and will be added to a separate
 	 * "content" field (ADD_TO_CONTENT_FIELD) by default.
-	 * If the field value is null (or "") then "" is set as value with NO_TOKENIZE
-	 * (but STORE, so the field is added) and nothing will be added to separate "content"
-	 * field (NO_ADD_TO_CONTENT_FIELD).
+	 * If the field value is null (or "") then NOTHING is added !
 	 * @param fieldName name of the field in the index
-	 * @param value field value to process
+	 * @param value content of the field !
 	 */
-	public void add(String fieldName, String value) {
-		if (value == null || value.trim().length() == 0) {
-			add(fieldName, "", NO_TOKENIZE, STORE, NO_ADD_TO_CONTENT_FIELD);
-		} else {
-			add(fieldName, value, TOKENIZE, STORE, ADD_TO_CONTENT_FIELD);
+	public void add(String fieldName, String value) throws IOException {
+		if (value != null && value.trim().length() != 0) {
+			add(fieldName, value, Field.Store.YES, Field.Index.ANALYZED);
+			add(CONTENT_FIELD_NAME, value, Field.Store.NO, Field.Index.ANALYZED);
+			add(CONTENT_FIELD_NAME, filterTerm(value), Field.Store.NO, Field.Index.ANALYZED);
 		}
 	}
 
-	/** Add a index field with the value to the index document.
-	 * The field will be tokenized and stored according to the supplied parameters.
-	 * Also the field value will be added to the separate "content" field if requested.
-	 * @param fieldName name of the field in the index
-	 * @param value field value to process
-	 * @param tokenized use static TOKENIZE, NO_TOKENIZE consts
-	 * @param stored use static STORE, NO_STORE consts
-	 * @param addToContentField use static ADD_TO_CONTENT_FIELD, NO_ADD_TO_CONTENT_FIELD consts
-	 */
 	private void add(String fieldName, String value,
-			boolean tokenized,
-			boolean stored,
-			boolean addToContentField) {
+			Field.Store stored,
+			Field.Index tokenized) {
 		if (log.isDebugEnabled()) {
 	        log.debug("Add field '" + fieldName + "' with value '" + value + "' to lucene document " +
-	        		"(tokenized=" + tokenized + ", stored=" + stored + ", addToContentField=" + addToContentField +")");			
+	        		"(Field.Index=" + tokenized + ", Field.Store=" + stored + ")");			
 		}
         
-		luceneDoc.add(new Field(fieldName,
-				value,
-				mapBooleanToFieldStore(stored),
-				mapBooleanToFieldIndex(tokenized)));
-
-		// also add to "content" field if requested !
-		if (addToContentField) {
-			luceneDoc.add(new Field(CONTENT_FIELD_NAME,
-					value,
-					mapBooleanToFieldStore(stored),
-					mapBooleanToFieldIndex(tokenized)));			
-		}
+		luceneDoc.add(new Field(fieldName, value, stored, tokenized));
 	}
 
 	/** Remove Fields.
@@ -110,17 +86,16 @@ public class IndexUtils {
 
 		luceneDoc.removeFields(fieldName);
 	}
+    private static String filterTerm(String term) throws IOException {
+        String result = "";
 
-	private Field.Store mapBooleanToFieldStore(boolean stored) {
-		if (stored) {
-			return Field.Store.YES;
-		}
-		return Field.Store.NO;
-	}
-	private Field.Index mapBooleanToFieldIndex(boolean tokenized) {
-		if (tokenized) {
-			return Field.Index.ANALYZED;
-		}
-		return Field.Index.NOT_ANALYZED;
-	}
+        TokenStream ts = analyzer.tokenStream(null, new StringReader(term));
+        Token token = ts.next();
+        while (null != token) {
+            result = result + " " + token.termText();
+            token = ts.next();
+        }
+
+        return result.trim();
+    }
 }

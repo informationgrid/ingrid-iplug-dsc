@@ -3,6 +3,7 @@
  */
 package de.ingrid.iplug.dsc.utils;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +61,7 @@ public class TransformationUtils {
 	 * 		NOTICE: Pass multiple fields, if value should be stored in several fields !
 	 */
 	public void addIGCSyslistEntryNameToIndex(int listId, int entryId, String[] idxFields)
-	throws SQLException {
+	throws SQLException, IOException {
 		// get catalog language in "syslist format" (de, en, ...)
 		Integer catLangKey = getIGCCatalogLanguageKey();
 		String catLangShortcut = UtilsLanguageCodelist.getShortcutFromCode(catLangKey);
@@ -93,7 +94,8 @@ public class TransformationUtils {
 
 	/** Add time_from, time_to to Index as t0/t1/t2 dependent from time_type.
 	 * Also do some preprocessing of values.*/
-	public void processIGCTimeFields(String time_from, String time_to, String time_type) {
+	public void processIGCTimeFields(String time_from, String time_to, String time_type)
+	throws IOException {
 		if ("von".equals(time_type)) {
 			IDX.add("t1", preprocessIGCTimeField("t1", time_from));
 			IDX.add("t2", preprocessIGCTimeField("t2", time_to));
