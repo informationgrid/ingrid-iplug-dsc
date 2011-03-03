@@ -702,15 +702,17 @@ function addT0114EnvCategory(row) {
     IDX.add("t0114_env_category.line", row.get("line"));
     IDX.add("t0114_env_category.cat_key", row.get("cat_key"));
     // add syslist value to index
-    TRANSF.addIGCSyslistEntryNameToIndex(1400, row.get("cat_key"),
-        ["funct_category", "t0114_env_category.cat_value"])
+    var listEntryValue = TRANSF.getIGCSyslistEntryName(1400, row.get("cat_key"));
+    IDX.add("funct_category", listEntryValue);
+    IDX.add("t0114_env_category.cat_value", listEntryValue);
 }
 function addT0114EnvTopic(row) {
     IDX.add("t0114_env_topic.line", row.get("line"));
     IDX.add("t0114_env_topic.topic_key", row.get("topic_key"));
     // add syslist value to index
-    TRANSF.addIGCSyslistEntryNameToIndex(1410, row.get("topic_key"),
-        ["topic", "t0114_env_topic.topic_value"])
+    var listEntryValue = TRANSF.getIGCSyslistEntryName(1410, row.get("topic_key"));
+    IDX.add("topic", listEntryValue);
+    IDX.add("t0114_env_topic.topic_value", listEntryValue);
 }
 function addT011ObjTopicCat(row) {
     IDX.add("t011_obj_topic_cat.line", row.get("line"));

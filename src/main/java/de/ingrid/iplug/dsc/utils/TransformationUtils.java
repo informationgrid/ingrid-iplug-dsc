@@ -54,14 +54,16 @@ public class TransformationUtils {
 		this.recordInfo.clear();
 	}
 
-	/** Add the name of the given entry in given syslist IN THE LANGUAGE OF THE CATALOG to the Index.
+	/** Get the name of the given entry in the given syslist IN THE LANGUAGE OF THE CATALOG.
 	 * @param listId id of syslist
 	 * @param entryId id of entry in syslist
-	 * @param idxFields name of index fields where entry name is stored.
-	 * 		NOTICE: Pass multiple fields, if value should be stored in several fields !
+	 * @return null if no entry found !
+	 * @throws SQLException
 	 */
-	public void addIGCSyslistEntryNameToIndex(int listId, int entryId, String[] idxFields)
-	throws SQLException, IOException {
+	public String getIGCSyslistEntryName(int listId, int entryId)
+	throws SQLException {
+		String retValue = null;
+
 		// get catalog language in "syslist format" (de, en, ...)
 		Integer catLangKey = getIGCCatalogLanguageKey();
 		String catLangShortcut = UtilsLanguageCodelist.getShortcutFromCode(catLangKey);
@@ -70,10 +72,11 @@ public class TransformationUtils {
 			SQL.all("SELECT * FROM sys_list WHERE lst_id=? AND entry_id=? and lang_id=?",
 					new Object[]{listId, entryId, catLangShortcut});
 	    for (Map<String, String> row : rows) {
-	    	for (String fieldName : idxFields) {
-		        IDX.add(fieldName, row.get("name"));
-	    	}
+	    	retValue = row.get("name");
+	    	break;
 	    }
+	    
+	    return retValue;
 	}
 
 	/** Get language of catalog (entry id of language syslist). 

@@ -7,11 +7,12 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.de.GermanAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.util.Version;
 
 /**
  * Singleton helper class encapsulating functionality on Lucene Index (e.g. used in mapping script).
@@ -27,8 +28,9 @@ public class IndexUtils {
     /** the Lucene Document where the fields are added ! */
     private Document luceneDoc = null;
 
-    /** analyzer for stemming ! always german one ??? */
-    private static GermanAnalyzer analyzer = new GermanAnalyzer(new String[0]);
+    /** analyzer for stemming ! always german one ???  NO WE USE STANDARD ANALYZER due to different languages ! */
+//    private static GermanAnalyzer fAnalyzer = new GermanAnalyzer(new String[0]);
+    private static StandardAnalyzer fAnalyzer = new StandardAnalyzer(Version.LUCENE_CURRENT);
 
     // our single instance !
 	private static IndexUtils myInstance;
@@ -86,14 +88,24 @@ public class IndexUtils {
 
 		luceneDoc.removeFields(fieldName);
 	}
-    private static String filterTerm(String term) throws IOException {
+    private static String filterTerm(String term) {
         String result = "";
 
-        TokenStream ts = analyzer.tokenStream(null, new StringReader(term));
-        Token token = ts.next();
-        while (null != token) {
-            result = result + " " + token.termText();
-            token = ts.next();
+        TokenStream stream = fAnalyzer.tokenStream(null, new StringReader(term));
+        // get the TermAttribute from the TokenStream
+        TermAttribute termAtt = (TermAttribute) stream.addAttribute(TermAttribute.class);
+
+        try {
+            stream.reset();
+            // add all tokens until stream is exhausted
+            while (stream.incrementToken()) {
+            	result = result + " " + termAtt.term();
+            }
+            stream.end();
+            stream.close();
+        } catch (IOException ex) {
+        	log.error("Problems tokenizing term " + term + ", we return full term.", ex);
+        	result = term;
         }
 
         return result.trim();
