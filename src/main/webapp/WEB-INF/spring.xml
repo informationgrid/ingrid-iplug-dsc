@@ -20,7 +20,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
 
     <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
         <property name="mappingScript" value="classpath:mapping/igc-3.0.0_to_lucene.js" />
-        <property name="compile" value="false" />
+        <property name="compile" value="true" />
     </bean>
 
 
