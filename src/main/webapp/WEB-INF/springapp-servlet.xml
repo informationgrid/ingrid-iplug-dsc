@@ -39,10 +39,12 @@
         <property name="queryParsers">
             <list>
                 <ref bean="contentQueryParser" />
-                <!-- NO datatype in lucene query ! -->
+                <!-- NO datatype added to lucene query ! -->
                 <!-- ref bean="dataTypeQueryParser" /-->
                 <ref bean="titleQueryParser" />
                 <ref bean="fieldQueryParserIGC" />
+                <ref bean="rangeQueryParser" />
+                <ref bean="wildCardFieldQueryParser" />
                 <ref bean="allResultsOnEmptyQueryParser" />
             </list>
         </property>
