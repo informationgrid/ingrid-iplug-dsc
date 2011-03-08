@@ -4,6 +4,7 @@
 package de.ingrid.iplug.dsc.record.mapper;
 
 import java.io.InputStreamReader;
+import java.sql.Connection;
 
 import javax.script.Bindings;
 import javax.script.Compilable;
@@ -15,7 +16,9 @@ import org.apache.log4j.Logger;
 import org.springframework.core.io.Resource;
 import org.w3c.dom.Document;
 
+import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.iplug.dsc.utils.SQLUtils;
 
 /**
  * 
@@ -66,10 +69,17 @@ public class ScriptedIdfMapper implements IIdfMapper {
                     }
                 }
             }
+
+            // create utils for script
+            Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
+            SQLUtils sqlUtils = SQLUtils.getInstance(connection);
+
             Bindings bindings = engine.createBindings();
             bindings.put("sourceRecord", record);
             bindings.put("idfDoc", doc);
             bindings.put("log", log);
+            bindings.put("SQL", sqlUtils);
+
             if (compiledScript != null) {
                 compiledScript.eval(bindings);
             } else {

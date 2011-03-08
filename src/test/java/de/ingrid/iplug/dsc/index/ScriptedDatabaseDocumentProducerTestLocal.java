@@ -40,7 +40,7 @@ public class ScriptedDatabaseDocumentProducerTestLocal extends TestCase {
 
         ScriptedDocumentMapper m = new ScriptedDocumentMapper();
         m.setMappingScript(new FileSystemResource("src/main/resources/mapping/igc-3.0.0_to_lucene.js"));
-        m.setCompile(false);
+        m.setCompile(true);
 
         List<IRecordMapper> mList = new ArrayList<IRecordMapper>();
         mList.add(m);

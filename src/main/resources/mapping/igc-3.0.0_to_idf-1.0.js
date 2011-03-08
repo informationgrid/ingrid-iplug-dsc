@@ -7,7 +7,7 @@
  * @param sourceRecord A SourceRecord instance, that defines the input
  * @param idfDoc A IDF Document (XML-DOM) instance, that defines the output
  * @param log A Log instance
- *
+ * @param SQL SQL helper class encapsulating utility methods
  */
 importPackage(Packages.java.sql);
 importPackage(Packages.org.w3c.dom);
@@ -18,25 +18,23 @@ if (log.isDebugEnabled()) {
 	log.debug("Mapping source record to idf document: " + sourceRecord.toString());
 }
 
-
 if (!(sourceRecord instanceof DatabaseSourceRecord)) {
     throw new IllegalArgumentException("Record is no DatabaseRecord!");
 }
 
-var id = sourceRecord.get(DatabaseSourceRecord.ID);
-var connection = sourceRecord.get(DatabaseSourceRecord.CONNECTION);
-var ps;
-try {
-    ps = connection.prepareStatement("SELECT * FROM t01_object WHERE id=?");
-    ps.setString(1, id);
-    var rs = ps.executeQuery();
-    rs.next();
+// ---------- t01_object ----------
+var objId = sourceRecord.get(DatabaseSourceRecord.ID);
+var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
+for (i=0; i<objRows.size(); i++) {
 
-    for (var i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-        var colName = rs.getMetaData().getColumnName(i);
-        var colValue = rs.getString(i);
+    // Example iterating all columns !
+    var objRow = objRows.get(i);
+    var colNames = objRow.keySet().toArray();
+    for (var i in colNames) {
+        var colName = colNames[i];
+        var colValue = objRow.get(colName);
         if (colValue == null) {
-        	colValue = "";
+            colValue = "";
         }
         XPathUtils.getXPathInstance().setNamespaceContext(new IdfNamespaceContext());
         var body = XPathUtils.getNode(idfDoc, "/idf:html/idf:body");
@@ -45,12 +43,4 @@ try {
         strong.appendChild(idfDoc.createTextNode(colName+": "));
         p.appendChild(idfDoc.createTextNode(colValue));        
     }
-    rs.close();
-} catch (e) {
-    log.error("Error mapping Record." + e);
-    throw e;
-} finally {
-	if (ps) {
-		ps.close();
-	}
 }

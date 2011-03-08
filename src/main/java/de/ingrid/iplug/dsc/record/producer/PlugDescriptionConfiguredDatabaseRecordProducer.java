@@ -33,6 +33,8 @@ import de.ingrid.utils.PlugDescription;
 public class PlugDescriptionConfiguredDatabaseRecordProducer implements
         IRecordProducer, IConfigurable {
 
+    private String indexFieldID;
+
     DatabaseConnection internalDatabaseConnection = null;
     Connection connection = null;
 
@@ -48,9 +50,13 @@ public class PlugDescriptionConfiguredDatabaseRecordProducer implements
      */
     @Override
     public SourceRecord getRecord(Document doc) {
+        if (indexFieldID == null) {
+            log.error("Name of ID-Field in Lucene Doc is not set!");
+            throw new IllegalArgumentException("Name of ID-Field in Lucene Doc is not set!");
+        }
+
         openConnection();
-        // TODO make the field configurable
-        Field field = doc.getField("ID");
+        Field field = doc.getField(indexFieldID);
         return new DatabaseSourceRecord(field.stringValue(), connection);
     }
 
@@ -110,4 +116,11 @@ public class PlugDescriptionConfiguredDatabaseRecordProducer implements
         }
     }
 
+	public String getIndexFieldID() {
+		return indexFieldID;
+	}
+
+	public void setIndexFieldID(String indexFieldID) {
+		this.indexFieldID = indexFieldID;
+	}
 }
