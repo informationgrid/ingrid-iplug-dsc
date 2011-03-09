@@ -8,6 +8,7 @@
  * @param idfDoc A IDF Document (XML-DOM) instance, that defines the output
  * @param log A Log instance
  * @param SQL SQL helper class encapsulating utility methods
+ * @param XPATH xpath helper class encapsulating utility methods
  */
 importPackage(Packages.java.sql);
 importPackage(Packages.org.w3c.dom);
@@ -21,26 +22,79 @@ if (log.isDebugEnabled()) {
 if (!(sourceRecord instanceof DatabaseSourceRecord)) {
     throw new IllegalArgumentException("Record is no DatabaseRecord!");
 }
+// ---------- Constants ----------
+// Namespaces URI
+var gmdURI = "http://www.isotc211.org/2005/gmd";
+var gcoURI = "http://www.isotc211.org/2005/gco";
+var srvURI = "http://www.isotc211.org/2005/srv";
+var gmlURI = "http://www.opengis.net/gml";
+var gtsURI = "http://www.isotc211.org/2005/gts";
+var xlinkURI = "http://www.w3.org/1999/xlink";
 
-// ---------- t01_object ----------
+// ---------- <idf:body> ----------
+var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
+
+// ---------- <gmd:MD_Metadata> ----------
+var gmdMetadata = idfBody.appendChild(idfDoc.createElementNS(gmdURI, "gmd:MD_Metadata"));
+// add known namespaces
+gmdMetadata.setAttribute("xmlns:gmd", gmdURI);
+gmdMetadata.setAttribute("xmlns:gco", gcoURI);
+gmdMetadata.setAttribute("xmlns:srv", srvURI);
+gmdMetadata.setAttribute("xmlns:gml", gmlURI);
+gmdMetadata.setAttribute("xmlns:gts", gtsURI);
+gmdMetadata.setAttribute("xmlns:xlink", xlinkURI);
+// and schema references
+gmdMetadata.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+gmdMetadata.setAttribute("xsi:schemaLocation", gmdURI + " http://schemas.opengis.net/iso/19139/20060504/gmd/gmd.xsd");
+
+// ========== t01_object ==========
 var objId = sourceRecord.get(DatabaseSourceRecord.ID);
 var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
 for (i=0; i<objRows.size(); i++) {
-
+    var objRow = objRows.get(i);
+/*
     // Example iterating all columns !
     var objRow = objRows.get(i);
     var colNames = objRow.keySet().toArray();
     for (var i in colNames) {
         var colName = colNames[i];
         var colValue = objRow.get(colName);
-        if (colValue == null) {
-            colValue = "";
-        }
-        XPathUtils.getXPathInstance().setNamespaceContext(new IdfNamespaceContext());
-        var body = XPathUtils.getNode(idfDoc, "/idf:html/idf:body");
-        var p = body.appendChild(idfDoc.createElementNS("http://www.portalu.de/IDF/1.0", "p"));
-        var strong = p.appendChild(idfDoc.createElementNS("http://www.portalu.de/IDF/1.0", "strong"));
-        strong.appendChild(idfDoc.createTextNode(colName+": "));
-        p.appendChild(idfDoc.createTextNode(colValue));        
+    }
+*/
+
+// ---------- <gmd:fileIdentifier> ----------
+    var value = objRow.get("org_obj_id");
+    if (!hasValue(value)) {
+        value = objRow.get("obj_uuid");
+    }
+    if (hasValue(value)) {
+        gmdMetadata.appendChild(idfDoc.createElementNS(gmdURI, "gmd:fileIdentifier"))
+            .appendChild(createGCOCharacterString(value));
+    }
+
+// ---------- <gmd:language> ----------
+    var value = objRow.get("metadata_language_key");
+    if (hasValue(value)) {
+        gmdMetadata.appendChild(idfDoc.createElementNS(gmdURI, "gmd:language"))
+            .appendChild(idfDoc.createElementNS(gmdURI, "gmd:LanguageCode"))
+            .appendChild(idfDoc.createTextNode(value));
+    }
+}
+
+function createGCOCharacterString(value) {
+    var elem = idfDoc.createElementNS(gcoURI, "gco:CharacterString");
+    elem.appendChild(idfDoc.createTextNode(value));    
+    return elem;
+}
+
+function hasValue(val) {
+    if (typeof val == "undefined") {
+        return false; 
+    } else if (val == null) {
+        return false; 
+    } else if (typeof val == "string" && val == "") {
+        return false;
+    } else {
+      return true;
     }
 }

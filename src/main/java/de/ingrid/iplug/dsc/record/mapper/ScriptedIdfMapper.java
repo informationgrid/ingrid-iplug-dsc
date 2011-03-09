@@ -17,8 +17,10 @@ import org.springframework.core.io.Resource;
 import org.w3c.dom.Document;
 
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
+import de.ingrid.iplug.dsc.om.IdfNamespaceContext;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
+import de.ingrid.utils.xml.XPathUtils;
 
 /**
  * 
@@ -73,12 +75,16 @@ public class ScriptedIdfMapper implements IIdfMapper {
             // create utils for script
             Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
             SQLUtils sqlUtils = SQLUtils.getInstance(connection);
+            // initialize static XPathUtils (encapsulated static XPath instance))
+            XPathUtils.getXPathInstance(new IdfNamespaceContext());
+            XPathUtils xpathUtils = XPathUtils.getInstance();
 
             Bindings bindings = engine.createBindings();
             bindings.put("sourceRecord", record);
             bindings.put("idfDoc", doc);
             bindings.put("log", log);
             bindings.put("SQL", sqlUtils);
+            bindings.put("XPATH", xpathUtils);
 
             if (compiledScript != null) {
                 compiledScript.eval(bindings);
