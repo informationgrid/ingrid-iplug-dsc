@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import de.ingrid.geo.utils.transformation.CoordTransformUtil;
 import de.ingrid.geo.utils.transformation.CoordTransformUtil.CoordType;
 import de.ingrid.utils.udk.UtilsLanguageCodelist;
+import de.ingrid.utils.udk.UtilsUDKCodeLists;
 import de.ingrid.utils.udk.UtilsLanguageCodelist.ISO_639_2_Type;
 
 /**
@@ -110,10 +111,28 @@ public class TransformationUtils {
 
 	/**
 	 * Get ISO 639-2 language shortcut (e.g. "ger, "eng" ...") from IGC language code. 
-	 * @param languageCodeIGC IGC code of language. e.g. "150"
+	 * @param igcLangCode IGC code of language. e.g. "150"
 	 * @return ISO 639-2 language shortcut (bibliographic code !) or null if not found
 	 */
-	public String getLanguageISO639_2FromIGCCode(String languageCodeIGC) {
-	    return UtilsLanguageCodelist.getLanguageISO639_2FromIGCCode(new Integer(languageCodeIGC), ISO_639_2_Type.BIBLIOGRAPHIC_CODE);
+	public String getLanguageISO639_2FromIGCCode(String igcLangCode) {
+		if (igcLangCode == null) {
+			return null;
+		}
+	    return UtilsLanguageCodelist.getLanguageISO639_2FromIGCCode(new Integer(igcLangCode), ISO_639_2_Type.BIBLIOGRAPHIC_CODE);
 	}
+
+	/**
+	 * Returns an iso codeList entry based on an IGC code list domain id.
+	 * The Data is based on ISO code lists from
+	 * http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml
+	 * If the iso codelist entry cannot be found, the english translation of the
+	 * IGC syslist will be returned. If this also cannot be found, null is returned.
+	 */
+	public String getISOCodeListEntryFromIGCSyslistEntry(Long igcCodeListId, String igcEntryId) {
+		if (igcEntryId == null) {
+			return null;
+		}
+	    return UtilsUDKCodeLists.getIsoCodeListEntryFromIgcId(igcCodeListId, new Long(igcEntryId));
+	}
+
 }

@@ -75,14 +75,22 @@ for (i=0; i<objRows.size(); i++) {
     }
 
 // ---------- <gmd:language> ----------
-    var value = objRow.get("metadata_language_key");
+    var value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
     if (hasValue(value)) {
-        var langCodeValue = TRANSF.getLanguageISO639_2FromIGCCode(value);
-        var langCodeElem = DOM.createElementWithText(gmdURI, "gmd:LanguageCode", langCodeValue);
-        langCodeElem.setAttribute("codeList", "http://www.loc.gov/standards/iso639-2/");
-        langCodeElem.setAttribute("codeListValue", langCodeValue);
+        var elem = DOM.createElementWithText(gmdURI, "gmd:LanguageCode", value);
+        elem.setAttribute("codeList", "http://www.loc.gov/standards/iso639-2/");
+        elem.setAttribute("codeListValue", value);
         gmdMetadata.appendChild(DOM.createElement(gmdURI, "gmd:language"))
-            .appendChild(langCodeElem);
+            .appendChild(elem);
+    }
+// ---------- <gmd:characterSet> ----------
+    var value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("metadata_character_set"));
+    if (hasValue(value)) {
+        var elem = DOM.createElement(gmdURI, "gmd:MD_CharacterSetCode");
+        elem.setAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_CharacterSetCode");
+        elem.setAttribute("codeListValue", value);
+        gmdMetadata.appendChild(DOM.createElement(gmdURI, "gmd:characterSet"))
+            .appendChild(elem);
     }
 }
 
