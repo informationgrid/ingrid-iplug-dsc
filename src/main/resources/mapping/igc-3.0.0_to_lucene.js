@@ -11,7 +11,6 @@
  * @param IDX Lucene index helper class encapsulating utility methods for output
  * @param TRANSF Helper class for transforming, processing values/fields.
  */
-importPackage(Packages.java.sql);
 importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 importPackage(Packages.de.ingrid.geo.utils.transformation);

@@ -12,9 +12,7 @@
  * @param TRANSF Helper class for transforming, processing values
  * @param DOM Helper class encapsulating processing DOM
  */
-importPackage(Packages.java.sql);
 importPackage(Packages.org.w3c.dom);
-importPackage(Packages.de.ingrid.utils.xml);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 
 if (log.isDebugEnabled()) {
