@@ -33,6 +33,7 @@ public class ScriptedDatabaseDscRecordCreatorTest extends IgcDbUnitEnabledTestCa
                 .deSerialize(plugDescriptionFile);
 
         PlugDescriptionConfiguredDatabaseRecordProducer p = new PlugDescriptionConfiguredDatabaseRecordProducer();
+        p.setIndexFieldID("ID");
         p.configure(pd);
 
         CreateIdfMapper m1 = new CreateIdfMapper();
