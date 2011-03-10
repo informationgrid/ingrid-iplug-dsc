@@ -19,6 +19,7 @@ import org.w3c.dom.Document;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.IdfNamespaceContext;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.iplug.dsc.utils.DOMUtils;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
 import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.utils.xml.XPathUtils;
@@ -80,6 +81,7 @@ public class ScriptedIdfMapper implements IIdfMapper {
             XPathUtils.getXPathInstance(new IdfNamespaceContext());
             XPathUtils xpathUtils = XPathUtils.getInstance();
             TransformationUtils trafoUtils = TransformationUtils.getInstance(sqlUtils);
+            DOMUtils domUtils = DOMUtils.getInstance(doc);
 
             Bindings bindings = engine.createBindings();
             bindings.put("sourceRecord", record);
@@ -88,6 +90,7 @@ public class ScriptedIdfMapper implements IIdfMapper {
             bindings.put("SQL", sqlUtils);
             bindings.put("XPATH", xpathUtils);
             bindings.put("TRANSF", trafoUtils);
+            bindings.put("DOM", domUtils);
 
             if (compiledScript != null) {
                 compiledScript.eval(bindings);

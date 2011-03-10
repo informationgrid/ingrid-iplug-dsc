@@ -10,6 +10,7 @@
  * @param SQL SQL helper class encapsulating utility methods
  * @param XPATH xpath helper class encapsulating utility methods
  * @param TRANSF Helper class for transforming, processing values
+ * @param DOM Helper class encapsulating processing DOM
  */
 importPackage(Packages.java.sql);
 importPackage(Packages.org.w3c.dom);
@@ -36,7 +37,7 @@ var xlinkURI = "http://www.w3.org/1999/xlink";
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
 
 // ---------- <gmd:MD_Metadata> ----------
-var gmdMetadata = idfBody.appendChild(idfDoc.createElementNS(gmdURI, "gmd:MD_Metadata"));
+var gmdMetadata = idfBody.appendChild(DOM.createElement(gmdURI, "gmd:MD_Metadata"));
 // add known namespaces
 gmdMetadata.setAttribute("xmlns:gmd", gmdURI);
 gmdMetadata.setAttribute("xmlns:gco", gcoURI);
@@ -69,27 +70,20 @@ for (i=0; i<objRows.size(); i++) {
         value = objRow.get("obj_uuid");
     }
     if (hasValue(value)) {
-        gmdMetadata.appendChild(idfDoc.createElementNS(gmdURI, "gmd:fileIdentifier"))
-            .appendChild(createGCOCharacterString(value));
+        gmdMetadata.appendChild(DOM.createElement(gmdURI, "gmd:fileIdentifier"))
+            .appendChild(DOM.createElementWithText(gcoURI, "gco:CharacterString", value));
     }
 
 // ---------- <gmd:language> ----------
     var value = objRow.get("metadata_language_key");
     if (hasValue(value)) {
         var langCodeValue = TRANSF.getLanguageISO639_2FromIGCCode(value);
-        var langCodeElem = idfDoc.createElementNS(gmdURI, "gmd:LanguageCode");
+        var langCodeElem = DOM.createElementWithText(gmdURI, "gmd:LanguageCode", langCodeValue);
         langCodeElem.setAttribute("codeList", "http://www.loc.gov/standards/iso639-2/");
         langCodeElem.setAttribute("codeListValue", langCodeValue);
-        gmdMetadata.appendChild(idfDoc.createElementNS(gmdURI, "gmd:language"))
-            .appendChild(langCodeElem)
-            .appendChild(idfDoc.createTextNode(langCodeValue));
+        gmdMetadata.appendChild(DOM.createElement(gmdURI, "gmd:language"))
+            .appendChild(langCodeElem);
     }
-}
-
-function createGCOCharacterString(value) {
-    var elem = idfDoc.createElementNS(gcoURI, "gco:CharacterString");
-    elem.appendChild(idfDoc.createTextNode(value));    
-    return elem;
 }
 
 function hasValue(val) {
