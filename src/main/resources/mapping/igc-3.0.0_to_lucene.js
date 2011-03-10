@@ -355,7 +355,7 @@ function addT01Object(row) {
     IDX.add("t01_object.time_to", row.get("time_to"));
     IDX.add("t01_object.time_type", row.get("time_type"));
     // time: then add t0, t1, t2 fields dependent from time_type
-    TRANSF.processIGCTimeFields(row.get("time_from"), row.get("time_to"), row.get("time_type"));
+    IDX.processIGCTimeFields(row.get("time_from"), row.get("time_to"), row.get("time_type"));
     IDX.add("t01_object.time_descr", row.get("time_descr"));
     IDX.add("t01_object.time_period", row.get("time_period"));
     IDX.add("t01_object.time_interval", row.get("time_interval"));

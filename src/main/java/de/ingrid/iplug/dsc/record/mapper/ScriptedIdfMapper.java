@@ -20,6 +20,7 @@ import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.IdfNamespaceContext;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
+import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.utils.xml.XPathUtils;
 
 /**
@@ -78,6 +79,7 @@ public class ScriptedIdfMapper implements IIdfMapper {
             // initialize static XPathUtils (encapsulated static XPath instance))
             XPathUtils.getXPathInstance(new IdfNamespaceContext());
             XPathUtils xpathUtils = XPathUtils.getInstance();
+            TransformationUtils trafoUtils = TransformationUtils.getInstance(sqlUtils);
 
             Bindings bindings = engine.createBindings();
             bindings.put("sourceRecord", record);
@@ -85,6 +87,7 @@ public class ScriptedIdfMapper implements IIdfMapper {
             bindings.put("log", log);
             bindings.put("SQL", sqlUtils);
             bindings.put("XPATH", xpathUtils);
+            bindings.put("TRANSF", trafoUtils);
 
             if (compiledScript != null) {
                 compiledScript.eval(bindings);

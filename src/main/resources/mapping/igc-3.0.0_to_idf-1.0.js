@@ -9,6 +9,7 @@
  * @param log A Log instance
  * @param SQL SQL helper class encapsulating utility methods
  * @param XPATH xpath helper class encapsulating utility methods
+ * @param TRANSF Helper class for transforming, processing values
  */
 importPackage(Packages.java.sql);
 importPackage(Packages.org.w3c.dom);
@@ -75,9 +76,13 @@ for (i=0; i<objRows.size(); i++) {
 // ---------- <gmd:language> ----------
     var value = objRow.get("metadata_language_key");
     if (hasValue(value)) {
+        var langCodeValue = TRANSF.getLanguageISO639_2FromIGCCode(value);
+        var langCodeElem = idfDoc.createElementNS(gmdURI, "gmd:LanguageCode");
+        langCodeElem.setAttribute("codeList", "http://www.loc.gov/standards/iso639-2/");
+        langCodeElem.setAttribute("codeListValue", langCodeValue);
         gmdMetadata.appendChild(idfDoc.createElementNS(gmdURI, "gmd:language"))
-            .appendChild(idfDoc.createElementNS(gmdURI, "gmd:LanguageCode"))
-            .appendChild(idfDoc.createTextNode(value));
+            .appendChild(langCodeElem)
+            .appendChild(idfDoc.createTextNode(langCodeValue));
     }
 }
 
