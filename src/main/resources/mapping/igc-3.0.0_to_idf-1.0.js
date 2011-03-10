@@ -54,6 +54,7 @@ var objId = sourceRecord.get(DatabaseSourceRecord.ID);
 var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
 for (i=0; i<objRows.size(); i++) {
     var objRow = objRows.get(i);
+    var objUuid = objRow.get("obj_uuid");
 /*
     // Example iterating all columns !
     var objRow = objRows.get(i);
@@ -67,7 +68,7 @@ for (i=0; i<objRows.size(); i++) {
 // ---------- <gmd:fileIdentifier> ----------
     var value = objRow.get("org_obj_id");
     if (!hasValue(value)) {
-        value = objRow.get("obj_uuid");
+        value = objUuid;
     }
     if (hasValue(value)) {
         gmdMetadata.appendChild(DOM.createElement(gmdURI, "gmd:fileIdentifier"))
@@ -91,6 +92,17 @@ for (i=0; i<objRows.size(); i++) {
         elem.setAttribute("codeListValue", value);
         gmdMetadata.appendChild(DOM.createElement(gmdURI, "gmd:characterSet"))
             .appendChild(elem);
+    }
+// ---------- <gmd:parentIdentifier> ----------
+    // NOTICE: Has to be published ! Guaranteed by select of passed sourceRecord ! 
+    var rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
+    // should be only one row !
+    for (j=0; j<rows.size(); j++) {
+        var value = rows.get(j).get("fk_obj_uuid");
+        if (hasValue(value)) {
+            gmdMetadata.appendChild(DOM.createElement(gmdURI, "gmd:parentIdentifier"))
+                .appendChild(DOM.createElementWithText(gcoURI, "gco:CharacterString", value));
+        }
     }
 }
 
