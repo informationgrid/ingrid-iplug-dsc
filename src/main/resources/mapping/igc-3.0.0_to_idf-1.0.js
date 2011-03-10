@@ -55,9 +55,13 @@ var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
 for (i=0; i<objRows.size(); i++) {
     var objRow = objRows.get(i);
     var objUuid = objRow.get("obj_uuid");
+    
+    // local variables
+    var rows = null;
+    var value = null;
+    var elem = null;
 /*
     // Example iterating all columns !
-    var objRow = objRows.get(i);
     var colNames = objRow.keySet().toArray();
     for (var i in colNames) {
         var colName = colNames[i];
@@ -66,7 +70,7 @@ for (i=0; i<objRows.size(); i++) {
 */
 
 // ---------- <gmd:fileIdentifier> ----------
-    var value = objRow.get("org_obj_id");
+    value = objRow.get("org_obj_id");
     if (!hasValue(value)) {
         value = objUuid;
     }
@@ -76,18 +80,18 @@ for (i=0; i<objRows.size(); i++) {
     }
 
 // ---------- <gmd:language> ----------
-    var value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
+    value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
     if (hasValue(value)) {
-        var elem = DOM.createElementWithText(gmdURI, "gmd:LanguageCode", value);
+        elem = DOM.createElementWithText(gmdURI, "gmd:LanguageCode", value);
         elem.setAttribute("codeList", "http://www.loc.gov/standards/iso639-2/");
         elem.setAttribute("codeListValue", value);
         gmdMetadata.appendChild(DOM.createElement(gmdURI, "gmd:language"))
             .appendChild(elem);
     }
 // ---------- <gmd:characterSet> ----------
-    var value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("metadata_character_set"));
+    value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("metadata_character_set"));
     if (hasValue(value)) {
-        var elem = DOM.createElement(gmdURI, "gmd:MD_CharacterSetCode");
+        elem = DOM.createElement(gmdURI, "gmd:MD_CharacterSetCode");
         elem.setAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_CharacterSetCode");
         elem.setAttribute("codeListValue", value);
         gmdMetadata.appendChild(DOM.createElement(gmdURI, "gmd:characterSet"))
@@ -95,14 +99,12 @@ for (i=0; i<objRows.size(); i++) {
     }
 // ---------- <gmd:parentIdentifier> ----------
     // NOTICE: Has to be published ! Guaranteed by select of passed sourceRecord ! 
-    var rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
-    // should be only one row !
-    for (j=0; j<rows.size(); j++) {
-        var value = rows.get(j).get("fk_obj_uuid");
-        if (hasValue(value)) {
-            gmdMetadata.appendChild(DOM.createElement(gmdURI, "gmd:parentIdentifier"))
-                .appendChild(DOM.createElementWithText(gcoURI, "gco:CharacterString", value));
-        }
+    rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
+    // Should be only one row !
+    value = rows.get(0).get("fk_obj_uuid");
+    if (hasValue(value)) {
+        gmdMetadata.appendChild(DOM.createElement(gmdURI, "gmd:parentIdentifier"))
+            .appendChild(DOM.createElementWithText(gcoURI, "gco:CharacterString", value));
     }
 }
 
