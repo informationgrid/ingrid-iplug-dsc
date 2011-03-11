@@ -11,6 +11,8 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.geo.utils.transformation.CoordTransformUtil;
 import de.ingrid.geo.utils.transformation.CoordTransformUtil.CoordType;
+import de.ingrid.utils.udk.UtilsCSWDate;
+import de.ingrid.utils.udk.UtilsCountryCodelist;
 import de.ingrid.utils.udk.UtilsLanguageCodelist;
 import de.ingrid.utils.udk.UtilsUDKCodeLists;
 import de.ingrid.utils.udk.UtilsLanguageCodelist.ISO_639_2_Type;
@@ -134,5 +136,37 @@ public class TransformationUtils {
 		}
 	    return UtilsUDKCodeLists.getIsoCodeListEntryFromIgcId(igcCodeListId, new Long(igcEntryId));
 	}
+	
+	
+	/**
+	 * Returns a ISO3166-1 Alpha-3 code based on a given numeric id.
+	 * 
+	 * @param numericCode The numeric id.
+	 * @return The ISO3166-1 Alpha-3 code or the numeric id. 
+	 */
+	public String getISO3166_1_Alpha_3FromNumericLanguageCode(String numericCode) {
+        String iso3166_1_Alpha_3;
+        try {
+            iso3166_1_Alpha_3 = UtilsCountryCodelist.getShortcut3FromCode(Integer.valueOf(numericCode));;
+        } catch (NumberFormatException e) {
+            log.error("Cannot transform numeric language code '" + numericCode + "' to ISO3166-1 Alpha-3 code.");
+            iso3166_1_Alpha_3 = numericCode;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Transform numeric language code '" + numericCode + "' to ISO3166-1 Alpha-3 code:" + iso3166_1_Alpha_3);
+        }
+        
+        return iso3166_1_Alpha_3;
+	    	    
+	}
+	
+	public String getISODateFromIgcDate(String igcDate) {
+	    String result = UtilsCSWDate.mapFromIgcToIso8601(igcDate);
+	    if (result == null) {
+	        result = igcDate;
+	    }
+	    return result;
+	}
+	
 
 }

@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,41 @@ public class SQLUtils {
 		this.connection = connection;
 	}
 
+	
+	/**
+	 * Executes a SQL and returns the first record result.
+	 * 
+	 * @param sqlStr The SQL to execute.
+	 * @return A map with column names as keys and column values as String (can be null)
+	 * @throws SQLException
+	 */
+	public Map<String, String> first(String sqlStr) throws SQLException {
+	    List<Map<String, String>> results = all(sqlStr);
+	    if (results.size() > 0) {
+	        return results.get(0);
+	    } else {
+	        return null;
+	    }
+	}
+
+    /**
+     * Executes a SQL and returns the first record result.
+     * 
+     * @param sqlStr The SQL to execute.
+     * @param sqlParams The params to be set on SQL string. NOTICE: NO null params !
+     * @return A map with column names as keys and column values as String (can be null)
+     * @throws SQLException
+     */
+    public Map<String, String> first(String sqlStr, Object[] sqlParams) throws SQLException {
+        List<Map<String, String>> results = all(sqlStr, sqlParams);
+        if (results.size() > 0) {
+            return results.get(0);
+        } else {
+            return null;
+        }
+    }
+	
+	
 	/**
 	 * Executes a SQL and returns a list with records results
 	 * @param sqlStr the sql to execute
@@ -52,7 +88,7 @@ public class SQLUtils {
 	 * @throws SQLException
 	 */
 	public List<Map<String, String>> all(String sqlStr) throws SQLException {
-		return all(sqlStr, null);
+	    return all(sqlStr, null);
 	}
 
 	/**
@@ -63,6 +99,9 @@ public class SQLUtils {
 	 * @throws SQLException
 	 */
 	public List<Map<String, String>> all(String sqlStr, Object[] sqlParams) throws SQLException {
+        if (log.isDebugEnabled()) {
+            log.debug("Execute sql: '" + sqlStr + "' with parameters: " + Arrays.toString(sqlParams));
+        }
 		PreparedStatement ps = null;
 		try {
 			ps = connection.prepareStatement(sqlStr);
@@ -140,4 +179,6 @@ public class SQLUtils {
 
 		return columnNames;
 	}
+	
+	
 }

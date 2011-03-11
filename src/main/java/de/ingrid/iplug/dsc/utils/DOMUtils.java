@@ -34,24 +34,81 @@ public class DOMUtils {
 
 		return myInstance;
 	}
+	
+	public class IdfElement {
+	    
+	    private Element e;
+	    
+	    public IdfElement (Element element) {
+	        this.e = element;
+	    }
+	    
+	    public IdfElement addElement(String qualifiedName) {
+	        String[] qNames = qualifiedName.split("/");
+	        Element parent = e;
+	        Element newElement = null;
+	        for (int i=0; i<qNames.length; i++) {
+	            newElement = doc.createElement(qNames[i]);
+	            parent.appendChild(newElement);
+	            parent = newElement; 
+	        }
+	        return new IdfElement(newElement);
+	    }
+	    
+	    public IdfElement addAttribute(String attrName, String attrValue) {
+	        e.setAttribute(attrName, attrValue);
+	        return this;
+	    }
+        
+	    public IdfElement addText(String text) {
+            e.appendChild(newTextNode(text));
+            return this;
+        }
+	    
+        public IdfElement addElement(IdfElement element) {
+            e.appendChild(element.getElement());
+            return element;
+        }
+        
+        public Element getElement() {
+            return e;
+        }
+        
+        
+	    
+	}
 
 	private DOMUtils() {
 	}
+	
 	private void initialize(Document doc) {
 		this.doc = doc;
 	}
 
-	public Element createElement(String namespaceURI, String qualifiedName) {
-		return doc.createElementNS(namespaceURI, qualifiedName);
+	public IdfElement addElement(Element element, String qualifiedName) {
+	    return new IdfElement(element).addElement(qualifiedName);
 	}
 
-	public Text createTextNode(String data) {
+    public IdfElement addAttribute(Element element, String attrName, String attrValue) {
+        element.setAttribute(attrName, attrValue);
+        return new IdfElement(element);
+    }
+
+    public IdfElement addText(Element element, String text) {
+        element.appendChild(newTextNode(text));
+        return new IdfElement(element);
+    }
+    
+    public IdfElement createElement(String qualifiedName) {
+        return new IdfElement(doc.createElement(qualifiedName));
+    }
+	
+    private Element newElement(String qualifiedName) {
+        return doc.createElement(qualifiedName);
+    }
+	
+	private Text newTextNode(String data) {
 		return doc.createTextNode(data);
 	}
 
-	public Element createElementWithText(String namespaceURI, String elemQualifiedName, String text) {
-	    Element elem = createElement(namespaceURI, elemQualifiedName);
-	    elem.appendChild(createTextNode(text));    
-	    return elem;
-	}
 }
