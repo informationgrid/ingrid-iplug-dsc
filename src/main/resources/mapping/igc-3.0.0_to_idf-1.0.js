@@ -338,7 +338,55 @@ for (i=0; i<objRows.size(); i++) {
 		    }
 		}
 		
-	}	
+	}
+	
+	// ---------- <gmd:identificationInfo/gmd:abstract> ----------
+	var abstr = objRow.get("obj_descr");
+	
+	if (objClass.equals("3")) {
+		// More data of the service that cannot be mapped within ISO19119, but must be 
+		// supplied by INSPIRE. Add mapping in abstract
+		var abstractPostfix = "\n\n\nWeitere Daten des Dienstes, die nicht standard-konform (ISO 19119) hinterlegt werden können, zum Teil gemäß INSPIRE-Direktive aber bereit zu stellen sind*:\n\n\n";
+		var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
+		if (hasValue(objServRow.get("environment"))) {
+			abstractPostfix = abstractPostfix + "Systemumgebung: " + objServRow.get("environment") + "\n";
+			abstractPostfix = abstractPostfix + "(environmentDescription/gco:CharacterString= " + objServRow.get("environment") + ")\n\n";
+		}
+		if (hasValue(objServRow.get("description"))) {
+			abstractPostfix = abstractPostfix + "Erläuterung zum Fachbezug: " + objServRow.get("description") + "\n";
+			abstractPostfix = abstractPostfix + "(supplementalInformation/gco:CharacterString= " + objServRow.get("description") + ")\n\n";
+		}
+		
+		var objServScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServRow.get("id")]);
+		for (var j=0; j<objServScaleRows.size(); j++) {
+			var objServScaleRow = objServScaleRows.get(j);
+			if (hasValue(objServScale.get("scale"))) {
+				abstractPostfix = abstractPostfix + "Erstellungsmassstab: " + objServScaleRow.get("scale") + "\n";
+				abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/equivalentScale/MD_RepresentativeFraction/denominator/gco:Integer= " + objServScaleRow.get("scale") + ")\n";
+			}
+		}
+		var objServScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServRow.get("id")]);
+		for (var j=0; j<objServScaleRows.size(); j++) {
+			var objServScaleRow = objServScaleRows.get(j);
+			if (hasValue(objServScale.get("resolution_ground"))) {
+				abstractPostfix = abstractPostfix + "Bodenauflösung (Meter): " + objServScaleRow.get("resolution_ground") + "\n";
+				abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/distance/gco:Distance[@uom=\"meter\"]= " + objServScaleRow.get("resolution_ground") + ")\n";
+			}
+		}
+		var objServScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServRow.get("id")]);
+		for (var j=0; j<objServScaleRows.size(); j++) {
+			var objServScaleRow = objServScaleRows.get(j);
+			if (hasValue(objServScale.get("resolution_scan"))) {
+				abstractPostfix = abstractPostfix + "Scanauflösung (DPI): " + objServScaleRow.get("resolution_scan") + "\n";
+				abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/distance/gco:Distance[@uom=\"dpi\"]= " + objServScaleRow.get("resolution_scan") + ")\n";
+			}
+		}
+		abstractPostfix = abstractPostfix + "\n\n---\n";
+		abstractPostfix = abstractPostfix + "* Nähere Informationen zur INSPIRE-Direktive: http://inspire.jrc.ec.europa.eu/implementingRulesDocs_md.cfm";
+		
+		abstr = abstr + abstractPostfix;
+	}
+	identificationInfo.addElement("gmd:abstract/gco:CharacterString").addText(abstr);
 	
 }
 
