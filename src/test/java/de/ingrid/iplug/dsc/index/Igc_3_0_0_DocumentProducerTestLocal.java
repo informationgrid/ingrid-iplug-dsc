@@ -15,11 +15,11 @@ import de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecor
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
 
-public class ScriptedDatabaseDocumentProducerTestLocal extends TestCase {
+public class Igc_3_0_0_DocumentProducerTestLocal extends TestCase {
 
     public void testScriptedDatabaseDocumentProducer() throws Exception {
         File plugDescriptionFile = new File(
-                "src/test/resources/plugdescription_db_test_local.xml");
+                "src/test/resources/plugdescription_igc-3.0.0_test.xml");
         PlugDescription pd = new PlugdescriptionSerializer()
                 .deSerialize(plugDescriptionFile);
 
@@ -58,5 +58,4 @@ public class ScriptedDatabaseDocumentProducerTestLocal extends TestCase {
             fail("No document produced");
         }
     }
-    
 }

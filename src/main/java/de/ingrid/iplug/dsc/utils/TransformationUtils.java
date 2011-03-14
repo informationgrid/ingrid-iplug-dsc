@@ -134,7 +134,20 @@ public class TransformationUtils {
 		if (igcEntryId == null) {
 			return null;
 		}
-	    return UtilsUDKCodeLists.getIsoCodeListEntryFromIgcId(igcCodeListId, new Long(igcEntryId));
+
+		String retValue = null;
+		try {
+			retValue = UtilsUDKCodeLists.getIsoCodeListEntryFromIgcId(igcCodeListId, new Long(igcEntryId));
+		} catch (Exception ex) {
+            log.error("Cannot transform IGC syslist entry -> listId '" + igcCodeListId +
+            		"', entryId '" + igcEntryId + "' to ISO CodeList entry.");
+		}
+        if (log.isDebugEnabled()) {
+            log.debug("Transform IGC syslist entry -> listId '" + igcCodeListId +
+            		"', entryId '" + igcEntryId + "' to ISO CodeList entry '" + retValue + "'.");
+        }
+
+		return retValue;
 	}
 	
 	
