@@ -406,6 +406,14 @@ for (i=0; i<objRows.size(); i++) {
         identificationInfo.addElement("gmd:purpose/gco:CharacterString").addText(purpose);
     }
 
+    // ---------- <gmd:identificationInfo/gmd:status> ----------
+    value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(523, objRow.get("time_status"));
+    if (hasValue(value)) {
+        identificationInfo.addElement("gmd:status/gmd:MD_ProgressCode")
+            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_ProgressCode")
+            .addAttribute("codeListValue", value);
+    }
+
 }
 
 
