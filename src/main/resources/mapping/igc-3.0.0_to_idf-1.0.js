@@ -385,7 +385,27 @@ for (i=0; i<objRows.size(); i++) {
 		abstr = abstr + abstractPostfix;
 	}
 	identificationInfo.addElement("gmd:abstract/gco:CharacterString").addText(abstr);
-	
+
+    // ---------- <gmd:identificationInfo/gmd:purpose> ----------
+    
+    // combine Herstellungszweck and rechtliche Grundlagen
+    var purpose = objRow.get("info_note");
+    if (!hasValue(purpose)) {
+        purpose = "";
+    }
+    var legistRows = SQL.all("SELECT legist_value from t015_legist WHERE obj_id=?", [objId]);
+    for (j=0; j<legistRows.size(); j++) {
+        if (hasValue(legistRows.get(j).get("legist_value"))) {
+            if (hasValue(purpose)) {
+                purpose = purpose.concat("\n");
+            }
+            purpose = purpose.concat(legistRows.get(j).get("legist_value"));
+        }
+    }
+    if (hasValue(purpose)) {
+        identificationInfo.addElement("gmd:purpose/gco:CharacterString").addText(purpose);
+    }
+
 }
 
 
