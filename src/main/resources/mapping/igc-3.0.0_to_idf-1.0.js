@@ -22,14 +22,14 @@ if (log.isDebugEnabled()) {
 if (!(sourceRecord instanceof DatabaseSourceRecord)) {
     throw new IllegalArgumentException("Record is no DatabaseRecord!");
 }
-// ---------- Constants ----------
-// Namespaces URI
-var gmdURI = "http://www.isotc211.org/2005/gmd";
-var gcoURI = "http://www.isotc211.org/2005/gco";
-var srvURI = "http://www.isotc211.org/2005/srv";
-var gmlURI = "http://www.opengis.net/gml";
-var gtsURI = "http://www.isotc211.org/2005/gts";
-var xlinkURI = "http://www.w3.org/1999/xlink";
+// ---------- Initialize ----------
+// add Namespaces to Utility for convenient handling of NS !
+DOM.addNS("gmd", "http://www.isotc211.org/2005/gmd");
+DOM.addNS("gco", "http://www.isotc211.org/2005/gco");
+DOM.addNS("srv", "http://www.isotc211.org/2005/srv");
+DOM.addNS("gml", "http://www.opengis.net/gml");
+DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
+DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
 // ---------- <idf:body> ----------
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
@@ -37,15 +37,15 @@ var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
 // ---------- <gmd:MD_Metadata> ----------
 var gmdMetadata = DOM.addElement(idfBody, "gmd:MD_Metadata");
 // add known namespaces
-gmdMetadata.addAttribute("xmlns:gmd", gmdURI);
-gmdMetadata.addAttribute("xmlns:gco", gcoURI);
-gmdMetadata.addAttribute("xmlns:srv", srvURI);
-gmdMetadata.addAttribute("xmlns:gml", gmlURI);
-gmdMetadata.addAttribute("xmlns:gts", gtsURI);
-gmdMetadata.addAttribute("xmlns:xlink", xlinkURI);
+gmdMetadata.addAttribute("xmlns:gmd", DOM.getNS("gmd"));
+gmdMetadata.addAttribute("xmlns:gco", DOM.getNS("gco"));
+gmdMetadata.addAttribute("xmlns:srv", DOM.getNS("srv"));
+gmdMetadata.addAttribute("xmlns:gml", DOM.getNS("gml"));
+gmdMetadata.addAttribute("xmlns:gts", DOM.getNS("gts"));
+gmdMetadata.addAttribute("xmlns:xlink", DOM.getNS("xlink"));
 // and schema references
 gmdMetadata.addAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-gmdMetadata.addAttribute("xsi:schemaLocation", gmdURI + " http://schemas.opengis.net/iso/19139/20060504/gmd/gmd.xsd");
+gmdMetadata.addAttribute("xsi:schemaLocation", DOM.getNS("gmd") + " http://schemas.opengis.net/iso/19139/20060504/gmd/gmd.xsd");
 
 // ========== t01_object ==========
 var objId = sourceRecord.get(DatabaseSourceRecord.ID);

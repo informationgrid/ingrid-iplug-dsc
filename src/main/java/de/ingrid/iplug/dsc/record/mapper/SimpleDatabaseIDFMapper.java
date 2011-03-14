@@ -13,8 +13,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
-import de.ingrid.iplug.dsc.om.IdfNamespaceContext;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xml.XPathUtils;
 
 /**
@@ -54,7 +54,7 @@ public class SimpleDatabaseIDFMapper implements IIdfMapper {
             for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
                 String colName = rs.getMetaData().getColumnName(i);
                 String colValue = rs.getString(i);
-                XPathUtils.getXPathInstance().setNamespaceContext(new IdfNamespaceContext());
+                XPathUtils.getXPathInstance().setNamespaceContext(new IDFNamespaceContext());
                 Node body = XPathUtils.getNode(doc, "/idf:html/idf:body");
                 Node p = body.appendChild(doc.createElementNS("http://www.portalu.de/IDF/1.0", "p"));
                 Node strong = p.appendChild(doc.createElementNS("http://www.portalu.de/IDF/1.0", "strong"));
