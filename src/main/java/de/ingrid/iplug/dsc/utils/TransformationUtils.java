@@ -59,15 +59,27 @@ public class TransformationUtils {
 	 */
 	public String getIGCSyslistEntryName(int listId, int entryId)
 	throws SQLException {
-		String retValue = null;
-
 		// get catalog language in "syslist format" (de, en, ...)
 		Integer catLangKey = getIGCCatalogLanguageKey();
 		String catLangShortcut = UtilsLanguageCodelist.getShortcutFromCode(catLangKey);
+		
+		return getIGCSyslistEntryName(listId, entryId, catLangShortcut);
+	}
+
+	/** Get the name of the given entry in the given syslist in the given language !
+	 * @param listId id of syslist
+	 * @param entryId id of entry in syslist
+	 * @param langShortcut ISO 639-1 language shortcut (e.g. "de, "en" ...")
+	 * @return null if no entry found !
+	 * @throws SQLException
+	 */
+	public String getIGCSyslistEntryName(int listId, int entryId, String langShortcut)
+	throws SQLException {
+		String retValue = null;
 
 		List<Map<String, String>> rows =
 			SQL.all("SELECT * FROM sys_list WHERE lst_id=? AND entry_id=? and lang_id=?",
-					new Object[]{listId, entryId, catLangShortcut});
+					new Object[]{listId, entryId, langShortcut});
 	    for (Map<String, String> row : rows) {
 	    	retValue = row.get("name");
 	    	break;

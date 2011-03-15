@@ -501,6 +501,13 @@ for (i=0; i<objRows.size(); i++) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
+    // ENVIRONMENTAL category
+    rows = SQL.all("SELECT cat_key FROM t0114_env_category WHERE obj_id=?", [objId]);
+    mdKeywords = getMdKeywords(rows);
+    if (mdKeywords != null) {
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+    }
+
 }
 
 
@@ -761,7 +768,7 @@ function getPurpose(objRow) {
 
 /**
  * Creates an ISO MD_Keywords element based on the rows passed.
- * NOTICE: All passed rows (keywords) have to be of same type (UMTHES || GEMET || INSPIRE || FREE || SERVICE classifications).
+ * NOTICE: All passed rows (keywords) have to be of same type (UMTHES || GEMET || INSPIRE || FREE || SERVICE classifications || ...).
  * Only first row is analyzed.
  * Returns null if no keywords added (no rows found or type of keywords cannot be determined ...) !
  */
@@ -784,6 +791,10 @@ function getMdKeywords(rows) {
         // "t011_obj_serv_type" table
         } else if (hasValue(row.get("serv_type_key"))) {
             keywordValue = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5200, row.get("serv_type_key"));
+
+        // "t0114_env_category" table
+        } else if (hasValue(row.get("cat_key"))) {
+            keywordValue = TRANSF.getIGCSyslistEntryName(1410, row.get("cat_key"), "en");
         }
 
         if (hasValue(keywordValue)) {
@@ -822,6 +833,11 @@ function getMdKeywords(rows) {
     } else if (rows.get(0).get("serv_type_key")) {
         keywTitle = "Service Classification, version 1.0";
         keywDate = "2008-06-01";
+
+    // "t0114_env_category" table
+    } else if (rows.get(0).get("cat_key")) {
+        keywTitle = "German Environmental Classification - Category, version 1.0";
+        keywDate = "2006-05-01";
     }
 
     mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
