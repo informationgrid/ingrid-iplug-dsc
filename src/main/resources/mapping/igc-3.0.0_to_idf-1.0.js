@@ -515,6 +515,19 @@ for (i=0; i<objRows.size(); i++) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
+    // ---------- <gmd:identificationInfo/gmd:resourceSpecificUsage> ----------
+
+    value = objRow.get("dataset_usage");
+    if (hasValue(value)) {
+        var mdUsage = identificationInfo.addElement("gmd:resourceSpecificUsage").addElement("gmd:MD_Usage");
+        mdUsage.addElement("gmd:specificUsage/gco:CharacterString").addText(value);
+        mdUsage.addElement("gmd:userContactInfo").addElement("gmd:CI_ResponsibleParty")
+            .addElement("gmd:role").addElement("gmd:CI_RoleCode")
+            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+            .addAttribute("codeListValue", "pointOfContact");
+    }
+
+
 }
 
 
