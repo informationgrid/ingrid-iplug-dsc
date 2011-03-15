@@ -466,29 +466,41 @@ for (i=0; i<objRows.size(); i++) {
 
     // ---------- <gmd:identificationInfo/gmd:descriptiveKeywords> ----------
     
-    // UMTHES Thesaurus
-    rows = SQL.all("SELECT searchterm_value.* FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND (searchterm_value.type=? OR searchterm_value.type=?)", [objId, "2", "T"]);
-    if (rows.size() > 0) {
-        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(getMdKeywords(rows));
-    }
-
-    // FREE keywords
-    rows = SQL.all("SELECT searchterm_value.* FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND (searchterm_value.type=? OR searchterm_value.type=?)", [objId, "1", "F"]);
-    if (rows.size() > 0) {
-        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(getMdKeywords(rows));
+    // INSPIRE themes
+    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [objId, "I"]);
+    var mdKeywords = getMdKeywords(rows);
+    if (mdKeywords != null) {
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
     // GEMET Thesaurus
-    rows = SQL.all("SELECT searchterm_value.* FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [objId, "G"]);
-    if (rows.size() > 0) {
-        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(getMdKeywords(rows));
+    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [objId, "G"]);
+    mdKeywords = getMdKeywords(rows);
+    if (mdKeywords != null) {
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
-    // INSPIRE themes
-    rows = SQL.all("SELECT searchterm_value.* FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [objId, "I"]);
-    if (rows.size() > 0) {
-        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(getMdKeywords(rows));
+    // UMTHES Thesaurus
+    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND (searchterm_value.type=? OR searchterm_value.type=?)", [objId, "2", "T"]);
+    mdKeywords = getMdKeywords(rows);
+    if (mdKeywords != null) {
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
+
+    // FREE keywords
+    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND (searchterm_value.type=? OR searchterm_value.type=?)", [objId, "1", "F"]);
+    mdKeywords = getMdKeywords(rows);
+    if (mdKeywords != null) {
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+    }
+
+    // SERVICE classifications
+    rows = SQL.all("SELECT t011_obj_serv_type.serv_type_key, t011_obj_serv_type.serv_type_value FROM t011_obj_serv, t011_obj_serv_type WHERE t011_obj_serv.id=t011_obj_serv_type.obj_serv_id AND t011_obj_serv.obj_id=?", [objId]);
+    mdKeywords = getMdKeywords(rows);
+    if (mdKeywords != null) {
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+    }
+
 }
 
 
@@ -749,8 +761,9 @@ function getPurpose(objRow) {
 
 /**
  * Creates an ISO MD_Keywords element based on the rows passed.
- * NOTICE: All passed rows (keywords) have to be of same type (UMTHES || GEMET || INSPIRE || FREE). Only first row is analyzed.
- * Returns null if no rows found or type of keywords cannot be determined !
+ * NOTICE: All passed rows (keywords) have to be of same type (UMTHES || GEMET || INSPIRE || FREE || SERVICE classifications).
+ * Only first row is analyzed.
+ * Returns null if no keywords added (no rows found or type of keywords cannot be determined ...) !
  */
 function getMdKeywords(rows) {
     if (rows == null || rows.size() == 0) {
@@ -758,28 +771,57 @@ function getMdKeywords(rows) {
     }
 
     var mdKeywords = DOM.createElement("gmd:MD_Keywords");
+    var keywordsAdded = false;
+    
     for (i=0; i<rows.size(); i++) {
-        mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText(rows.get(i).get("term"));
+        var row = rows.get(i);
+        var keywordValue = null;
+
+        // "searchterm_value" table
+        if (hasValue(row.get("term"))) {
+            keywordValue = row.get("term");
+
+        // "t011_obj_serv_type" table
+        } else if (hasValue(row.get("serv_type_key"))) {
+            keywordValue = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5200, row.get("serv_type_key"));
+        }
+
+        if (hasValue(keywordValue)) {
+            mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText(keywordValue);
+            keywordsAdded = true;
+        }
     }
 
-    var type = rows.get(0).get("type");
-    if (type.equals("F")) {
-        return mdKeywords;
+    if (!keywordsAdded) {
+        return null;
     }
-
+   
     var keywTitle;
     var keywDate;
-    if (type.equals("2") || type.equals("T")) {
-        keywTitle = "UMTHES Thesaurus";
-        keywDate = "2009-01-15";
-    } else if (type.equals("1") || type.equals("F")) {
-        keywTitle = "GEMET - Concepts, version 2.1";
-        keywDate = "2008-06-13";        
-    } else if (type.equals("I")) {
-        keywTitle = "GEMET - INSPIRE themes, version 1.0";
-        keywDate = "2008-06-01";        
-    } else {
-        return null;
+    
+    // "searchterm_value" table
+    if (rows.get(0).get("type")) {
+	    var type = rows.get(0).get("type");
+	    if (type.equals("F")) {
+	        return mdKeywords;
+
+	    } else if (type.equals("2") || type.equals("T")) {
+	        keywTitle = "UMTHES Thesaurus";
+	        keywDate = "2009-01-15";
+	    } else if (type.equals("1") || type.equals("F")) {
+	        keywTitle = "GEMET - Concepts, version 2.1";
+	        keywDate = "2008-06-13";
+	    } else if (type.equals("I")) {
+	        keywTitle = "GEMET - INSPIRE themes, version 1.0";
+	        keywDate = "2008-06-01";
+	    } else {
+	        return null;
+	    }
+
+    // "t011_obj_serv_type" table
+    } else if (rows.get(0).get("serv_type_key")) {
+        keywTitle = "Service Classification, version 1.0";
+        keywDate = "2008-06-01";
     }
 
     mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
