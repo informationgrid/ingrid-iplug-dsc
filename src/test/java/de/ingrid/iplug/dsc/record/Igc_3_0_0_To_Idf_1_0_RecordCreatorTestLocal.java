@@ -52,7 +52,8 @@ public class Igc_3_0_0_To_Idf_1_0_RecordCreatorTestLocal extends TestCase {
         		"3820",		// class 5 = Datensammlung/Datenbank
         		"7897095",	// class 6 = Informationssystem/Dienst/Anwendung
 //        		"6685",		// class 6 = Informationssystem/Dienst/Anwendung
-        		"5933",		// multiple t012_obj_adr associations 
+        		"5933",		// multiple t012_obj_adr associations
+        		"3832"		// -> gmd:MD_MaintenanceInformation
         };
 
         for (String t01ObjectId : t01ObjectIds) {

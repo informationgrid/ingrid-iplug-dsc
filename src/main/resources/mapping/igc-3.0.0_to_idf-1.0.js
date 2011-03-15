@@ -414,6 +414,39 @@ for (i=0; i<objRows.size(); i++) {
             gmdMetadata.addElement("gmd:pointOfContact").addElement(getCiResponsibleParty(addressRow, role));
         }
     }
+
+    // ---------- <gmd:identificationInfo/gmd:resourceMaintenance/gmd:MD_MaintenanceInformation> ----------
+    value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(518, objRow.get("time_period"));
+    if (hasValue(value)) {
+        var mdMaintenanceInformation = identificationInfo.addElement("gmd:resourceMaintenance/gmd:MD_MaintenanceInformation");
+        mdMaintenanceInformation.addElement("gmd:maintenanceAndUpdateFrequency/gmd:MD_MaintenanceFrequencyCode")
+            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_MaintenanceFrequencyCode")
+            .addAttribute("codeListValue", value);
+        var timeInterval = objRow.get("time_interval");
+        var timeAlle = objRow.get("time_alle");
+        if (hasValue(timeInterval) && hasValue(timeAlle)) {
+            var period19108 = "P";
+            if (timeInterval.equalsIgnoreCase("Tage")) {
+                period19108 = period19108.concat(timeAlle).concat("D");
+            } else if (timeInterval.equalsIgnoreCase("Jahre")) {
+                period19108 = period19108.concat(timeAlle).concat("Y");
+            } else if (timeInterval.equalsIgnoreCase("Monate")) {
+                period19108 = period19108.concat(timeAlle).concat("M");
+            } else if (timeInterval.equalsIgnoreCase("Stunden")) {
+                period19108 = period19108.concat("T").concat(timeAlle).concat("H");
+            } else if (timeInterval.equalsIgnoreCase("Minuten")) {
+                period19108 = period19108.concat("T").concat(timeAlle).concat("M");
+            } else if (timeInterval.equalsIgnoreCase("Sekunden")) {
+                period19108 = period19108.concat("T").concat(timeAlle).concat("S");
+            }
+            mdMaintenanceInformation.addElement("gmd:userDefinedMaintenanceFrequency/gts:TM_PeriodDuration")
+                .addText(period19108);
+        }
+        if (hasValue(objRow.get("time_descr"))) {
+            mdMaintenanceInformation.addElement("gmd:maintenanceNote/gco:CharacterString").addText(objRow.get("time_descr"));
+        }
+    }
+
 }
 
 
