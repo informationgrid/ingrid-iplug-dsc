@@ -501,8 +501,15 @@ for (i=0; i<objRows.size(); i++) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
-    // ENVIRONMENTAL category
+    // ENVIRONMENTAL classification (category)
     rows = SQL.all("SELECT cat_key FROM t0114_env_category WHERE obj_id=?", [objId]);
+    mdKeywords = getMdKeywords(rows);
+    if (mdKeywords != null) {
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+    }
+
+    // ENVIRONMENTAL classification (topic)
+    rows = SQL.all("SELECT topic_key FROM t0114_env_topic WHERE obj_id=?", [objId]);
     mdKeywords = getMdKeywords(rows);
     if (mdKeywords != null) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
@@ -779,7 +786,6 @@ function getMdKeywords(rows) {
 
     var mdKeywords = DOM.createElement("gmd:MD_Keywords");
     var keywordsAdded = false;
-    
     for (i=0; i<rows.size(); i++) {
         var row = rows.get(i);
         var keywordValue = null;
@@ -795,6 +801,10 @@ function getMdKeywords(rows) {
         // "t0114_env_category" table
         } else if (hasValue(row.get("cat_key"))) {
             keywordValue = TRANSF.getIGCSyslistEntryName(1410, row.get("cat_key"), "en");
+
+        // "t0114_env_topic" table
+        } else if (hasValue(row.get("topic_key"))) {
+            keywordValue = TRANSF.getIGCSyslistEntryName(1400, row.get("topic_key"), "en");
         }
 
         if (hasValue(keywordValue)) {
@@ -837,6 +847,11 @@ function getMdKeywords(rows) {
     // "t0114_env_category" table
     } else if (rows.get(0).get("cat_key")) {
         keywTitle = "German Environmental Classification - Category, version 1.0";
+        keywDate = "2006-05-01";
+
+    // "t0114_env_topic" table
+    } else if (rows.get(0).get("topic_key")) {
+        keywTitle = "German Environmental Classification - Topic, version 1.0";
         keywDate = "2006-05-01";
     }
 
