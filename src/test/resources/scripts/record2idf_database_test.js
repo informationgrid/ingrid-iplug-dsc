@@ -34,7 +34,7 @@ try {
     for (var i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
         var colName = rs.getMetaData().getColumnName(i);
         var colValue = rs.getString(i);
-        XPathUtils.getXPathInstance().setNamespaceContext(new IdfNamespaceContext());
+        XPathUtils.getXPathInstance().setNamespaceContext(new IDFNamespaceContext());
         var body = XPathUtils.getNode(idfDoc, "/idf:html/idf:body");
         var p = body.appendChild(idfDoc.createElementNS("http://www.portalu.de/IDF/1.0", "p"));
         var strong = p.appendChild(idfDoc.createElementNS("http://www.portalu.de/IDF/1.0", "strong"));
