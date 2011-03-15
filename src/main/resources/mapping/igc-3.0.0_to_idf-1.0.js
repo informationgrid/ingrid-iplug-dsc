@@ -526,11 +526,14 @@ for (i=0; i<objRows.size(); i++) {
             .addAttribute("codeListValue", "pointOfContact");
     }
 
-    // ---------- <gmd:identificationInfo/gmd:resourceConstraints/gmd:MD_LegalConstraints> ----------
+    // ---------- <gmd:identificationInfo/gmd:resourceConstraints> ----------
+
     rows = SQL.all("SELECT terms_of_use FROM object_use WHERE obj_id=?", [objId]);
+    var resourceConstraints;
     var mdLegalConstraints;
     if (rows.size() > 0) {
-        mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
+        resourceConstraints = identificationInfo.addElement("gmd:resourceConstraints");
+        mdLegalConstraints = resourceConstraints.addElement("gmd:MD_LegalConstraints");
         for (var i=0; i<rows.size(); i++) {
             mdLegalConstraints.addElement("gmd:useLimitation/gco:CharacterString").addText(rows.get(i).get("terms_of_use"));
         }
@@ -539,7 +542,8 @@ for (i=0; i<objRows.size(); i++) {
     rows = SQL.all("SELECT restriction_key FROM object_access WHERE obj_id=?", [objId]);
     if (rows.size() > 0) {
         if (!mdLegalConstraints) {
-            mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
+	        resourceConstraints = identificationInfo.addElement("gmd:resourceConstraints");
+	        mdLegalConstraints = resourceConstraints.addElement("gmd:MD_LegalConstraints");
         }
         mdLegalConstraints.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
             .addAttribute("codeListValue", "otherRestrictions")
@@ -551,6 +555,18 @@ for (i=0; i<objRows.size(); i++) {
             mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(value);
         }
     }
+
+    value = getSecurityConstraint(objRow);
+    if (hasValue(value)) {
+        if (!resourceConstraints) {
+            resourceConstraints = identificationInfo.addElement("gmd:resourceConstraints");
+        }
+        resourceConstraints.addElement("gmd:MD_SecurityConstraints/gmd:classification/gmd:MD_ClassificationCode")
+            .addAttribute("codeListValue", value)
+            .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#gmd:MD_ClassificationCode")
+            .addText(value);
+    }
+
 }
 
 
@@ -903,6 +919,22 @@ function getMdKeywords(rows) {
         .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode");
 
     return mdKeywords;
+}
+
+function getSecurityConstraint(objRow) {
+    var securityConstraint = null;
+
+    var publishId = objRow.get("publish_id");
+    if (hasValue(publishId)) {
+        if (publishId.equals("1")) {
+            securityConstraint = "unclassified";
+        } else if (publishId.equals("2")) {
+            securityConstraint = "restricted";
+        } else if (publishId.equals("3")) {
+            securityConstraint = "confidential";
+        }
+    }
+    return securityConstraint;
 }
 
 function hasValue(val) {
