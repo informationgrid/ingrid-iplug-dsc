@@ -516,7 +516,6 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // ---------- <gmd:identificationInfo/gmd:resourceSpecificUsage> ----------
-
     value = objRow.get("dataset_usage");
     if (hasValue(value)) {
         var mdUsage = identificationInfo.addElement("gmd:resourceSpecificUsage").addElement("gmd:MD_Usage");
@@ -527,7 +526,14 @@ for (i=0; i<objRows.size(); i++) {
             .addAttribute("codeListValue", "pointOfContact");
     }
 
-
+    // ---------- <gmd:identificationInfo/gmd:resourceConstraints> ----------
+    rows = SQL.all("SELECT terms_of_use FROM object_use WHERE obj_id=?", [objId]);
+    if (rows.size() > 0) {
+        elem = identificationInfo.addElement("gmd:resourceConstraints").addElement("gmd:MD_LegalConstraints");
+        for (var i=0; i<rows.size(); i++) {
+            elem.addElement("gmd:useLimitation/gco:CharacterString").addText(rows.get(i).get("terms_of_use"));
+        }
+    }
 }
 
 
