@@ -6,6 +6,7 @@ package de.ingrid.iplug.dsc.utils;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -82,7 +83,7 @@ public class DOMUtils {
 	    }
 	    
 	    public IdfElement addAttribute(String attrName, String attrValue) {
-	        e.setAttribute(attrName, attrValue);
+	    	DOMUtils.this.addAttribute(e, attrName, attrValue);
 	        return this;
 	    }
         
@@ -106,7 +107,7 @@ public class DOMUtils {
 	}
 
     public IdfElement addAttribute(Element element, String attrName, String attrValue) {
-        element.setAttribute(attrName, attrValue);
+        element.setAttribute(attrName, escapeXmlText(attrValue));
         return new IdfElement(element);
     }
 
@@ -169,7 +170,11 @@ public class DOMUtils {
 	}
 	
 	private Text domNewTextNode(String data) {
-		return myDoc.createTextNode(data);
+		return myDoc.createTextNode(escapeXmlText(data));
+	}
+
+	private String escapeXmlText(String text) {
+		return StringEscapeUtils.escapeXml(text);
 	}
 
 }
