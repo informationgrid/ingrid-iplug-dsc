@@ -57,6 +57,7 @@ for (i=0; i<objRows.size(); i++) {
     var objParentUuid = null; // will be set below
     
     // local variables
+    var row = null;
     var rows = null;
     var value = null;
     var elem = null;
@@ -447,6 +448,21 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
 
+    // ---------- <gmd:identificationInfo/gmd:resourceFormat> ----------
+    if (objClass.equals("2")) {
+	    row = SQL.first("SELECT type_key, type_value from t011_obj_literature WHERE obj_id=?", [objId]);
+	    if (hasValue(row)) {
+            value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(3385, row.get("type_key"));
+	        if (!hasValue(value)) {
+	            value = row.get("type_value");
+	        }
+            if (hasValue(value)) {
+                var mdFormat = identificationInfo.addElement("gmd:resourceFormat/gmd:MD_Format");
+                mdFormat.addElement("gmd:name/gco:CharacterString").addText(value);
+                mdFormat.addElement("gmd:version/gco:CharacterString").addAttribute("gco:nilReason", "inapplicable");
+            }
+	    }
+    }
 }
 
 
