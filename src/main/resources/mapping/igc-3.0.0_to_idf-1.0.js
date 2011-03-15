@@ -526,12 +526,29 @@ for (i=0; i<objRows.size(); i++) {
             .addAttribute("codeListValue", "pointOfContact");
     }
 
-    // ---------- <gmd:identificationInfo/gmd:resourceConstraints> ----------
+    // ---------- <gmd:identificationInfo/gmd:resourceConstraints/gmd:MD_LegalConstraints> ----------
     rows = SQL.all("SELECT terms_of_use FROM object_use WHERE obj_id=?", [objId]);
+    var mdLegalConstraints;
     if (rows.size() > 0) {
-        elem = identificationInfo.addElement("gmd:resourceConstraints").addElement("gmd:MD_LegalConstraints");
+        mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
         for (var i=0; i<rows.size(); i++) {
-            elem.addElement("gmd:useLimitation/gco:CharacterString").addText(rows.get(i).get("terms_of_use"));
+            mdLegalConstraints.addElement("gmd:useLimitation/gco:CharacterString").addText(rows.get(i).get("terms_of_use"));
+        }
+    }
+
+    rows = SQL.all("SELECT restriction_key FROM object_access WHERE obj_id=?", [objId]);
+    if (rows.size() > 0) {
+        if (!mdLegalConstraints) {
+            mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
+        }
+        mdLegalConstraints.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
+            .addAttribute("codeListValue", "otherRestrictions")
+            .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode")
+            .addText("otherRestrictions");
+
+        for (var i=0; i<rows.size(); i++) {
+            value = TRANSF.getIGCSyslistEntryName(6010, rows.get(i).get("restriction_key"), "en");
+            mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(value);
         }
     }
 }
