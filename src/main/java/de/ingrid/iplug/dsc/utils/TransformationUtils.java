@@ -123,6 +123,22 @@ public class TransformationUtils {
         return coord;
     }
 
+	/** Transforms given number string to a valid ISO Number String. Returns "NaN" if problems occur ! */
+	public String transformToIsoDouble(String numberString) {
+        String retValue;
+    	try {
+			double n = Double.parseDouble(numberString.replaceAll(",", "."));
+			retValue = String.valueOf(n);
+		} catch (NumberFormatException e) {
+			if (log.isDebugEnabled()) {
+				log.debug("Could not convert to Double: " + numberString, e);
+			}
+			retValue = "NaN";
+		}
+		
+		return retValue;
+    }
+
 	/**
 	 * Get ISO 639-2 language shortcut (e.g. "ger, "eng" ...") from IGC language code. 
 	 * @param igcLangCode IGC code of language. e.g. "150"

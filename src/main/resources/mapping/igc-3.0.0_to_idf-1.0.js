@@ -591,13 +591,12 @@ for (i=0; i<objRows.size(); i++) {
 
     // ---------- <gmd:EX_Extent/gmd:description> ----------
     var exExtent;
-
     if (hasValue(objRow.get("loc_descr"))) {
         exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
         exExtent.addElement("gmd:description/gco:CharacterString").addText(objRow.get("loc_descr"));
     }
 
-    // ---------- <gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicDescription> ----------
+    // ---------- <gmd:EX_Extent/gmd:geographicElement> ----------
     rows = SQL.all("SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value WHERE spatial_reference.spatial_ref_id=spatial_ref_value.id AND spatial_reference.obj_id=?", [objId]);
     for (i=0; i<rows.size(); i++) {
         row = rows.get(i);
@@ -605,14 +604,22 @@ for (i=0; i<objRows.size(); i++) {
             exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
         }
         
+    // ---------- <gmd:geographicElement/gmd:EX_GeographicDescription> ----------
         var geoIdentifier = getGeographicIdentifier(row);
         if (hasValue(geoIdentifier)) {
             var exGeographicDescription = exExtent.addElement("gmd:geographicElement/gmd:EX_GeographicDescription");
             exGeographicDescription.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
             exGeographicDescription.addElement("gmd:geographicIdentifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(geoIdentifier);
         }
-        
-        
+    // ---------- <gmd:geographicElement/gmd:EX_GeographicBoundingBox> ----------
+        if (hasValue(row.get("x1")) && hasValue(row.get("x2")) && hasValue(row.get("y1")) && hasValue(row.get("y2"))) {
+            var exGeographicBoundingBox = exExtent.addElement("gmd:geographicElement/gmd:EX_GeographicBoundingBox");
+            exGeographicBoundingBox.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
+            exGeographicBoundingBox.addElement("gmd:westBoundLongitude/gco:Decimal").addText(TRANSF.transformToIsoDouble(row.get("x1")));
+            exGeographicBoundingBox.addElement("gmd:eastBoundLongitude/gco:Decimal").addText(TRANSF.transformToIsoDouble(row.get("x2")));
+            exGeographicBoundingBox.addElement("gmd:southBoundLatitude/gco:Decimal").addText(TRANSF.transformToIsoDouble(row.get("y1")));
+            exGeographicBoundingBox.addElement("gmd:northBoundLatitude/gco:Decimal").addText(TRANSF.transformToIsoDouble(row.get("y2")));
+        }
     }
 
 
