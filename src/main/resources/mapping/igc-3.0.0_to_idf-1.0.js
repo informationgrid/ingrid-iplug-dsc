@@ -529,11 +529,9 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- <gmd:identificationInfo/gmd:resourceConstraints> ----------
 
     rows = SQL.all("SELECT terms_of_use FROM object_use WHERE obj_id=?", [objId]);
-    var resourceConstraints;
     var mdLegalConstraints;
     if (rows.size() > 0) {
-        resourceConstraints = identificationInfo.addElement("gmd:resourceConstraints");
-        mdLegalConstraints = resourceConstraints.addElement("gmd:MD_LegalConstraints");
+        mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
         for (var i=0; i<rows.size(); i++) {
             mdLegalConstraints.addElement("gmd:useLimitation/gco:CharacterString").addText(rows.get(i).get("terms_of_use"));
         }
@@ -542,8 +540,7 @@ for (i=0; i<objRows.size(); i++) {
     rows = SQL.all("SELECT restriction_key FROM object_access WHERE obj_id=?", [objId]);
     if (rows.size() > 0) {
         if (!mdLegalConstraints) {
-	        resourceConstraints = identificationInfo.addElement("gmd:resourceConstraints");
-	        mdLegalConstraints = resourceConstraints.addElement("gmd:MD_LegalConstraints");
+            mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
         }
         mdLegalConstraints.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
             .addAttribute("codeListValue", "otherRestrictions")
@@ -558,10 +555,7 @@ for (i=0; i<objRows.size(); i++) {
 
     value = getSecurityConstraint(objRow);
     if (hasValue(value)) {
-        if (!resourceConstraints) {
-            resourceConstraints = identificationInfo.addElement("gmd:resourceConstraints");
-        }
-        resourceConstraints.addElement("gmd:MD_SecurityConstraints/gmd:classification/gmd:MD_ClassificationCode")
+        identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_SecurityConstraints/gmd:classification/gmd:MD_ClassificationCode")
             .addAttribute("codeListValue", value)
             .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#gmd:MD_ClassificationCode")
             .addText(value);
