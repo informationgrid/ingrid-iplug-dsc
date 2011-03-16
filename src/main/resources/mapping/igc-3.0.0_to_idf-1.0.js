@@ -562,12 +562,20 @@ for (i=0; i<objRows.size(); i++) {
             .addText(value);
     }
 
-    // ---------- <gmd:identificationInfo/srv:serviceTypeVersion> ----------
+    // ---------- <gmd:identificationInfo/srv:serviceType> ----------
     if (objClass.equals("3") || objClass.equals("6")) {
         var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
+        var objServId = objServRow.get("id");
+        
         value = getServiceType(objClass, objServRow);
         if (hasValue(value)) {
             identificationInfo.addElement("srv:serviceType/gco:LocalName").addText(value);
+        }
+
+    // ---------- <gmd:identificationInfo/srv:serviceTypeVersion> ----------
+        var rows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [objServId]);
+        for (i=0; i<rows.size(); i++) {
+            identificationInfo.addElement("srv:serviceTypeVersion/gco:CharacterString").addText(rows.get(i).get("serv_version"));
         }
     }
 }
