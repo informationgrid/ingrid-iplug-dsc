@@ -577,7 +577,26 @@ for (i=0; i<objRows.size(); i++) {
         for (i=0; i<rows.size(); i++) {
             identificationInfo.addElement("srv:serviceTypeVersion/gco:CharacterString").addText(rows.get(i).get("serv_version"));
         }
+    } else {
+        // TODO
     }
+
+    // ---------- <gmd:identificationInfo/srv:extent/...> ----------
+    // ---------- <gmd:identificationInfo/gmd:extent/...> ----------
+
+    var extentElemName = "gmd:extent"; 
+    if (objClass.equals("3") || objClass.equals("6")) {
+        extentElemName = "srv:extent";
+    }
+
+    // ---------- <gmd:EX_Extent/gmd:description> ----------
+    var exExtent;
+
+    if (hasValue(objRow.get("loc_descr"))) {
+        exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
+        exExtent.addElement("gmd:description/gco:CharacterString").addText(objRow.get("loc_descr"));
+    }
+
 }
 
 
@@ -949,38 +968,34 @@ function getSecurityConstraint(objRow) {
 }
 
 function getServiceType(objClass, objServRow) {
-    var retValue = null;
+    var retValue = objServRow.get("type_value");
 
-    if (objClass.equals("3") || objClass.equals("6")) {
-        var serviceTypeKey = objServRow.get("type_key");
-        retValue = objServRow.get("type_value");
-
-        if (serviceTypeKey != null) {        
-            if (objClass.equals("3")) {
-	            if (serviceTypeKey.equals("1")) {
-	                retValue = "discovery";
-	            } else if (serviceTypeKey.equals("2")) {
-	                retValue = "view";
-	            } else if (serviceTypeKey.equals("3")) {
-	                retValue = "download";
-	            } else if (serviceTypeKey.equals("4")) {
-	                retValue = "transformation";
-	            } else if (serviceTypeKey.equals("5")) {
-	                retValue = "invoke";
-	            } else  {
-	                retValue = "other";
-	            }
-            } else if (objClass.equals("6")) {
-	            if (serviceTypeKey.equals("1")) {
-	              retValue = "information service";
-	            } else if (serviceTypeKey.equals("2")) {
-	              retValue = "non geographic service";
-	            } else if (serviceTypeKey.equals("3")) {
-	              retValue = "application";
-	            } else  {
-	              retValue = "other";
-	            }
+    var serviceTypeKey = objServRow.get("type_key");
+    if (serviceTypeKey != null) {
+        if (objClass.equals("3")) {
+            if (serviceTypeKey.equals("1")) {
+	            retValue = "discovery";
+	        } else if (serviceTypeKey.equals("2")) {
+	            retValue = "view";
+	        } else if (serviceTypeKey.equals("3")) {
+	            retValue = "download";
+	        } else if (serviceTypeKey.equals("4")) {
+                retValue = "transformation";
+            } else if (serviceTypeKey.equals("5")) {
+                retValue = "invoke";
+            } else  {
+                retValue = "other";
             }
+        } else if (objClass.equals("6")) {
+            if (serviceTypeKey.equals("1")) {
+                retValue = "information service";
+            } else if (serviceTypeKey.equals("2")) {
+                retValue = "non geographic service";
+	        } else if (serviceTypeKey.equals("3")) {
+	           retValue = "application";
+	        } else  {
+	           retValue = "other";
+	        }
         }
     }
     return retValue;
