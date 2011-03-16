@@ -578,11 +578,11 @@ for (i=0; i<objRows.size(); i++) {
             identificationInfo.addElement("srv:serviceTypeVersion/gco:CharacterString").addText(rows.get(i).get("serv_version"));
         }
     } else {
-        // TODO
+        // TODO MAP DATASETS !
     }
 
-    // ---------- <gmd:identificationInfo/srv:extent/...> ----------
-    // ---------- <gmd:identificationInfo/gmd:extent/...> ----------
+    // ---------- <gmd:identificationInfo/srv:extent/gmd:EX_Extent> ----------
+    // ---------- <gmd:identificationInfo/gmd:extent/gmd:EX_Extent> ----------
 
     var extentElemName = "gmd:extent"; 
     if (objClass.equals("3") || objClass.equals("6")) {
@@ -596,6 +596,25 @@ for (i=0; i<objRows.size(); i++) {
         exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
         exExtent.addElement("gmd:description/gco:CharacterString").addText(objRow.get("loc_descr"));
     }
+
+    // ---------- <gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicDescription> ----------
+    rows = SQL.all("SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value WHERE spatial_reference.spatial_ref_id=spatial_ref_value.id AND spatial_reference.obj_id=?", [objId]);
+    for (i=0; i<rows.size(); i++) {
+        row = rows.get(i);
+        if (!exExtent) {
+            exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
+        }
+        
+        var geoIdentifier = getGeographicIdentifier(row);
+        if (hasValue(geoIdentifier)) {
+            var exGeographicDescription = exExtent.addElement("gmd:geographicElement/gmd:EX_GeographicDescription");
+            exGeographicDescription.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
+            exGeographicDescription.addElement("gmd:geographicIdentifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(geoIdentifier);
+        }
+        
+        
+    }
+
 
 }
 
@@ -997,6 +1016,19 @@ function getServiceType(objClass, objServRow) {
 	           retValue = "other";
 	        }
         }
+    }
+    return retValue;
+}
+
+function getGeographicIdentifier(spatialRefValueRow) {
+    var retValue = spatialRefValueRow.get("name_value");
+    var concatNativeKey = " (";
+    if (!hasValue(retValue)) {
+        retValue = "";
+        concatNativeKey = "(";
+    }
+    if (hasValue(spatialRefValueRow.get("nativekey"))) {
+        retValue = retValue.concat(concatNativeKey).concat(spatialRefValueRow.get("nativekey")).concat(")");
     }
     return retValue;
 }
