@@ -274,20 +274,41 @@ public class TransformationUtils {
 	    return result;
 	}
 
-	/** Transforms an igc double string (e.g. x1, x2, y1, y2 from index) to a valid ISO Number String.
+	/** Transforms an igc number string (e.g. x1, x2, y1, y2 from index) to a valid ISO gco:Decimal string.
 	 * Returns "NaN" if problems occur ! */
-	public String getISODoubleFromIGCDouble(String igcDouble) {
+	public String getISODecimalFromIGCNumber(String igcNumber) {
         String retValue;
     	try {
-			double n = Double.parseDouble(igcDouble.replaceAll(",", "."));
+			double n = Double.parseDouble(igcNumber.replaceAll(",", "."));
 			retValue = String.valueOf(n);
 		} catch (NumberFormatException e) {
 			if (log.isDebugEnabled()) {
-				log.debug("Could not convert to Double: " + igcDouble, e);
+				log.debug("Could not convert to gco:Decimal: " + igcNumber, e);
+			}
+			retValue = "NaN";
+		}		
+		return retValue;
+    }
+
+	/** Transforms an igc number string (e.g. vertical_extent_minimum) to a valid ISO gco:Real string.
+	 * Returns "NaN" if problems occur ! */
+	public String getISORealFromIGCNumber(String igcNumber) {
+        String retValue;
+    	try {
+			double n = Double.parseDouble(igcNumber);
+			if (Double.isNaN(n)) {
+				retValue = "NaN";
+			} else if (Double.isInfinite(n)) {
+				retValue = "INF";
+			} else {
+				retValue = String.valueOf(n);
+			}
+		} catch (NumberFormatException e) {
+			if (log.isDebugEnabled()) {
+				log.debug("Could not convert to ISO gco:Real: " + igcNumber, e);
 			}
 			retValue = "NaN";
 		}
-		
 		return retValue;
     }
 
