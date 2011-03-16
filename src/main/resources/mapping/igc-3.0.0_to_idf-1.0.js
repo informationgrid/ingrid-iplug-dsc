@@ -193,11 +193,9 @@ for (i=0; i<objRows.size(); i++) {
 	// ---------- <gmd:identificationInfo> ----------
 	var identificationInfo;
 	if (objClass.equals("3") || objClass.equals("6")) {
-		identificationInfo = gmdMetadata.addElement("gmd:identificationInfo")
-			.addElement("srv:SV_ServiceIdentification");
+		identificationInfo = gmdMetadata.addElement("gmd:identificationInfo/srv:SV_ServiceIdentification");
 	} else {
-		identificationInfo = gmdMetadata.addElement("gmd:identificationInfo")
-		.addElement("gmd:MD_DataIdentification");
+		identificationInfo = gmdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
 	}
 	identificationInfo.addAttribute("uuid", "ingrid#" + getCitationIdentifier(objRow));
 	
@@ -527,6 +525,7 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // ---------- <gmd:identificationInfo/gmd:resourceConstraints> ----------
+    // ---------- <gmd:MD_LegalConstraints> ----------
 
     rows = SQL.all("SELECT terms_of_use FROM object_use WHERE obj_id=?", [objId]);
     var mdLegalConstraints;
@@ -553,6 +552,8 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
 
+    // ---------- <gmd:identificationInfo/gmd:resourceConstraints> ----------
+    // ---------- <gmd:MD_SecurityConstraints> ----------
     value = getSecurityConstraint(objRow);
     if (hasValue(value)) {
         identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_SecurityConstraints/gmd:classification/gmd:MD_ClassificationCode")
@@ -561,6 +562,14 @@ for (i=0; i<objRows.size(); i++) {
             .addText(value);
     }
 
+    // ---------- <gmd:identificationInfo/srv:serviceTypeVersion> ----------
+    if (objClass.equals("3") || objClass.equals("6")) {
+        var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
+        value = getServiceType(objClass, objServRow);
+        if (hasValue(value)) {
+            identificationInfo.addElement("srv:serviceType/gco:LocalName").addText(value);
+        }
+    }
 }
 
 
@@ -916,19 +925,57 @@ function getMdKeywords(rows) {
 }
 
 function getSecurityConstraint(objRow) {
-    var securityConstraint = null;
+    var retValue = null;
 
     var publishId = objRow.get("publish_id");
     if (hasValue(publishId)) {
         if (publishId.equals("1")) {
-            securityConstraint = "unclassified";
+            retValue = "unclassified";
         } else if (publishId.equals("2")) {
-            securityConstraint = "restricted";
+            retValue = "restricted";
         } else if (publishId.equals("3")) {
-            securityConstraint = "confidential";
+            retValue = "confidential";
         }
     }
-    return securityConstraint;
+    return retValue;
+}
+
+function getServiceType(objClass, objServRow) {
+    var retValue = null;
+
+    if (objClass.equals("3") || objClass.equals("6")) {
+        var serviceTypeKey = objServRow.get("type_key");
+        retValue = objServRow.get("type_value");
+
+        if (serviceTypeKey != null) {        
+            if (objClass.equals("3")) {
+	            if (serviceTypeKey.equals("1")) {
+	                retValue = "discovery";
+	            } else if (serviceTypeKey.equals("2")) {
+	                retValue = "view";
+	            } else if (serviceTypeKey.equals("3")) {
+	                retValue = "download";
+	            } else if (serviceTypeKey.equals("4")) {
+	                retValue = "transformation";
+	            } else if (serviceTypeKey.equals("5")) {
+	                retValue = "invoke";
+	            } else  {
+	                retValue = "other";
+	            }
+            } else if (objClass.equals("6")) {
+	            if (serviceTypeKey.equals("1")) {
+	              retValue = "information service";
+	            } else if (serviceTypeKey.equals("2")) {
+	              retValue = "non geographic service";
+	            } else if (serviceTypeKey.equals("3")) {
+	              retValue = "application";
+	            } else  {
+	              retValue = "other";
+	            }
+            }
+        }
+    }
+    return retValue;
 }
 
 function hasValue(val) {
