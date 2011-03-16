@@ -354,7 +354,16 @@ function addT01Object(row) {
     IDX.add("t01_object.time_to", row.get("time_to"));
     IDX.add("t01_object.time_type", row.get("time_type"));
     // time: then add t0, t1, t2 fields dependent from time_type
-    IDX.processIGCTimeFields(row.get("time_from"), row.get("time_to"), row.get("time_type"));
+    var timeMap = TRANSF.transformIGCTimeFields(row.get("time_from"), row.get("time_to"), row.get("time_type"));
+    if (hasValue(timeMap.get("t0"))) {
+        IDX.add("t0", timeMap.get("t0"));
+    }
+    if (hasValue(timeMap.get("t1"))) {
+        IDX.add("t1", timeMap.get("t1"));
+    }
+    if (hasValue(timeMap.get("t2"))) {
+        IDX.add("t2", timeMap.get("t2"));
+    }
     IDX.add("t01_object.time_descr", row.get("time_descr"));
     IDX.add("t01_object.time_period", row.get("time_period"));
     IDX.add("t01_object.time_interval", row.get("time_interval"));
@@ -761,6 +770,8 @@ function hasValue(val) {
     } else if (val == null) {
         return false; 
     } else if (typeof val == "string" && val == "") {
+        return false;
+    } else if (typeof val == "object" && val.toString().equals("")) {
         return false;
     } else {
       return true;

@@ -121,7 +121,7 @@ for (i=0; i<objRows.size(); i++) {
     }
     // ---------- <gmd:dateStamp> ----------
     if (hasValue(objRow.get("mod_time"))) {
-    	var isoDate = TRANSF.getISODateFromIgcDate(objRow.get("mod_time"));
+    	var isoDate = TRANSF.getISODateFromIGCDate(objRow.get("mod_time"));
        	// do only return the date section, ignore the time part of the date
     	// see CSW 2.0.2 AP ISO 1.0 (p.41)
 		if (isoDate.indexOf('T') > -1) {
@@ -214,7 +214,7 @@ for (i=0; i<objRows.size(); i++) {
 	for (j=0; j<referenceDateRows.size(); j++) {
 		var referenceDateRow = referenceDateRows.get(j); 
 		var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
-		var dateValue = TRANSF.getISODateFromIgcDate(referenceDateRow.get("reference_date"));
+		var dateValue = TRANSF.getISODateFromIGCDate(referenceDateRow.get("reference_date"));
         if (dateValue.indexOf("T") > -1) {
         	ciDate.addElement("gmd:date/gco:DateTime").addText(dateValue);
         } else {
@@ -237,7 +237,7 @@ for (i=0; i<objRows.size(); i++) {
 		if (hasValue(literatureRow)) {
 			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:editionDate> ----------			
 			if (hasValue(literatureRow.get("publish_year"))) {
-				ciCitation.addElement("gmd:editionDate/gco:Date").addText(TRANSF.getISODateFromIgcDate(literatureRow.get("publish_year")));
+				ciCitation.addElement("gmd:editionDate/gco:Date").addText(TRANSF.getISODateFromIGCDate(literatureRow.get("publish_year")));
 			}
 			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=originator> ----------
 			if (hasValue(literatureRow.get("author"))) {
@@ -615,13 +615,32 @@ for (i=0; i<objRows.size(); i++) {
         if (hasValue(row.get("x1")) && hasValue(row.get("x2")) && hasValue(row.get("y1")) && hasValue(row.get("y2"))) {
             var exGeographicBoundingBox = exExtent.addElement("gmd:geographicElement/gmd:EX_GeographicBoundingBox");
             exGeographicBoundingBox.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
-            exGeographicBoundingBox.addElement("gmd:westBoundLongitude/gco:Decimal").addText(TRANSF.transformToIsoDouble(row.get("x1")));
-            exGeographicBoundingBox.addElement("gmd:eastBoundLongitude/gco:Decimal").addText(TRANSF.transformToIsoDouble(row.get("x2")));
-            exGeographicBoundingBox.addElement("gmd:southBoundLatitude/gco:Decimal").addText(TRANSF.transformToIsoDouble(row.get("y1")));
-            exGeographicBoundingBox.addElement("gmd:northBoundLatitude/gco:Decimal").addText(TRANSF.transformToIsoDouble(row.get("y2")));
+            exGeographicBoundingBox.addElement("gmd:westBoundLongitude/gco:Decimal").addText(TRANSF.getISODoubleFromIGCDouble(row.get("x1")));
+            exGeographicBoundingBox.addElement("gmd:eastBoundLongitude/gco:Decimal").addText(TRANSF.getISODoubleFromIGCDouble(row.get("x2")));
+            exGeographicBoundingBox.addElement("gmd:southBoundLatitude/gco:Decimal").addText(TRANSF.getISODoubleFromIGCDouble(row.get("y1")));
+            exGeographicBoundingBox.addElement("gmd:northBoundLatitude/gco:Decimal").addText(TRANSF.getISODoubleFromIGCDouble(row.get("y2")));
         }
     }
 
+    // ---------- <gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent> ----------
+    var timeRange = getTimeRange(objRow);
+    if (hasValue(timeRange.beginDate) || hasValue(timeRange.endDate)) {
+        if (!exExtent) {
+            exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
+        }
+        var timePeriod = exExtent.addElement("gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod")
+            .addAttribute("gml:id", "timePeriod_ID_".concat(TRANSF.getRandomUUID()));
+        if (hasValue(timeRange.beginDate)) {
+            timePeriod.addElement("gml:beginPosition").addText(TRANSF.getISODateFromIGCDate(timeRange.beginDate));
+        } else {
+            timePeriod.addElement("gml:beginPosition").addText("");
+        }
+        if (hasValue(timeRange.endDate)) {
+            timePeriod.addElement("gml:endPosition").addText(TRANSF.getISODateFromIGCDate(timeRange.endDate));
+        } else {
+            timePeriod.addElement("gml:endPosition").addText("");
+        }
+    }        
 
 }
 
@@ -1037,6 +1056,29 @@ function getGeographicIdentifier(spatialRefValueRow) {
     if (hasValue(spatialRefValueRow.get("nativekey"))) {
         retValue = retValue.concat(concatNativeKey).concat(spatialRefValueRow.get("nativekey")).concat(")");
     }
+    return retValue;
+}
+
+function getTimeRange(objRow) {
+    var retValue = {}; 
+
+    var timeMap = TRANSF.transformIGCTimeFields(objRow.get("time_from"), objRow.get("time_to"), objRow.get("time_type"));
+
+    var myDateType = objRow.get("time_type");
+    if (hasValue(myDateType)) {
+        if (myDateType.equals("von")) {
+            retValue.beginDate = timeMap.get("t1");
+            retValue.endDate = timeMap.get("t2");
+        } else if (myDateType.equals("seit")) {
+            retValue.beginDate = timeMap.get("t1");
+        } else if (myDateType.equals("bis")) {
+            retValue.endDate = timeMap.get("t2");
+        } else if (myDateType.equals("am")) {
+            retValue.beginDate = timeMap.get("t0");
+            retValue.endDate = timeMap.get("t0");
+        }
+    }
+
     return retValue;
 }
 

@@ -3,9 +3,12 @@
  */
 package de.ingrid.iplug.dsc.utils;
 
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
@@ -29,6 +32,10 @@ public class TransformationUtils {
     /** e.g. for selecting values from syslist */
     private SQLUtils SQL = null;
 
+    /** HashMap for remembering processed values/fields of a record !
+     * Values/fields are added and cleared in according methods ! */
+    private Map<String, String> tmpInfo = new HashMap<String, String>();
+
 	private static TransformationUtils myInstance;
 
 	/** Get The Singleton.
@@ -49,6 +56,7 @@ public class TransformationUtils {
 	}
 	private void initialize(SQLUtils sqlUtils) {
 		this.SQL = sqlUtils;
+		this.tmpInfo.clear();
 	}
 
 	/** Get the name of the given entry in the given syslist IN THE LANGUAGE OF THE CATALOG.
@@ -104,6 +112,77 @@ public class TransformationUtils {
 	    return languageKey;
 	}
 
+	/** Transform passed t01_object: "time_from","time_to","time_type" to "t0", "t1", "t2" returned in Map as keys (e.g. for adding to index).
+	 * Map value will be null if not added. */
+	public Map<String, String> transformIGCTimeFields(String time_from, String time_to, String time_type)
+	throws IOException {
+		Map<String, String> retMap = new HashMap<String, String>();
+
+		if ("von".equals(time_type)) {
+			retMap.put("t1", preprocessIGCTimeField("t1", time_from));
+			retMap.put("t2", preprocessIGCTimeField("t2", time_to));
+
+		} else if ("seit".equals(time_type)) {
+			retMap.put("t1", preprocessIGCTimeField("t1", time_from));
+
+		} else if ("am".equals(time_type)) {
+			retMap.put("t0", preprocessIGCTimeField("t0", time_from));
+
+		} else if ("bis".equals(time_type)) {
+			retMap.put("t2", preprocessIGCTimeField("t2", time_to));
+		}
+		
+	    /*
+	     * Set the boundaries of dates to values that can be compared with lucene. The
+	     * value of infinite past is '00000000' and the value for infinite future is '99999999'.
+	     * 
+	     * Makes sure that the fields are only set, if we have a UDK date type of 'seit' or 'bis'. 
+	     * We can do this because the mapping filters and maps the dates to t0 in case of date type
+	     * 'am' and to t1 in case of 'seit', even if the database fields are the same. Thus we do not 
+	     * need to look at the DB field time_type which controls the date 
+	     * type ('am', 'seit', 'bis', 'von (von-bis)')   
+	     */
+        if (tmpInfo.get("t1") != null && tmpInfo.get("t2") == null && tmpInfo.get("t0") == null) {
+        	if (log.isDebugEnabled()) {
+        		log.debug("t1 is set, t2 and t0 not set: set t2 to '99999999'!");
+        	}
+        	retMap.put("t2", "99999999");
+        } else if (tmpInfo.get("t1") == null && tmpInfo.get("t2") != null && tmpInfo.get("t0") == null) {
+        	if (log.isDebugEnabled()) {
+        		log.debug("t2 is set, t1 and t0 not set: set t1 to '00000000'!");
+        	}
+        	retMap.put("t1", "00000000");
+        }
+        
+        // clean up
+        tmpInfo.remove("t0");
+        tmpInfo.remove("t1");
+        tmpInfo.remove("t2");
+        
+        return retMap;
+	}
+
+	/** Preprocess time value and remember time field/value for later postprocessing. */
+	private String preprocessIGCTimeField(String fieldName, String value) {
+		if (value == null) {
+			value = "";
+		}
+
+        // cut time expressions
+        int lastPos = 8;
+        if (value.length() < lastPos) {
+            lastPos = value.length();
+        }
+        value = value.substring(0, lastPos);
+
+        // remember time value for later postprocessing
+        if (value.length() > 0) {
+        	tmpInfo.put(fieldName, value);
+        }
+        
+        return value;
+	}
+
 	/** Transform a Point (x,y) into WGS84. If problems occur point will be unchanged.
 	 * @param x x coordinate in givenCoordType (as String as read from row via SQLUtils)
 	 * @param y y coordinate in givenCoordType (as String as read from row via SQLUtils)
@@ -121,22 +200,6 @@ public class TransformationUtils {
         	log.warn("Could not transform Coord to WGS84, we do NOT transform ! -> x: " + x + ", y: " + y + ", type: " + givenCoordType);
         }
         return coord;
-    }
-
-	/** Transforms given number string to a valid ISO Number String. Returns "NaN" if problems occur ! */
-	public String transformToIsoDouble(String numberString) {
-        String retValue;
-    	try {
-			double n = Double.parseDouble(numberString.replaceAll(",", "."));
-			retValue = String.valueOf(n);
-		} catch (NumberFormatException e) {
-			if (log.isDebugEnabled()) {
-				log.debug("Could not convert to Double: " + numberString, e);
-			}
-			retValue = "NaN";
-		}
-		
-		return retValue;
     }
 
 	/**
@@ -201,13 +264,35 @@ public class TransformationUtils {
 	    	    
 	}
 	
-	public String getISODateFromIgcDate(String igcDate) {
+	/** Transforms given IGC date string (e.g. t0, t1, t2 from index) to a valid ISO Date String.
+	 * Returns unchanged date (the passed one) if problems occur ! */
+	public String getISODateFromIGCDate(String igcDate) {
 	    String result = UtilsCSWDate.mapFromIgcToIso8601(igcDate);
 	    if (result == null) {
 	        result = igcDate;
 	    }
 	    return result;
 	}
-	
 
+	/** Transforms an igc double string (e.g. x1, x2, y1, y2 from index) to a valid ISO Number String.
+	 * Returns "NaN" if problems occur ! */
+	public String getISODoubleFromIGCDouble(String igcDouble) {
+        String retValue;
+    	try {
+			double n = Double.parseDouble(igcDouble.replaceAll(",", "."));
+			retValue = String.valueOf(n);
+		} catch (NumberFormatException e) {
+			if (log.isDebugEnabled()) {
+				log.debug("Could not convert to Double: " + igcDouble, e);
+			}
+			retValue = "NaN";
+		}
+		
+		return retValue;
+    }
+
+	/** returns java generated UUID via UUID.randomUUID() */
+	public UUID getRandomUUID() {
+		return UUID.randomUUID();
+    }
 }
