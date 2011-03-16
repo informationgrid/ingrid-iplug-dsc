@@ -17,6 +17,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
@@ -78,6 +79,7 @@ public class IgcProfileIdfMapper implements IIdfMapper {
                 NodeList igcProfileCswMappings = XPathUtils.getNodeList(igcProfile, "//igcp:controls/*/igcp:scriptedCswMapping");
                 for (int i=0; i<igcProfileCswMappings.getLength(); i++) {
                     String igcProfileCswMapping = igcProfileCswMappings.item(i).getTextContent();
+                    Node igcProfileNode = igcProfileCswMappings.item(i).getParentNode();
                     try {
                         if (engine == null) {
                             ScriptEngineManager mgr = new ScriptEngineManager();
@@ -94,6 +96,7 @@ public class IgcProfileIdfMapper implements IIdfMapper {
                         Bindings bindings = engine.createBindings();
                         bindings.put("sourceRecord", record);
                         bindings.put("idfDoc", doc);
+                        bindings.put("igcProfileNode", igcProfileNode);
                         bindings.put("log", log);
                         bindings.put("SQL", sqlUtils);
                         bindings.put("XPATH", xpathUtils);

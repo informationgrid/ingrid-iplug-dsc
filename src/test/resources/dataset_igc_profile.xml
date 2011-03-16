@@ -31,16 +31,16 @@
                             <localizedLabel lang="lang5">localizedLabel1</localizedLabel>
                             <localizedLabelPostfix lang="lang7">localizedLabelPostfix0</localizedLabelPostfix>
                             <localizedHelp lang="lang9">localizedHelp1</localizedHelp>
-                            <scriptedCswMapping>DOM.addNS("gmd", "http://www.isotc211.org/2005/gmd");
-DOM.addNS("gco", "http://www.isotc211.org/2005/gco");
-DOM.addNS("srv", "http://www.isotc211.org/2005/srv");
-DOM.addNS("gml", "http://www.opengis.net/gml");
-DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
+                            <scriptedCswMapping>importPackage(Packages.org.w3c.dom);
+importPackage(Packages.de.ingrid.iplug.dsc.om);
+DOM.addNS("idf", "http://www.portalu.de/IDF/1.0");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
-
-var gmdMetadata = DOM.addElement(idfBody, "gmd:MD_Metadata");</scriptedCswMapping>
+var igcProfileNodeName = XPATH.getString(igcProfileNode, "igcp:id");
+var objId = sourceRecord.get(DatabaseSourceRecord.ID);
+var content = SQL.first("SELECT data FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, igcProfileNodeName]);
+DOM.addElement(idfBody, "p").addText(content.get("DATA"));</scriptedCswMapping>
                             <indexName>indexName0</indexName>
                             <layoutWidth>100</layoutWidth>
                         <layoutNumLines>1</layoutNumLines>
@@ -48,6 +48,18 @@ var gmdMetadata = DOM.addElement(idfBody, "gmd:MD_Metadata");</scriptedCswMappin
     </layoutRubric>
 </profile>      
             ]]></value>
+        </row>
+    </table>
+    <table name="additional_field_data">
+        <column>id</column>
+        <column>obj_id</column>
+        <column>field_key</column>
+        <column>data</column>
+        <row>
+          <value>1</value>
+          <value>2</value>
+          <value>id2</value>
+          <value>test content for field id2</value>
         </row>
     </table>
 </dataset>

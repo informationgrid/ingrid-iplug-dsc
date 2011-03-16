@@ -149,12 +149,12 @@ public class IgcProfileIdfRecordCreatorTest extends DBTestCase {
         dc.setRecord2IdfMapperList(mList);
 
         Document idxDoc = new Document();
-        idxDoc.add(new Field("ID", "1", Field.Store.YES,
+        idxDoc.add(new Field("ID", "2", Field.Store.YES,
                         Field.Index.ANALYZED));
         Record r = dc.getRecord(idxDoc);
         assertNotNull(r.get("data"));
         assertTrue(r.getString("compressed").equals("false"));
-        assertTrue(r.getString("data").contains("MD_Metadata"));
+        assertTrue(r.getString("data").contains("test content for field id2"));
         System.out.println("Size of uncompressed IDF document: " + r.getString("data").length());
         
     }
