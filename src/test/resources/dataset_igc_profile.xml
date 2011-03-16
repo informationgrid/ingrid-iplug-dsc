@@ -1,0 +1,53 @@
+<dataset>
+    <table name="TEST_TABLE">
+        <column>ID</column>
+        <column>KEY</column>
+        <column>VALUE</column>
+        <row>
+            <value>1</value>
+            <value>igc_profile</value>
+            <value><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<profile xmlns="http://www.portalu.de/igc-profile"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.portalu.de/igc-profile file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/docs/igc_profile.xsd" version="1.0.0">
+    <name>name0</name>
+    <supportedLanguages>supportedLanguages0</supportedLanguages>
+    <layoutRubric isLegacy="false">
+        <id>id0</id>
+        <localizedLabel lang="lang1">localizedLabel0</localizedLabel>
+        <localizedHelp lang="lang3">localizedHelp0</localizedHelp>
+        <controls>
+            <legacyControl>
+                <id>id1</id>
+                <isMandatory>false</isMandatory>
+                <isVisible>optional</isVisible>
+                <scriptedProperties>scriptedProperties0</scriptedProperties>
+            </legacyControl>
+                <textControl>
+                            <id>id2</id>
+                            <isMandatory>false</isMandatory>
+                            <isVisible>optional</isVisible>
+                            <scriptedProperties>scriptedProperties1</scriptedProperties>
+                            <localizedLabel lang="lang5">localizedLabel1</localizedLabel>
+                            <localizedLabelPostfix lang="lang7">localizedLabelPostfix0</localizedLabelPostfix>
+                            <localizedHelp lang="lang9">localizedHelp1</localizedHelp>
+                            <scriptedCswMapping>DOM.addNS("gmd", "http://www.isotc211.org/2005/gmd");
+DOM.addNS("gco", "http://www.isotc211.org/2005/gco");
+DOM.addNS("srv", "http://www.isotc211.org/2005/srv");
+DOM.addNS("gml", "http://www.opengis.net/gml");
+DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
+DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
+
+var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
+
+var gmdMetadata = DOM.addElement(idfBody, "gmd:MD_Metadata");</scriptedCswMapping>
+                            <indexName>indexName0</indexName>
+                            <layoutWidth>100</layoutWidth>
+                        <layoutNumLines>1</layoutNumLines>
+                </textControl>        </controls>
+    </layoutRubric>
+</profile>      
+            ]]></value>
+        </row>
+    </table>
+</dataset>
