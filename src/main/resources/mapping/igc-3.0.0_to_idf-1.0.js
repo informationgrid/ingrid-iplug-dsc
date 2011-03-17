@@ -701,11 +701,19 @@ for (i=0; i<objRows.size(); i++) {
             svOpRows = SQL.all("SELECT * FROM t011_obj_serv_operation WHERE obj_serv_id=?", [objServId]);
             var svOperationMetadata;
             for (i=0; i<svOpRows.size(); i++) {
+                var svOpRow = svOpRows.get(i);
                 svOperationMetadata = identificationInfo.addElement("srv:containsOperations/srv:SV_OperationMetadata");
 
     // ---------- <srv:SV_OperationMetadata/srv:operationName> ----------
-                svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText(svOpRows.get(i).get("name_value"));
+                svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText(svOpRow.get("name_value"));
 
+    // ---------- <srv:SV_OperationMetadata/srv:DCP/srv:DCPList> ----------
+	            var platfRows = SQL.all("SELECT * FROM t011_obj_serv_op_platform WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
+	            for (j=0; j<platfRows.size(); j++) {
+                    svOperationMetadata.addElement("srv:DCP/srv:DCPList")
+                        .addAttribute("codeList", "http://opengis.org/codelistRegistry?CSW_DCPCodeType")
+                        .addAttribute("codeListValue", platfRows.get(j).get("platform"));
+	            }
 	        }
         }
 
