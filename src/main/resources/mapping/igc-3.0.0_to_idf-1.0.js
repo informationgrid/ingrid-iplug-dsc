@@ -804,6 +804,15 @@ for (i=0; i<objRows.size(); i++) {
             }
         }
 
+// GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+    // ---------- <srv:operatesOn/gmd:Reference> ----------
+    rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3345, "V"]);
+    for (i=0; i<rows.size(); i++) {
+        identificationInfo.addElement("srv:operatesOn/gmd:Reference")
+            .addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
+    }
+
+
 // NICHT GEODATENDIENST(3) + NICHT INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     } else {
         // TODO MAP DATASETS !
