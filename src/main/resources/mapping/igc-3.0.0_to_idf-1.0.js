@@ -715,7 +715,14 @@ for (i=0; i<objRows.size(); i++) {
 	            }
 
     // ---------- <srv:SV_OperationMetadata/srv:operationDescription> ----------
-                svOperationMetadata.addElement("srv:operationDescription/gco:CharacterString").addText(svOpRow.get("descr"));
+                if (hasValue(svOpRow.get("descr"))) {
+                    svOperationMetadata.addElement("srv:operationDescription/gco:CharacterString").addText(svOpRow.get("descr"));
+                }
+
+    // ---------- <srv:SV_OperationMetadata/srv:invocationName> ----------
+                if (hasValue(svOpRow.get("invocation_name"))) {
+                    svOperationMetadata.addElement("srv:invocationName/gco:CharacterString").addText(svOpRow.get("invocation_name"));
+                }
 
 
 	        }
