@@ -562,6 +562,7 @@ for (i=0; i<objRows.size(); i++) {
             .addText(value);
     }
 
+// GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     // ---------- <gmd:identificationInfo/srv:serviceType> ----------
     var objServId;
     if (objClass.equals("3") || objClass.equals("6")) {
@@ -578,10 +579,13 @@ for (i=0; i<objRows.size(); i++) {
         for (i=0; i<rows.size(); i++) {
             identificationInfo.addElement("srv:serviceTypeVersion/gco:CharacterString").addText(rows.get(i).get("serv_version"));
         }
+
+// NICHT GEODATENDIENST(3) + NICHT INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     } else {
         // TODO MAP DATASETS !
     }
 
+// ALLE KLASSEN
     // ---------- <gmd:identificationInfo/srv:extent/gmd:EX_Extent> ----------
     // ---------- <gmd:identificationInfo/gmd:extent/gmd:EX_Extent> ----------
 
@@ -684,6 +688,7 @@ for (i=0; i<objRows.size(); i++) {
         verticalDatum.addElement("gml:scope");
     }
 
+// GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     // ---------- <gmd:identificationInfo/srv:couplingType/srv:SV_CouplingType> ----------
     if (objClass.equals("3") || objClass.equals("6")) {
         // also check whether referenced object is published !
@@ -696,12 +701,17 @@ for (i=0; i<objRows.size(); i++) {
             .addAttribute("codeList", "http://opengis.org/codelistRegistry?SV_CouplingType")
             .addAttribute("codeListValue", typeValue);
 
+// GEODATENDIENST(3)
     // ---------- <srv:containsOperations/srv:SV_OperationMetadata> ----------
         if (objClass.equals("3")) {
             svOpRows = SQL.all("SELECT * FROM t011_obj_serv_operation WHERE obj_serv_id=?", [objServId]);
+            var svContainsOperations;
             for (i=0; i<svOpRows.size(); i++) {
                 var svOpRow = svOpRows.get(i);
-                var svOperationMetadata = identificationInfo.addElement("srv:containsOperations/srv:SV_OperationMetadata");
+                if (!svContainsOperations) {
+                    svContainsOperations = identificationInfo.addElement("srv:containsOperations");
+                }
+                var svOperationMetadata = svContainsOperations.addElement("srv:SV_OperationMetadata");
 
         // ---------- <srv:SV_OperationMetadata/srv:operationName> ----------
                 svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText(svOpRow.get("name_value"));
@@ -763,9 +773,38 @@ for (i=0; i<objRows.size(); i++) {
                     }
                 }
 	        }
+
+// INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+    // ---------- <srv:containsOperations/srv:SV_OperationMetadata> ----------
+        } else if (objClass.equals("6")) {
+            rows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [objServId]);
+            var svContainsOperations;
+            for (i=0; i<rows.size(); i++) {
+                row = rows.get(i);
+                if (!svContainsOperations) {
+                    svContainsOperations = identificationInfo.addElement("srv:containsOperations");
+                }
+                var svOperationMetadata = svContainsOperations.addElement("srv:SV_OperationMetadata");
+
+        // ---------- <srv:SV_OperationMetadata/srv:operationName> ----------
+                svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText(row.get("name"));
+
+        // ---------- <srv:SV_OperationMetadata/srv:DCP/srv:DCPList> ----------
+                svOperationMetadata.addElement("srv:DCP/srv:DCPList")
+                    .addAttribute("codeList", "http://opengis.org/codelistRegistry?CSW_DCPCodeType")
+                    .addAttribute("codeListValue", "WebService");
+
+        // ---------- <srv:SV_OperationMetadata/srv:operationDescription> ----------
+                if (hasValue(row.get("description"))) {
+                    svOperationMetadata.addElement("srv:operationDescription/gco:CharacterString").addText(row.get("description"));
+                }
+                
+        // ---------- <srv:SV_OperationMetadata/srv:connectPoint> ----------
+                svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(row.get("url"));
+            }
         }
 
-
+// NICHT GEODATENDIENST(3) + NICHT INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     } else {
         // TODO MAP DATASETS !
     }
