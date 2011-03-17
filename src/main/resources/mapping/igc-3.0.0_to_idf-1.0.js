@@ -703,10 +703,10 @@ for (i=0; i<objRows.size(); i++) {
                 var svOpRow = svOpRows.get(i);
                 var svOperationMetadata = identificationInfo.addElement("srv:containsOperations/srv:SV_OperationMetadata");
 
-    // ---------- <srv:SV_OperationMetadata/srv:operationName> ----------
+        // ---------- <srv:SV_OperationMetadata/srv:operationName> ----------
                 svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText(svOpRow.get("name_value"));
 
-    // ---------- <srv:SV_OperationMetadata/srv:DCP/srv:DCPList> ----------
+        // ---------- <srv:SV_OperationMetadata/srv:DCP/srv:DCPList> ----------
 	            var platfRows = SQL.all("SELECT * FROM t011_obj_serv_op_platform WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
 	            for (j=0; j<platfRows.size(); j++) {
                     svOperationMetadata.addElement("srv:DCP/srv:DCPList")
@@ -714,14 +714,45 @@ for (i=0; i<objRows.size(); i++) {
                         .addAttribute("codeListValue", platfRows.get(j).get("platform"));
 	            }
 
-    // ---------- <srv:SV_OperationMetadata/srv:operationDescription> ----------
+        // ---------- <srv:SV_OperationMetadata/srv:operationDescription> ----------
                 if (hasValue(svOpRow.get("descr"))) {
                     svOperationMetadata.addElement("srv:operationDescription/gco:CharacterString").addText(svOpRow.get("descr"));
                 }
 
-    // ---------- <srv:SV_OperationMetadata/srv:invocationName> ----------
+        // ---------- <srv:SV_OperationMetadata/srv:invocationName> ----------
                 if (hasValue(svOpRow.get("invocation_name"))) {
                     svOperationMetadata.addElement("srv:invocationName/gco:CharacterString").addText(svOpRow.get("invocation_name"));
+                }
+
+        // ---------- <srv:SV_OperationMetadata/srv:parameters/srv:SV_Parameter> ----------
+                var paramRows = SQL.all("SELECT * FROM t011_obj_serv_op_para WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
+                for (j=0; j<paramRows.size(); j++) {
+                    var paramRow = paramRows.get(j);
+                    var srvParameter = svOperationMetadata.addElement("srv:parameters/srv:SV_Parameter");
+            // ---------- <srv:SV_Parameter/srv:name/gco:aName> ----------
+                    var srvName = srvParameter.addElement("srv:name");
+                    srvName.addElement("gco:aName/gco:CharacterString").addText(paramRow.get("name"));
+                    srvName.addElement("gco:attributeType"); 
+            // ---------- <srv:SV_Parameter/srv:direction/srv:SV_ParameterDirection> ----------
+                    if (hasValue(paramRow.get("direction"))) {
+                        var isoDirection = null;
+		                if (paramRow.get("direction").equalsIgnoreCase("eingabe")) {
+		                    isoDirection = "in";
+		                } else if (paramRow.get("direction").equalsIgnoreCase("ausgabe")) {
+		                    isoDirection = "out";
+		                } else {
+		                    isoDirection = "in/out";
+		                }
+		                srvParameter.addElement("srv:direction/srv:SV_ParameterDirection").addText(isoDirection);
+                    }
+            // ---------- <srv:SV_Parameter/srv:description ----------
+                    srvParameter.addElement("srv:description/gco:CharacterString").addText(paramRow.get("descr"));
+            // ---------- <srv:SV_Parameter/srv:optionality ----------
+                    srvParameter.addElement("srv:optionality/gco:CharacterString").addText(paramRow.get("optional"));
+            // ---------- <srv:SV_Parameter/srv:repeatability ----------
+                    srvParameter.addElement("srv:repeatability/gco:Boolean").addText(hasValue(paramRow.get("repeatability")) && paramRow.get("repeatability").equals("1"));
+            // ---------- <srv:SV_Parameter/srv:valueType ----------
+                    srvParameter.addElement("srv:valueType/gco:TypeName/gco:aName/gco:CharacterString").addText("");                    
                 }
 
 
