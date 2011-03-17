@@ -682,7 +682,23 @@ for (i=0; i<objRows.size(); i++) {
         verticalDatum.addElement("gml:name").addText(verticalExtentVDatum);
         verticalDatum.addElement("gml:scope");
     }
-    
+
+    // ---------- <gmd:identificationInfo/srv:couplingType/srv:SV_CouplingType> ----------
+    if (objClass.equals("3") || objClass.equals("6")) {
+        // also check whether referenced object is published !
+        row = SQL.first("SELECT * FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3345, "V"]);
+        var typeValue = "loose";
+        if (hasValue(row)) {
+            typeValue = "tight";
+        }
+        identificationInfo.addElement("srv:couplingType/srv:SV_CouplingType")
+            .addAttribute("codeList", "http://opengis.org/codelistRegistry?SV_CouplingType")
+            .addAttribute("codeListValue", typeValue);
+
+
+    } else {
+        // TODO MAP DATASETS !
+    }
 
 }
 

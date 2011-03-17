@@ -45,16 +45,18 @@ public class Igc_3_0_0_To_Idf_1_0_RecordCreatorTestLocal extends TestCase {
         String[] t01ObjectIds = new String[] {
         		"6667",		// class 0 = Organisationseinheit/Fachaufgabe
         		"3778",		// class 1 = Geo-Information/Karte
-//        		"6672",		// class 1 = Geo-Information/Karte
+        		"6672",		// class 1 = Geo-Information/Karte
         		"3919",		// class 2 = Dokument/Bericht/Literatur
         		"8781824",	// class 3 = Geodatendienst
+        					// object_reference.special_ref -> srv:SV_CouplingType "tight"
         		"3782",		// class 4 = Vorhaben/Projekt/Programm
         		"3820",		// class 5 = Datensammlung/Datenbank
         		"7897095",	// class 6 = Informationssystem/Dienst/Anwendung
-//        		"6685",		// class 6 = Informationssystem/Dienst/Anwendung
+        		"6685",		// class 6 = Informationssystem/Dienst/Anwendung
         		"5933",		// multiple t012_obj_adr associations
         		"3832",		// t01_object.time_period, time_interval, time_alle, time_descr -> gmd:MD_MaintenanceInformation
         		"3778",		// t0114_env_category, t0114_env_topic -> gmd:descriptiveKeywords
+        		"3918",		// object_reference.special_ref -> srv:SV_CouplingType "loose"
         };
 
         for (String t01ObjectId : t01ObjectIds) {
