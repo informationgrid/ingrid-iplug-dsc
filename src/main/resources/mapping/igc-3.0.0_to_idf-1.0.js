@@ -755,7 +755,13 @@ for (i=0; i<objRows.size(); i++) {
                     srvParameter.addElement("srv:valueType/gco:TypeName/gco:aName/gco:CharacterString").addText("");                    
                 }
 
-
+        // ---------- <srv:SV_OperationMetadata/srv:connectPoint> ----------
+                var connRows = SQL.all("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
+                for (j=0; j<connRows.size(); j++) {
+                    if (hasValue(connRows.get(j).get("connect_point"))) {
+                        svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(connRows.get(j).get("connect_point"));
+                    }
+                }
 	        }
         }
 
