@@ -563,9 +563,10 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // ---------- <gmd:identificationInfo/srv:serviceType> ----------
+    var objServId;
     if (objClass.equals("3") || objClass.equals("6")) {
         var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
-        var objServId = objServRow.get("id");
+        objServId = objServRow.get("id");
         
         value = getServiceType(objClass, objServRow);
         if (hasValue(value)) {
@@ -573,7 +574,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
     // ---------- <gmd:identificationInfo/srv:serviceTypeVersion> ----------
-        var rows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [objServId]);
+        rows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [objServId]);
         for (i=0; i<rows.size(); i++) {
             identificationInfo.addElement("srv:serviceTypeVersion/gco:CharacterString").addText(rows.get(i).get("serv_version"));
         }
@@ -695,6 +696,18 @@ for (i=0; i<objRows.size(); i++) {
             .addAttribute("codeList", "http://opengis.org/codelistRegistry?SV_CouplingType")
             .addAttribute("codeListValue", typeValue);
 
+    // ---------- <srv:containsOperations/srv:SV_OperationMetadata> ----------
+        if (objClass.equals("3")) {
+            svOpRows = SQL.all("SELECT * FROM t011_obj_serv_operation WHERE obj_serv_id=?", [objServId]);
+            var svOperationMetadata;
+            for (i=0; i<svOpRows.size(); i++) {
+                svOperationMetadata = identificationInfo.addElement("srv:containsOperations/srv:SV_OperationMetadata");
+
+    // ---------- <srv:SV_OperationMetadata/srv:operationName> ----------
+                svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText(svOpRows.get(i).get("name_value"));
+
+	        }
+        }
 
     } else {
         // TODO MAP DATASETS !
