@@ -324,18 +324,6 @@ for (i=0; i<objRows.size(); i++) {
     for (j=0; j<rows.size(); j++) {
         addObjectFormatInspire(rows.get(j));
     }
-    // ---------- additional_field_data TOP Elements (single field, table field) ----------
-    var rows = SQL.all("SELECT * FROM additional_field_data WHERE obj_id=?", [objId]);
-    for (j=0; j<rows.size(); j++) {
-        addAdditionalFieldData(rows.get(j));
-        var tableId = rows.get(j).get("id");
-
-        // ---------- additional_field_data SUB Elements (table columns)----------
-        var subRows = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=?", [tableId]);
-        for (k=0; k<subRows.size(); k++) {
-            addAdditionalFieldData(subRows.get(k));
-        }
-    }
 }
 
 function addT01Object(row) {
@@ -754,13 +742,6 @@ function addObjectFormatInspire(row) {
     IDX.add("object_format_inspire.line", row.get("line"));
     IDX.add("object_format_inspire.format_key", row.get("format_key"));
     IDX.add("object_format_inspire.format_value", row.get("format_value"));
-}
-function addAdditionalFieldData(row) {
-    IDX.add("additional_field_data.sort", row.get("sort"));
-    IDX.add("additional_field_data.field_key", row.get("field_key"));
-    IDX.add("additional_field_data.list_item_id", row.get("list_item_id"));
-    IDX.add("additional_field_data.data", row.get("data"));
-    IDX.add("additional_field_data.parent_field_id", row.get("parent_field_id"));
 }
 
 
