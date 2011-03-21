@@ -620,6 +620,14 @@ for (i=0; i<objRows.size(); i++) {
                 }
             }
         }
+
+	    // ---------- <gmd:language> ----------
+	    value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
+	    if (hasValue(value)) {
+            identificationInfo.addElement("gmd:language/gmd:LanguageCode")
+                .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode")
+                .addAttribute("codeListValue", value);
+	    }
     }
 
 // ALLE KLASSEN
