@@ -587,11 +587,11 @@ for (i=0; i<objRows.size(); i++) {
 	        // ---------- <gmd:identificationInfo/gmd:spatialRepresentationType> ----------
 	        rows = SQL.all("SELECT type FROM t011_obj_geo_spatial_rep WHERE obj_geo_id=?", [objGeoId]);
 	        for (i=0; i<rows.size(); i++) {
-	            var type = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(526, rows.get(i).get("type"));
-	            if (hasValue(type)) {
+	            value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(526, rows.get(i).get("type"));
+	            if (hasValue(value)) {
 	                identificationInfo.addElement("gmd:spatialRepresentationType/gmd:MD_SpatialRepresentationTypeCode")
 	                    .addAttribute("codeList", "http://www.tc211.org/ISO19115/resources/codeList.xml#MD_SpatialRepresentationTypeCode")
-	                    .addAttribute("codeListValue", type);
+	                    .addAttribute("codeListValue", value);
 	            }
 	        }
 	
@@ -621,7 +621,7 @@ for (i=0; i<objRows.size(); i++) {
             }
         }
 
-	    // ---------- <gmd:language> ----------
+	    // ---------- <gmd:identificationInfo/gmd:language> ----------
 	    value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
 	    if (hasValue(value)) {
             identificationInfo.addElement("gmd:language/gmd:LanguageCode")
@@ -629,13 +629,23 @@ for (i=0; i<objRows.size(); i++) {
                 .addAttribute("codeListValue", value);
 	    }
 
-        // ---------- <gmd:characterSet> ----------
+        // ---------- <gmd:identificationInfo/gmd:characterSet> ----------
 	    value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("dataset_character_set"));
 	    if (hasValue(value)) {
             identificationInfo.addElement("gmd:characterSet/gmd:MD_CharacterSetCode")
                 .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_CharacterSetCode")
                 .addAttribute("codeListValue", value);
 	    }
+
+        // ---------- <gmd:identificationInfo/gmd:topicCategory/gmd:MD_TopicCategoryCode> ----------
+        rows = SQL.all("SELECT * FROM t011_obj_topic_cat WHERE obj_id=?", [objId]);
+        for (i=0; i<rows.size(); i++) {
+            value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(527, rows.get(i).get("topic_category"));
+            if (hasValue(value)) {
+                identificationInfo.addElement("gmd:topicCategory/gmd:MD_TopicCategoryCode").addText(value);
+            }
+        }
+
     }
 
 // ALLE KLASSEN
