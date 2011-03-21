@@ -154,7 +154,9 @@ for (i=0; i<objRows.size(); i++) {
 
     // ---------- <gmd:topologyLevel> ----------
 	var objGeoRow = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=?", [objId]);
+	var objGeoId;
 	if (hasValue(objGeoRow)) {
+        objGeoId = objGeoRow.get("id");
 		var mdVectorSpatialRepresentation;
 		var vectorTopologyLevel = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(528, objGeoRow.get("vector_topology_level"));
 		if (hasValue(vectorTopologyLevel)) {
@@ -165,7 +167,7 @@ for (i=0; i<objRows.size(); i++) {
 		}
 		
 		// ---------- <gmd:MD_GeometricObjects> ----------
-		var objGeoVectorRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=?", [objGeoRow.get("id")]);
+		var objGeoVectorRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=?", [objGeoId]);
 		for (var j=0; j<objGeoVectorRows.size(); j++) {
 			if (!mdVectorSpatialRepresentation) mdVectorSpatialRepresentation = gmdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation");
 			var objGeoVectorRow = objGeoVectorRows.get(j);
@@ -581,7 +583,16 @@ for (i=0; i<objRows.size(); i++) {
 
 // NICHT GEODATENDIENST(3) + NICHT INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     } else {
-        // TODO MAP DATASETS !
+        // ---------- <gmd:identificationInfo/gmd:spatialRepresentationType> ----------
+        rows = SQL.all("SELECT type FROM t011_obj_geo_spatial_rep WHERE obj_geo_id=?", [objGeoId]);
+        for (i=0; i<rows.size(); i++) {
+            var type = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(526, rows.get(i).get("type"));
+	        if (hasValue(type)) {
+                identificationInfo.addElement("gmd:spatialRepresentationType/gmd:MD_SpatialRepresentationTypeCode")
+                    .addAttribute("codeList", "http://www.tc211.org/ISO19115/resources/codeList.xml#MD_SpatialRepresentationTypeCode")
+                    .addAttribute("codeListValue", type);
+	        }
+        }
     }
 
 // ALLE KLASSEN
