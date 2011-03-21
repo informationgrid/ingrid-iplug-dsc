@@ -563,19 +563,17 @@ for (i=0; i<objRows.size(); i++) {
     }
 
 // GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-    // ---------- <gmd:identificationInfo/srv:serviceType> ----------
-    var objServId;
-    var objServRow;
     if (objClass.equals("3") || objClass.equals("6")) {
-        objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
-        objServId = objServRow.get("id");
+        var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
+        var objServId = objServRow.get("id");
         
+        // ---------- <gmd:identificationInfo/srv:serviceType> ----------
         value = getServiceType(objClass, objServRow);
         if (hasValue(value)) {
             identificationInfo.addElement("srv:serviceType/gco:LocalName").addText(value);
         }
 
-    // ---------- <gmd:identificationInfo/srv:serviceTypeVersion> ----------
+        // ---------- <gmd:identificationInfo/srv:serviceTypeVersion> ----------
         rows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [objServId]);
         for (i=0; i<rows.size(); i++) {
             identificationInfo.addElement("srv:serviceTypeVersion/gco:CharacterString").addText(rows.get(i).get("serv_version"));
@@ -590,8 +588,8 @@ for (i=0; i<objRows.size(); i++) {
     addExtent(identificationInfo, objRow);
 
 // GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-    // ---------- <gmd:identificationInfo/srv:couplingType/srv:SV_CouplingType> ----------
     if (objClass.equals("3") || objClass.equals("6")) {
+        // ---------- <gmd:identificationInfo/srv:couplingType/srv:SV_CouplingType> ----------
         // also check whether referenced object is published !
         row = SQL.first("SELECT * FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3345, "V"]);
         var typeValue = "loose";
@@ -613,69 +611,8 @@ for (i=0; i<objRows.size(); i++) {
 	    }
 	
 	    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
-       // add second identification info for all information that cannot be mapped into a SV_ServiceIdentification element
-	    var svScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServId]);
-	    var mdDataIdentification;
-	    if (svScaleRows.size() > 0 || hasValue(objServRow.get("environment")) || hasValue(objServRow.get("description"))) {
-	        var mdDataIdentification = gmdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
-	        mdDataIdentification.addAttribute("uuid", getFileIdentifier(objRow));
-	
-	        // add necessary elements for schema validation
-	        var ciCitation = mdDataIdentification.addElement("gmd:citation/gmd:CI_Citation");
-	        ciCitation.addElement("gmd:title")
-	            .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
-                .addElement("gco:CharacterString").addText("");
-	        var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
-	        ciDate.addElement("gmd:date")
-	            .addAttribute("gco:nilReason", "other:providedInPreviousIdentification")
-	            .addElement("gco:Date").addText("");
-	        ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-	            .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
-	            .addAttribute("codeList", "")
-	            .addAttribute("codeListValue", "");
-	        mdDataIdentification.addElement("gmd:abstract")
-	            .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
-	            .addElement("gco:CharacterString").addText("");
-	        mdDataIdentification.addElement("gmd:language")
-	            .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
-                .addElement("gco:CharacterString").addText("");
-	    
-	        // ---------- <gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale> ----------
-		    for (i=0; i<svScaleRows.size(); i++) {
-		        if (hasValue(svScaleRows.get(i).get("scale"))) {
-		            mdDataIdentification.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:CharacterString")
-		            .addText(svScaleRows.get(i).get("scale"));
-		        }
-		    }
-	
-	        // ---------- <gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance> ----------
-		    for (i=0; i<svScaleRows.size(); i++) {
-		        if (hasValue(svScaleRows.get(i).get("resolution_ground"))) {
-		            mdDataIdentification.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance")
-		                .addAttribute("uom", "meter")
-		                .addText(svScaleRows.get(i).get("resolution_ground"));
-		        }
-		    }
-	
-		    // ---------- <gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance> ----------
-		    for (i=0; i<svScaleRows.size(); i++) {
-		        if (hasValue(svScaleRows.get(i).get("resolution_scan"))) {
-		            mdDataIdentification.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance")
-		                .addAttribute("uom", "dpi")
-		                .addText(svScaleRows.get(i).get("resolution_scan"));
-		        }
-		    }
-	
-	        // ---------- <gmd:environmentDescription> ----------
-	        if (hasValue(objServRow.get("environment"))) {
-	            mdDataIdentification.addElement("gmd:environmentDescription/gco:CharacterString").addText(objServRow.get("environment"));
-	        }
-	
-	        // ---------- <gmd:supplementalInformation> ----------
-	        if (hasValue(objServRow.get("description"))) {
-	            mdDataIdentification.addElement("gmd:supplementalInformation/gco:CharacterString").addText(objServRow.get("description"));
-	        }
-	    }
+        // add second identification info for all information that cannot be mapped into a SV_ServiceIdentification element
+        addServiceAdditionalIdentification(gmdMetadata, objServRow, objServId);
 
 // NICHT GEODATENDIENST(3) + NICHT INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     } else {
@@ -1326,6 +1263,72 @@ function addServiceOperations(identificationInfo, objServId) {
                 
         // ---------- <srv:SV_OperationMetadata/srv:connectPoint> ----------
                 svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(row.get("url"));
+            }
+        }
+}
+
+// add second identification info for all information that cannot be mapped into a SV_ServiceIdentification element
+function addServiceAdditionalIdentification(gmdMetadata, objServRow, objServId) {
+        var svScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServId]);
+        if (svScaleRows.size() > 0 || hasValue(objServRow.get("environment")) || hasValue(objServRow.get("description"))) {
+    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
+            var mdDataIdentification = gmdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
+            mdDataIdentification.addAttribute("uuid", getFileIdentifier(objRow));
+    
+            // add necessary elements for schema validation
+            var ciCitation = mdDataIdentification.addElement("gmd:citation/gmd:CI_Citation");
+            ciCitation.addElement("gmd:title")
+                .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
+                .addElement("gco:CharacterString").addText("");
+            var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
+            ciDate.addElement("gmd:date")
+                .addAttribute("gco:nilReason", "other:providedInPreviousIdentification")
+                .addElement("gco:Date").addText("");
+            ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
+                .addAttribute("codeList", "")
+                .addAttribute("codeListValue", "");
+            mdDataIdentification.addElement("gmd:abstract")
+                .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
+                .addElement("gco:CharacterString").addText("");
+            mdDataIdentification.addElement("gmd:language")
+                .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
+                .addElement("gco:CharacterString").addText("");
+        
+            // ---------- <gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale> ----------
+            for (i=0; i<svScaleRows.size(); i++) {
+                if (hasValue(svScaleRows.get(i).get("scale"))) {
+                    mdDataIdentification.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:CharacterString")
+                    .addText(svScaleRows.get(i).get("scale"));
+                }
+            }
+    
+            // ---------- <gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance> ----------
+            for (i=0; i<svScaleRows.size(); i++) {
+                if (hasValue(svScaleRows.get(i).get("resolution_ground"))) {
+                    mdDataIdentification.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance")
+                        .addAttribute("uom", "meter")
+                        .addText(svScaleRows.get(i).get("resolution_ground"));
+                }
+            }
+    
+            // ---------- <gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance> ----------
+            for (i=0; i<svScaleRows.size(); i++) {
+                if (hasValue(svScaleRows.get(i).get("resolution_scan"))) {
+                    mdDataIdentification.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance")
+                        .addAttribute("uom", "dpi")
+                        .addText(svScaleRows.get(i).get("resolution_scan"));
+                }
+            }
+    
+            // ---------- <gmd:environmentDescription> ----------
+            if (hasValue(objServRow.get("environment"))) {
+                mdDataIdentification.addElement("gmd:environmentDescription/gco:CharacterString").addText(objServRow.get("environment"));
+            }
+    
+            // ---------- <gmd:supplementalInformation> ----------
+            if (hasValue(objServRow.get("description"))) {
+                mdDataIdentification.addElement("gmd:supplementalInformation/gco:CharacterString").addText(objServRow.get("description"));
             }
         }
 }
