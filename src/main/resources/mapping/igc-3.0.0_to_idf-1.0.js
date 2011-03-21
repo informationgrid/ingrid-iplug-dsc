@@ -628,6 +628,14 @@ for (i=0; i<objRows.size(); i++) {
                 .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode")
                 .addAttribute("codeListValue", value);
 	    }
+
+        // ---------- <gmd:characterSet> ----------
+	    value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("dataset_character_set"));
+	    if (hasValue(value)) {
+            identificationInfo.addElement("gmd:characterSet/gmd:MD_CharacterSetCode")
+                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_CharacterSetCode")
+                .addAttribute("codeListValue", value);
+	    }
     }
 
 // ALLE KLASSEN
