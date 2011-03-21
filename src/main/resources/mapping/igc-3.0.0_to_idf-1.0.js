@@ -583,14 +583,23 @@ for (i=0; i<objRows.size(); i++) {
 
 // NICHT GEODATENDIENST(3) + NICHT INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     } else {
-        // ---------- <gmd:identificationInfo/gmd:spatialRepresentationType> ----------
-        rows = SQL.all("SELECT type FROM t011_obj_geo_spatial_rep WHERE obj_geo_id=?", [objGeoId]);
-        for (i=0; i<rows.size(); i++) {
-            var type = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(526, rows.get(i).get("type"));
-	        if (hasValue(type)) {
-                identificationInfo.addElement("gmd:spatialRepresentationType/gmd:MD_SpatialRepresentationTypeCode")
-                    .addAttribute("codeList", "http://www.tc211.org/ISO19115/resources/codeList.xml#MD_SpatialRepresentationTypeCode")
-                    .addAttribute("codeListValue", type);
+        if (objGeoId) {
+	        // ---------- <gmd:identificationInfo/gmd:spatialRepresentationType> ----------
+	        rows = SQL.all("SELECT type FROM t011_obj_geo_spatial_rep WHERE obj_geo_id=?", [objGeoId]);
+	        for (i=0; i<rows.size(); i++) {
+	            var type = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(526, rows.get(i).get("type"));
+	            if (hasValue(type)) {
+	                identificationInfo.addElement("gmd:spatialRepresentationType/gmd:MD_SpatialRepresentationTypeCode")
+	                    .addAttribute("codeList", "http://www.tc211.org/ISO19115/resources/codeList.xml#MD_SpatialRepresentationTypeCode")
+	                    .addAttribute("codeListValue", type);
+	            }
+	        }
+	
+	        // ---------- <gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale> ----------
+	        rows = SQL.all("SELECT scale FROM t011_obj_geo_scale WHERE obj_geo_id=?", [objGeoId]);
+	        for (i=0; i<rows.size(); i++) {
+                identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer")
+                    .addText(TRANSF.getISOIntegerFromIGCNumber(rows.get(i).get("scale")));
 	        }
         }
     }
@@ -1309,8 +1318,8 @@ function addServiceAdditionalIdentification(gmdMetadata, objServRow, objServId) 
             // ---------- <gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale> ----------
             for (i=0; i<svScaleRows.size(); i++) {
                 if (hasValue(svScaleRows.get(i).get("scale"))) {
-                    mdDataIdentification.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:CharacterString")
-                    .addText(svScaleRows.get(i).get("scale"));
+                    mdDataIdentification.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer")
+                    .addText(TRANSF.getISOIntegerFromIGCNumber(svScaleRows.get(i).get("scale")));
                 }
             }
     

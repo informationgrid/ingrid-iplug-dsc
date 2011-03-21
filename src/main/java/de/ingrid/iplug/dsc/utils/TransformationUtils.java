@@ -312,6 +312,22 @@ public class TransformationUtils {
 		return retValue;
     }
 
+	/** Transforms an igc integer string (e.g. t011_obj_geo_scale.scale) to a valid ISO gco:Integer string.
+	 * Returns "NaN" if problems occur ! */
+	public String getISOIntegerFromIGCNumber(String igcNumber) {
+		String retValue;
+    	try {
+			int n = Integer.parseInt(igcNumber);
+			retValue = String.valueOf(n);
+		} catch (NumberFormatException e) {
+			if (log.isDebugEnabled()) {
+				log.debug("Could not convert to ISO gco:Integer: " + igcNumber, e);
+			}
+			retValue = "NaN";
+		}
+		return retValue;
+    }
+
 	/** returns java generated UUID via UUID.randomUUID() */
 	public UUID getRandomUUID() {
 		return UUID.randomUUID();
