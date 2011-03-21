@@ -646,6 +646,18 @@ for (i=0; i<objRows.size(); i++) {
             }
         }
 
+        // ---------- <gmd:identificationInfo/gmd:supplementalInformation> ----------
+        value = null;
+        if (objClass.equals("5")) {
+            value = SQL.first("SELECT description FROM t011_obj_data WHERE obj_id=?", [objId]).get("description");
+        } else if (objClass.equals("2")) {
+            value = SQL.first("SELECT description FROM t011_obj_literature WHERE obj_id=?", [objId]).get("description");
+        } else if (objClass.equals("4")) {
+            value = SQL.first("SELECT description FROM t011_obj_project WHERE obj_id=?", [objId]).get("description");
+        }
+        if (hasValue(value)) {
+            identificationInfo.addElement("gmd:supplementalInformation/gco:CharacterString").addText(value);
+        }
     }
 
 // ALLE KLASSEN
