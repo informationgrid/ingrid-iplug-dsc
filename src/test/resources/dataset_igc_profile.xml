@@ -44,7 +44,52 @@ DOM.addElement(idfBody, "p").addText(content.get("DATA"));</scriptedCswMapping>
                             <indexName>indexName0</indexName>
                             <layoutWidth>100</layoutWidth>
                         <layoutNumLines>1</layoutNumLines>
-                </textControl>        </controls>
+                </textControl>        
+                <tableControl>
+                            <id>id6</id>
+                            <isMandatory>false</isMandatory>
+                            <isVisible>optional</isVisible>
+                            <scriptedProperties>scriptedProperties5</scriptedProperties>
+                            <localizedLabel lang="lang31">localizedLabel5</localizedLabel>
+                            <localizedLabelPostfix lang="lang33">localizedLabelPostfix4</localizedLabelPostfix>
+                            <localizedHelp lang="lang35">localizedHelp5</localizedHelp>
+                            <scriptedCswMapping></scriptedCswMapping>
+                            <indexName>indexName4</indexName>
+                            <layoutWidth>100</layoutWidth>
+                        <layoutNumLines>1</layoutNumLines>
+                        <columns>
+                            <textControl>
+                                        <id>id7</id>
+                                        <isMandatory>false</isMandatory>
+                                        <isVisible>optional</isVisible>
+                                        <scriptedProperties>scriptedProperties6</scriptedProperties>
+                                        <localizedLabel lang="lang37">localizedLabel6</localizedLabel>
+                                        <localizedLabelPostfix lang="lang39">localizedLabelPostfix5</localizedLabelPostfix>
+                                        <localizedHelp lang="lang41">localizedHelp6</localizedHelp>
+                                        <scriptedCswMapping></scriptedCswMapping>
+                                        <indexName>indexName5</indexName>
+                                        <layoutWidth>100</layoutWidth>
+                                    <layoutNumLines>1</layoutNumLines>
+                            </textControl>
+                            <selectControl isExtendable="false">
+                                        <id>id8</id>
+                                        <isMandatory>false</isMandatory>
+                                        <isVisible>optional</isVisible>
+                                        <scriptedProperties>scriptedProperties7</scriptedProperties>
+                                        <localizedLabel lang="lang43">localizedLabel7</localizedLabel>
+                                        <localizedLabelPostfix lang="lang45">localizedLabelPostfix6</localizedLabelPostfix>
+                                        <localizedHelp lang="lang47">localizedHelp7</localizedHelp>
+                                        <scriptedCswMapping></scriptedCswMapping>
+                                        <indexName>indexName6</indexName>
+                                        <layoutWidth>100</layoutWidth>
+                                    <selectionList>
+                                        <items lang="lang49">
+                                            <item id="id3">item1</item>
+                                        </items>
+                                    </selectionList>
+                            </selectControl>
+                        </columns>
+                </tableControl>                </controls>
     </layoutRubric>
 </profile>      
             ]]></value>
@@ -53,13 +98,63 @@ DOM.addElement(idfBody, "p").addText(content.get("DATA"));</scriptedCswMapping>
     <table name="additional_field_data">
         <column>id</column>
         <column>obj_id</column>
+        <column>parent_field_id</column>
         <column>field_key</column>
         <column>data</column>
+        <column>sort</column>
         <row>
           <value>1</value>
           <value>2</value>
+          <null/>
           <value>id2</value>
           <value>test content for field id2</value>
+          <value>1</value>
+        </row>
+        <row>
+          <value>2</value>
+          <value>2</value>
+          <null/>
+          <value>id6</value>
+          <value></value>
+          <value>1</value>
+        </row>
+        <row>
+          <value>3</value>
+          <null/>
+          <value>2</value>
+          <value>id7</value>
+          <value>erster eintrag in erster spalte</value>
+          <value>1</value>
+        </row>
+        <row>
+          <value>4</value>
+          <null/>
+          <value>2</value>
+          <value>id8</value>
+          <value>erster eintrag in zweiter spalte</value>
+          <value>1</value>
+        </row>
+        <row>
+          <value>5</value>
+          <null/>
+          <value>2</value>
+          <value>id7</value>
+          <value>zweiter eintrag in erster spalte</value>
+          <value>2</value>
+        </row>
+        <row>
+          <value>6</value>
+          <null/>
+          <value>2</value>
+          <value>id8</value>
+          <value>zweiter eintrag in zweiter spalte</value>
+          <value>2</value>
+        </row>
+    </table>
+    <table name="t01_object">
+        <column>id</column>
+        <row>
+          <value>2</value>
         </row>
     </table>
 </dataset>

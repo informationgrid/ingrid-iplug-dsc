@@ -65,11 +65,13 @@ public class IgcProfileIdfMapper implements IIdfMapper {
             throw new IllegalArgumentException("Document is no IDF!");
         }
         Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
+        PreparedStatement ps = null;
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+            ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             rs.next();
             String igcProfileStr = rs.getString("igc_profile");
+            ps.close();
             if (igcProfileStr != null) {
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                 dbf.setNamespaceAware(true);
@@ -79,41 +81,47 @@ public class IgcProfileIdfMapper implements IIdfMapper {
                 NodeList igcProfileCswMappings = XPathUtils.getNodeList(igcProfile, "//igcp:controls/*/igcp:scriptedCswMapping");
                 for (int i=0; i<igcProfileCswMappings.getLength(); i++) {
                     String igcProfileCswMapping = igcProfileCswMappings.item(i).getTextContent();
-                    Node igcProfileNode = igcProfileCswMappings.item(i).getParentNode();
-                    try {
-                        if (engine == null) {
-                            ScriptEngineManager mgr = new ScriptEngineManager();
-                            engine = mgr.getEngineByExtension("js");
+                    if (igcProfileCswMapping != null && igcProfileCswMapping.trim().length() > 0) {
+                        Node igcProfileNode = igcProfileCswMappings.item(i).getParentNode();
+                        try {
+                            if (engine == null) {
+                                ScriptEngineManager mgr = new ScriptEngineManager();
+                                engine = mgr.getEngineByExtension("js");
+                            }
+    
+                            // create utils for script
+                            SQLUtils sqlUtils = SQLUtils.getInstance(connection);
+                            // initialize static XPathUtils (encapsulated static XPath instance))
+                            XPathUtils xpathUtils = XPathUtils.getInstance(new IDFNamespaceContext());
+                            TransformationUtils trafoUtils = TransformationUtils.getInstance(sqlUtils);
+                            DOMUtils domUtils = DOMUtils.getInstance(doc);
+    
+                            Bindings bindings = engine.createBindings();
+                            bindings.put("sourceRecord", record);
+                            bindings.put("idfDoc", doc);
+                            bindings.put("igcProfileNode", igcProfileNode);
+                            bindings.put("log", log);
+                            bindings.put("SQL", sqlUtils);
+                            bindings.put("XPATH", xpathUtils);
+                            bindings.put("TRANSF", trafoUtils);
+                            bindings.put("DOM", domUtils);
+    
+                            engine.eval(new StringReader(igcProfileCswMapping), bindings);
+                        } catch (Exception e) {
+                            log.error("Error mapping source record to idf document.", e);
+                            throw e;
                         }
-
-                        // create utils for script
-                        SQLUtils sqlUtils = SQLUtils.getInstance(connection);
-                        // initialize static XPathUtils (encapsulated static XPath instance))
-                        XPathUtils xpathUtils = XPathUtils.getInstance(new IDFNamespaceContext());
-                        TransformationUtils trafoUtils = TransformationUtils.getInstance(sqlUtils);
-                        DOMUtils domUtils = DOMUtils.getInstance(doc);
-
-                        Bindings bindings = engine.createBindings();
-                        bindings.put("sourceRecord", record);
-                        bindings.put("idfDoc", doc);
-                        bindings.put("igcProfileNode", igcProfileNode);
-                        bindings.put("log", log);
-                        bindings.put("SQL", sqlUtils);
-                        bindings.put("XPATH", xpathUtils);
-                        bindings.put("TRANSF", trafoUtils);
-                        bindings.put("DOM", domUtils);
-
-                        engine.eval(new StringReader(igcProfileCswMapping), bindings);
-                    } catch (Exception e) {
-                        log.error("Error mapping source record to idf document.", e);
-                        throw e;
-                    }                    
+                    }
                 }
                 
             }
         } catch (SQLException e) {
             log.error("Error mapping IGC profile.", e);
             throw e;
+        } finally {
+            if (ps != null &&! ps.isClosed()) {
+                ps.close();
+            }
         }
 
     }

@@ -1,0 +1,142 @@
+/**
+ * 
+ */
+package de.ingrid.iplug.dsc.index.mapper;
+
+import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.log4j.Logger;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
+import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.utils.xml.ConfigurableNamespaceContext;
+import de.ingrid.utils.xml.IDFNamespaceContext;
+import de.ingrid.utils.xml.IgcProfileNamespaceContext;
+import de.ingrid.utils.xml.XPathUtils;
+
+/**
+ * IGC profile based source record to lucene document mapping. It maps the
+ * content of the additional fields to the index using the index field names
+ * specified in the profile. It only maps additional fields that have a index
+ * field name specified in the profile.
+ * <p />
+ * The class can be configured with a SQL string that retrieves the IGC profile
+ * from the database. The profile must be stored in a database record field
+ * names 'igc_profile'.
+ * 
+ * @author joachim@wemove.com
+ * 
+ */
+public class IgcProfileDocumentMapper implements IRecordMapper {
+
+    private String sql;
+
+    private static final Logger log = Logger.getLogger(IgcProfileDocumentMapper.class);
+
+    @Override
+    public void map(SourceRecord record, Document doc) throws Exception {
+        if (!(record instanceof DatabaseSourceRecord)) {
+            throw new IllegalArgumentException("Record is no DatabaseRecord!");
+        }
+        ConfigurableNamespaceContext cnc = new ConfigurableNamespaceContext();
+        cnc.addNamespaceContext(new IDFNamespaceContext());
+        cnc.addNamespaceContext(new IgcProfileNamespaceContext());
+        XPathUtils.getXPathInstance().setNamespaceContext(cnc);
+        String objId = (String) record.get(DatabaseSourceRecord.ID);
+
+        Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
+        PreparedStatement ps = null;
+        try {
+            ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            String igcProfileStr = rs.getString("igc_profile");
+            ps.close();
+            if (igcProfileStr != null) {
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                dbf.setNamespaceAware(true);
+                DocumentBuilder db;
+                db = dbf.newDocumentBuilder();
+                org.w3c.dom.Document igcProfile = db.parse(new InputSource(new StringReader(igcProfileStr)));
+                NodeList igcProfileIndexNames = XPathUtils.getNodeList(igcProfile, "//igcp:controls/*//igcp:indexName");
+                Map<String, String> profileInfo = new HashMap<String, String>();
+                for (int i = 0; i < igcProfileIndexNames.getLength(); i++) {
+                    String igcProfileIndexName = igcProfileIndexNames.item(i).getTextContent();
+                    if (igcProfileIndexName != null && igcProfileIndexName.trim().length() > 0) {
+                        Node igcProfileNode = igcProfileIndexNames.item(i).getParentNode();
+                        String igcProfileNodeId = XPathUtils.getString(igcProfileNode, "igcp:id");
+                        profileInfo.put(igcProfileNodeId, igcProfileIndexName);
+                    }
+                }
+                if (!profileInfo.isEmpty()) {
+                    ps = connection.prepareStatement("SELECT * FROM additional_field_data WHERE obj_id=?");
+                    ps.setString(1, objId);
+                    mapAdditionalData(connection, ps, doc, profileInfo);
+                    ps.close();
+                }
+            }
+        } catch (SQLException e) {
+            log.error("Error mapping IGC profile.", e);
+            throw e;
+        } finally {
+            if (ps != null && !ps.isClosed()) {
+                ps.close();
+            }
+        }
+    }
+
+    public String getSql() {
+        return sql;
+    }
+
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
+
+    /**
+     * Does the mapping of additional data into the index based on index field
+     * name definitions in the profile. This mapping occurs recursively if
+     * needed because of the hierarchical structure of the data in the database
+     * for table data.
+     * 
+     * 
+     * @param connection
+     * @param ps
+     * @param doc
+     * @param profileInfo
+     * @throws Exception
+     */
+    private void mapAdditionalData(Connection connection, PreparedStatement ps, Document doc,
+            Map<String, String> profileInfo) throws Exception {
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            String fieldKey = rs.getString("field_key");
+            if (profileInfo.containsKey(fieldKey) && rs.getString("data") != null && rs.getString("data").length() > 0) {
+                doc.add(new Field(profileInfo.get(fieldKey), rs.getString("data"), Field.Store.YES,
+                        Field.Index.ANALYZED));
+            }
+            String id = rs.getString("id");
+            PreparedStatement psNew = connection
+                    .prepareStatement("SELECT * FROM additional_field_data WHERE parent_field_id=?");
+            psNew.setString(1, id);
+            mapAdditionalData(connection, psNew, doc, profileInfo);
+            psNew.close();
+        }
+
+    }
+
+}
