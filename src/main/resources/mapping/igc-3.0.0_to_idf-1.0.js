@@ -602,111 +602,10 @@ for (i=0; i<objRows.size(); i++) {
             .addAttribute("codeList", "http://opengis.org/codelistRegistry?SV_CouplingType")
             .addAttribute("codeListValue", typeValue);
 
-// GEODATENDIENST(3)
-    // ---------- <srv:containsOperations/srv:SV_OperationMetadata> ----------
-        if (objClass.equals("3")) {
-            svOpRows = SQL.all("SELECT * FROM t011_obj_serv_operation WHERE obj_serv_id=?", [objServId]);
-            var svContainsOperations;
-            for (i=0; i<svOpRows.size(); i++) {
-                var svOpRow = svOpRows.get(i);
-                if (!svContainsOperations) {
-                    svContainsOperations = identificationInfo.addElement("srv:containsOperations");
-                }
-                var svOperationMetadata = svContainsOperations.addElement("srv:SV_OperationMetadata");
-
-        // ---------- <srv:SV_OperationMetadata/srv:operationName> ----------
-                svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText(svOpRow.get("name_value"));
-
-        // ---------- <srv:SV_OperationMetadata/srv:DCP/srv:DCPList> ----------
-	            var platfRows = SQL.all("SELECT * FROM t011_obj_serv_op_platform WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
-	            for (j=0; j<platfRows.size(); j++) {
-                    svOperationMetadata.addElement("srv:DCP/srv:DCPList")
-                        .addAttribute("codeList", "http://opengis.org/codelistRegistry?CSW_DCPCodeType")
-                        .addAttribute("codeListValue", platfRows.get(j).get("platform"));
-	            }
-
-        // ---------- <srv:SV_OperationMetadata/srv:operationDescription> ----------
-                if (hasValue(svOpRow.get("descr"))) {
-                    svOperationMetadata.addElement("srv:operationDescription/gco:CharacterString").addText(svOpRow.get("descr"));
-                }
-
-        // ---------- <srv:SV_OperationMetadata/srv:invocationName> ----------
-                if (hasValue(svOpRow.get("invocation_name"))) {
-                    svOperationMetadata.addElement("srv:invocationName/gco:CharacterString").addText(svOpRow.get("invocation_name"));
-                }
-
-        // ---------- <srv:SV_OperationMetadata/srv:parameters/srv:SV_Parameter> ----------
-                var paramRows = SQL.all("SELECT * FROM t011_obj_serv_op_para WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
-                for (j=0; j<paramRows.size(); j++) {
-                    var paramRow = paramRows.get(j);
-                    var srvParameter = svOperationMetadata.addElement("srv:parameters/srv:SV_Parameter");
-            // ---------- <srv:SV_Parameter/srv:name/gco:aName> ----------
-                    var srvName = srvParameter.addElement("srv:name");
-                    srvName.addElement("gco:aName/gco:CharacterString").addText(paramRow.get("name"));
-                    srvName.addElement("gco:attributeType"); 
-            // ---------- <srv:SV_Parameter/srv:direction/srv:SV_ParameterDirection> ----------
-                    if (hasValue(paramRow.get("direction"))) {
-                        var isoDirection = null;
-		                if (paramRow.get("direction").equalsIgnoreCase("eingabe")) {
-		                    isoDirection = "in";
-		                } else if (paramRow.get("direction").equalsIgnoreCase("ausgabe")) {
-		                    isoDirection = "out";
-		                } else {
-		                    isoDirection = "in/out";
-		                }
-		                srvParameter.addElement("srv:direction/srv:SV_ParameterDirection").addText(isoDirection);
-                    }
-            // ---------- <srv:SV_Parameter/srv:description ----------
-                    srvParameter.addElement("srv:description/gco:CharacterString").addText(paramRow.get("descr"));
-            // ---------- <srv:SV_Parameter/srv:optionality ----------
-                    srvParameter.addElement("srv:optionality/gco:CharacterString").addText(paramRow.get("optional"));
-            // ---------- <srv:SV_Parameter/srv:repeatability ----------
-                    srvParameter.addElement("srv:repeatability/gco:Boolean").addText(hasValue(paramRow.get("repeatability")) && paramRow.get("repeatability").equals("1"));
-            // ---------- <srv:SV_Parameter/srv:valueType ----------
-                    srvParameter.addElement("srv:valueType/gco:TypeName/gco:aName/gco:CharacterString").addText("");                    
-                }
-
-        // ---------- <srv:SV_OperationMetadata/srv:connectPoint> ----------
-                var connRows = SQL.all("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
-                for (j=0; j<connRows.size(); j++) {
-                    if (hasValue(connRows.get(j).get("connect_point"))) {
-                        svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(connRows.get(j).get("connect_point"));
-                    }
-                }
-	        }
-
-// INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-    // ---------- <srv:containsOperations/srv:SV_OperationMetadata> ----------
-        } else if (objClass.equals("6")) {
-            rows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [objServId]);
-            var svContainsOperations;
-            for (i=0; i<rows.size(); i++) {
-                row = rows.get(i);
-                if (!svContainsOperations) {
-                    svContainsOperations = identificationInfo.addElement("srv:containsOperations");
-                }
-                var svOperationMetadata = svContainsOperations.addElement("srv:SV_OperationMetadata");
-
-        // ---------- <srv:SV_OperationMetadata/srv:operationName> ----------
-                svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText(row.get("name"));
-
-        // ---------- <srv:SV_OperationMetadata/srv:DCP/srv:DCPList> ----------
-                svOperationMetadata.addElement("srv:DCP/srv:DCPList")
-                    .addAttribute("codeList", "http://opengis.org/codelistRegistry?CSW_DCPCodeType")
-                    .addAttribute("codeListValue", "WebService");
-
-        // ---------- <srv:SV_OperationMetadata/srv:operationDescription> ----------
-                if (hasValue(row.get("description"))) {
-                    svOperationMetadata.addElement("srv:operationDescription/gco:CharacterString").addText(row.get("description"));
-                }
-                
-        // ---------- <srv:SV_OperationMetadata/srv:connectPoint> ----------
-                svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(row.get("url"));
-            }
-        }
-
-// GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-	    // ---------- <srv:operatesOn/gmd:Reference> ----------
+        // ---------- <gmd:identificationInfo/srv:containsOperations/srv:SV_OperationMetadata> ----------
+        addServiceOperations(identificationInfo, objServId);
+    
+	    // ---------- <gmd:identificationInfo/srv:operatesOn/gmd:Reference> ----------
 	    rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3345, "V"]);
 	    for (i=0; i<rows.size(); i++) {
 	        identificationInfo.addElement("srv:operatesOn/gmd:Reference")
@@ -1325,6 +1224,110 @@ function getTimeRange(objRow) {
     }
 
     return retValue;
+}
+
+function addServiceOperations(identificationInfo, objServId) {
+        var svContainsOperations;
+// GEODATENDIENST(3)
+    // ---------- <srv:containsOperations/srv:SV_OperationMetadata> ----------
+        if (objClass.equals("3")) {
+            svOpRows = SQL.all("SELECT * FROM t011_obj_serv_operation WHERE obj_serv_id=?", [objServId]);
+            for (i=0; i<svOpRows.size(); i++) {
+                var svOpRow = svOpRows.get(i);
+                if (!svContainsOperations) {
+                    svContainsOperations = identificationInfo.addElement("srv:containsOperations");
+                }
+                var svOperationMetadata = svContainsOperations.addElement("srv:SV_OperationMetadata");
+
+        // ---------- <srv:SV_OperationMetadata/srv:operationName> ----------
+                svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText(svOpRow.get("name_value"));
+
+        // ---------- <srv:SV_OperationMetadata/srv:DCP/srv:DCPList> ----------
+                var platfRows = SQL.all("SELECT * FROM t011_obj_serv_op_platform WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
+                for (j=0; j<platfRows.size(); j++) {
+                    svOperationMetadata.addElement("srv:DCP/srv:DCPList")
+                        .addAttribute("codeList", "http://opengis.org/codelistRegistry?CSW_DCPCodeType")
+                        .addAttribute("codeListValue", platfRows.get(j).get("platform"));
+                }
+
+        // ---------- <srv:SV_OperationMetadata/srv:operationDescription> ----------
+                if (hasValue(svOpRow.get("descr"))) {
+                    svOperationMetadata.addElement("srv:operationDescription/gco:CharacterString").addText(svOpRow.get("descr"));
+                }
+
+        // ---------- <srv:SV_OperationMetadata/srv:invocationName> ----------
+                if (hasValue(svOpRow.get("invocation_name"))) {
+                    svOperationMetadata.addElement("srv:invocationName/gco:CharacterString").addText(svOpRow.get("invocation_name"));
+                }
+
+        // ---------- <srv:SV_OperationMetadata/srv:parameters/srv:SV_Parameter> ----------
+                var paramRows = SQL.all("SELECT * FROM t011_obj_serv_op_para WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
+                for (j=0; j<paramRows.size(); j++) {
+                    var paramRow = paramRows.get(j);
+                    var srvParameter = svOperationMetadata.addElement("srv:parameters/srv:SV_Parameter");
+            // ---------- <srv:SV_Parameter/srv:name/gco:aName> ----------
+                    var srvName = srvParameter.addElement("srv:name");
+                    srvName.addElement("gco:aName/gco:CharacterString").addText(paramRow.get("name"));
+                    srvName.addElement("gco:attributeType"); 
+            // ---------- <srv:SV_Parameter/srv:direction/srv:SV_ParameterDirection> ----------
+                    if (hasValue(paramRow.get("direction"))) {
+                        var isoDirection = null;
+                        if (paramRow.get("direction").equalsIgnoreCase("eingabe")) {
+                            isoDirection = "in";
+                        } else if (paramRow.get("direction").equalsIgnoreCase("ausgabe")) {
+                            isoDirection = "out";
+                        } else {
+                            isoDirection = "in/out";
+                        }
+                        srvParameter.addElement("srv:direction/srv:SV_ParameterDirection").addText(isoDirection);
+                    }
+            // ---------- <srv:SV_Parameter/srv:description ----------
+                    srvParameter.addElement("srv:description/gco:CharacterString").addText(paramRow.get("descr"));
+            // ---------- <srv:SV_Parameter/srv:optionality ----------
+                    srvParameter.addElement("srv:optionality/gco:CharacterString").addText(paramRow.get("optional"));
+            // ---------- <srv:SV_Parameter/srv:repeatability ----------
+                    srvParameter.addElement("srv:repeatability/gco:Boolean").addText(hasValue(paramRow.get("repeatability")) && paramRow.get("repeatability").equals("1"));
+            // ---------- <srv:SV_Parameter/srv:valueType ----------
+                    srvParameter.addElement("srv:valueType/gco:TypeName/gco:aName/gco:CharacterString").addText("");                    
+                }
+
+        // ---------- <srv:SV_OperationMetadata/srv:connectPoint> ----------
+                var connRows = SQL.all("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
+                for (j=0; j<connRows.size(); j++) {
+                    if (hasValue(connRows.get(j).get("connect_point"))) {
+                        svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(connRows.get(j).get("connect_point"));
+                    }
+                }
+            }
+
+// INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+    // ---------- <srv:containsOperations/srv:SV_OperationMetadata> ----------
+        } else if (objClass.equals("6")) {
+            rows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [objServId]);
+            for (i=0; i<rows.size(); i++) {
+                row = rows.get(i);
+                if (!svContainsOperations) {
+                    svContainsOperations = identificationInfo.addElement("srv:containsOperations");
+                }
+                var svOperationMetadata = svContainsOperations.addElement("srv:SV_OperationMetadata");
+
+        // ---------- <srv:SV_OperationMetadata/srv:operationName> ----------
+                svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText(row.get("name"));
+
+        // ---------- <srv:SV_OperationMetadata/srv:DCP/srv:DCPList> ----------
+                svOperationMetadata.addElement("srv:DCP/srv:DCPList")
+                    .addAttribute("codeList", "http://opengis.org/codelistRegistry?CSW_DCPCodeType")
+                    .addAttribute("codeListValue", "WebService");
+
+        // ---------- <srv:SV_OperationMetadata/srv:operationDescription> ----------
+                if (hasValue(row.get("description"))) {
+                    svOperationMetadata.addElement("srv:operationDescription/gco:CharacterString").addText(row.get("description"));
+                }
+                
+        // ---------- <srv:SV_OperationMetadata/srv:connectPoint> ----------
+                svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(row.get("url"));
+            }
+        }
 }
 
 function hasValue(val) {
