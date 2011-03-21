@@ -232,7 +232,7 @@ for (i=0; i<objRows.size(); i++) {
 	rsIdentifier.addElement("gmd:codeSpace/gco:CharacterString").addText("ingrid");
 
 	// map literature properties
-	if (objClass == "2") {
+	if (objClass.equals("2")) {
 		var literatureRow = SQL.first("SELECT * from t011_obj_literature WHERE obj_id=?", [objId]);
 		if (hasValue(literatureRow)) {
 			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:editionDate> ----------			
@@ -587,107 +587,7 @@ for (i=0; i<objRows.size(); i++) {
     }
 
 // ALLE KLASSEN
-    // ---------- <gmd:identificationInfo/srv:extent/gmd:EX_Extent> ----------
-    // ---------- <gmd:identificationInfo/gmd:extent/gmd:EX_Extent> ----------
-
-    var extentElemName = "gmd:extent"; 
-    if (objClass.equals("3") || objClass.equals("6")) {
-        extentElemName = "srv:extent";
-    }
-
-    // ---------- <gmd:EX_Extent/gmd:description> ----------
-    var exExtent;
-    if (hasValue(objRow.get("loc_descr"))) {
-        exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
-        exExtent.addElement("gmd:description/gco:CharacterString").addText(objRow.get("loc_descr"));
-    }
-
-    // ---------- <gmd:EX_Extent/gmd:geographicElement> ----------
-    rows = SQL.all("SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value WHERE spatial_reference.spatial_ref_id=spatial_ref_value.id AND spatial_reference.obj_id=?", [objId]);
-    for (i=0; i<rows.size(); i++) {
-        row = rows.get(i);
-        if (!exExtent) {
-            exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
-        }
-        
-    // ---------- <gmd:geographicElement/gmd:EX_GeographicDescription> ----------
-        var geoIdentifier = getGeographicIdentifier(row);
-        if (hasValue(geoIdentifier)) {
-            // Spatial_ref_value.name_value + nativekey MD_Metadata/gmd:identificationInfo/srv:CSW_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicDescription/gmd:geographicIdentifier/gmd:MD_Identifier/code/gco:CharacterString
-            var exGeographicDescription = exExtent.addElement("gmd:geographicElement/gmd:EX_GeographicDescription");
-            exGeographicDescription.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
-            exGeographicDescription.addElement("gmd:geographicIdentifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(geoIdentifier);
-        }
-    // ---------- <gmd:geographicElement/gmd:EX_GeographicBoundingBox> ----------
-        if (hasValue(row.get("x1")) && hasValue(row.get("x2")) && hasValue(row.get("y1")) && hasValue(row.get("y2"))) {
-            // Spatial_ref_value.x1 MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/geographicElement/EX_GeographicBoundingBox.westBoundLongitude/gmd:approximateLongitude
-            var exGeographicBoundingBox = exExtent.addElement("gmd:geographicElement/gmd:EX_GeographicBoundingBox");
-            exGeographicBoundingBox.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
-            exGeographicBoundingBox.addElement("gmd:westBoundLongitude/gco:Decimal").addText(TRANSF.getISODecimalFromIGCNumber(row.get("x1")));
-            exGeographicBoundingBox.addElement("gmd:eastBoundLongitude/gco:Decimal").addText(TRANSF.getISODecimalFromIGCNumber(row.get("x2")));
-            exGeographicBoundingBox.addElement("gmd:southBoundLatitude/gco:Decimal").addText(TRANSF.getISODecimalFromIGCNumber(row.get("y1")));
-            exGeographicBoundingBox.addElement("gmd:northBoundLatitude/gco:Decimal").addText(TRANSF.getISODecimalFromIGCNumber(row.get("y2")));
-        }
-    }
-
-    // ---------- <gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent> ----------
-    var timeRange = getTimeRange(objRow);
-    if (hasValue(timeRange.beginDate) || hasValue(timeRange.endDate)) {
-        if (!exExtent) {
-            exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
-        }
-        // T01_object.time_from MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/temporalElement/EX_TemporalExtent/extent/gml:TimePeriod/
-        var timePeriod = exExtent.addElement("gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod")
-            .addAttribute("gml:id", "timePeriod_ID_".concat(TRANSF.getRandomUUID()));
-        if (hasValue(timeRange.beginDate)) {
-            timePeriod.addElement("gml:beginPosition").addText(TRANSF.getISODateFromIGCDate(timeRange.beginDate));
-        } else {
-            timePeriod.addElement("gml:beginPosition").addText("");
-        }
-        if (hasValue(timeRange.endDate)) {
-            timePeriod.addElement("gml:endPosition").addText(TRANSF.getISODateFromIGCDate(timeRange.endDate));
-        } else {
-            timePeriod.addElement("gml:endPosition").addText("");
-        }
-    }        
-
-    // ---------- <gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent> ----------
-    var verticalExtentMin = objRow.get("vertical_extent_minimum"); 
-    var verticalExtentMax = objRow.get("vertical_extent_maximum");
-    if (hasValue(verticalExtentMin) && hasValue(verticalExtentMax)) {
-        if (!exExtent) {
-            exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
-        }
-        var exVerticalExtent = exExtent.addElement("gmd:verticalElement/gmd:EX_VerticalExtent");
-        // T01_object.vertical_extent_minimum MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/verticalElement/EX_VerticalExtent.minimumValue
-        exVerticalExtent.addElement("gmd:minimumValue/gco:Real").addText(TRANSF.getISORealFromIGCNumber(verticalExtentMin));
-        // T01_object.vertical_extent_maximum MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/verticalElement/EX_VerticalExtent.maximumValue
-        exVerticalExtent.addElement("gmd:maximumValue/gco:Real").addText(TRANSF.getISORealFromIGCNumber(verticalExtentMax));
-
-        // T01_object.vertical_extent_unit = Wert [Domain-ID Codelist 102] MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/verticalElement/EX_VerticalExtent/verticalCRS/gml:VerticalCRS/gml:verticalCS/gml:VerticalCS/gml:axis/gml:CoordinateSystemAxis@gml:uom
-        var verticalExtentUnit = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(102, objRow.get("vertical_extent_unit"));
-        var verticalCRS = exVerticalExtent.addElement("gmd:verticalCRS/gml:VerticalCRS")
-            .addAttribute("gml:id", "verticalCRSN_ID_".concat(TRANSF.getRandomUUID()));
-        verticalCRS.addElement("gml:identifier").addAttribute("codeSpace", "");
-        verticalCRS.addElement("gml:scope");
-        var verticalCS = verticalCRS.addElement("gml:verticalCS/gml:VerticalCS")
-            .addAttribute("gml:id", "verticalCS_ID_".concat(TRANSF.getRandomUUID()));
-        verticalCS.addElement("gml:identifier").addAttribute("codeSpace", "");
-        var coordinateSystemAxis = verticalCS.addElement("gml:axis/gml:CoordinateSystemAxis")
-            .addAttribute("gml:uom", verticalExtentUnit)
-            .addAttribute("gml:id", "coordinateSystemAxis_ID_".concat(TRANSF.getRandomUUID()));
-        coordinateSystemAxis.addElement("gml:identifier").addAttribute("codeSpace", "");
-        coordinateSystemAxis.addElement("gml:axisAbbrev");
-        coordinateSystemAxis.addElement("gml:axisDirection").addAttribute("codeSpace", "");
-
-        // T01_object.vertical_extent_vdatum = Wert [Domain-Id Codelist 101] MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/verticalElement/EX_VerticalExtent/verticalCRS/gml:VerticalCRS/gml:verticalDatum/gml:VerticalDatum/gml:name
-        var verticalExtentVDatum = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(101, objRow.get("vertical_extent_vdatum"));
-        var verticalDatum = verticalCRS.addElement("gml:verticalDatum/gml:VerticalDatum")
-            .addAttribute("gml:id", "verticalDatum_ID_".concat(TRANSF.getRandomUUID()));
-        verticalDatum.addElement("gml:identifier").addAttribute("codeSpace", "");
-        verticalDatum.addElement("gml:name").addText(verticalExtentVDatum);
-        verticalDatum.addElement("gml:scope");
-    }
+    addExtent(identificationInfo, objRow);
 
 // GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     // ---------- <gmd:identificationInfo/srv:couplingType/srv:SV_CouplingType> ----------
@@ -1285,6 +1185,110 @@ function getServiceType(objClass, objServRow) {
         }
     }
     return retValue;
+}
+
+function addExtent(identificationInfo, objRow) {
+// ---------- <gmd:identificationInfo/srv:extent/gmd:EX_Extent> ----------
+// ---------- <gmd:identificationInfo/gmd:extent/gmd:EX_Extent> ----------
+
+    var extentElemName = "gmd:extent"; 
+    if (objClass.equals("3") || objClass.equals("6")) {
+        extentElemName = "srv:extent";
+    }
+
+    // ---------- <gmd:EX_Extent/gmd:description> ----------
+    var exExtent;
+    if (hasValue(objRow.get("loc_descr"))) {
+        exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
+        exExtent.addElement("gmd:description/gco:CharacterString").addText(objRow.get("loc_descr"));
+    }
+
+    // ---------- <gmd:EX_Extent/gmd:geographicElement> ----------
+    rows = SQL.all("SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value WHERE spatial_reference.spatial_ref_id=spatial_ref_value.id AND spatial_reference.obj_id=?", [objId]);
+    for (i=0; i<rows.size(); i++) {
+        row = rows.get(i);
+        if (!exExtent) {
+            exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
+        }
+        
+        // ---------- <gmd:geographicElement/gmd:EX_GeographicDescription> ----------
+        var geoIdentifier = getGeographicIdentifier(row);
+        if (hasValue(geoIdentifier)) {
+            // Spatial_ref_value.name_value + nativekey MD_Metadata/gmd:identificationInfo/srv:CSW_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicDescription/gmd:geographicIdentifier/gmd:MD_Identifier/code/gco:CharacterString
+            var exGeographicDescription = exExtent.addElement("gmd:geographicElement/gmd:EX_GeographicDescription");
+            exGeographicDescription.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
+            exGeographicDescription.addElement("gmd:geographicIdentifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(geoIdentifier);
+        }
+        // ---------- <gmd:geographicElement/gmd:EX_GeographicBoundingBox> ----------
+        if (hasValue(row.get("x1")) && hasValue(row.get("x2")) && hasValue(row.get("y1")) && hasValue(row.get("y2"))) {
+            // Spatial_ref_value.x1 MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/geographicElement/EX_GeographicBoundingBox.westBoundLongitude/gmd:approximateLongitude
+            var exGeographicBoundingBox = exExtent.addElement("gmd:geographicElement/gmd:EX_GeographicBoundingBox");
+            exGeographicBoundingBox.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
+            exGeographicBoundingBox.addElement("gmd:westBoundLongitude/gco:Decimal").addText(TRANSF.getISODecimalFromIGCNumber(row.get("x1")));
+            exGeographicBoundingBox.addElement("gmd:eastBoundLongitude/gco:Decimal").addText(TRANSF.getISODecimalFromIGCNumber(row.get("x2")));
+            exGeographicBoundingBox.addElement("gmd:southBoundLatitude/gco:Decimal").addText(TRANSF.getISODecimalFromIGCNumber(row.get("y1")));
+            exGeographicBoundingBox.addElement("gmd:northBoundLatitude/gco:Decimal").addText(TRANSF.getISODecimalFromIGCNumber(row.get("y2")));
+        }
+    }
+
+    // ---------- <gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent> ----------
+    var timeRange = getTimeRange(objRow);
+    if (hasValue(timeRange.beginDate) || hasValue(timeRange.endDate)) {
+        if (!exExtent) {
+            exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
+        }
+        // T01_object.time_from MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/temporalElement/EX_TemporalExtent/extent/gml:TimePeriod/
+        var timePeriod = exExtent.addElement("gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod")
+            .addAttribute("gml:id", "timePeriod_ID_".concat(TRANSF.getRandomUUID()));
+        if (hasValue(timeRange.beginDate)) {
+            timePeriod.addElement("gml:beginPosition").addText(TRANSF.getISODateFromIGCDate(timeRange.beginDate));
+        } else {
+            timePeriod.addElement("gml:beginPosition").addText("");
+        }
+        if (hasValue(timeRange.endDate)) {
+            timePeriod.addElement("gml:endPosition").addText(TRANSF.getISODateFromIGCDate(timeRange.endDate));
+        } else {
+            timePeriod.addElement("gml:endPosition").addText("");
+        }
+    }        
+
+    // ---------- <gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent> ----------
+    var verticalExtentMin = objRow.get("vertical_extent_minimum"); 
+    var verticalExtentMax = objRow.get("vertical_extent_maximum");
+    if (hasValue(verticalExtentMin) && hasValue(verticalExtentMax)) {
+        if (!exExtent) {
+            exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
+        }
+        var exVerticalExtent = exExtent.addElement("gmd:verticalElement/gmd:EX_VerticalExtent");
+        // T01_object.vertical_extent_minimum MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/verticalElement/EX_VerticalExtent.minimumValue
+        exVerticalExtent.addElement("gmd:minimumValue/gco:Real").addText(TRANSF.getISORealFromIGCNumber(verticalExtentMin));
+        // T01_object.vertical_extent_maximum MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/verticalElement/EX_VerticalExtent.maximumValue
+        exVerticalExtent.addElement("gmd:maximumValue/gco:Real").addText(TRANSF.getISORealFromIGCNumber(verticalExtentMax));
+
+        // T01_object.vertical_extent_unit = Wert [Domain-ID Codelist 102] MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/verticalElement/EX_VerticalExtent/verticalCRS/gml:VerticalCRS/gml:verticalCS/gml:VerticalCS/gml:axis/gml:CoordinateSystemAxis@gml:uom
+        var verticalExtentUnit = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(102, objRow.get("vertical_extent_unit"));
+        var verticalCRS = exVerticalExtent.addElement("gmd:verticalCRS/gml:VerticalCRS")
+            .addAttribute("gml:id", "verticalCRSN_ID_".concat(TRANSF.getRandomUUID()));
+        verticalCRS.addElement("gml:identifier").addAttribute("codeSpace", "");
+        verticalCRS.addElement("gml:scope");
+        var verticalCS = verticalCRS.addElement("gml:verticalCS/gml:VerticalCS")
+            .addAttribute("gml:id", "verticalCS_ID_".concat(TRANSF.getRandomUUID()));
+        verticalCS.addElement("gml:identifier").addAttribute("codeSpace", "");
+        var coordinateSystemAxis = verticalCS.addElement("gml:axis/gml:CoordinateSystemAxis")
+            .addAttribute("gml:uom", verticalExtentUnit)
+            .addAttribute("gml:id", "coordinateSystemAxis_ID_".concat(TRANSF.getRandomUUID()));
+        coordinateSystemAxis.addElement("gml:identifier").addAttribute("codeSpace", "");
+        coordinateSystemAxis.addElement("gml:axisAbbrev");
+        coordinateSystemAxis.addElement("gml:axisDirection").addAttribute("codeSpace", "");
+
+        // T01_object.vertical_extent_vdatum = Wert [Domain-Id Codelist 101] MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/verticalElement/EX_VerticalExtent/verticalCRS/gml:VerticalCRS/gml:verticalDatum/gml:VerticalDatum/gml:name
+        var verticalExtentVDatum = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(101, objRow.get("vertical_extent_vdatum"));
+        var verticalDatum = verticalCRS.addElement("gml:verticalDatum/gml:VerticalDatum")
+            .addAttribute("gml:id", "verticalDatum_ID_".concat(TRANSF.getRandomUUID()));
+        verticalDatum.addElement("gml:identifier").addAttribute("codeSpace", "");
+        verticalDatum.addElement("gml:name").addText(verticalExtentVDatum);
+        verticalDatum.addElement("gml:scope");
+    }
 }
 
 function getGeographicIdentifier(spatialRefValueRow) {
