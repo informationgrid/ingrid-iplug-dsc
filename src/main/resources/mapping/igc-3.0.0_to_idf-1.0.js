@@ -595,12 +595,30 @@ for (i=0; i<objRows.size(); i++) {
 	            }
 	        }
 	
-	        // ---------- <gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale> ----------
-	        rows = SQL.all("SELECT scale FROM t011_obj_geo_scale WHERE obj_geo_id=?", [objGeoId]);
+	        // ---------- <gmd:identificationInfo/gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale> ----------
+	        rows = SQL.all("SELECT * FROM t011_obj_geo_scale WHERE obj_geo_id=?", [objGeoId]);
 	        for (i=0; i<rows.size(); i++) {
-                identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer")
-                    .addText(TRANSF.getISOIntegerFromIGCNumber(rows.get(i).get("scale")));
+                if (hasValue(rows.get(i).get("scale"))) {
+	                identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer")
+	                    .addText(TRANSF.getISOIntegerFromIGCNumber(rows.get(i).get("scale")));
+                }
 	        }
+
+            // ---------- <gmd:identificationInfo/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance> ----------
+            for (i=0; i<rows.size(); i++) {
+                if (hasValue(rows.get(i).get("resolution_ground"))) {
+	                identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance")
+	                    .addAttribute("uom", "meter").addText(rows.get(i).get("resolution_ground"));
+                }
+            }
+
+            // ---------- <gmd:identificationInfo/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance> ----------
+            for (i=0; i<rows.size(); i++) {
+                if (hasValue(rows.get(i).get("resolution_scan"))) {
+	                identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance")
+	                    .addAttribute("uom", "dpi").addText(rows.get(i).get("resolution_scan"));
+                }
+            }
         }
     }
 
