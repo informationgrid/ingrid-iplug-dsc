@@ -961,8 +961,40 @@ for (i=0; i<objRows.size(); i++) {
             dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(rows.get(i).get("degree_key").equals("1"));
 	    }
 
+        // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:statement> ----------
+        var liLineage;
+        if (hasValue(objGeoRow) && hasValue(objGeoRow.get("special_base"))) {
+            if (!dqDataQuality) {
+                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
+            }
+            liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
+            liLineage.addElement("gmd:statement/gco:CharacterString").addText(objGeoRow.get("special_base"));
+        }
+
+        // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description> ----------
+        if (hasValue(objGeoRow) && hasValue(objGeoRow.get("method"))) {
+            if (!dqDataQuality) {
+                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
+            }
+            if (!liLineage) {
+                liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
+            }
+            liLineage.addElement("gmd:processStep/gmd:LI_ProcessStep/gmd:description/gco:CharacterString").addText(objGeoRow.get("method"));
+        }
+
+        // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
+        if (hasValue(objGeoRow) && hasValue(objGeoRow.get("data_base"))) {
+            if (!dqDataQuality) {
+                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
+            }
+            if (!liLineage) {
+                liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
+            }
+            liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(objGeoRow.get("data_base"));
+        }
+
+
         // TODO
-//        addDataQualityInfoDataSet(metaData, hit);
 //        addPortrayalCatalogueInfo(metaData, hit);
 
 // GEODATENDIENST(3)
