@@ -783,6 +783,9 @@ for (i=0; i<objRows.size(); i++) {
     }
 
 // ALLE KLASSEN
+
+    // distributionInfo
+
     // ---------- <gmd:MD_Metadata/gmd:distributionInfo/gmd:MD_Distribution> ----------
     var mdDistribution;
     rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [objId]);
@@ -882,6 +885,51 @@ for (i=0; i<objRows.size(); i++) {
             }
             mdMedium.addElement("gmd:mediumNote/gco:CharacterString").addText(rows.get(i).get("medium_note"));
         }
+    }
+
+    // ---------- <gmd:MD_Metadata/gmd:dataQualityInfo/gmd:DQ_DataQuality> ----------
+    var dqQualityInfo;
+
+// GEO-INFORMATION/KARTE(1)
+    if (objClass.equals("1")) {
+        if (hasValue(objGeoRow) && hasValue(objGeoRow.get("rec_grade"))) {
+            dqQualityInfo = gmdMetadata.addElement("gmd:dataQualityInfo/gmd:DQ_DataQuality");
+            // ---------- <gmd:DQ_DataQuality/gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode> ----------
+            dqQualityInfo.addElement("gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode")
+                .addAttribute("codeListValue", getHierarchLevel(objClass))
+                .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode");
+
+            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_CompletenessCommission> ----------
+            var completenessCommission = dqQualityInfo.addElement("gmd:report/gmd:DQ_CompletenessCommission");
+            completenessCommission.addElement("gmd:measureDescription/gco:CharacterString").addText("completeness");
+            var dqQuantitativeResult = completenessCommission.addElement("gmd:result/gmd:DQ_QuantitativeResult");
+            var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
+                .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
+            unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
+            unitDefinition.addElement("gml:name").addText("percent");
+            unitDefinition.addElement("gml:quantityType").addText("completeness");
+            unitDefinition.addElement("gml:catalogSymbol").addText("%");
+            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("rec_grade"));
+        }
+
+        // TODO
+//        addDataQualityInfoDataSet(metaData, hit);
+//        addPortrayalCatalogueInfo(metaData, hit);
+
+// GEODATENDIENST(3)
+    } else if (objClass.equals("3")) {
+        // TODO
+//        addDataQualityInfoService(metaData, hit);
+
+// DATENSAMMLUNG/DATENBANK(5)
+    } else if (objClass.equals("5")) {
+        // TODO
+//        addDataQualityInfoDatabase(metaData, hit);
+
+// DOKUMENT/BERICHT/LITERATUR(2)
+    } else if (objClass.equals("2")) {
+        // TODO
+//        addDataQualityInfoLiterature(metaData, hit);
     }
 }
 
