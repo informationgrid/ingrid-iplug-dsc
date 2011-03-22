@@ -139,7 +139,8 @@ public class SQLUtils {
 		return toList(rs, wantedColumnNames);
 	}
 	/**
-	* Helper method that maps a ResultSet into a list of maps, one per row
+	* Helper method that maps a ResultSet into a list of maps, one per row.
+	* NOTICE: Calls trim() to remove whitespaces from values
 	* @param query ResultSet
 	* @param list of columns names to include in the result map
 	* @return list of maps, one per column row, with column names as keys and column values as String (can be null)
@@ -153,6 +154,9 @@ public class SQLUtils {
 
 			for (String columnName : wantedColumnNames) {
 				String value = rs.getString(columnName);
+				if (value != null) {
+					value = value.trim();
+				}
 				row.put(columnName, value);
 			}
 
