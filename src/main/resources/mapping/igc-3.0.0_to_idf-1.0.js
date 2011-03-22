@@ -697,7 +697,6 @@ for (i=0; i<objRows.size(); i++) {
 
 // GEO-INFORMATION/KARTE(1)
     if (objClass.equals("1")) {
-
         // ---------- <gmd:MD_Metadata/gmd:contentInfo/gmd:MD_FeatureCatalogueDescription> ----------
         if (objGeoId) {
             var mdFeatureCatalogueDescription;
@@ -748,9 +747,41 @@ for (i=0; i<objRows.size(); i++) {
 
 // DATENSAMMLUNG/DATENBANK(5)
     } else if (objClass.equals("5")) {
-        // TODO MM
-    }
+        // ---------- <gmd:MD_Metadata/gmd:contentInfo/gmd:MD_FeatureCatalogueDescription> ----------
+        var mdFeatureCatalogueDescription;
+        var objDataParaRows = SQL.all("SELECT * FROM t011_obj_data_para WHERE obj_id=?", [objId]);
+        for (i=0; i<objDataParaRows.size(); i++) {
+            var featureType = objDataParaRows.get(i).get("parameter");
+            if (hasValue(featureType)) {
+                if (!mdFeatureCatalogueDescription) {
+                    mdFeatureCatalogueDescription = gmdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
+                    // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:includedWithDataset> ----------
+                    mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean").addText("false");
+                }
+                if (hasValue(objDataParaRows.get(i).get("unit"))) {
+                    featureType = featureType.concat(" ").concat(objDataParaRows.get(i).get("unit"));
+                }
+                mdFeatureCatalogueDescription.addElement("gmd:featureTypes/gco:LocalName").addText(featureType);
+            }
+        }
+        if (mdFeatureCatalogueDescription) {
+            // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureCatalogueCitation/gmd:CI_Citation> ----------
+            var ciCitation = mdFeatureCatalogueDescription.addElement("gmd:featureCatalogueCitation/gmd:CI_Citation");
+            ciCitation.addElement("gmd:title/gco:CharacterString").addText("German Environmental Catalog - parameters of object type 'database', version 1.0");
+            var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
+            ciDate.addElement("gmd:date/gco:Date").addText("2006-05-01");
+            ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
+                .addAttribute("codeListValue", "publication");
+        }
 
+
+        // ---------- <gmd:MD_Metadata/gmd:contentInfo#uuidref> ----------
+        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3535, "V"]);
+        for (i=0; i<rows.size(); i++) {
+            gmdMetadata.addElement("gmd:contentInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
+        }
+    }
 }
 
 
