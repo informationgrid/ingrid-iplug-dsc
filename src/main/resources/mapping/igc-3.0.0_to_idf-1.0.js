@@ -808,6 +808,20 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
 
+    // ---------- <gmd:MD_Distribution/gmd:distributor/gmd:MD_Distributor> ----------
+    var ciResponsibleParteDistributorContact;
+    if (hasValue(objRow.get("ordering_instructions"))) {
+        if (!mdDistribution) {
+            mdDistribution = gmdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+        }
+        var mdDistributor = mdDistribution.addElement("gmd:distributor/gmd:MD_Distributor");
+        // MD_Distributor need a distributorContact
+        ciResponsibleParteDistributorContact = mdDistributor.addElement("gmd:distributorContact/gmd:CI_ResponsibleParty");
+        mdDistributor.addElement("gmd:distributionOrderProcess/gmd:MD_StandardOrderProcess/gmd:orderingInstructions/gco:CharacterString")
+            .addText(objRow.get("ordering_instructions"));
+    }
+
+
 }
 
 
