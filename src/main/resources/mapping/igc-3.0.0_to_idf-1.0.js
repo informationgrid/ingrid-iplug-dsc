@@ -785,7 +785,7 @@ for (i=0; i<objRows.size(); i++) {
 // ALLE KLASSEN
     // ---------- <gmd:MD_Metadata/gmd:distributionInfo/gmd:MD_Distribution> ----------
     var mdDistribution;
-    var rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [objId]);
+    rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [objId]);
     for (i=0; i<rows.size(); i++) {
         if (!mdDistribution) {
             mdDistribution = gmdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
@@ -834,6 +834,25 @@ for (i=0; i<objRows.size(); i++) {
                 .addAttribute("codeListValue", "distributor");
         }
     }
+
+    // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource> ----------
+    rows = SQL.all("SELECT * FROM T017_url_ref WHERE obj_id=?", [objId]);
+    for (i=0; i<rows.size(); i++) {
+        if (hasValue(rows.get(i).get("url_link"))) {
+	        if (!mdDistribution) {
+	            mdDistribution = gmdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+	        }
+            var ciOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource");
+            ciOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("url_link"));
+            if (hasValue(rows.get(i).get("content"))) {
+                ciOnlineResource.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("content"));
+            }
+            if (hasValue(rows.get(i).get("descr"))) {
+                ciOnlineResource.addElement("gmd:description/gco:CharacterString").addText(rows.get(i).get("descr"));
+            }
+        }
+    }
+
 }
 
 
