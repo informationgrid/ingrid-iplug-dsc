@@ -888,19 +888,15 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // ---------- <gmd:MD_Metadata/gmd:dataQualityInfo/gmd:DQ_DataQuality> ----------
-    var dqQualityInfo;
+    // ---------- <gmd:DQ_DataQuality/gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode> ----------
+    var dqDataQuality;
 
 // GEO-INFORMATION/KARTE(1)
     if (objClass.equals("1")) {
+        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_CompletenessCommission> ----------
         if (hasValue(objGeoRow) && hasValue(objGeoRow.get("rec_grade"))) {
-            dqQualityInfo = gmdMetadata.addElement("gmd:dataQualityInfo/gmd:DQ_DataQuality");
-            // ---------- <gmd:DQ_DataQuality/gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode> ----------
-            dqQualityInfo.addElement("gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode")
-                .addAttribute("codeListValue", getHierarchLevel(objClass))
-                .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode");
-
-            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_CompletenessCommission> ----------
-            var completenessCommission = dqQualityInfo.addElement("gmd:report/gmd:DQ_CompletenessCommission");
+            dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
+            var completenessCommission = dqDataQuality.addElement("gmd:report/gmd:DQ_CompletenessCommission");
             completenessCommission.addElement("gmd:measureDescription/gco:CharacterString").addText("completeness");
             var dqQuantitativeResult = completenessCommission.addElement("gmd:result/gmd:DQ_QuantitativeResult");
             var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
@@ -911,6 +907,24 @@ for (i=0; i<objRows.size(); i++) {
             unitDefinition.addElement("gml:catalogSymbol").addText("%");
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("rec_grade"));
         }
+
+        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy> ----------
+        if (hasValue(objGeoRow) && hasValue(objGeoRow.get("pos_accuracy_vertical"))) {
+            if (!dqDataQuality) {
+	            dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
+            }
+            var dqRelativeInternalPositionalAccuracy = dqDataQuality.addElement("gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy");
+            dqRelativeInternalPositionalAccuracy.addElement("gmd:measureDescription/gco:CharacterString").addText("vertical");
+            var dqQuantitativeResult = dqRelativeInternalPositionalAccuracy.addElement("gmd:result/gmd:DQ_QuantitativeResult");
+            var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
+                .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
+            unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
+            unitDefinition.addElement("gml:name").addText("meter");
+            unitDefinition.addElement("gml:quantityType").addText("vertical accuracy");
+            unitDefinition.addElement("gml:catalogSymbol").addText("m");
+            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("pos_accuracy_vertical"));
+        }
+
 
         // TODO
 //        addDataQualityInfoDataSet(metaData, hit);
@@ -934,6 +948,14 @@ for (i=0; i<objRows.size(); i++) {
 }
 
 
+
+function getDqDataQuality(objClass) {
+    var dqDataQuality = DOM.createElement("gmd:DQ_DataQuality");
+    dqDataQuality.addElement("gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode")
+        .addAttribute("codeListValue", getHierarchLevel(objClass))
+        .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode");
+    return dqDataQuality;
+}
 
 /**
  * Get the fileIdentifier. Try to use DB column "org_obj_id". If not found use column "obj_uuid".
