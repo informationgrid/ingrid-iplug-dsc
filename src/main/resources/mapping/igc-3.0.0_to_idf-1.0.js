@@ -775,13 +775,39 @@ for (i=0; i<objRows.size(); i++) {
                 .addAttribute("codeListValue", "publication");
         }
 
-
         // ---------- <gmd:MD_Metadata/gmd:contentInfo#uuidref> ----------
         rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3535, "V"]);
         for (i=0; i<rows.size(); i++) {
             gmdMetadata.addElement("gmd:contentInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }
     }
+
+// ALLE KLASSEN
+    // ---------- <gmd:MD_Metadata/gmd:distributionInfo/gmd:MD_Distribution> ----------
+    var mdDistribution;
+    var rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [objId]);
+    for (i=0; i<rows.size(); i++) {
+        if (!mdDistribution) {
+            mdDistribution = gmdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+        }
+        // ---------- <gmd:MD_Distributiongmd:distributionFormat/gmd:MD_Format> ----------
+        var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
+            // ---------- <gmd:MD_Format/gmd:name> ----------
+        mdFormat.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("format_value"));
+            // ---------- <gmd:MD_Format/gmd:version> ----------
+        if (hasValue(rows.get(i).get("ver"))) {
+            mdFormat.addElement("gmd:version/gco:CharacterString").addText(rows.get(i).get("ver"));
+        }
+            // ---------- <gmd:MD_Format/gmd:specification> ----------
+        if (hasValue(rows.get(i).get("specification"))) {
+            mdFormat.addElement("gmd:specification/gco:CharacterString").addText(rows.get(i).get("specification"));
+        }
+            // ---------- <gmd:MD_Format/gmd:fileDecompressionTechnique> ----------
+        if (hasValue(rows.get(i).get("file_decompression_technique"))) {
+            mdFormat.addElement("gmd:fileDecompressionTechnique/gco:CharacterString").addText(rows.get(i).get("file_decompression_technique"));
+        }
+    }
+
 }
 
 
