@@ -693,6 +693,64 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
 
+// contentInfo
+
+// GEO-INFORMATION/KARTE(1)
+    if (objClass.equals("1")) {
+
+        // ---------- <gmd:MD_Metadata/gmd:contentInfo/gmd:MD_FeatureCatalogueDescription> ----------
+        if (objGeoId) {
+            var mdFeatureCatalogueDescription;
+	        var objGeoKeycRows = SQL.all("SELECT * FROM t011_obj_geo_keyc WHERE obj_geo_id=?", [objGeoId]);
+	        for (i=0; i<objGeoKeycRows.size(); i++) {
+	            if (!mdFeatureCatalogueDescription) {
+	               mdFeatureCatalogueDescription = gmdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
+                   // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:includedWithDataset> ----------
+	               var inclWithDataset = objGeoRow.get("keyc_incl_w_dataset");
+	               mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean")
+	                   .addText(hasValue(inclWithDataset) && inclWithDataset.equals("1"));
+	
+                    // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureTypes> ----------
+	                var objGeoSupplinfoRows = SQL.all("SELECT feature_type FROM t011_obj_geo_supplinfo WHERE obj_geo_id=?", [objGeoId]);
+	                for (j=0; j<objGeoSupplinfoRows.size(); j++) {
+	                    if (hasValue(objGeoSupplinfoRows.get(j).get("feature_type"))) {
+	                        mdFeatureCatalogueDescription.addElement("gmd:featureTypes/gco:LocalName").addText(objGeoSupplinfoRows.get(j).get("feature_type"));
+	                    }
+	                }
+	            }
+
+                // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureCatalogueCitation/gmd:CI_Citation> ----------
+                var ciCitation = mdFeatureCatalogueDescription.addElement("gmd:featureCatalogueCitation/gmd:CI_Citation");
+                    // ---------- <gmd:CI_Citation/gmd:title> ----------
+                ciCitation.addElement("gmd:title/gco:CharacterString").addText(objGeoKeycRows.get(i).get("keyc_value"));
+                    // ---------- <gmd:CI_Citation/gmd:CI_Date> ----------
+                var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
+                if (hasValue(objGeoKeycRows.get(i).get("key_date"))) {
+                    ciDate.addElement("gmd:date/gco:Date").addText(TRANSF.getISODateFromIGCDate(objGeoKeycRows.get(i).get("key_date")));
+                } else {
+                    ciDate.addElement("gmd:date/gco:Date").addAttribute("nilReason", "missing");
+                }
+                ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
+                    .addAttribute("codeListValue", "creation");
+                    // ---------- <gmd:CI_Citation/gmd:edition> ----------
+                if (hasValue(objGeoKeycRows.get(i).get("edition"))) {
+                    ciCitation.addElement("gmd:edition/gco:CharacterString").addText(objGeoKeycRows.get(i).get("edition"));
+                }
+	        }
+        }
+
+        // ---------- <gmd:MD_Metadata/gmd:contentInfo#uuidref> ----------
+        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3535, "V"]);
+        for (i=0; i<rows.size(); i++) {
+            gmdMetadata.addElement("gmd:contentInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
+        }
+
+// DATENSAMMLUNG/DATENBANK(5)
+    } else if (objClass.equals("5")) {
+        // TODO MM
+    }
+
 }
 
 

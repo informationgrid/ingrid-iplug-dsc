@@ -46,6 +46,8 @@ public class Igc_3_0_0_To_Idf_1_0_RecordCreatorTestLocal extends TestCase {
         		"6667",		// class 0 = Organisationseinheit/Fachaufgabe
         		"3778",		// class 1 = Geo-Information/Karte
         		"6672",		// class 1 = Geo-Information/Karte
+        		"6146",		// class 1 = Geo-Information/Karte, mit t011_obj_geo.keyc_incl_w_dataset + t011_obj_geo_supplinfo
+        		"5388",		// class 1 = Geo-Information/Karte, mit t011_obj_geo.keyc_incl_w_dataset + object_reference.special_ref 3535
         		"3919",		// class 2 = Dokument/Bericht/Literatur
         		"8781824",	// class 3 = Geodatendienst
         					// object_reference.special_ref -> srv:SV_CouplingType "tight"
