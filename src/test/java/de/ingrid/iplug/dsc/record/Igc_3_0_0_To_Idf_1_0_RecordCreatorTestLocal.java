@@ -59,6 +59,7 @@ public class Igc_3_0_0_To_Idf_1_0_RecordCreatorTestLocal extends TestCase {
         		"3832",		// t01_object.time_period, time_interval, time_alle, time_descr -> gmd:MD_MaintenanceInformation
         		"3778",		// t0114_env_category, t0114_env_topic -> gmd:descriptiveKeywords
         		"3918",		// object_reference.special_ref -> srv:SV_CouplingType "loose"
+        		"3787",		// t012_obj_adr.type = 5 -> gmd:distributorContact
         };
 
         for (String t01ObjectId : t01ObjectIds) {

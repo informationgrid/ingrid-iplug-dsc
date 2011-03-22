@@ -809,19 +809,31 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // ---------- <gmd:MD_Distribution/gmd:distributor/gmd:MD_Distributor> ----------
-    var ciResponsibleParteDistributorContact;
+    var distributorContact;
     if (hasValue(objRow.get("ordering_instructions"))) {
         if (!mdDistribution) {
             mdDistribution = gmdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
         }
         var mdDistributor = mdDistribution.addElement("gmd:distributor/gmd:MD_Distributor");
-        // MD_Distributor need a distributorContact
-        ciResponsibleParteDistributorContact = mdDistributor.addElement("gmd:distributorContact/gmd:CI_ResponsibleParty");
+        // MD_Distributor needs a distributorContact, will be set below !
+        distributorContact = mdDistributor.addElement("gmd:distributorContact");
         mdDistributor.addElement("gmd:distributionOrderProcess/gmd:MD_StandardOrderProcess/gmd:orderingInstructions/gco:CharacterString")
             .addText(objRow.get("ordering_instructions"));
     }
 
-
+    // ---------- <gmd:MD_Distributor/gmd:distributorContact/gmd:CI_ResponsibleParty> ----------
+    if (distributorContact) {
+        // select only adresses associated with syslist 505 entry 5 ("Vertrieb") 
+        var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, 5, 505]);
+	    if (hasValue(addressRow)) {
+            distributorContact.addElement(getCiResponsibleParty(addressRow, "distributor"));
+	    } else {
+            // add dummy distributor role, because no distributor was found
+            distributorContact.addElement("gmd:CI_ResponsibleParty/gmd:role/gmd:CI_RoleCode")
+                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+                .addAttribute("codeListValue", "distributor");
+        }
+    }
 }
 
 
