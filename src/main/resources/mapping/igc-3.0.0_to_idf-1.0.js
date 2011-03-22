@@ -942,6 +942,24 @@ for (i=0; i<objRows.size(); i++) {
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("rec_exact"));
         }
 
+        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult> ----------
+	    rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=? AND (degree_key=? OR degree_key=?)", [objId, 1, 2]);
+	    for (i=0; i<rows.size(); i++) {
+            if (!dqDataQuality) {
+                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
+            }
+            var dqConformanceResult = dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult");
+            var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
+            ciCitation.addElement("gmd:title/gco:CharacterString").addText(rows.get(i).get("specification"));
+            var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
+            ciDate.addElement("gmd:date/gco:Date").addText(TRANSF.getISODateFromIGCDate(rows.get(i).get("publication_date")));
+            ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
+                .addAttribute("codeListValue", "publication")
+                .addText("publication");
+            dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("");
+            dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(rows.get(i).get("degree_key").equals("1"));
+	    }
 
         // TODO
 //        addDataQualityInfoDataSet(metaData, hit);
