@@ -853,6 +853,36 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
 
+    // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions> ----------
+    rows = SQL.all("SELECT * FROM T0112_media_option WHERE obj_id=?", [objId]);
+    for (i=0; i<rows.size(); i++) {
+        if (!mdDistribution) {
+            mdDistribution = gmdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+        }
+        var mdDigitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
+        // ---------- <gmd:MD_DigitalTransferOptions/gmd:transferSize> ----------
+        if (hasValue(rows.get(i).get("transfer_size"))) {
+            mdDigitalTransferOptions.addElement("gmd:transferSize/gco:Real")
+                .addText(TRANSF.getISORealFromIGCNumber(rows.get(i).get("transfer_size")));
+        }
+        // ---------- <gmd:MD_DigitalTransferOptions/gmd:offLine/gmd:MD_Medium> ----------
+        var mdMedium;
+        // ---------- <gmd:MD_Medium/gmd:name/gmd:MD_MediumNameCode> ----------
+        var mediumName = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(520, rows.get(i).get("medium_name"));
+        if (hasValue(mediumName)) {
+            mdMedium = mdDigitalTransferOptions.addElement("gmd:offLine/gmd:MD_Medium");
+            mdMedium.addElement("gmd:name/gmd:MD_MediumNameCode")
+                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_MediumNameCode")
+                .addAttribute("codeListValue", mediumName);
+        }
+        // ---------- <gmd:MD_Medium/gmd:mediumNote> ----------
+        if (hasValue(rows.get(i).get("medium_note"))) {
+            if (!mdMedium) {
+                mdMedium = mdDigitalTransferOptions.addElement("gmd:offLine/gmd:MD_Medium");
+            }
+            mdMedium.addElement("gmd:mediumNote/gco:CharacterString").addText(rows.get(i).get("medium_note"));
+        }
+    }
 }
 
 
