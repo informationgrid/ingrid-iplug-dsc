@@ -925,6 +925,23 @@ for (i=0; i<objRows.size(); i++) {
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("pos_accuracy_vertical"));
         }
 
+        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy> ----------
+        if (hasValue(objGeoRow) && hasValue(objGeoRow.get("rec_exact"))) {
+            if (!dqDataQuality) {
+                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
+            }
+            var dqRelativeInternalPositionalAccuracy = dqDataQuality.addElement("gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy");
+            dqRelativeInternalPositionalAccuracy.addElement("gmd:measureDescription/gco:CharacterString").addText("geographic");
+            var dqQuantitativeResult = dqRelativeInternalPositionalAccuracy.addElement("gmd:result/gmd:DQ_QuantitativeResult");
+            var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
+                .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
+            unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
+            unitDefinition.addElement("gml:name").addText("meter");
+            unitDefinition.addElement("gml:quantityType").addText("geographic accuracy");
+            unitDefinition.addElement("gml:catalogSymbol").addText("m");
+            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("rec_exact"));
+        }
+
 
         // TODO
 //        addDataQualityInfoDataSet(metaData, hit);
