@@ -993,9 +993,33 @@ for (i=0; i<objRows.size(); i++) {
             liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(objGeoRow.get("data_base"));
         }
 
+        // ---------- <gmd:MD_Metadata/gmd:portrayalCatalogueInfo/gmd:MD_PortrayalCatalogueReference/gmd:portrayalCatalogueCitation/gmd:CI_Citation> ----------
+        rows = SQL.all("SELECT * FROM t011_obj_geo_symc WHERE obj_geo_id=?", [objGeoId]);
+        for (i=0; i<rows.size(); i++) {
+            var portrayalCICitation = gmdMetadata.addElement("gmd:portrayalCatalogueInfo/gmd:MD_PortrayalCatalogueReference/gmd:portrayalCatalogueCitation/gmd:CI_Citation");
+            portrayalCICitation.addElement("gmd:title/gco:CharacterString").addText(rows.get(i).get("symbol_cat_value"));
 
-        // TODO
-//        addPortrayalCatalogueInfo(metaData, hit);
+            // ---------- <gmd:CI_Citation/gmd:date/gmd:CI_Date> ----------
+            var ciDate = portrayalCICitation.addElement("gmd:date/gmd:CI_Date");
+            if (hasValue(rows.get(i).get("symbol_date"))) {
+                ciDate.addElement("gmd:date/gco:Date").addText(TRANSF.getISODateFromIGCDate(rows.get(i).get("symbol_date")));
+            } else {
+                ciDate.addElement("gmd:date/gco:Date").addAttribute("nilReason", "missing");
+            }
+            ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
+                .addAttribute("codeListValue", "creation");
+
+            // ---------- <gmd:CI_Citation/gmd:edition> ----------
+            if (hasValue(rows.get(i).get("edition"))) {
+                portrayalCICitation.addElement("gmd:edition/gco:CharacterString").addText(rows.get(i).get("edition"));
+            }
+        }
+        // ---------- <gmd:MD_Metadata/gmd:portrayalCatalogueInfo#uuidref> ----------
+        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3555, "V"]);
+        for (i=0; i<rows.size(); i++) {
+            gmdMetadata.addElement("gmd:portrayalCatalogueInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
+        }
 
 // GEODATENDIENST(3)
     } else if (objClass.equals("3")) {
