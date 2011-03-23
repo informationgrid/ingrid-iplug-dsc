@@ -1075,8 +1075,13 @@ for (i=0; i<objRows.size(); i++) {
 
 // DOKUMENT/BERICHT/LITERATUR(2)
     } else if (objClass.equals("2")) {
-        // TODO
-//        addDataQualityInfoLiterature(metaData, hit);
+        // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
+        value = SQL.first("SELECT base FROM t011_obj_literature WHERE obj_id=?", [objId]).get("base");
+        if (hasValue(value)) {
+            dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
+            liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
+            liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(value);
+        }
     }
 }
 
