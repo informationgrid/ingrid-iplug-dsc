@@ -45,7 +45,7 @@ gmdMetadata.addAttribute("xmlns:gts", DOM.getNS("gts"));
 gmdMetadata.addAttribute("xmlns:xlink", DOM.getNS("xlink"));
 // and schema references
 gmdMetadata.addAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-gmdMetadata.addAttribute("xsi:schemaLocation", DOM.getNS("gmd") + " http://schemas.opengis.net/iso/19139/20060504/gmd/gmd.xsd");
+gmdMetadata.addAttribute("xsi:schemaLocation", DOM.getNS("gmd") + " http://schemas.opengis.net/csw/2.0.2/profiles/apiso/1.0.0/apiso.xsd");
 
 // ========== t01_object ==========
 var objId = sourceRecord.get(DatabaseSourceRecord.ID);
@@ -124,10 +124,7 @@ for (i=0; i<objRows.size(); i++) {
     	var isoDate = TRANSF.getISODateFromIGCDate(objRow.get("mod_time"));
        	// do only return the date section, ignore the time part of the date
     	// see CSW 2.0.2 AP ISO 1.0 (p.41)
-		if (isoDate.indexOf('T') > -1) {
-			isoDate = isoDate.substring(0, isoDate.indexOf('T'));
-		}
-    	gmdMetadata.addElement("gmd:dateStamp").addElement("gco:Date").addText(isoDate);
+    	gmdMetadata.addElement("gmd:dateStamp").addElement(getDate(isoDate));
     }
     
     // ---------- <gmd:metadataStandardName> ----------
@@ -204,9 +201,7 @@ for (i=0; i<objRows.size(); i++) {
 	// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation> ----------
 	var ciCitation = identificationInfo.addElement("gmd:citation/gmd:CI_Citation");
 	// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:title> ----------
-	if (hasValue(objRow.get("obj_name"))) {
-		ciCitation.addElement("gmd:title/gco:CharacterString").addText(objRow.get("obj_name"));
-	}
+	ciCitation.addElement("gmd:title/gco:CharacterString").addText(objRow.get("obj_name"));
 	// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:alternateTitle> ----------
 	if (hasValue(objRow.get("dataset_alternate_name"))) {
 		ciCitation.addElement("gmd:alternateTitle/gco:CharacterString").addText(objRow.get("dataset_alternate_name"));
@@ -216,31 +211,41 @@ for (i=0; i<objRows.size(); i++) {
 	for (j=0; j<referenceDateRows.size(); j++) {
 		var referenceDateRow = referenceDateRows.get(j); 
 		var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
-		var dateValue = TRANSF.getISODateFromIGCDate(referenceDateRow.get("reference_date"));
-        if (dateValue.indexOf("T") > -1) {
-        	ciDate.addElement("gmd:date/gco:DateTime").addText(dateValue);
-        } else {
-        	ciDate.addElement("gmd:date/gco:Date").addText(dateValue);
-        }
+        ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(referenceDateRow.get("reference_date"))));
         var dateType = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(502, referenceDateRow.get("type"));
         ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
         	.addAttribute("codeList","http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
         	.addAttribute("codeListValue", dateType);
 	}
+	// date needed, we add dummy if no date !
+	if (referenceDateRows.size() == 0) {
+        ciCitation.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
+        // or add gco:nilReason underneath gmd:CI_Date ???
+        // ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
+        // ciDate.addElement("gmd:dateType").addAttribute("gco:nilReason", "missing");
+	}
 
-	// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier> ----------
-	var rsIdentifier = ciCitation.addElement("gmd:identifier/gmd:RS_Identifier");
-	rsIdentifier.addElement("gmd:code/gco:CharacterString").addText(getCitationIdentifier(objRow));
-	rsIdentifier.addElement("gmd:codeSpace/gco:CharacterString").addText("ingrid");
-
-	// map literature properties
+    // gmd:editionDate MUST BE BEFORE gmd:identifier (next one below !)
+	// start mapping literature properties
 	if (objClass.equals("2")) {
 		var literatureRow = SQL.first("SELECT * from t011_obj_literature WHERE obj_id=?", [objId]);
 		if (hasValue(literatureRow)) {
 			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:editionDate> ----------			
 			if (hasValue(literatureRow.get("publish_year"))) {
-				ciCitation.addElement("gmd:editionDate/gco:Date").addText(TRANSF.getISODateFromIGCDate(literatureRow.get("publish_year")));
+                ciCitation.addElement("gmd:editionDate").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(literatureRow.get("publish_year"))));
 			}
+		}
+	}
+
+    // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier> ----------
+    var rsIdentifier = ciCitation.addElement("gmd:identifier/gmd:RS_Identifier");
+    rsIdentifier.addElement("gmd:code/gco:CharacterString").addText(getCitationIdentifier(objRow));
+    rsIdentifier.addElement("gmd:codeSpace/gco:CharacterString").addText("ingrid");
+
+    // continue mapping literature properties
+    if (objClass.equals("2")) {
+        var literatureRow = SQL.first("SELECT * from t011_obj_literature WHERE obj_id=?", [objId]);
+        if (hasValue(literatureRow)) {
 			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=originator> ----------
 			if (hasValue(literatureRow.get("author"))) {
 				var responsiblePartyOriginator = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
@@ -412,7 +417,7 @@ for (i=0; i<objRows.size(); i++) {
             role = addressRow.get("special_name");
         }
         if (hasValue(role)) {
-            gmdMetadata.addElement("gmd:pointOfContact").addElement(getCiResponsibleParty(addressRow, role));
+            identificationInfo.addElement("gmd:pointOfContact").addElement(getCiResponsibleParty(addressRow, role));
         }
     }
 
@@ -459,7 +464,7 @@ for (i=0; i<objRows.size(); i++) {
             if (hasValue(value)) {
                 var mdFormat = identificationInfo.addElement("gmd:resourceFormat/gmd:MD_Format");
                 mdFormat.addElement("gmd:name/gco:CharacterString").addText(value);
-                mdFormat.addElement("gmd:version/gco:CharacterString").addAttribute("gco:nilReason", "inapplicable");
+                mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "inapplicable");
             }
 	    }
     }
@@ -573,6 +578,8 @@ for (i=0; i<objRows.size(); i++) {
         value = getServiceType(objClass, objServRow);
         if (hasValue(value)) {
             identificationInfo.addElement("srv:serviceType/gco:LocalName").addText(value);
+        } else {
+            identificationInfo.addElement("srv:serviceType").addAttribute("gco:nilReason", "missing");
         }
 
         // ---------- <gmd:identificationInfo/srv:serviceTypeVersion> ----------
@@ -669,8 +676,7 @@ for (i=0; i<objRows.size(); i++) {
 	    // ---------- <gmd:identificationInfo/srv:operatesOn/gmd:Reference> ----------
 	    rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3345, "V"]);
 	    for (i=0; i<rows.size(); i++) {
-	        identificationInfo.addElement("srv:operatesOn/gmd:Reference")
-	            .addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
+	        identificationInfo.addElement("srv:operatesOn").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
 	    }
 	
 	    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
@@ -725,9 +731,9 @@ for (i=0; i<objRows.size(); i++) {
                     // ---------- <gmd:CI_Citation/gmd:CI_Date> ----------
                 var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
                 if (hasValue(objGeoKeycRows.get(i).get("key_date"))) {
-                    ciDate.addElement("gmd:date/gco:Date").addText(TRANSF.getISODateFromIGCDate(objGeoKeycRows.get(i).get("key_date")));
+                    ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(objGeoKeycRows.get(i).get("key_date"))));
                 } else {
-                    ciDate.addElement("gmd:date/gco:Date").addAttribute("nilReason", "missing");
+                    ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
                 }
                 ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
                     .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
@@ -800,6 +806,8 @@ for (i=0; i<objRows.size(); i++) {
             // ---------- <gmd:MD_Format/gmd:version> ----------
         if (hasValue(rows.get(i).get("ver"))) {
             mdFormat.addElement("gmd:version/gco:CharacterString").addText(rows.get(i).get("ver"));
+        } else {
+            mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "missing");
         }
             // ---------- <gmd:MD_Format/gmd:specification> ----------
         if (hasValue(rows.get(i).get("specification"))) {
@@ -954,7 +962,7 @@ for (i=0; i<objRows.size(); i++) {
             var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
             ciCitation.addElement("gmd:title/gco:CharacterString").addText(rows.get(i).get("specification"));
             var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
-            ciDate.addElement("gmd:date/gco:Date").addText(TRANSF.getISODateFromIGCDate(rows.get(i).get("publication_date")));
+            ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(rows.get(i).get("publication_date"))));
             ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
                 .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
                 .addAttribute("codeListValue", "publication")
@@ -1003,9 +1011,9 @@ for (i=0; i<objRows.size(); i++) {
             // ---------- <gmd:CI_Citation/gmd:date/gmd:CI_Date> ----------
             var ciDate = portrayalCICitation.addElement("gmd:date/gmd:CI_Date");
             if (hasValue(rows.get(i).get("symbol_date"))) {
-                ciDate.addElement("gmd:date/gco:Date").addText(TRANSF.getISODateFromIGCDate(rows.get(i).get("symbol_date")));
+                ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(rows.get(i).get("symbol_date"))));
             } else {
-                ciDate.addElement("gmd:date/gco:Date").addAttribute("nilReason", "missing");
+                ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
             }
             ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
                 .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
@@ -1025,6 +1033,26 @@ for (i=0; i<objRows.size(); i++) {
 // GEODATENDIENST(3)
     } else if (objClass.equals("3")) {
 
+        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult> ----------
+        // only choose "konform"(1) and "nicht konform"(2) NOT "nicht evaluiert"(3)
+        rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=? AND (degree_key=? OR degree_key=?)", [objId, 1, 2]);
+        for (i=0; i<rows.size(); i++) {
+            if (!dqDataQuality) {
+                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
+            }
+            var dqConformanceResult = dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult");
+            var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
+            ciCitation.addElement("gmd:title/gco:CharacterString").addText(rows.get(i).get("specification"));
+            var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
+            ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(rows.get(i).get("publication_date"))));
+            ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
+                .addAttribute("codeListValue", "publication")
+                .addText("publication");
+            dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("");
+            dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(rows.get(i).get("degree_key").equals("1"));
+        }
+
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description> ----------
         if (hasValue(objServRow.get("history"))) {
             dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
@@ -1041,26 +1069,6 @@ for (i=0; i<objRows.size(); i++) {
                 liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
             }
             liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(objServRow.get("base"));
-        }
-
-        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult> ----------
-        // only choose "konform"(1) and "nicht konform"(2) NOT "nicht evaluiert"(3)
-        rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=? AND (degree_key=? OR degree_key=?)", [objId, 1, 2]);
-        for (i=0; i<rows.size(); i++) {
-            if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
-            }
-            var dqConformanceResult = dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult");
-            var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
-            ciCitation.addElement("gmd:title/gco:CharacterString").addText(rows.get(i).get("specification"));
-            var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
-            ciDate.addElement("gmd:date/gco:Date").addText(TRANSF.getISODateFromIGCDate(rows.get(i).get("publication_date")));
-            ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
-                .addAttribute("codeListValue", "publication")
-                .addText("publication");
-            dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("");
-            dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(rows.get(i).get("degree_key").equals("1"));
         }
 
 // DATENSAMMLUNG/DATENBANK(5)
@@ -1085,6 +1093,28 @@ for (i=0; i<objRows.size(); i++) {
     }
 }
 
+
+// Return gco:Date element containing only the date section, ignore the time part of the date
+function getDate(dateValue) {
+    var gcoElement = DOM.createElement("gco:Date");
+    if (dateValue.indexOf("T") > -1) {
+        dateValue = dateValue.substring(0, dateValue.indexOf("T"));
+    }
+    gcoElement.addText(dateValue);
+    return gcoElement;
+}
+
+// Return gco:Date OR gco:DateTime element dependent from passed date format.
+function getDateOrDateTime(dateValue) {
+    var gcoElement;
+    if (dateValue.indexOf("T") > -1) {
+        gcoElement = DOM.createElement("gco:DateTime");
+    } else {
+        gcoElement = DOM.createElement("gco:Date");
+    }
+    gcoElement.addText(dateValue);
+    return gcoElement;
+}
 
 
 function getDqDataQuality(objClass) {
@@ -1163,10 +1193,10 @@ function getCiResponsibleParty(addressRow, role) {
     	var communicationsRow = communicationsRows.get(j);
     	if (communicationsRow.get("commtype_key") == 1) {
     		// phone
-    		ciTelephone.addElement("gmd:voice").addText(communicationsRow.get("comm_value"));
+    		ciTelephone.addElement("gmd:voice/gco:CharacterString").addText(communicationsRow.get("comm_value"));
     	} else if (communicationsRow.get("commtype_key") == 2) {
     		// fax
-    		ciTelephone.addElement("gmd:facsimile").addText(communicationsRow.get("comm_value"));
+    		ciTelephone.addElement("gmd:facsimile/gco:CharacterString").addText(communicationsRow.get("comm_value"));
     	} else if (communicationsRow.get("commtype_key") == 3) {
     		emailAddresses.push(communicationsRow.get("comm_value"));
     	} else if (communicationsRow.get("commtype_key") == 4) {
@@ -1643,9 +1673,8 @@ function addServiceOperations(identificationInfo, objServId) {
             svOpRows = SQL.all("SELECT * FROM t011_obj_serv_operation WHERE obj_serv_id=?", [objServId]);
             for (i=0; i<svOpRows.size(); i++) {
                 var svOpRow = svOpRows.get(i);
-                if (!svContainsOperations) {
-                    svContainsOperations = identificationInfo.addElement("srv:containsOperations");
-                }
+                // add srv:containsOperations WITH EVERY OPERATION (strange schema !)
+                svContainsOperations = identificationInfo.addElement("srv:containsOperations");
                 var svOperationMetadata = svContainsOperations.addElement("srv:SV_OperationMetadata");
 
         // ---------- <srv:SV_OperationMetadata/srv:operationName> ----------
@@ -1715,9 +1744,8 @@ function addServiceOperations(identificationInfo, objServId) {
             rows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [objServId]);
             for (i=0; i<rows.size(); i++) {
                 row = rows.get(i);
-                if (!svContainsOperations) {
-                    svContainsOperations = identificationInfo.addElement("srv:containsOperations");
-                }
+                // add srv:containsOperations WITH EVERY OPERATION (strange schema !)
+                svContainsOperations = identificationInfo.addElement("srv:containsOperations");
                 var svOperationMetadata = svContainsOperations.addElement("srv:SV_OperationMetadata");
 
         // ---------- <srv:SV_OperationMetadata/srv:operationName> ----------
@@ -1737,6 +1765,11 @@ function addServiceOperations(identificationInfo, objServId) {
                 svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(row.get("url"));
             }
         }
+
+    // operations needed, add dummy if no operations !
+    if (!svContainsOperations) {
+        identificationInfo.addElement("srv:containsOperations").addAttribute("gco:nilReason", "missing");
+    }
 }
 
 // add second identification info for all information that cannot be mapped into a SV_ServiceIdentification element
@@ -1748,25 +1781,23 @@ function addServiceAdditionalIdentification(gmdMetadata, objServRow, objServId) 
             mdDataIdentification.addAttribute("uuid", getFileIdentifier(objRow));
     
             // add necessary elements for schema validation
+            // ---------- <gmd:citation> ----------
             var ciCitation = mdDataIdentification.addElement("gmd:citation/gmd:CI_Citation");
             ciCitation.addElement("gmd:title")
                 .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
                 .addElement("gco:CharacterString").addText("");
             var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
             ciDate.addElement("gmd:date")
-                .addAttribute("gco:nilReason", "other:providedInPreviousIdentification")
-                .addElement("gco:Date").addText("");
-            ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
-                .addAttribute("codeList", "")
-                .addAttribute("codeListValue", "");
+                .addAttribute("gco:nilReason", "other:providedInPreviousIdentification");
+            ciDate.addElement("gmd:dateType")
+                .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo");
+
+            // add necessary elements for schema validation
+            // ---------- <gmd:abstract> ----------
             mdDataIdentification.addElement("gmd:abstract")
                 .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
                 .addElement("gco:CharacterString").addText("");
-            mdDataIdentification.addElement("gmd:language")
-                .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
-                .addElement("gco:CharacterString").addText("");
-        
+
             // ---------- <gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale> ----------
             for (i=0; i<svScaleRows.size(); i++) {
                 if (hasValue(svScaleRows.get(i).get("scale"))) {
@@ -1792,7 +1823,13 @@ function addServiceAdditionalIdentification(gmdMetadata, objServRow, objServId) 
                         .addText(svScaleRows.get(i).get("resolution_scan"));
                 }
             }
-    
+
+            // add necessary elements for schema validation
+            // ---------- <gmd:language> ----------
+            mdDataIdentification.addElement("gmd:language")
+                .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
+                .addElement("gco:CharacterString").addText("");
+        
             // ---------- <gmd:environmentDescription> ----------
             if (hasValue(objServRow.get("environment"))) {
                 mdDataIdentification.addElement("gmd:environmentDescription/gco:CharacterString").addText(objServRow.get("environment"));
