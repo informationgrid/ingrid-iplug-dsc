@@ -48,17 +48,17 @@ public class Igc_3_0_0_To_Idf_1_0_RecordCreatorTestLocal extends TestCase {
         		"6672",		// class 1 = Geo-Information/Karte, mit t011_obj_geo_symc + object_reference.special_ref 3555
         		"6146",		// class 1 = Geo-Information/Karte, mit t011_obj_geo.keyc_incl_w_dataset + t011_obj_geo_supplinfo
         		"5388",		// class 1 = Geo-Information/Karte, mit t011_obj_geo.keyc_incl_w_dataset + object_reference.special_ref 3535
+        		"5933",		// class 1 = Geo-Information/Karte, mit multiple t012_obj_adr associations
+        		"3787",		// class 1 = Geo-Information/Karte, t012_obj_adr.type = 5 -> gmd:distributorContact
         		"3919",		// class 2 = Dokument/Bericht/Literatur
-        		"8781824",	// class 3 = Geodatendienst
-        					// object_reference.special_ref -> srv:SV_CouplingType "tight"
+        		"3918",		// class 2 = Dokument/Bericht/Literatur, object_reference.special_ref -> srv:SV_CouplingType "loose"
+        		"7897096",	// class 3 = Geodatendienst, t011_obj_serv gefuellt
+        		"8781824",	// class 3 = Geodatendienst, object_reference.special_ref -> srv:SV_CouplingType "tight"
         		"3782",		// class 4 = Vorhaben/Projekt/Programm
         		"3820",		// class 5 = Datensammlung/Datenbank
+        		"3832",		// class 5 = Datensammlung/Datenbank, t01_object.time_period, time_interval, time_alle, time_descr -> gmd:MD_MaintenanceInformation
         		"7897095",	// class 6 = Informationssystem/Dienst/Anwendung
         		"6685",		// class 6 = Informationssystem/Dienst/Anwendung
-        		"5933",		// multiple t012_obj_adr associations
-        		"3832",		// t01_object.time_period, time_interval, time_alle, time_descr -> gmd:MD_MaintenanceInformation
-        		"3918",		// object_reference.special_ref -> srv:SV_CouplingType "loose"
-        		"3787",		// t012_obj_adr.type = 5 -> gmd:distributorContact
         };
 
         for (String t01ObjectId : t01ObjectIds) {

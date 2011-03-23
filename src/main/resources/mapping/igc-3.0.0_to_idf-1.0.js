@@ -342,12 +342,12 @@ for (i=0; i<objRows.size(); i++) {
 	
 	// ---------- <gmd:identificationInfo/gmd:abstract> ----------
 	var abstr = objRow.get("obj_descr");
-	
+    var objServRow;
 	if (objClass.equals("3")) {
 		// More data of the service that cannot be mapped within ISO19119, but must be 
 		// supplied by INSPIRE. Add mapping in abstract
 		var abstractPostfix = "\n\n\nWeitere Daten des Dienstes, die nicht standard-konform (ISO 19119) hinterlegt werden k\u00F6nnen, zum Teil gem\u00E4\u00DF INSPIRE-Direktive aber bereit zu stellen sind*:\n\n\n";
-		var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
+		objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
 		if (hasValue(objServRow.get("environment"))) {
 			abstractPostfix = abstractPostfix + "Systemumgebung: " + objServRow.get("environment") + "\n";
 			abstractPostfix = abstractPostfix + "(environmentDescription/gco:CharacterString= " + objServRow.get("environment") + ")\n\n";
@@ -890,11 +890,12 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- <gmd:MD_Metadata/gmd:dataQualityInfo/gmd:DQ_DataQuality> ----------
     // ---------- <gmd:DQ_DataQuality/gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode> ----------
     var dqDataQuality;
+    var liLineage;
 
 // GEO-INFORMATION/KARTE(1)
     if (objClass.equals("1")) {
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_CompletenessCommission> ----------
-        if (hasValue(objGeoRow) && hasValue(objGeoRow.get("rec_grade"))) {
+        if (hasValue(objGeoRow.get("rec_grade"))) {
             dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
             var completenessCommission = dqDataQuality.addElement("gmd:report/gmd:DQ_CompletenessCommission");
             completenessCommission.addElement("gmd:measureDescription/gco:CharacterString").addText("completeness");
@@ -909,7 +910,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy> ----------
-        if (hasValue(objGeoRow) && hasValue(objGeoRow.get("pos_accuracy_vertical"))) {
+        if (hasValue(objGeoRow.get("pos_accuracy_vertical"))) {
             if (!dqDataQuality) {
 	            dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
             }
@@ -926,7 +927,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy> ----------
-        if (hasValue(objGeoRow) && hasValue(objGeoRow.get("rec_exact"))) {
+        if (hasValue(objGeoRow.get("rec_exact"))) {
             if (!dqDataQuality) {
                 dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
             }
@@ -943,6 +944,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult> ----------
+        // only choose "konform"(1) and "nicht konform"(2) NOT "nicht evaluiert"(3)
 	    rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=? AND (degree_key=? OR degree_key=?)", [objId, 1, 2]);
 	    for (i=0; i<rows.size(); i++) {
             if (!dqDataQuality) {
@@ -962,8 +964,7 @@ for (i=0; i<objRows.size(); i++) {
 	    }
 
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:statement> ----------
-        var liLineage;
-        if (hasValue(objGeoRow) && hasValue(objGeoRow.get("special_base"))) {
+        if (hasValue(objGeoRow.get("special_base"))) {
             if (!dqDataQuality) {
                 dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
             }
@@ -972,7 +973,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description> ----------
-        if (hasValue(objGeoRow) && hasValue(objGeoRow.get("method"))) {
+        if (hasValue(objGeoRow.get("method"))) {
             if (!dqDataQuality) {
                 dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
             }
@@ -983,7 +984,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
-        if (hasValue(objGeoRow) && hasValue(objGeoRow.get("data_base"))) {
+        if (hasValue(objGeoRow.get("data_base"))) {
             if (!dqDataQuality) {
                 dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
             }
@@ -1023,8 +1024,44 @@ for (i=0; i<objRows.size(); i++) {
 
 // GEODATENDIENST(3)
     } else if (objClass.equals("3")) {
-        // TODO
-//        addDataQualityInfoService(metaData, hit);
+
+        // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description> ----------
+        if (hasValue(objServRow.get("history"))) {
+            dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
+            liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
+            liLineage.addElement("gmd:processStep/gmd:LI_ProcessStep/gmd:description/gco:CharacterString").addText(objServRow.get("history"));
+        }
+
+        // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
+        if (hasValue(objServRow.get("base"))) {
+            if (!dqDataQuality) {
+                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
+            }
+            if (!liLineage) {
+                liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
+            }
+            liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(objServRow.get("base"));
+        }
+
+        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult> ----------
+        // only choose "konform"(1) and "nicht konform"(2) NOT "nicht evaluiert"(3)
+        rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=? AND (degree_key=? OR degree_key=?)", [objId, 1, 2]);
+        for (i=0; i<rows.size(); i++) {
+            if (!dqDataQuality) {
+                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQuality(objClass));
+            }
+            var dqConformanceResult = dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult");
+            var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
+            ciCitation.addElement("gmd:title/gco:CharacterString").addText(rows.get(i).get("specification"));
+            var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
+            ciDate.addElement("gmd:date/gco:Date").addText(TRANSF.getISODateFromIGCDate(rows.get(i).get("publication_date")));
+            ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
+                .addAttribute("codeListValue", "publication")
+                .addText("publication");
+            dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("");
+            dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(rows.get(i).get("degree_key").equals("1"));
+        }
 
 // DATENSAMMLUNG/DATENBANK(5)
     } else if (objClass.equals("5")) {
