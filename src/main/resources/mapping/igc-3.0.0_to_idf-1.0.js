@@ -1919,7 +1919,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
 
         } else if (igcDqElementId.equals("112")) {
-            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_ConceptualConsistency > ----------
+            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_ConceptualConsistency> ----------
 
             if (!dqDataQuality) {
                 dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
@@ -2004,6 +2004,59 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
                 unitDefinition.addElement("gml:catalogSymbol").addText("%");
             } else {
                 dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
+            }
+            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
+
+        } else if (igcDqElementId.equals("115")) {
+            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_TopologicalConsistency> ----------
+
+            if (!dqDataQuality) {
+                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+            }
+            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_TopologicalConsistency");
+            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
+            if (igcNameOfMeasureKey.equals("1")) {
+                // Number of invalid overlaps of surfaces
+                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("11");
+            } else if (igcNameOfMeasureKey.equals("2")) {
+                // Number of missing connections due to undershoots
+                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("23");
+            } else if (igcNameOfMeasureKey.equals("3")) {
+                // Number of missing connections due to overshoots
+                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("24");
+            } else if (igcNameOfMeasureKey.equals("4")) {
+                // Number of invalid slivers
+                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("25");
+            } else if (igcNameOfMeasureKey.equals("5")) {
+                // Number of invalid self-intersect errors
+                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("26");
+            } else if (igcNameOfMeasureKey.equals("6")) {
+                // Number of invalid self-overlap errors
+                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("27");
+            } else if (igcNameOfMeasureKey.equals("7")) {
+                // Number of faulty point-curve connections
+                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("21");
+            } else if (igcNameOfMeasureKey.equals("8")) {
+                // Number of missing connections due to crossing of bridge/road
+                dqElem.addElement("gmd:measureIdentification").addAttribute("gco:nilReason", "missing");
+            } else if (igcNameOfMeasureKey.equals("9")) {
+                // Number of watercourse links below threshold length
+                dqElem.addElement("gmd:measureIdentification").addAttribute("gco:nilReason", "missing");
+            } else if (igcNameOfMeasureKey.equals("10")) {
+                // Number of closed watercourse links
+                dqElem.addElement("gmd:measureIdentification").addAttribute("gco:nilReason", "missing");
+            } else if (igcNameOfMeasureKey.equals("11")) {
+                // Number of multi-part watercourse links
+                dqElem.addElement("gmd:measureIdentification").addAttribute("gco:nilReason", "missing");
+            }
+            if (hasValue(igcMeasureDescription)) {
+                dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
+            }
+            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
+            if (igcNameOfMeasureKey.equals("-1")) {
+                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
+            } else {
+                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "inapplicable");
             }
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
         }
