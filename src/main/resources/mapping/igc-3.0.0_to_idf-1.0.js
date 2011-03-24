@@ -1866,8 +1866,10 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_CompletenessCommission");
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
             if (igcNameOfMeasureKey.equals("1")) {
+                // Rate of excess items
                 dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("3");
             } else if (igcNameOfMeasureKey.equals("2")) {
+                // Number of duplicate feature instances
                 dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("4");
             }
             if (hasValue(igcMeasureDescription)) {
@@ -1897,6 +1899,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_CompletenessOmission");
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
             if (igcNameOfMeasureKey.equals("1")) {
+                // Rate of missing items
                 dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("7");
             }
             if (hasValue(igcMeasureDescription)) {
@@ -1914,7 +1917,40 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
                 dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
             }
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
-        }        
+
+        } else if (igcDqElementId.equals("112")) {
+            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_ConceptualConsistency > ----------
+
+            if (!dqDataQuality) {
+                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+            }
+            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_ConceptualConsistency");
+            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
+            if (igcNameOfMeasureKey.equals("1")) {
+                // Number of invalid overlaps of surfaces
+                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("11");
+            } else if (igcNameOfMeasureKey.equals("2")) {
+                // Conceptual Schema compliance = (Compliance rate with the rules of the conceptual schema)
+                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("13");
+            }
+            if (hasValue(igcMeasureDescription)) {
+                dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
+            }
+            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
+            if (igcNameOfMeasureKey.equals("1")) {
+                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "inapplicable");
+            } else if (igcNameOfMeasureKey.equals("2")) {
+                var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
+                    .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
+                unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
+                unitDefinition.addElement("gml:name").addText("percent");
+                unitDefinition.addElement("gml:quantityType").addText("conceptual consistency");
+                unitDefinition.addElement("gml:catalogSymbol").addText("%");
+            } else {
+                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
+            }
+            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
+        }
     }
 }
 
