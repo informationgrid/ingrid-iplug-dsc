@@ -24,6 +24,7 @@ import org.xml.sax.InputSource;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.utils.DOMUtils;
+import de.ingrid.iplug.dsc.utils.IdfUtils;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
 import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.utils.xml.ConfigurableNamespaceContext;
@@ -95,16 +96,18 @@ public class IgcProfileIdfMapper implements IIdfMapper {
                             XPathUtils xpathUtils = XPathUtils.getInstance(new IDFNamespaceContext());
                             TransformationUtils trafoUtils = TransformationUtils.getInstance(sqlUtils);
                             DOMUtils domUtils = DOMUtils.getInstance(doc);
+                            IdfUtils idfUtils = IdfUtils.getInstance(sqlUtils, domUtils);
     
                             Bindings bindings = engine.createBindings();
                             bindings.put("sourceRecord", record);
                             bindings.put("idfDoc", doc);
-                            bindings.put("igcProfileNode", igcProfileNode);
+                            bindings.put("igcProfileControlNode", igcProfileNode);
                             bindings.put("log", log);
                             bindings.put("SQL", sqlUtils);
                             bindings.put("XPATH", xpathUtils);
                             bindings.put("TRANSF", trafoUtils);
                             bindings.put("DOM", domUtils);
+                            bindings.put("IDF", idfUtils);
     
                             engine.eval(new StringReader(igcProfileCswMapping), bindings);
                         } catch (Exception e) {

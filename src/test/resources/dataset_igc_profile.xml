@@ -31,16 +31,9 @@
                             <localizedLabel lang="lang5">localizedLabel1</localizedLabel>
                             <localizedLabelPostfix lang="lang7">localizedLabelPostfix0</localizedLabelPostfix>
                             <localizedHelp lang="lang9">localizedHelp1</localizedHelp>
-                            <scriptedCswMapping>importPackage(Packages.org.w3c.dom);
-importPackage(Packages.de.ingrid.iplug.dsc.om);
-DOM.addNS("idf", "http://www.portalu.de/IDF/1.0");
-DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
-
-var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
-var igcProfileNodeName = XPATH.getString(igcProfileNode, "igcp:id");
-var objId = sourceRecord.get(DatabaseSourceRecord.ID);
-var content = SQL.first("SELECT data FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, igcProfileNodeName]);
-DOM.addElement(idfBody, "p").addText(content.get("DATA"));</scriptedCswMapping>
+                            <scriptedCswMapping>
+IDF.addAdditionalData(sourceRecord, idfDoc, igcProfileControlNode);                          
+                            </scriptedCswMapping>
                             <indexName>indexName0</indexName>
                             <layoutWidth>100</layoutWidth>
                         <layoutNumLines>1</layoutNumLines>
@@ -53,7 +46,7 @@ DOM.addElement(idfBody, "p").addText(content.get("DATA"));</scriptedCswMapping>
                             <localizedLabel lang="lang31">localizedLabel5</localizedLabel>
                             <localizedLabelPostfix lang="lang33">localizedLabelPostfix4</localizedLabelPostfix>
                             <localizedHelp lang="lang35">localizedHelp5</localizedHelp>
-                            <scriptedCswMapping></scriptedCswMapping>
+                            <scriptedCswMapping>IDF.addAdditionalData(sourceRecord, idfDoc, igcProfileControlNode);</scriptedCswMapping>
                             <indexName>indexName4</indexName>
                             <layoutWidth>100</layoutWidth>
                         <layoutNumLines>1</layoutNumLines>
@@ -91,6 +84,35 @@ DOM.addElement(idfBody, "p").addText(content.get("DATA"));</scriptedCswMapping>
                         </columns>
                 </tableControl>                </controls>
     </layoutRubric>
+    <layoutRubric isLegacy="false">
+        <id>id45</id>
+        <localizedLabel lang="lang1">localizedLabel45</localizedLabel>
+        <localizedHelp lang="lang3">localizedHelp0</localizedHelp>
+        <controls>
+            <legacyControl>
+                <id>id46</id>
+                <isMandatory>false</isMandatory>
+                <isVisible>optional</isVisible>
+                <scriptedProperties>scriptedProperties0</scriptedProperties>
+            </legacyControl>
+                <textControl>
+                            <id>id47</id>
+                            <isMandatory>false</isMandatory>
+                            <isVisible>optional</isVisible>
+                            <scriptedProperties>scriptedProperties1</scriptedProperties>
+                            <localizedLabel lang="lang5">localizedLabel47</localizedLabel>
+                            <localizedLabelPostfix lang="lang7">localizedLabelPostfix0</localizedLabelPostfix>
+                            <localizedHelp lang="lang9">localizedHelp1</localizedHelp>
+                            <scriptedCswMapping>
+IDF.addAdditionalData(sourceRecord, idfDoc, igcProfileControlNode);                          
+                            </scriptedCswMapping>
+                            <indexName>indexName0</indexName>
+                            <layoutWidth>100</layoutWidth>
+                        <layoutNumLines>1</layoutNumLines>
+                </textControl> 
+        </controls>
+    </layoutRubric>    
+                
 </profile>      
             ]]></value>
         </row>
@@ -105,7 +127,7 @@ DOM.addElement(idfBody, "p").addText(content.get("DATA"));</scriptedCswMapping>
         <row>
           <value>1</value>
           <value>2</value>
-          <null/>
+          <value>0</value> <!-- should be null but is needed here for column type detection -->
           <value>id2</value>
           <value>test content for field id2</value>
           <value>1</value>
