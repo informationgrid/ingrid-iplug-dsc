@@ -8,6 +8,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.iplug.dsc.utils.DOMUtils;
+import de.ingrid.iplug.dsc.utils.DOMUtils.IdfElement;
 
 /**
  * Creates a base InGrid Detail data Format (IDF) skeleton.
@@ -21,15 +23,16 @@ public class CreateIdfMapper implements IIdfMapper {
 
     @Override
     public void map(SourceRecord record, Document doc) throws Exception {
-        Element html = doc.createElementNS("http://www.portalu.de/IDF/1.0",
-                "html");
-        doc.appendChild(html);
-        Element head = doc.createElementNS("http://www.portalu.de/IDF/1.0",
-                "head");
-        html.appendChild(head);
-        Element body = doc.createElementNS("http://www.portalu.de/IDF/1.0",
-                "body");
-        html.appendChild(body);
+        DOMUtils domUtils = DOMUtils.getInstance(doc);
+        domUtils.addNS("idf", "http://www.portalu.de/IDF/1.0");
+        
+        IdfElement html = domUtils.createElement("idf:html");
+        doc.appendChild(html.getElement());       
+        html.addAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        html.addAttribute("xsi:schemaLocation", domUtils.getNS("idf") + " ingrid_detail_data_schema.xsd");
+
+        html.addElement("idf:head");
+        html.addElement("idf:body");
     }
 
 }

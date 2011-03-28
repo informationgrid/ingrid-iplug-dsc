@@ -35,17 +35,17 @@ DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
 
 // ---------- <gmd:MD_Metadata> ----------
-var gmdMetadata = DOM.addElement(idfBody, "gmd:MD_Metadata");
+var mdMetadata = DOM.addElement(idfBody, "idf:idfMdMetadata");
 // add known namespaces
-gmdMetadata.addAttribute("xmlns:gmd", DOM.getNS("gmd"));
-gmdMetadata.addAttribute("xmlns:gco", DOM.getNS("gco"));
-gmdMetadata.addAttribute("xmlns:srv", DOM.getNS("srv"));
-gmdMetadata.addAttribute("xmlns:gml", DOM.getNS("gml"));
-gmdMetadata.addAttribute("xmlns:gts", DOM.getNS("gts"));
-gmdMetadata.addAttribute("xmlns:xlink", DOM.getNS("xlink"));
+mdMetadata.addAttribute("xmlns:gmd", DOM.getNS("gmd"));
+mdMetadata.addAttribute("xmlns:gco", DOM.getNS("gco"));
+mdMetadata.addAttribute("xmlns:srv", DOM.getNS("srv"));
+mdMetadata.addAttribute("xmlns:gml", DOM.getNS("gml"));
+mdMetadata.addAttribute("xmlns:gts", DOM.getNS("gts"));
+mdMetadata.addAttribute("xmlns:xlink", DOM.getNS("xlink"));
 // and schema references
-gmdMetadata.addAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-gmdMetadata.addAttribute("xsi:schemaLocation", DOM.getNS("gmd") + " http://schemas.opengis.net/csw/2.0.2/profiles/apiso/1.0.0/apiso.xsd");
+mdMetadata.addAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+mdMetadata.addAttribute("xsi:schemaLocation", DOM.getNS("gmd") + " http://schemas.opengis.net/csw/2.0.2/profiles/apiso/1.0.0/apiso.xsd");
 
 // ========== t01_object ==========
 var objId = sourceRecord.get(DatabaseSourceRecord.ID);
@@ -73,20 +73,20 @@ for (i=0; i<objRows.size(); i++) {
 // ---------- <gmd:fileIdentifier> ----------
     value = getFileIdentifier(objRow);
     if (hasValue(value)) {
-    	gmdMetadata.addElement("gmd:fileIdentifier/gco:CharacterString").addText(value);
+    	mdMetadata.addElement("gmd:fileIdentifier/gco:CharacterString").addText(value);
     }
 
 // ---------- <gmd:language> ----------
     value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
     if (hasValue(value)) {
-    	gmdMetadata.addElement("gmd:language/gmd:LanguageCode")
+    	mdMetadata.addElement("gmd:language/gmd:LanguageCode")
     		.addAttribute("codeList", "http://www.loc.gov/standards/iso639-2/")
     		.addAttribute("codeListValue", value).addText(value);
     }
 // ---------- <gmd:characterSet> ----------
     value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("metadata_character_set"));
     if (hasValue(value)) {
-    	gmdMetadata.addElement("gmd:characterSet/gmd:MD_CharacterSetCode")
+    	mdMetadata.addElement("gmd:characterSet/gmd:MD_CharacterSetCode")
     		.addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_CharacterSetCode")
     		.addAttribute("codeListValue", value);
     }
@@ -96,19 +96,19 @@ for (i=0; i<objRows.size(); i++) {
     // Should be only one row !
     objParentUuid = rows.get(0).get("fk_obj_uuid");
     if (hasValue(objParentUuid)) {
-    	gmdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
+    	mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
     }
 // ---------- <gmd:hierarchyLevel> ----------
 // ---------- <gmd:hierarchyLevelName> ----------
     var hierarchyLevel = getHierarchLevel(objClass);
     var hierarchyLevelName = map(objClass, {"0":"job", "1":"", "2":"document", "3":"service", "4":"project", "5":"database", "6":"application"});
     if (hasValue(hierarchyLevel)) {
-    	gmdMetadata.addElement("gmd:hierarchyLevel/gmd:MD_ScopeCode")
+    	mdMetadata.addElement("gmd:hierarchyLevel/gmd:MD_ScopeCode")
     		.addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_ScopeCode")
     		.addAttribute("codeListValue", hierarchyLevel).addText(hierarchyLevel);
     }
     if (hasValue(hierarchyLevelName)) {
-    	gmdMetadata.addElement("gmd:hierarchyLevelName/gco:CharacterString").addText(hierarchyLevelName);
+    	mdMetadata.addElement("gmd:hierarchyLevelName/gco:CharacterString").addText(hierarchyLevelName);
     }
     // ---------- <gmd:contact> ----------
     var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, 7]);
@@ -116,7 +116,7 @@ for (i=0; i<objRows.size(); i++) {
     	var addressRow = addressRows.get(i); 
     	var role = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(505, addressRow.get("type"));
     	if (hasValue(role)) {
-    		gmdMetadata.addElement("gmd:contact").addElement(getCiResponsibleParty(addressRow, role));
+    		mdMetadata.addElement("gmd:contact").addElement(getCiResponsibleParty(addressRow, role));
     	}
     }
     // ---------- <gmd:dateStamp> ----------
@@ -124,7 +124,7 @@ for (i=0; i<objRows.size(); i++) {
     	var isoDate = TRANSF.getISODateFromIGCDate(objRow.get("mod_time"));
        	// do only return the date section, ignore the time part of the date
     	// see CSW 2.0.2 AP ISO 1.0 (p.41)
-    	gmdMetadata.addElement("gmd:dateStamp").addElement(getDate(isoDate));
+    	mdMetadata.addElement("gmd:dateStamp").addElement(getDate(isoDate));
     }
     
     // ---------- <gmd:metadataStandardName> ----------
@@ -136,7 +136,7 @@ for (i=0; i<objRows.size(); i++) {
     } else {
     	mdStandardName="ISO19115";
     }
-	gmdMetadata.addElement("gmd:metadataStandardName/gco:CharacterString").addText(mdStandardName);
+	mdMetadata.addElement("gmd:metadataStandardName/gco:CharacterString").addText(mdStandardName);
 
     // ---------- <gmd:metadataStandardVersion> ----------
     var mdStandardName;
@@ -147,7 +147,7 @@ for (i=0; i<objRows.size(); i++) {
     } else {
     	mdStandardName="2003/Cor.1:2006";
     }
-	gmdMetadata.addElement("gmd:metadataStandardVersion/gco:CharacterString").addText(mdStandardName);
+	mdMetadata.addElement("gmd:metadataStandardVersion/gco:CharacterString").addText(mdStandardName);
 
     // ---------- <gmd:topologyLevel> ----------
 	var objGeoRow = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=?", [objId]);
@@ -157,7 +157,7 @@ for (i=0; i<objRows.size(); i++) {
 		var mdVectorSpatialRepresentation;
 		var vectorTopologyLevel = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(528, objGeoRow.get("vector_topology_level"));
 		if (hasValue(vectorTopologyLevel)) {
-			if (!mdVectorSpatialRepresentation) mdVectorSpatialRepresentation = gmdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation");
+			if (!mdVectorSpatialRepresentation) mdVectorSpatialRepresentation = mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation");
 			mdVectorSpatialRepresentation.addElement("gmd:topologyLevel/gmd:MD_TopologyLevelCode")
 				.addAttribute("codeList","http://www.tc211.org/ISO19139/resources/codeList.xml#MD_TopologyLevelCode")
 				.addAttribute("codeListValue", vectorTopologyLevel);
@@ -166,7 +166,7 @@ for (i=0; i<objRows.size(); i++) {
 		// ---------- <gmd:MD_GeometricObjects> ----------
 		var objGeoVectorRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=?", [objGeoId]);
 		for (var j=0; j<objGeoVectorRows.size(); j++) {
-			if (!mdVectorSpatialRepresentation) mdVectorSpatialRepresentation = gmdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation");
+			if (!mdVectorSpatialRepresentation) mdVectorSpatialRepresentation = mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation");
 			var objGeoVectorRow = objGeoVectorRows.get(j);
 			var mdGeometricObjects = mdVectorSpatialRepresentation.addElement("gmd:geometricObjects/gmd:MD_GeometricObjects");
 			var geometricObjectTypeCode = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(515, objGeoVectorRow.get("geometric_object_type")); 
@@ -182,7 +182,7 @@ for (i=0; i<objRows.size(); i++) {
 			referenceSystem = objGeoRow.get("referencesystem_value");
 		}
 		if (hasValue(referenceSystem)) {
-			var rsIdentifier = gmdMetadata.addElement("gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/gmd:referenceSystemIdentifier/gmd:RS_Identifier");
+			var rsIdentifier = mdMetadata.addElement("gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/gmd:referenceSystemIdentifier/gmd:RS_Identifier");
 			rsIdentifier.addElement("gmd:code").addElement("gco:CharacterString").addText(referenceSystem);
 			if (referenceSystem.startsWith("EPSG")) {
 				rsIdentifier.addElement("gmd:codeSpace/gco:CharacterString").addText("EPSG");
@@ -192,9 +192,9 @@ for (i=0; i<objRows.size(); i++) {
 	// ---------- <gmd:identificationInfo> ----------
 	var identificationInfo;
 	if (objClass.equals("3") || objClass.equals("6")) {
-		identificationInfo = gmdMetadata.addElement("gmd:identificationInfo/srv:SV_ServiceIdentification");
+		identificationInfo = mdMetadata.addElement("gmd:identificationInfo/srv:SV_ServiceIdentification");
 	} else {
-		identificationInfo = gmdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
+		identificationInfo = mdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
 	}
 	identificationInfo.addAttribute("uuid", "ingrid#" + getCitationIdentifier(objRow));
 	
@@ -681,7 +681,7 @@ for (i=0; i<objRows.size(); i++) {
 	
 	    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
         // add second identification info for all information that cannot be mapped into a SV_ServiceIdentification element
-        addServiceAdditionalIdentification(gmdMetadata, objServRow, objServId);
+        addServiceAdditionalIdentification(mdMetadata, objServRow, objServId);
 
 // NICHT GEODATENDIENST(3) + NICHT INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     } else {
@@ -709,7 +709,7 @@ for (i=0; i<objRows.size(); i++) {
 	        var objGeoKeycRows = SQL.all("SELECT * FROM t011_obj_geo_keyc WHERE obj_geo_id=?", [objGeoId]);
 	        for (i=0; i<objGeoKeycRows.size(); i++) {
 	            if (!mdFeatureCatalogueDescription) {
-	               mdFeatureCatalogueDescription = gmdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
+	               mdFeatureCatalogueDescription = mdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
                    // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:includedWithDataset> ----------
 	               var inclWithDataset = objGeoRow.get("keyc_incl_w_dataset");
 	               mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean")
@@ -748,7 +748,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:MD_Metadata/gmd:contentInfo#uuidref> ----------
         rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3535, "V"]);
         for (i=0; i<rows.size(); i++) {
-            gmdMetadata.addElement("gmd:contentInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
+            mdMetadata.addElement("gmd:contentInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }
 
 // DATENSAMMLUNG/DATENBANK(5)
@@ -760,7 +760,7 @@ for (i=0; i<objRows.size(); i++) {
             var featureType = objDataParaRows.get(i).get("parameter");
             if (hasValue(featureType)) {
                 if (!mdFeatureCatalogueDescription) {
-                    mdFeatureCatalogueDescription = gmdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
+                    mdFeatureCatalogueDescription = mdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
                     // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:includedWithDataset> ----------
                     mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean").addText("false");
                 }
@@ -784,7 +784,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:MD_Metadata/gmd:contentInfo#uuidref> ----------
         rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3535, "V"]);
         for (i=0; i<rows.size(); i++) {
-            gmdMetadata.addElement("gmd:contentInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
+            mdMetadata.addElement("gmd:contentInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }
     }
 
@@ -797,7 +797,7 @@ for (i=0; i<objRows.size(); i++) {
     rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [objId]);
     for (i=0; i<rows.size(); i++) {
         if (!mdDistribution) {
-            mdDistribution = gmdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
         }
         // ---------- <gmd:MD_Distributiongmd:distributionFormat/gmd:MD_Format> ----------
         var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
@@ -823,7 +823,7 @@ for (i=0; i<objRows.size(); i++) {
     var distributorContact;
     if (hasValue(objRow.get("ordering_instructions"))) {
         if (!mdDistribution) {
-            mdDistribution = gmdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
         }
         var mdDistributor = mdDistribution.addElement("gmd:distributor/gmd:MD_Distributor");
         // MD_Distributor needs a distributorContact, will be set below !
@@ -851,7 +851,7 @@ for (i=0; i<objRows.size(); i++) {
     for (i=0; i<rows.size(); i++) {
         if (hasValue(rows.get(i).get("url_link"))) {
 	        if (!mdDistribution) {
-	            mdDistribution = gmdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+	            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
 	        }
             var ciOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource");
             ciOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("url_link"));
@@ -868,7 +868,7 @@ for (i=0; i<objRows.size(); i++) {
     rows = SQL.all("SELECT * FROM T0112_media_option WHERE obj_id=?", [objId]);
     for (i=0; i<rows.size(); i++) {
         if (!mdDistribution) {
-            mdDistribution = gmdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
         }
         var mdDigitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
         // ---------- <gmd:MD_DigitalTransferOptions/gmd:transferSize> ----------
@@ -904,7 +904,7 @@ for (i=0; i<objRows.size(); i++) {
     if (objClass.equals("1")) {
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_CompletenessCommission> ----------
         if (hasValue(objGeoRow.get("rec_grade"))) {
-            dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+            dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             var completenessCommission = dqDataQuality.addElement("gmd:report/gmd:DQ_CompletenessCommission");
             completenessCommission.addElement("gmd:measureDescription/gco:CharacterString").addText("completeness");
             var dqQuantitativeResult = completenessCommission.addElement("gmd:result/gmd:DQ_QuantitativeResult");
@@ -920,7 +920,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy> ----------
         if (hasValue(objGeoRow.get("pos_accuracy_vertical"))) {
             if (!dqDataQuality) {
-	            dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+	            dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqRelativeInternalPositionalAccuracy = dqDataQuality.addElement("gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy");
             dqRelativeInternalPositionalAccuracy.addElement("gmd:measureDescription/gco:CharacterString").addText("vertical");
@@ -937,7 +937,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy> ----------
         if (hasValue(objGeoRow.get("rec_exact"))) {
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqRelativeInternalPositionalAccuracy = dqDataQuality.addElement("gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy");
             dqRelativeInternalPositionalAccuracy.addElement("gmd:measureDescription/gco:CharacterString").addText("geographic");
@@ -956,7 +956,7 @@ for (i=0; i<objRows.size(); i++) {
 	    rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=? AND (degree_key=? OR degree_key=?)", [objId, 1, 2]);
 	    for (i=0; i<rows.size(); i++) {
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqConformanceResult = dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult");
             var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
@@ -976,7 +976,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:statement> ----------
         if (hasValue(objGeoRow.get("special_base"))) {
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
             liLineage.addElement("gmd:statement/gco:CharacterString").addText(objGeoRow.get("special_base"));
@@ -985,7 +985,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description> ----------
         if (hasValue(objGeoRow.get("method"))) {
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             if (!liLineage) {
                 liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
@@ -996,7 +996,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
         if (hasValue(objGeoRow.get("data_base"))) {
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             if (!liLineage) {
                 liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
@@ -1007,7 +1007,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:MD_Metadata/gmd:portrayalCatalogueInfo/gmd:MD_PortrayalCatalogueReference/gmd:portrayalCatalogueCitation/gmd:CI_Citation> ----------
         rows = SQL.all("SELECT * FROM t011_obj_geo_symc WHERE obj_geo_id=?", [objGeoId]);
         for (i=0; i<rows.size(); i++) {
-            var portrayalCICitation = gmdMetadata.addElement("gmd:portrayalCatalogueInfo/gmd:MD_PortrayalCatalogueReference/gmd:portrayalCatalogueCitation/gmd:CI_Citation");
+            var portrayalCICitation = mdMetadata.addElement("gmd:portrayalCatalogueInfo/gmd:MD_PortrayalCatalogueReference/gmd:portrayalCatalogueCitation/gmd:CI_Citation");
             portrayalCICitation.addElement("gmd:title/gco:CharacterString").addText(rows.get(i).get("symbol_cat_value"));
 
             // ---------- <gmd:CI_Citation/gmd:date/gmd:CI_Date> ----------
@@ -1029,7 +1029,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:MD_Metadata/gmd:portrayalCatalogueInfo#uuidref> ----------
         rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3555, "V"]);
         for (i=0; i<rows.size(); i++) {
-            gmdMetadata.addElement("gmd:portrayalCatalogueInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
+            mdMetadata.addElement("gmd:portrayalCatalogueInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }
 
 // GEODATENDIENST(3)
@@ -1040,7 +1040,7 @@ for (i=0; i<objRows.size(); i++) {
         rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=? AND (degree_key=? OR degree_key=?)", [objId, 1, 2]);
         for (i=0; i<rows.size(); i++) {
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqConformanceResult = dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult");
             var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
@@ -1057,7 +1057,7 @@ for (i=0; i<objRows.size(); i++) {
 
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description> ----------
         if (hasValue(objServRow.get("history"))) {
-            dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+            dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
             liLineage.addElement("gmd:processStep/gmd:LI_ProcessStep/gmd:description/gco:CharacterString").addText(objServRow.get("history"));
         }
@@ -1065,7 +1065,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
         if (hasValue(objServRow.get("base"))) {
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             if (!liLineage) {
                 liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
@@ -1078,7 +1078,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
         value = SQL.first("SELECT base FROM t011_obj_data WHERE obj_id=?", [objId]).get("base");
         if (hasValue(value)) {
-            dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+            dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
             liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(value);
         }
@@ -1088,7 +1088,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
         value = SQL.first("SELECT base FROM t011_obj_literature WHERE obj_id=?", [objId]).get("base");
         if (hasValue(value)) {
-            dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+            dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
             liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(value);
         }
@@ -1775,11 +1775,11 @@ function addServiceOperations(identificationInfo, objServId) {
 }
 
 // add second identification info for all information that cannot be mapped into a SV_ServiceIdentification element
-function addServiceAdditionalIdentification(gmdMetadata, objServRow, objServId) {
+function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
         var svScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServId]);
         if (svScaleRows.size() > 0 || hasValue(objServRow.get("environment")) || hasValue(objServRow.get("description"))) {
     // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
-            var mdDataIdentification = gmdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
+            var mdDataIdentification = mdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
             mdDataIdentification.addAttribute("uuid", getFileIdentifier(objRow));
     
             // add necessary elements for schema validation
@@ -1861,7 +1861,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_CompletenessCommission> ----------
 
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_CompletenessCommission");
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
@@ -1894,7 +1894,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_CompletenessOmission> ----------
 
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_CompletenessOmission");
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
@@ -1922,7 +1922,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_ConceptualConsistency> ----------
 
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_ConceptualConsistency");
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
@@ -1955,7 +1955,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency> ----------
 
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency");
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
@@ -1983,7 +1983,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_FormatConsistency> ----------
 
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_FormatConsistency");
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
@@ -2011,7 +2011,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_TopologicalConsistency> ----------
 
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_TopologicalConsistency");
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
@@ -2064,7 +2064,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy> ----------
 
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy");
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
@@ -2092,7 +2092,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_TemporalConsistency> ----------
 
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_TemporalConsistency");
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
@@ -2121,7 +2121,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_ThematicClassificationCorrectness> ----------
 
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_ThematicClassificationCorrectness");
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
@@ -2149,7 +2149,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_NonQuantitativeAttributeAccuracy> ----------
 
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_NonQuantitativeAttributeAccuracy");
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
@@ -2177,7 +2177,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_QuantitativeAttributeAccuracy> ----------
 
             if (!dqDataQuality) {
-                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_QuantitativeAttributeAccuracy");
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
