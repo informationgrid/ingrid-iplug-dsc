@@ -34,7 +34,7 @@ DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 // ---------- <idf:body> ----------
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
 
-// ---------- <gmd:MD_Metadata> ----------
+// ---------- <idf:idfMdMetadata> ----------
 var mdMetadata = DOM.addElement(idfBody, "idf:idfMdMetadata");
 // add known namespaces
 mdMetadata.addAttribute("xmlns:gmd", DOM.getNS("gmd"));
@@ -703,7 +703,7 @@ for (i=0; i<objRows.size(); i++) {
 
 // GEO-INFORMATION/KARTE(1)
     if (objClass.equals("1")) {
-        // ---------- <gmd:MD_Metadata/gmd:contentInfo/gmd:MD_FeatureCatalogueDescription> ----------
+        // ---------- <idf:idfMdMetadata/gmd:contentInfo/gmd:MD_FeatureCatalogueDescription> ----------
         if (objGeoId) {
             var mdFeatureCatalogueDescription;
 	        var objGeoKeycRows = SQL.all("SELECT * FROM t011_obj_geo_keyc WHERE obj_geo_id=?", [objGeoId]);
@@ -745,7 +745,7 @@ for (i=0; i<objRows.size(); i++) {
 	        }
         }
 
-        // ---------- <gmd:MD_Metadata/gmd:contentInfo#uuidref> ----------
+        // ---------- <idf:idfMdMetadata/gmd:contentInfo#uuidref> ----------
         rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3535, "V"]);
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:contentInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
@@ -753,7 +753,7 @@ for (i=0; i<objRows.size(); i++) {
 
 // DATENSAMMLUNG/DATENBANK(5)
     } else if (objClass.equals("5")) {
-        // ---------- <gmd:MD_Metadata/gmd:contentInfo/gmd:MD_FeatureCatalogueDescription> ----------
+        // ---------- <idf:idfMdMetadata/gmd:contentInfo/gmd:MD_FeatureCatalogueDescription> ----------
         var mdFeatureCatalogueDescription;
         var objDataParaRows = SQL.all("SELECT * FROM t011_obj_data_para WHERE obj_id=?", [objId]);
         for (i=0; i<objDataParaRows.size(); i++) {
@@ -781,7 +781,7 @@ for (i=0; i<objRows.size(); i++) {
                 .addAttribute("codeListValue", "publication");
         }
 
-        // ---------- <gmd:MD_Metadata/gmd:contentInfo#uuidref> ----------
+        // ---------- <idf:idfMdMetadata/gmd:contentInfo#uuidref> ----------
         rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3535, "V"]);
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:contentInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
@@ -792,7 +792,7 @@ for (i=0; i<objRows.size(); i++) {
 
     // distributionInfo
 
-    // ---------- <gmd:MD_Metadata/gmd:distributionInfo/gmd:MD_Distribution> ----------
+    // ---------- <idf:idfMdMetadata/gmd:distributionInfo/gmd:MD_Distribution> ----------
     var mdDistribution;
     rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [objId]);
     for (i=0; i<rows.size(); i++) {
@@ -895,7 +895,7 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
 
-    // ---------- <gmd:MD_Metadata/gmd:dataQualityInfo/gmd:DQ_DataQuality> ----------
+    // ---------- <idf:idfMdMetadata/gmd:dataQualityInfo/gmd:DQ_DataQuality> ----------
     // ---------- <gmd:DQ_DataQuality/gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode> ----------
     var dqDataQuality;
     var liLineage;
@@ -1004,7 +1004,7 @@ for (i=0; i<objRows.size(); i++) {
             liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(objGeoRow.get("data_base"));
         }
 
-        // ---------- <gmd:MD_Metadata/gmd:portrayalCatalogueInfo/gmd:MD_PortrayalCatalogueReference/gmd:portrayalCatalogueCitation/gmd:CI_Citation> ----------
+        // ---------- <idf:idfMdMetadata/gmd:portrayalCatalogueInfo/gmd:MD_PortrayalCatalogueReference/gmd:portrayalCatalogueCitation/gmd:CI_Citation> ----------
         rows = SQL.all("SELECT * FROM t011_obj_geo_symc WHERE obj_geo_id=?", [objGeoId]);
         for (i=0; i<rows.size(); i++) {
             var portrayalCICitation = mdMetadata.addElement("gmd:portrayalCatalogueInfo/gmd:MD_PortrayalCatalogueReference/gmd:portrayalCatalogueCitation/gmd:CI_Citation");
@@ -1026,7 +1026,7 @@ for (i=0; i<objRows.size(); i++) {
                 portrayalCICitation.addElement("gmd:edition/gco:CharacterString").addText(rows.get(i).get("edition"));
             }
         }
-        // ---------- <gmd:MD_Metadata/gmd:portrayalCatalogueInfo#uuidref> ----------
+        // ---------- <idf:idfMdMetadata/gmd:portrayalCatalogueInfo#uuidref> ----------
         rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3555, "V"]);
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:portrayalCatalogueInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
@@ -1093,6 +1093,19 @@ for (i=0; i<objRows.size(); i++) {
             liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(value);
         }
     }
+
+    // ---------- <idf:idfMdMetadata/idf:superiorReference> ----------
+    rows = SQL.all("SELECT t01_object.* FROM object_node, t01_object WHERE object_node.obj_uuid=? AND object_node.fk_obj_uuid=t01_object.obj_uuid AND t01_object.work_state=?", [objUuid, 'V']);
+    for (i=0; i<rows.size(); i++) {
+        row = rows.get(i);
+        var superiorRef = mdMetadata.addElement("idf:superiorReference").addAttribute("uuid", row.get("obj_uuid"));
+        if (hasValue(row.get("org_obj_id"))) {
+            superiorRef.addAttribute("orig-uuid", row.get("org_obj_id"));
+        }
+        superiorRef.addElement("idf:objectName").addText(row.get("obj_name"));
+        superiorRef.addElement("idf:objectType").addText(row.get("obj_class"));
+    }
+
 }
 
 
