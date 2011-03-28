@@ -5,7 +5,6 @@ package de.ingrid.iplug.dsc.record.mapper;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.utils.DOMUtils;
