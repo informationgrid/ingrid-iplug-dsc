@@ -1106,6 +1106,17 @@ for (i=0; i<objRows.size(); i++) {
         superiorRef.addElement("idf:objectType").addText(row.get("obj_class"));
     }
 
+    // ---------- <idf:idfMdMetadata/idf:subordinatedReference> ----------
+    rows = SQL.all("SELECT t01_object.* FROM object_node, t01_object WHERE object_node.fk_obj_uuid=? AND object_node.obj_id_published=t01_object.id", [objUuid]);
+    for (i=0; i<rows.size(); i++) {
+        row = rows.get(i);
+        var subRef = mdMetadata.addElement("idf:subordinatedReference").addAttribute("uuid", row.get("obj_uuid"));
+        if (hasValue(row.get("org_obj_id"))) {
+            subRef.addAttribute("orig-uuid", row.get("org_obj_id"));
+        }
+        subRef.addElement("idf:objectName").addText(row.get("obj_name"));
+        subRef.addElement("idf:objectType").addText(row.get("obj_class"));
+    }
 }
 
 
