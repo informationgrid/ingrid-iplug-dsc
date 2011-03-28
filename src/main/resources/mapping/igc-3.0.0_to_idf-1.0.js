@@ -2144,6 +2144,34 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
                 dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
             }
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
+
+        } else if (igcDqElementId.equals("126")) {
+            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_NonQuantitativeAttributeAccuracy > ----------
+
+            if (!dqDataQuality) {
+                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+            }
+            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_NonQuantitativeAttributeAccuracy");
+            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
+            if (igcNameOfMeasureKey.equals("1")) {
+                // Misclassification rate
+                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("67");
+            }
+            if (hasValue(igcMeasureDescription)) {
+                dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
+            }
+            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
+            if (igcNameOfMeasureKey.equals("1")) {
+                var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
+                    .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
+                unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
+                unitDefinition.addElement("gml:name").addText("percent");
+                unitDefinition.addElement("gml:quantityType").addText("non quantitative attribute accuracy");
+                unitDefinition.addElement("gml:catalogSymbol").addText("%");
+            } else {
+                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
+            }
+            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
         }
     }
 }
