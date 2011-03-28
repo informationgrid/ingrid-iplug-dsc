@@ -2082,7 +2082,36 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
                 unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
                 unitDefinition.addElement("gml:name").addText("meter");
                 unitDefinition.addElement("gml:quantityType").addText("absolute external positional accuracy");
-                unitDefinition.addElement("gml:catalogSymbol").addText("m");                
+                unitDefinition.addElement("gml:catalogSymbol").addText("m");
+            } else {
+                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
+            }
+            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
+
+        } else if (igcDqElementId.equals("120")) {
+            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_TemporalConsistency> ----------
+
+            if (!dqDataQuality) {
+                dqDataQuality = gmdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+            }
+            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_TemporalConsistency");
+            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
+            if (igcNameOfMeasureKey.equals("1")) {
+                // Percentage of items that are correctly events ordered
+                // -> INSPIRE: Measure identifier: There is no measure for temporal accuracy in ISO 19138
+                dqElem.addElement("gmd:measureIdentification").addAttribute("gco:nilReason", "missing");
+            }
+            if (hasValue(igcMeasureDescription)) {
+                dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
+            }
+            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
+            if (igcNameOfMeasureKey.equals("1")) {
+                var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
+                    .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
+                unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
+                unitDefinition.addElement("gml:name").addText("percent");
+                unitDefinition.addElement("gml:quantityType").addText("temporal consistency");
+                unitDefinition.addElement("gml:catalogSymbol").addText("%");
             } else {
                 dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
             }
