@@ -1097,25 +1097,19 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- <idf:idfMdMetadata/idf:superiorReference> ----------
     rows = SQL.all("SELECT t01_object.* FROM object_node, t01_object WHERE object_node.obj_uuid=? AND object_node.fk_obj_uuid=t01_object.obj_uuid AND t01_object.work_state=?", [objUuid, 'V']);
     for (i=0; i<rows.size(); i++) {
-        row = rows.get(i);
-        var superiorRef = mdMetadata.addElement("idf:superiorReference").addAttribute("uuid", row.get("obj_uuid"));
-        if (hasValue(row.get("org_obj_id"))) {
-            superiorRef.addAttribute("orig-uuid", row.get("org_obj_id"));
-        }
-        superiorRef.addElement("idf:objectName").addText(row.get("obj_name"));
-        superiorRef.addElement("idf:objectType").addText(row.get("obj_class"));
+        mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:superiorReference"));
     }
 
     // ---------- <idf:idfMdMetadata/idf:subordinatedReference> ----------
     rows = SQL.all("SELECT t01_object.* FROM object_node, t01_object WHERE object_node.fk_obj_uuid=? AND object_node.obj_id_published=t01_object.id", [objUuid]);
     for (i=0; i<rows.size(); i++) {
-        row = rows.get(i);
-        var subRef = mdMetadata.addElement("idf:subordinatedReference").addAttribute("uuid", row.get("obj_uuid"));
-        if (hasValue(row.get("org_obj_id"))) {
-            subRef.addAttribute("orig-uuid", row.get("org_obj_id"));
-        }
-        subRef.addElement("idf:objectName").addText(row.get("obj_name"));
-        subRef.addElement("idf:objectType").addText(row.get("obj_class"));
+        mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:subordinatedReference"));
+    }
+
+    // ---------- <idf:idfMdMetadata/idf:crossReference> ----------
+    rows = SQL.all("SELECT t01_object.* FROM object_reference, t01_object WHERE object_reference.obj_from_id=? AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=?", [objId, 'V']);
+    for (i=0; i<rows.size(); i++) {
+        mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:crossReference"));
     }
 }
 
@@ -2221,6 +2215,18 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
         }
     }
+}
+
+function getIdfObjectReference(objRow, elementName) {
+    var idfObjectReference = DOM.createElement(elementName);
+    idfObjectReference.addAttribute("uuid", objRow.get("obj_uuid"));
+    if (hasValue(objRow.get("org_obj_id"))) {
+        idfObjectReference.addAttribute("orig-uuid", objRow.get("org_obj_id"));
+    }
+    idfObjectReference.addElement("idf:objectName").addText(objRow.get("obj_name"));
+    idfObjectReference.addElement("idf:objectType").addText(objRow.get("obj_class"));
+
+    return idfObjectReference;
 }
 
 function hasValue(val) {
