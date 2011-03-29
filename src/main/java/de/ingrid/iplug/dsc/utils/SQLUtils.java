@@ -95,7 +95,7 @@ public class SQLUtils {
 	 * Executes a SQL and returns a list with records results
 	 * @param sqlStr the sql to execute
 	 * @param sqlParams the params to be set on SQL string. NOTICE: NO null params !
-	 * @return list of maps, one per row, with column names as keys and column values as String (can be null)
+	 * @return list of maps, one per row, with column names IN LOWER CASE (!!!) as keys and column values as String (can be null)
 	 * @throws SQLException
 	 */
 	public List<Map<String, String>> all(String sqlStr, Object[] sqlParams) throws SQLException {
@@ -157,7 +157,7 @@ public class SQLUtils {
 				if (value != null) {
 					value = value.trim();
 				}
-				row.put(columnName, value);
+				row.put(columnName.toLowerCase(), value);
 			}
 
 			rows.add(row);
