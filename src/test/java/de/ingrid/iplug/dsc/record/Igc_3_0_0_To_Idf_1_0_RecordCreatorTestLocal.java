@@ -12,6 +12,7 @@ import org.springframework.core.io.FileSystemResource;
 
 import de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
+import de.ingrid.iplug.dsc.record.mapper.IgcProfileIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper;
 import de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer;
 import de.ingrid.utils.PlugDescription;
@@ -33,10 +34,13 @@ public class Igc_3_0_0_To_Idf_1_0_RecordCreatorTestLocal extends TestCase {
         CreateIdfMapper m1 = new CreateIdfMapper();
         ScriptedIdfMapper m2 = new ScriptedIdfMapper();
         m2.setMappingScript(new FileSystemResource("src/main/resources/mapping/igc-3.0.0_to_idf-1.0.js"));
+        IgcProfileIdfMapper m3 = new IgcProfileIdfMapper();
+        m3.setSql("SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'");
 
         List<IIdfMapper> mList = new ArrayList<IIdfMapper>();
         mList.add(m1);
         mList.add(m2);
+        mList.add(m3);
 
         DscRecordCreator dc = new DscRecordCreator();
         dc.setRecordProducer(p);

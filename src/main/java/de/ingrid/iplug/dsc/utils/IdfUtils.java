@@ -103,7 +103,8 @@ public class IdfUtils {
                 if (contentRows != null && !contentRows.isEmpty()) {
                     IdfElement additionalDataSection = createDataSectionElement(idfDoc, igcProfileControlNode);
                     // add IDF table element
-                    IdfElement additionalData = additionalDataSection.addElement("idf:additionalDataTable");
+                    IdfElement additionalData = additionalDataSection.addElement("idf:additionalDataTable")
+                    	.addAttribute("id", igcProfileControlNodeId);
                     NodeList localizedLabels = XPathUtils.getNodeList(igcProfileControlNode, "igcp:localizedLabel");
                     for (int i = 0; i < localizedLabels.getLength(); i++) {
                         Node localizedLabel = localizedLabels.item(i);
@@ -128,12 +129,12 @@ public class IdfUtils {
                     for (int i = 0; i < contentRows.size(); i++) {
                         Map<String, String> contentRow = contentRows.get(i);
                         Node tableColumnNode = XPathUtils.getNode(additionalData.getElement(), "idf:tableColumn[@id='"
-                                + contentRow.get("FIELD_KEY") + "']");
+                                + contentRow.get("field_key") + "']");
                         if (tableColumnNode == null) {
                             throw new IllegalArgumentException("Unexpected table column id '"
-                                    + contentRow.get("FIELD_KEY") + "'. Column ID does not exist in profile.");
+                                    + contentRow.get("field_key") + "'. Column ID does not exist in profile.");
                         } else {
-                            DOM.addElement((Element) tableColumnNode, "idf:data").addText(contentRow.get("DATA"));
+                            DOM.addElement((Element) tableColumnNode, "idf:data").addText(contentRow.get("data"));
                         }
                     }
                 }
@@ -147,14 +148,17 @@ public class IdfUtils {
                                 igcProfileControlId });
                 if (content != null && !content.isEmpty()) {
                     IdfElement additionalDataSection = createDataSectionElement(idfDoc, igcProfileControlNode);
-                    IdfElement additionalData = additionalDataSection.addElement("idf:additionalDataField");
+                    IdfElement additionalData = additionalDataSection.addElement("idf:additionalDataField")
+                    	.addAttribute("id", igcProfileControlId);
                     NodeList localizedLabels = XPathUtils.getNodeList(igcProfileControlNode, "igcp:localizedLabel");
                     for (int i = 0; i < localizedLabels.getLength(); i++) {
                         Node localizedLabel = localizedLabels.item(i);
-                        additionalData.addElement("idf:title").addText(localizedLabel.getTextContent()).addAttribute(
-                                "lang", localizedLabel.getAttributes().getNamedItem("lang").getNodeValue());
+                        String title = localizedLabel.getTextContent();
+                        String lang = localizedLabel.getAttributes().getNamedItem("lang").getNodeValue();
+                        additionalData.addElement("idf:title").addText(title).addAttribute("lang", lang);
                     }
-                    additionalData.addElement("idf:data").addText(content.get("DATA"));
+                    String data = content.get("data");
+                    additionalData.addElement("idf:data").addText(data);
                 }
             }
         } catch (Exception e) {
