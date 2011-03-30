@@ -28,7 +28,7 @@
             name        ="componentOptions"
             displayText ="Einstellungen fuer das iPlug">
             
-            <comment displayText="" explanatoryText="Lokaler Port, unter dem die Administrationsoberfläche des Opensearch-iPlugs erreichbar sein soll."/>           
+            <comment displayText="" explanatoryText="Lokaler Port, unter dem die Administrationsoberfläche des iPlugs erreichbar sein soll."/>           
             <text property="localServerPort" displayText="Port für Adminoberfläche:" defaultValue="9667"/>
     </page>
 
