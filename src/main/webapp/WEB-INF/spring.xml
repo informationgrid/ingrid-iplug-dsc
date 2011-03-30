@@ -32,7 +32,9 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
         <property name="recordProducer" ref="recordProducer" />
         <property name="record2IdfMapperList">
             <list>
-                <ref bean="idfMapper"/>
+                <ref bean="createIdfMapper"/>
+                <ref bean="scriptedIdfMapper"/>
+                <ref bean="igcProfileIdfMapper"/>
             </list>
         </property>
     </bean>
@@ -41,10 +43,15 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
         <property name="indexFieldID" value="t01_object.id" />
     </bean>
     
-    <bean id="idfMapper" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
+    <bean id="createIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper"/>
+
+    <bean id="scriptedIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
         <property name="mappingScript" value="classpath:mapping/igc-3.0.0_to_idf-1.0.js" />
         <property name="compile" value="true" />
     </bean>
 
+    <bean id="igcProfileIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.IgcProfileIdfMapper">
+        <property name="sql" value="SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" />
+    </bean>
 
 </beans>
