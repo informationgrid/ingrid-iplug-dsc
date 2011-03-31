@@ -110,6 +110,82 @@ IDF.addAdditionalData(sourceRecord, idfDoc, igcProfileControlNode);
                             <layoutWidth>100</layoutWidth>
                         <layoutNumLines>1</layoutNumLines>
                 </textControl> 
+      <selectControl isExtendable="false">
+        <id>Feature Catalog Compliance Code</id>
+        <isMandatory>false</isMandatory>
+        <isVisible>show</isVisible>
+        <scriptedProperties/>
+        <localizedLabel lang="de">Feature Catalog Compliance Code</localizedLabel>
+        <localizedLabel lang="en">Feature Catalog Compliance Code</localizedLabel>
+        <localizedHelp lang="de">Feature Catalog Compliance Code</localizedHelp>
+        <localizedHelp lang="en">Feature Catalog Compliance Code</localizedHelp>
+        <scriptedCswMapping>
+importPackage(Packages.de.ingrid.iplug.dsc.om);
+
+// add Namespaces to Utility for convenient handling of NS !
+DOM.addNS("gmd", "http://www.isotc211.org/2005/gmd");
+DOM.addNS("gco", "http://www.isotc211.org/2005/gco");
+
+if (!(sourceRecord instanceof DatabaseSourceRecord)) {
+    throw new IllegalArgumentException("Record is no DatabaseRecord!");
+}
+
+var id = sourceRecord.get(DatabaseSourceRecord.ID);
+var igcProfileControlId = XPATH.getString(igcProfileControlNode, "igcp:id");
+
+var content = SQL.first("SELECT data FROM additional_field_data WHERE obj_id=? AND field_key=?", [id, igcProfileControlId]);
+
+if (content) {
+	// get mdFeatureCatalogDescription element
+	var mdFeatureCatalogDescription = DOM.getElement(idfDoc, "//gmd:MD_FeatureCatalogueDescription");
+	
+	if (!mdFeatureCatalogDescription) {
+      var idfMetaData = DOM.getElement(idfDoc, "//idf:idfMdMetadata");
+	  idfMetaData.addElement("gmd:identificationInfo");
+      idfMetaData.addElement("gmd:distributionInfo");
+	  var identificationInfo = DOM.getElement(idfDoc, "//gmd:identificationInfo");
+	  if (identificationInfo) {
+        mdFeatureCatalogDescription = identificationInfo.addElementAsSibling("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");	   
+	  } else {
+        mdFeatureCatalogDescription = idfMetaData.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
+	  }
+	  mdFeatureCatalogDescription.addElement("gmd:includedWithDataset/gco:Boolean").addText("false");
+      var ciCitation = mdFeatureCatalogDescription.addElement("gmd:featureCatalogueCitation/gmd:CI_Citation");
+      ciCitation.addElement("gmd:title/gco:CharacterString").addAttribute("gco:nilReason", "inapplicable");
+      var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
+      ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
+      ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
+                    .addAttribute("codeListValue", "creation");
+	}
+	
+	// get compliance code element
+	var complianceCode = DOM.getElement(mdFeatureCatalogDescription, "gmd:complianceCode/gco:Boolean");
+	
+	if (!complianceCode) {
+	    // add compliance code
+	    log.debug("No compliance code found, create a new one.");
+	    mdFeatureCatalogDescription.addElementAsFirst("gmd:complianceCode").addElement("gco:Boolean").addText(content.get("data"));
+	} else {
+        log.debug("compliance code found!");
+	    complianceCode.addText(content.get("data"));
+	}
+}
+
+</scriptedCswMapping>
+        <indexName>fetaureCatalogDescriptionComplianceCode</indexName>
+        <layoutWidth>100</layoutWidth>
+        <selectionList>
+          <items lang="de">
+            <item id="1">ja</item>
+            <item id="2">nein</item>
+          </items>
+          <items lang="en">
+            <item id="1">true</item>
+            <item id="2">false</item>
+          </items>
+        </selectionList>
+      </selectControl>
         </controls>
     </layoutRubric>    
                 
@@ -171,6 +247,14 @@ IDF.addAdditionalData(sourceRecord, idfDoc, igcProfileControlNode);
           <value>id8</value>
           <value>zweiter eintrag in zweiter spalte</value>
           <value>2</value>
+        </row>
+        <row>
+          <value>7</value>
+          <value>2</value>
+          <null/>
+          <value>Feature Catalog Compliance Code</value>
+          <value>true</value>
+          <value>1</value>
         </row>
     </table>
     <table name="t01_object">

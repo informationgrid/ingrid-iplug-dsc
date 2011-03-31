@@ -10,7 +10,11 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+
+import de.ingrid.utils.xml.XPathUtils;
 
 /**
  * Singleton helper class encapsulating functionality for DOM processing.
@@ -81,6 +85,54 @@ public class DOMUtils {
 	        }
 	        return new IdfElement(newElement);
 	    }
+
+        public IdfElement addElementAsFirst(String qualifiedName) {
+            String[] qNames = qualifiedName.split("/");
+            Element parent = e;
+            Element newElement = null;
+            for (String qName : qNames) {
+                newElement = domCreateElement(qName);
+                if (parent.hasChildNodes()) {
+                    parent.insertBefore(newElement, parent.getFirstChild());
+                } else {
+                    parent.appendChild(newElement);
+                }
+                parent = newElement; 
+            }
+            return new IdfElement(newElement);
+        }
+
+        public IdfElement addElementAsSibling(String qualifiedName) {
+            String[] qNames = qualifiedName.split("/");
+            
+            Node sibling = e.getNextSibling();
+            Element parent = domCreateElement(qNames[0]);
+            if (sibling != null) {
+                e.getParentNode().insertBefore(parent, sibling);
+            } else {
+                e.getParentNode().appendChild(parent);
+            }
+            
+            Element newElement = null;
+            for (int i=1; i< qNames.length; i++) {
+                String qName = qNames[i];
+                newElement = domCreateElement(qName);
+                NodeList siblings = XPathUtils.getNodeList(e, qName);
+                if (siblings != null && siblings.getLength() > 0) {
+                    Node refNode = siblings.item(siblings.getLength() - 1).getNextSibling();
+                    if (refNode != null) {
+                        parent.insertBefore(refNode, newElement);
+                    } else {
+                        parent.appendChild(newElement);
+                    }
+                } else {
+                    parent.appendChild(newElement);
+                }
+                parent = newElement; 
+            }
+            return new IdfElement(newElement);
+        }
+        
 	    
 	    public IdfElement addAttribute(String attrName, String attrValue) {
 	    	DOMUtils.this.addAttribute(e, attrName, attrValue);
@@ -88,7 +140,15 @@ public class DOMUtils {
 	    }
         
 	    public IdfElement addText(String text) {
-            e.appendChild(domNewTextNode(text));
+	        if (e.hasChildNodes()) {
+	            for (int i=0; i<e.getChildNodes().getLength(); i++) {
+	                if (e.getChildNodes().item(i) instanceof Text) {
+	                    ((Text)e.getChildNodes().item(i)).setNodeValue(text);
+	                    return this;
+	                }
+	            }
+	        }
+	        e.appendChild(domNewTextNode(text));
             return this;
         }
 	    
@@ -96,7 +156,7 @@ public class DOMUtils {
             e.appendChild(element.getElement());
             return element;
         }
-        
+
         public Element getElement() {
             return e;
         }
@@ -119,7 +179,62 @@ public class DOMUtils {
     public IdfElement createElement(String qualifiedName) {
         return new IdfElement(domCreateElement(qualifiedName));
     }
-	
+
+    
+    public IdfElement addElementFromXPath(IdfElement element, String xpath) {
+        Element refelement = null;
+        if (xpath.startsWith("/")) {
+            refelement = element.getElement().getOwnerDocument().getDocumentElement();
+        } else {
+            refelement = element.getElement();
+        }
+        //refNode = node;
+        String[] xpathElements = xpath.split("/");
+        String tmpXpath = ".";
+        Element result = refelement;
+        for (int i=0; i<xpathElements.length; i++) {
+            if (xpathElements[i].length() > 0) {
+                if (!XPathUtils.nodeExists(refelement, tmpXpath + "/" + xpathElements[i])) {
+                    if (tmpXpath.length() == 0) {
+                        throw new IllegalArgumentException("More than one root element is not allowed! The supplied absolute path MUST start with the existing root node!");
+                    } else {
+                        NodeList list = XPathUtils.getNodeList(refelement, tmpXpath);
+                        result = (Element) list.item(0).appendChild(domCreateElement(xpathElements[i]));
+                    }
+                } else if (tmpXpath.length() > 0) {
+                    result = (Element)XPathUtils.getNodeList(refelement, tmpXpath+ "/" + xpathElements[i]).item(0);
+                }
+                tmpXpath = tmpXpath + "/" + xpathElements[i];
+            } else {
+                tmpXpath = "";
+            }
+        }
+        return new IdfElement(result);
+    }  
+    
+    
+    public IdfElement getElement(Object node, String xPath) {
+        Element element;
+        if (node instanceof Document) {
+          element = ((Document)node).getDocumentElement();   
+        } else if (node instanceof Node) {
+            element = (Element)node;  
+        } else if (node instanceof Element) {
+            element = (Element)node;  
+        } else if (node instanceof IdfElement) {
+            element = ((IdfElement)node).getElement();  
+        } else {
+            throw new RuntimeException("Unsupported input argument type: " + node.getClass().getName());
+        }
+        Element e = (Element)XPathUtils.getNode(element, xPath);
+        if (e != null) {
+            return new IdfElement(e);
+        } else {
+            return null;
+        }
+    }
+
+    
     private Element domCreateElement(String qualifiedName) {
 		Element retValue = null;
 		
@@ -133,6 +248,7 @@ public class DOMUtils {
 
         return retValue;
     }
+    
 	
     /** Create an Element WITHOUT NameSpace (NS) qualification !
      * @param nameWithoutNS if you pass name with NS prefix (*:*), the prefix isn't handles as namespace !

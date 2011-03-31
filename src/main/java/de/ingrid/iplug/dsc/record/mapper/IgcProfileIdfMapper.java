@@ -72,6 +72,9 @@ public class IgcProfileIdfMapper implements IIdfMapper {
             ResultSet rs = ps.executeQuery();
             rs.next();
             String igcProfileStr = rs.getString("igc_profile");
+            if (log.isDebugEnabled()) {
+                log.debug("igc profile found: " + igcProfileStr);
+            }
             ps.close();
             if (igcProfileStr != null) {
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -80,12 +83,15 @@ public class IgcProfileIdfMapper implements IIdfMapper {
                 db = dbf.newDocumentBuilder();
                 Document igcProfile = db.parse(new InputSource(new StringReader(igcProfileStr)));
                 NodeList igcProfileCswMappings = XPathUtils.getNodeList(igcProfile, "//igcp:controls/*/igcp:scriptedCswMapping");
+                if (log.isDebugEnabled()) {
+                    log.debug("cswMappings found: " + igcProfileCswMappings.getLength());
+                }
                 for (int i=0; i<igcProfileCswMappings.getLength(); i++) {
                     String igcProfileCswMapping = igcProfileCswMappings.item(i).getTextContent();
+                    if (log.isDebugEnabled()) {
+                        log.debug("Found Mapping Script: \n" + igcProfileCswMapping);
+                    }
                     if (igcProfileCswMapping != null && igcProfileCswMapping.trim().length() > 0) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Executing Mapping Script: \n" + igcProfileCswMapping);
-                        }
                         Node igcProfileNode = igcProfileCswMappings.item(i).getParentNode();
                         try {
                             if (engine == null) {

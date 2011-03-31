@@ -192,9 +192,11 @@ public class IdfUtils {
         if (additionalDataSectionNode == null) {
             // create IDF additional data section node
             Node idfBodyNode = XPathUtils.getNode(idfDoc, "/idf:html/idf:body");
-            Node idfMetadataNode = XPathUtils.getNode(idfBodyNode, "idf:idfMdMetadata");
+            Element idfMetadataNode = (Element)XPathUtils.getNode(idfBodyNode, "idf:idfMdMetadata");
             if (idfMetadataNode == null) {
                 idfMetadataNode = DOM.addElement((Element) idfBodyNode, "idf:idfMdMetadata").getElement();
+                idfMetadataNode.setAttribute("xmlns:gmd", DOM.getNS("gmd"));
+                idfMetadataNode.setAttribute("xmlns:gco", DOM.getNS("gco"));
             }
             String isLegacy = XPathUtils.getString(igcProfileLayoutRubricNode, "./@isLegacy");
             if (isLegacy == null) isLegacy = "false";
