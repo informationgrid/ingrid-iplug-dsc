@@ -116,7 +116,7 @@ for (i=0; i<objRows.size(); i++) {
     	var addressRow = addressRows.get(i); 
     	var role = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(505, addressRow.get("type"));
     	if (hasValue(role)) {
-    		mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, role, true));
+    		mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, role));
     	}
     }
     // ---------- <gmd:dateStamp> ----------
@@ -266,7 +266,7 @@ for (i=0; i<objRows.size(); i++) {
 			}
 		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, 3360]);
 		    for (var i=0; i< addressRows.size(); i++) {
-		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "resourceProvider", true));
+		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "resourceProvider"));
 		    }
 			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=publisher> ----------
 			if (hasValue(literatureRow.get("publish_loc")) || hasValue(literatureRow.get("publisher"))) {
@@ -327,7 +327,7 @@ for (i=0; i<objRows.size(); i++) {
 			}
 		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, 3400]);
 		    for (var i=0; i< addressRows.size(); i++) {
-		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "projectManager", true));
+		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "projectManager"));
 		    }
 			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=projectManager> ----------
 			if (hasValue(projectRow.get("member"))) {
@@ -339,7 +339,7 @@ for (i=0; i<objRows.size(); i++) {
 			}
 		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, 3410]);
 		    for (var i=0; i< addressRows.size(); i++) {
-		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "projectParticipant", true));
+		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "projectParticipant"));
 		    }
 		}
 		
@@ -417,7 +417,7 @@ for (i=0; i<objRows.size(); i++) {
             role = addressRow.get("special_name");
         }
         if (hasValue(role)) {
-            identificationInfo.addElement("gmd:pointOfContact").addElement(getIdfResponsibleParty(addressRow, role, true));
+            identificationInfo.addElement("gmd:pointOfContact").addElement(getIdfResponsibleParty(addressRow, role));
         }
     }
 
@@ -837,7 +837,7 @@ for (i=0; i<objRows.size(); i++) {
         // select only adresses associated with syslist 505 entry 5 ("Vertrieb") 
         var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, 5, 505]);
 	    if (hasValue(addressRow)) {
-            distributorContact.addElement(getIdfResponsibleParty(addressRow, "distributor", true));
+            distributorContact.addElement(getIdfResponsibleParty(addressRow, "distributor"));
 	    } else {
             // add dummy distributor role, because no distributor was found
             distributorContact.addElement("gmd:CI_ResponsibleParty/gmd:role/gmd:CI_RoleCode")
@@ -1189,7 +1189,7 @@ function getCitationIdentifier(objRow) {
  * @param role
  * @return
  */
-function getIdfResponsibleParty(addressRow, role, doMapParents, specialElementName) {
+function getIdfResponsibleParty(addressRow, role, specialElementName) {
 	var parentAddressRowPathArray = getAddressRowPathArray(addressRow);
 	var myElementName = "idf:idfResponsibleParty";
 	if (hasValue(specialElementName)) {
@@ -1276,14 +1276,9 @@ function getIdfResponsibleParty(addressRow, role, doMapParents, specialElementNa
 	    }
     }
 
-    // add all parents as responsible parties, skip first one (is given address)
-    if (doMapParents) {
-	    var givenParty = idfResponsibleParty;
-	    for (var j=1; j<parentAddressRowPathArray.length; j++) {
-	        var parentParty = getIdfResponsibleParty(parentAddressRowPathArray[j], null, false, "idf:superiorParty");
-	        givenParty.addElement(parentParty);        
-	        givenParty = parentParty;
-	    }
+    // flatten parent hierarchy, add every parent (including myself) separately
+    for (var j=0; j<parentAddressRowPathArray.length; j++) {
+        idfResponsibleParty.addElement(getIdfAddressReference(parentAddressRowPathArray[j], "idf:hierarchyParty"));
     }
 
     return idfResponsibleParty;
@@ -1298,11 +1293,12 @@ function getIdfResponsibleParty(addressRow, role, doMapParents, specialElementNa
 function getInstitution(parentAdressRowPathArray) {
 	var institution = "";
 	for(var i=0; i<parentAdressRowPathArray.length; i++) {
-		if (hasValue(parentAdressRowPathArray[i].get("institution"))) {
+	    var newInstitution = getOrganisationNameFromAddressRow(parentAdressRowPathArray[i]);
+		if (hasValue(newInstitution)) {
 			if (hasValue(institution)) {
 				institution = ", " + institution;
 			}
-			institution = parentAdressRowPathArray[i].get("institution") + institution;
+			institution = newInstitution + institution;
 		}
 	}
     if (log.isDebugEnabled()) {
@@ -1345,7 +1341,16 @@ function getIndividualNameFromAddressRow(addressRow) {
     }
     
     return individualName;
-	
+}
+
+function getOrganisationNameFromAddressRow(addressRow) {
+    var organisationName = "";
+
+    if (hasValue(addressRow.get("institution"))) {
+        organisationName = addressRow.get("institution");
+    }
+
+    return organisationName;
 }
 
 /**
@@ -2260,6 +2265,25 @@ function getIdfObjectReference(objRow, elementName) {
     idfObjectReference.addElement("idf:objectType").addText(objRow.get("obj_class"));
 
     return idfObjectReference;
+}
+
+function getIdfAddressReference(addrRow, elementName) {
+    var idfAddressReference = DOM.createElement(elementName);
+    idfAddressReference.addAttribute("uuid", addrRow.get("adr_uuid"));
+    if (hasValue(addrRow.get("org_adr_id"))) {
+        idfAddressReference.addAttribute("orig-uuid", addrRow.get("org_adr_id"));
+    }
+    var person = getIndividualNameFromAddressRow(addrRow);
+    if (hasValue(person)) {
+        idfAddressReference.addElement("idf:addressIndividualName").addText(person);
+    }
+    var institution = getOrganisationNameFromAddressRow(addrRow);
+    if (hasValue(institution)) {
+        idfAddressReference.addElement("idf:addressOrganisationName").addText(institution);
+    }
+    idfAddressReference.addElement("idf:addressType").addText(addrRow.get("adr_type"));
+
+    return idfAddressReference;
 }
 
 function hasValue(val) {
