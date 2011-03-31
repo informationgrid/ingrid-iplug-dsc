@@ -143,6 +143,9 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
 
     // -------------- IDF ----------------------
 
+    idfResponsibleParty.addElement("idf:last-modified").addElement("gco:DateTime")
+        .addText(TRANSF.getISODateFromIGCDate(addressRow.get("mod_time")));
+
     // First URL already mapped ISO conform, now add all other ones IDF like (skip first one)
     if (urls.length > 1) {
         for (var j=1; j<urls.length; j++) {
@@ -291,6 +294,18 @@ function getIdfAddressReference(addrRow, elementName) {
     idfAddressReference.addElement("idf:addressType").addText(addrRow.get("adr_type"));
 
     return idfAddressReference;
+}
+
+// Return gco:Date OR gco:DateTime element dependent from passed date format.
+function getDateOrDateTime(dateValue) {
+    var gcoElement;
+    if (dateValue.indexOf("T") > -1) {
+        gcoElement = DOM.createElement("gco:DateTime");
+    } else {
+        gcoElement = DOM.createElement("gco:Date");
+    }
+    gcoElement.addText(dateValue);
+    return gcoElement;
 }
 
 function hasValue(val) {
