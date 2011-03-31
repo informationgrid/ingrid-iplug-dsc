@@ -55,16 +55,16 @@ public class IndexUtils {
 	/** Add a index field with the value to the index document.
 	 * The field will be TOKENIZE and STORE and will be added to a separate
 	 * "content" field (ADD_TO_CONTENT_FIELD) by default.
-	 * If the field value is null (or "") then NOTHING is added !
 	 * @param fieldName name of the field in the index
 	 * @param value content of the field !
 	 */
 	public void add(String fieldName, String value) throws IOException {
-		if (value != null && value.trim().length() != 0) {
-			add(fieldName, value, Field.Store.YES, Field.Index.ANALYZED);
-			add(CONTENT_FIELD_NAME, value, Field.Store.NO, Field.Index.ANALYZED);
-			add(CONTENT_FIELD_NAME, filterTerm(value), Field.Store.NO, Field.Index.ANALYZED);
+		if (value == null) {
+			value = "";
 		}
+		add(fieldName, value, Field.Store.YES, Field.Index.ANALYZED);
+		add(CONTENT_FIELD_NAME, value, Field.Store.NO, Field.Index.ANALYZED);
+		add(CONTENT_FIELD_NAME, filterTerm(value), Field.Store.NO, Field.Index.ANALYZED);
 	}
 
 	private void add(String fieldName, String value,

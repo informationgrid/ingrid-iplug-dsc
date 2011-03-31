@@ -79,7 +79,7 @@ function addT02Address(row) {
     IDX.add("t02_address.adr_id", row.get("adr_uuid"));
     IDX.add("t02_address.org_adr_id", row.get("org_adr_id"));
     IDX.add("t02_address.typ", row.get("adr_type"));
-    IDX.add("title ", row.get("institution"));
+    IDX.add("title", row.get("institution"));
     IDX.add("t02_address.lastname", row.get("lastname"));
     IDX.add("t02_address.firstname", row.get("firstname"));
     IDX.add("t02_address.address_key", row.get("address_key"));
