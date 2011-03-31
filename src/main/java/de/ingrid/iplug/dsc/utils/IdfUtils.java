@@ -196,8 +196,10 @@ public class IdfUtils {
             if (idfMetadataNode == null) {
                 idfMetadataNode = DOM.addElement((Element) idfBodyNode, "idf:idfMdMetadata").getElement();
             }
+            String isLegacy = XPathUtils.getString(igcProfileLayoutRubricNode, "./@isLegacy");
+            if (isLegacy == null) isLegacy = "false";
             additionalDataSection = DOM.addElement((Element) idfMetadataNode, "idf:additionalDataSection")
-                    .addAttribute("id", igcProfileLayoutRubricId);
+                    .addAttribute("id", igcProfileLayoutRubricId).addAttribute("isLegacy", isLegacy);
             NodeList localizedLabels = XPathUtils.getNodeList(igcProfileLayoutRubricNode, "igcp:localizedLabel");
             for (int i = 0; i < localizedLabels.getLength(); i++) {
                 Node localizedLabel = localizedLabels.item(i);
