@@ -83,6 +83,9 @@ public class IgcProfileIdfMapper implements IIdfMapper {
                 for (int i=0; i<igcProfileCswMappings.getLength(); i++) {
                     String igcProfileCswMapping = igcProfileCswMappings.item(i).getTextContent();
                     if (igcProfileCswMapping != null && igcProfileCswMapping.trim().length() > 0) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Executing Mapping Script: \n" + igcProfileCswMapping);
+                        }
                         Node igcProfileNode = igcProfileCswMappings.item(i).getParentNode();
                         try {
                             if (engine == null) {
