@@ -116,7 +116,7 @@ for (i=0; i<objRows.size(); i++) {
     	var addressRow = addressRows.get(i); 
     	var role = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(505, addressRow.get("type"));
     	if (hasValue(role)) {
-    		mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, role));
+    		mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, role, true));
     	}
     }
     // ---------- <gmd:dateStamp> ----------
@@ -266,7 +266,7 @@ for (i=0; i<objRows.size(); i++) {
 			}
 		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, 3360]);
 		    for (var i=0; i< addressRows.size(); i++) {
-		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "resourceProvider"));
+		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "resourceProvider", true));
 		    }
 			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=publisher> ----------
 			if (hasValue(literatureRow.get("publish_loc")) || hasValue(literatureRow.get("publisher"))) {
@@ -327,7 +327,7 @@ for (i=0; i<objRows.size(); i++) {
 			}
 		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, 3400]);
 		    for (var i=0; i< addressRows.size(); i++) {
-		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "projectManager"));
+		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "projectManager", true));
 		    }
 			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=projectManager> ----------
 			if (hasValue(projectRow.get("member"))) {
@@ -339,7 +339,7 @@ for (i=0; i<objRows.size(); i++) {
 			}
 		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, 3410]);
 		    for (var i=0; i< addressRows.size(); i++) {
-		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "projectParticipant"));
+		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "projectParticipant", true));
 		    }
 		}
 		
@@ -417,7 +417,7 @@ for (i=0; i<objRows.size(); i++) {
             role = addressRow.get("special_name");
         }
         if (hasValue(role)) {
-            identificationInfo.addElement("gmd:pointOfContact").addElement(getIdfResponsibleParty(addressRow, role));
+            identificationInfo.addElement("gmd:pointOfContact").addElement(getIdfResponsibleParty(addressRow, role, true));
         }
     }
 
@@ -837,7 +837,7 @@ for (i=0; i<objRows.size(); i++) {
         // select only adresses associated with syslist 505 entry 5 ("Vertrieb") 
         var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, 5, 505]);
 	    if (hasValue(addressRow)) {
-            distributorContact.addElement(getIdfResponsibleParty(addressRow, "distributor"));
+            distributorContact.addElement(getIdfResponsibleParty(addressRow, "distributor", true));
 	    } else {
             // add dummy distributor role, because no distributor was found
             distributorContact.addElement("gmd:CI_ResponsibleParty/gmd:role/gmd:CI_RoleCode")
@@ -1189,9 +1189,18 @@ function getCitationIdentifier(objRow) {
  * @param role
  * @return
  */
-function getIdfResponsibleParty(addressRow, role) {
+function getIdfResponsibleParty(addressRow, role, doMapParents, specialElementName) {
 	var parentAddressRowPathArray = getAddressRowPathArray(addressRow);
-	var idfResponsibleParty = DOM.createElement("idf:idfResponsibleParty");
+	var myElementName = "idf:idfResponsibleParty";
+	if (hasValue(specialElementName)) {
+	   myElementName = specialElementName;
+	}
+	var idfResponsibleParty = DOM.createElement(myElementName)
+        .addAttribute("uuid", addressRow.get("adr_uuid"))
+        .addAttribute("type", addressRow.get("adr_type"));
+    if (hasValue(addressRow.get("org_adr_id"))) {
+        idfResponsibleParty.addAttribute("orig-uuid", addressRow.get("org_adr_id"));
+    }   
 	var individualName = getIndividualNameFromAddressRow(addressRow);
 	if (hasValue(individualName)) {
     	idfResponsibleParty.addElement("gmd:individualName").addElement("gco:CharacterString").addText(individualName);
@@ -1249,14 +1258,31 @@ function getIdfResponsibleParty(addressRow, role) {
     if (urls.length > 0) {
     	ciContact.addElement("gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(urls[0]);
     }
-    idfResponsibleParty.addElement("gmd:role").addElement("gmd:CI_RoleCode")
-    	.addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
-    	.addAttribute("codeListValue", role);	
+
+    if (hasValue(role)) {
+	    idfResponsibleParty.addElement("gmd:role").addElement("gmd:CI_RoleCode")
+	        .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+	        .addAttribute("codeListValue", role);   
+    } else {
+        idfResponsibleParty.addElement("gmd:role").addAttribute("gco:nilReason", "inapplicable");
+    }
+
+    // -------------- IDF ----------------------
 
     // First URL already mapped ISO conform, now add all other ones IDF like (skip first one)
     if (urls.length > 1) {
 	    for (var j=1; j<urls.length; j++) {
 	        idfResponsibleParty.addElement("idf:additionalOnlineResource/gmd:linkage/gmd:URL").addText(urls[j]);
+	    }
+    }
+
+    // add all parents as responsible parties, skip first one (is given address)
+    if (doMapParents) {
+	    var givenParty = idfResponsibleParty;
+	    for (var j=1; j<parentAddressRowPathArray.length; j++) {
+	        var parentParty = getIdfResponsibleParty(parentAddressRowPathArray[j], null, false, "idf:superiorParty");
+	        givenParty.addElement(parentParty);        
+	        givenParty = parentParty;
 	    }
     }
 
