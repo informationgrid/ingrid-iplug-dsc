@@ -156,9 +156,19 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
         idfResponsibleParty.addElement(getIdfAddressReference(parentAddressRowPathArray[j], "idf:hierarchyParty"));
     }
 
-    var children = SQL.all("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.fk_addr_uuid=? AND address_node.addr_id_published=t02_address.id", [addressRow.get("adr_uuid")]);
-    for (var j=0; j<children.size(); j++) {
-        idfResponsibleParty.addElement(getIdfAddressReference(children.get(j), "idf:subordinatedParty"));
+    var rows = SQL.all("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.fk_addr_uuid=? AND address_node.addr_id_published=t02_address.id", [addressRow.get("adr_uuid")]);
+    for (var j=0; j<rows.size(); j++) {
+        idfResponsibleParty.addElement(getIdfAddressReference(rows.get(j), "idf:subordinatedParty"));
+    }
+
+    var row = SQL.first("SELECT * FROM t02_address WHERE adr_uuid=? AND work_state=?", [addressRow.get("responsible_uuid"), "V"]);
+    if (row) {
+        idfResponsibleParty.addElement(getIdfAddressReference(row, "idf:responsibleParty"));
+    }
+
+    var rows = SQL.all("SELECT t01_object.* FROM t01_object, t012_obj_adr WHERE t012_obj_adr.adr_uuid=? AND t012_obj_adr.obj_id=t01_object.id AND t01_object.work_state=?", [addressRow.get("adr_uuid"), 'V']);
+    for (var j=0; j<rows.size(); j++) {
+        idfResponsibleParty.addElement(getIdfObjectReference(rows.get(j), "idf:objectReference"));
     }
 
     return idfResponsibleParty;
