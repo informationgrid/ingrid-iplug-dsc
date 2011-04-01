@@ -33,18 +33,14 @@ DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
 // ---------- <idf:body> ----------
-var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
-idfBody = DOM.convertToIdfElement(idfBody);
+var idfBody = DOM.convertToIdfElement(XPATH.getNode(idfDoc, "/idf:html/idf:body"));
 
 // ========== t02_address ==========
 var addrId = sourceRecord.get(DatabaseSourceRecord.ID);
 var addrRow = SQL.first("SELECT * FROM t02_address WHERE id=?", [addrId]);
 if (hasValue(addrRow)) {
     var idfResponsibleParty = getIdfResponsibleParty(addrRow);
-    
-    idfBody.addElement(idfResponsibleParty);
-
-	// add known namespaces
+	// add needed "ISO" namespaces to top ISO node 
 	idfResponsibleParty.addAttribute("xmlns:gmd", DOM.getNS("gmd"));
 	idfResponsibleParty.addAttribute("xmlns:gco", DOM.getNS("gco"));
 	idfResponsibleParty.addAttribute("xmlns:srv", DOM.getNS("srv"));
@@ -54,6 +50,8 @@ if (hasValue(addrRow)) {
 	// and ISO schema reference
 	idfResponsibleParty.addAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
 	idfResponsibleParty.addAttribute("xsi:schemaLocation", DOM.getNS("gmd") + " http://schemas.opengis.net/csw/2.0.2/profiles/apiso/1.0.0/apiso.xsd");
+
+    idfBody.addElement(idfResponsibleParty);
 }
 
 /**
@@ -158,6 +156,11 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
         idfResponsibleParty.addElement(getIdfAddressReference(parentAddressRowPathArray[j], "idf:hierarchyParty"));
     }
 
+    var children = SQL.all("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.fk_addr_uuid=? AND address_node.addr_id_published=t02_address.id", [addressRow.get("adr_uuid")]);
+    for (var j=0; j<children.size(); j++) {
+        idfResponsibleParty.addElement(getIdfAddressReference(children.get(j), "idf:subordinatedParty"));
+    }
+
     return idfResponsibleParty;
 }
 
@@ -239,7 +242,7 @@ function getOrganisationNameFromAddressRow(addressRow) {
  * the given address (first entry in array) to the farthest parent 
  * (last entry in array).
  * 
- * @param addressRow The database address ro to start from.
+ * @param addressRow The database address row to start from.
  * @return The array with all parent address rows.
  */
 function getAddressRowPathArray(addressRow) {
