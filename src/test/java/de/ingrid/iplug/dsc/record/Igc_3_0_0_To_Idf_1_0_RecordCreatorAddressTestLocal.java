@@ -12,7 +12,6 @@ import org.springframework.core.io.FileSystemResource;
 
 import de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
-import de.ingrid.iplug.dsc.record.mapper.IgcProfileIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper;
 import de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer;
 import de.ingrid.utils.PlugDescription;

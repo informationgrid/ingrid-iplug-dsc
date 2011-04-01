@@ -36,7 +36,7 @@ var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
 
 // ---------- <idf:idfMdMetadata> ----------
 var mdMetadata = DOM.addElement(idfBody, "idf:idfMdMetadata");
-// add known namespaces
+// add needed "ISO" namespaces to top ISO node 
 mdMetadata.addAttribute("xmlns:gmd", DOM.getNS("gmd"));
 mdMetadata.addAttribute("xmlns:gco", DOM.getNS("gco"));
 mdMetadata.addAttribute("xmlns:srv", DOM.getNS("srv"));
