@@ -148,7 +148,7 @@ public class DOMUtils {
 	                }
 	            }
 	        }
-	        e.appendChild(domNewTextNode(text));
+	    	DOMUtils.this.addText(e, text);
             return this;
         }
 	    
@@ -160,6 +160,10 @@ public class DOMUtils {
         public Element getElement() {
             return e;
         }
+	}
+
+	public IdfElement convertToIdfElement(Element element) {
+	    return new IdfElement(element);
 	}
 
 	public IdfElement addElement(Element element, String qualifiedName) {
@@ -248,7 +252,6 @@ public class DOMUtils {
 
         return retValue;
     }
-    
 	
     /** Create an Element WITHOUT NameSpace (NS) qualification !
      * @param nameWithoutNS if you pass name with NS prefix (*:*), the prefix isn't handles as namespace !
