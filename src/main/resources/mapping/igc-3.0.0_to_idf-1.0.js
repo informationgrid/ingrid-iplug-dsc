@@ -520,6 +520,14 @@ for (i=0; i<objRows.size(); i++) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
+    // IS_INSPIRE_RELEVANT leads to specific keyword, see Email Kst "Änderung am ChangeRequest INGRID23_CR_11", 08.02.2011 15:58
+    value = objRow.get("is_inspire_relevant");
+    if (hasValue(value) && value.equals('Y')) {
+        mdKeywords = DOM.createElement("gmd:MD_Keywords");
+        mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText("inspireidentifiziert");
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+    }
+
     // ---------- <gmd:identificationInfo/gmd:resourceSpecificUsage> ----------
     value = objRow.get("dataset_usage");
     if (hasValue(value)) {
