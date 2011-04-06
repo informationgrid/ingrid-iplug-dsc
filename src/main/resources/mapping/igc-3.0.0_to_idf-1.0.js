@@ -910,17 +910,17 @@ for (i=0; i<objRows.size(); i++) {
 
 // GEO-INFORMATION/KARTE(1)
     if (objClass.equals("1")) {
-        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_CompletenessCommission> ----------
+        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_CompletenessOmission> ----------
         if (hasValue(objGeoRow.get("rec_grade"))) {
             dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            var completenessCommission = dqDataQuality.addElement("gmd:report/gmd:DQ_CompletenessCommission");
-            completenessCommission.addElement("gmd:measureDescription/gco:CharacterString").addText("completeness");
-            var dqQuantitativeResult = completenessCommission.addElement("gmd:result/gmd:DQ_QuantitativeResult");
+            var completenessOmission = dqDataQuality.addElement("gmd:report/gmd:DQ_CompletenessOmission");
+            completenessOmission.addElement("gmd:measureDescription/gco:CharacterString").addText("completeness omission");
+            var dqQuantitativeResult = completenessOmission.addElement("gmd:result/gmd:DQ_QuantitativeResult");
             var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
                 .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
             unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
             unitDefinition.addElement("gml:name").addText("percent");
-            unitDefinition.addElement("gml:quantityType").addText("completeness");
+            unitDefinition.addElement("gml:quantityType").addText("completeness omission");
             unitDefinition.addElement("gml:catalogSymbol").addText("%");
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("rec_grade"));
         }
