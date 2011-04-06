@@ -915,9 +915,9 @@ for (i=0; i<objRows.size(); i++) {
             dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             var completenessOmission = dqDataQuality.addElement("gmd:report/gmd:DQ_CompletenessOmission");
             // map now INSPIRE conform !
-            // completenessOmission.addElement("gmd:measureDescription/gco:CharacterString").addText("completeness omission");
-            completenessOmission.addElement("gmd:measureDescription/gco:CharacterString").addText("Rate of missing items");
+            completenessOmission.addElement("gmd:nameOfMeasure/gco:CharacterString").addText("Rate of missing items");
             completenessOmission.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("7");
+            completenessOmission.addElement("gmd:measureDescription/gco:CharacterString").addText("completeness omission (rec_grade)");
             var dqQuantitativeResult = completenessOmission.addElement("gmd:result/gmd:DQ_QuantitativeResult");
             var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
                 .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
