@@ -157,6 +157,13 @@ public class IdfUtils {
                         String lang = localizedLabel.getAttributes().getNamedItem("lang").getNodeValue();
                         additionalData.addElement("idf:title").addText(title).addAttribute("lang", lang);
                     }
+                    NodeList localizedPostfixs = XPathUtils.getNodeList(igcProfileControlNode, "igcp:localizedLabelPostfix");
+                    for (int i = 0; i < localizedPostfixs.getLength(); i++) {
+                        Node localizedPostfix = localizedPostfixs.item(i);
+                        String value = localizedPostfix.getTextContent();
+                        String lang = localizedPostfix.getAttributes().getNamedItem("lang").getNodeValue();
+                        additionalData.addElement("idf:postfix").addText(value).addAttribute("lang", lang);
+                    }
                     String data = content.get("data");
                     additionalData.addElement("idf:data").addText(data);
                 }
