@@ -101,8 +101,8 @@ public class IgcProfileIdfMapper implements IIdfMapper {
     
                             // create utils for script
                             SQLUtils sqlUtils = SQLUtils.getInstance(connection);
-                            // initialize static XPathUtils (encapsulated static XPath instance))
-                            XPathUtils xpathUtils = XPathUtils.getInstance(new IDFNamespaceContext());
+                            // get initialized XPathUtils (see above)
+                            XPathUtils xpathUtils = XPathUtils.getInstance();
                             TransformationUtils trafoUtils = TransformationUtils.getInstance(sqlUtils);
                             DOMUtils domUtils = DOMUtils.getInstance(doc);
                             IdfUtils idfUtils = IdfUtils.getInstance(sqlUtils, domUtils);
