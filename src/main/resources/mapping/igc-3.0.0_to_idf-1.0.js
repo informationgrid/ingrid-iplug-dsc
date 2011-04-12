@@ -1126,6 +1126,16 @@ for (i=0; i<objRows.size(); i++) {
     for (i=0; i<rows.size(); i++) {
         mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:crossReference"));
     }
+
+// GEODATENDIENST(3)
+    if (objClass.equals("3")) {
+	    // ---------- <idf:idfMdMetadata/idf:hasAccessConstraint> ----------
+        var hasConstraint = false; 
+        if (hasValue(objServRow.get("has_access_constraint"))) {
+            hasConstraint = objServRow.get("has_access_constraint").equals("Y");
+        }
+        mdMetadata.addElement("idf:hasAccessConstraint").addText(hasConstraint);
+    }
 }
 
 
