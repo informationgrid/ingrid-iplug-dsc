@@ -635,34 +635,34 @@ for (i=0; i<objRows.size(); i++) {
                 }
             }
         }
-
-	    // ---------- <gmd:identificationInfo/gmd:language> ----------
-	    value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
-	    if (hasValue(value)) {
-            identificationInfo.addElement("gmd:language/gmd:LanguageCode")
-                .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode")
-                .addAttribute("codeListValue", value);
-	    }
-
-        // ---------- <gmd:identificationInfo/gmd:characterSet> ----------
-	    value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("dataset_character_set"));
-	    if (hasValue(value)) {
-            identificationInfo.addElement("gmd:characterSet/gmd:MD_CharacterSetCode")
-                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_CharacterSetCode")
-                .addAttribute("codeListValue", value);
-	    }
-
-        // ---------- <gmd:identificationInfo/gmd:topicCategory/gmd:MD_TopicCategoryCode> ----------
-        rows = SQL.all("SELECT * FROM t011_obj_topic_cat WHERE obj_id=?", [objId]);
-        for (i=0; i<rows.size(); i++) {
-            value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(527, rows.get(i).get("topic_category"));
-            if (hasValue(value)) {
-                identificationInfo.addElement("gmd:topicCategory/gmd:MD_TopicCategoryCode").addText(value);
-            }
-        }
     }
 
 // ALLE KLASSEN
+    // ---------- <gmd:identificationInfo/gmd:language> ----------
+    value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
+    if (hasValue(value)) {
+        identificationInfo.addElement("gmd:language/gmd:LanguageCode")
+            .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode")
+            .addAttribute("codeListValue", value);
+    }
+
+    // ---------- <gmd:identificationInfo/gmd:characterSet> ----------
+    value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("dataset_character_set"));
+    if (hasValue(value)) {
+        identificationInfo.addElement("gmd:characterSet/gmd:MD_CharacterSetCode")
+            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_CharacterSetCode")
+            .addAttribute("codeListValue", value);
+    }
+
+    // ---------- <gmd:identificationInfo/gmd:topicCategory/gmd:MD_TopicCategoryCode> ----------
+    rows = SQL.all("SELECT * FROM t011_obj_topic_cat WHERE obj_id=?", [objId]);
+    for (i=0; i<rows.size(); i++) {
+        value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(527, rows.get(i).get("topic_category"));
+        if (hasValue(value)) {
+            identificationInfo.addElement("gmd:topicCategory/gmd:MD_TopicCategoryCode").addText(value);
+        }
+    }
+
     addExtent(identificationInfo, objRow);
 
 // GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
@@ -1043,8 +1043,10 @@ for (i=0; i<objRows.size(); i++) {
             mdMetadata.addElement("gmd:portrayalCatalogueInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }
 
-// GEODATENDIENST(3)
-    } else if (objClass.equals("3")) {
+// GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+    } else if (objClass.equals("3") || objClass.equals("6")) {
+
+        // "object_conformity" ONLY CLASS 3, but we do not distinguish, class 6 should have no rows here !
 
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult> ----------
         // only choose "konform"(1) and "nicht konform"(2) NOT "nicht evaluiert"(3)
@@ -1065,6 +1067,8 @@ for (i=0; i<objRows.size(); i++) {
             dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("");
             dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(rows.get(i).get("degree_key").equals("1"));
         }
+
+        // class 3 and class 6
 
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description> ----------
         if (hasValue(objServRow.get("history"))) {
