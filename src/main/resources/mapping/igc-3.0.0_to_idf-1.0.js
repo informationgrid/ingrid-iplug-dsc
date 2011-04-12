@@ -635,34 +635,34 @@ for (i=0; i<objRows.size(); i++) {
                 }
             }
         }
-    }
 
-// ALLE KLASSEN
-    // ---------- <gmd:identificationInfo/gmd:language> ----------
-    value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
-    if (hasValue(value)) {
-        identificationInfo.addElement("gmd:language/gmd:LanguageCode")
-            .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode")
-            .addAttribute("codeListValue", value);
-    }
-
-    // ---------- <gmd:identificationInfo/gmd:characterSet> ----------
-    value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("dataset_character_set"));
-    if (hasValue(value)) {
-        identificationInfo.addElement("gmd:characterSet/gmd:MD_CharacterSetCode")
-            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_CharacterSetCode")
-            .addAttribute("codeListValue", value);
-    }
-
-    // ---------- <gmd:identificationInfo/gmd:topicCategory/gmd:MD_TopicCategoryCode> ----------
-    rows = SQL.all("SELECT * FROM t011_obj_topic_cat WHERE obj_id=?", [objId]);
-    for (i=0; i<rows.size(); i++) {
-        value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(527, rows.get(i).get("topic_category"));
+        // ---------- <gmd:identificationInfo/gmd:language> ----------
+        value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
         if (hasValue(value)) {
-            identificationInfo.addElement("gmd:topicCategory/gmd:MD_TopicCategoryCode").addText(value);
+            identificationInfo.addElement("gmd:language/gmd:LanguageCode")
+                .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode")
+                .addAttribute("codeListValue", value);
+        }
+
+        // ---------- <gmd:identificationInfo/gmd:characterSet> ----------
+        value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("dataset_character_set"));
+        if (hasValue(value)) {
+            identificationInfo.addElement("gmd:characterSet/gmd:MD_CharacterSetCode")
+                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_CharacterSetCode")
+                .addAttribute("codeListValue", value);
+        }
+
+        // ---------- <gmd:identificationInfo/gmd:topicCategory/gmd:MD_TopicCategoryCode> ----------
+        rows = SQL.all("SELECT * FROM t011_obj_topic_cat WHERE obj_id=?", [objId]);
+        for (i=0; i<rows.size(); i++) {
+            value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(527, rows.get(i).get("topic_category"));
+            if (hasValue(value)) {
+                identificationInfo.addElement("gmd:topicCategory/gmd:MD_TopicCategoryCode").addText(value);
+            }
         }
     }
 
+// ALLE KLASSEN
     addExtent(identificationInfo, objRow);
 
 // GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
