@@ -1136,6 +1136,15 @@ for (i=0; i<objRows.size(); i++) {
         }
         mdMetadata.addElement("idf:hasAccessConstraint").addText(hasConstraint);
     }
+
+    // ---------- <idf:idfMdMetadata/idf:exportCriteria> ----------
+    rows = SQL.all("SELECT * FROM t014_info_impart WHERE obj_id=?", [objId]);
+    for (i=0; i<rows.size(); i++) {
+        value = rows.get(i).get("impart_value");
+        if (hasValue(value)) {
+            mdMetadata.addElement("idf:exportCriteria").addText(value);
+        }
+    }
 }
 
 
