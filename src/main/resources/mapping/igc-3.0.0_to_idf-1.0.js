@@ -963,23 +963,13 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult> ----------
-        // only choose "konform"(1) and "nicht konform"(2) NOT "nicht evaluiert"(3)
-	    rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=? AND (degree_key=? OR degree_key=?)", [objId, 1, 2]);
+	    rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [objId]);
 	    for (i=0; i<rows.size(); i++) {
             if (!dqDataQuality) {
                 dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
-            var dqConformanceResult = dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult");
-            var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
-            ciCitation.addElement("gmd:title/gco:CharacterString").addText(rows.get(i).get("specification"));
-            var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
-            ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(rows.get(i).get("publication_date"))));
-            ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
-                .addAttribute("codeListValue", "publication")
-                .addText("publication");
-            dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("");
-            dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(rows.get(i).get("degree_key").equals("1"));
+            var dqConformanceResult = dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result")
+                .addElement(getDqConformanceResultElement(rows.get(i)));
 	    }
 
         addObjectDataQualityTable(objRow, dqDataQuality);
@@ -1049,23 +1039,13 @@ for (i=0; i<objRows.size(); i++) {
         // "object_conformity" ONLY CLASS 3, but we do not distinguish, class 6 should have no rows here !
 
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult> ----------
-        // only choose "konform"(1) and "nicht konform"(2) NOT "nicht evaluiert"(3)
-        rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=? AND (degree_key=? OR degree_key=?)", [objId, 1, 2]);
+        rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [objId]);
         for (i=0; i<rows.size(); i++) {
             if (!dqDataQuality) {
                 dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
-            var dqConformanceResult = dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult");
-            var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
-            ciCitation.addElement("gmd:title/gco:CharacterString").addText(rows.get(i).get("specification"));
-            var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
-            ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(rows.get(i).get("publication_date"))));
-            ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
-                .addAttribute("codeListValue", "publication")
-                .addText("publication");
-            dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("");
-            dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(rows.get(i).get("degree_key").equals("1"));
+            var dqConformanceResult = dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result")
+                .addElement(getDqConformanceResultElement(rows.get(i)));
         }
 
         // class 3 and class 6
@@ -1170,6 +1150,27 @@ function getDateOrDateTime(dateValue) {
     return gcoElement;
 }
 
+
+// "nicht evaluiert"(3) leads to nilReason "unknown"
+function getDqConformanceResultElement(conformityRow) {
+    var dqConformanceResult = DOM.createElement("gmd:DQ_ConformanceResult");
+    var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
+    ciCitation.addElement("gmd:title/gco:CharacterString").addText(conformityRow.get("specification"));
+    var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
+    ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(conformityRow.get("publication_date"))));
+    ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+        .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
+        .addAttribute("codeListValue", "publication")
+        .addText("publication");
+    dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("");
+    if (conformityRow.get("degree_key").equals("3")) {
+        // "not evaluated", we supply nilReason !
+        dqConformanceResult.addElement("gmd:pass").addAttribute("gco:nilReason", "unknown");
+    } else {
+        dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(conformityRow.get("degree_key").equals("1"));
+    }
+    return dqConformanceResult;
+}
 
 function getDqDataQualityElement(objClass) {
     var dqDataQuality = DOM.createElement("gmd:DQ_DataQuality");
