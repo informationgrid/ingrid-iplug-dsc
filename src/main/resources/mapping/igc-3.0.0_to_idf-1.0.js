@@ -221,8 +221,12 @@ for (i=0; i<objRows.size(); i++) {
 	if (referenceDateRows.size() == 0) {
         ciCitation.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
         // or add gco:nilReason underneath gmd:CI_Date ???
-        // ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
-        // ciDate.addElement("gmd:dateType").addAttribute("gco:nilReason", "missing");
+/*
+        var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
+        ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing")
+            .addElement("gco:Date");
+        ciDate.addElement("gmd:dateType").addAttribute("gco:nilReason", "missing");
+*/
 	}
 
     // gmd:editionDate MUST BE BEFORE gmd:identifier (next one below !)
@@ -465,6 +469,9 @@ for (i=0; i<objRows.size(); i++) {
                 var mdFormat = identificationInfo.addElement("gmd:resourceFormat/gmd:MD_Format");
                 mdFormat.addElement("gmd:name/gco:CharacterString").addText(value);
                 mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "inapplicable");
+                    // add empty gco:CharacterString because of Validators !
+                    // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
+//                    .addElement("gco:CharacterString");
             }
 	    }
     }
@@ -588,6 +595,9 @@ for (i=0; i<objRows.size(); i++) {
             identificationInfo.addElement("srv:serviceType/gco:LocalName").addText(value);
         } else {
             identificationInfo.addElement("srv:serviceType").addAttribute("gco:nilReason", "missing");
+                // add empty gco:LocalName because of Validators !
+                // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
+//                .addElement("gco:LocalName");
         }
 
         // ---------- <gmd:identificationInfo/srv:serviceTypeVersion> ----------
@@ -742,6 +752,9 @@ for (i=0; i<objRows.size(); i++) {
                     ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(objGeoKeycRows.get(i).get("key_date"))));
                 } else {
                     ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
+                        // add empty gco:Date because of Validators !
+                        // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
+//                        .addElement("gco:Date");
                 }
                 ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
                     .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
@@ -816,6 +829,9 @@ for (i=0; i<objRows.size(); i++) {
             mdFormat.addElement("gmd:version/gco:CharacterString").addText(rows.get(i).get("ver"));
         } else {
             mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "missing");
+                // add empty gco:CharacterString because of Validators !
+                // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
+//                .addElement("gco:CharacterString");
         }
             // ---------- <gmd:MD_Format/gmd:specification> ----------
         if (hasValue(rows.get(i).get("specification"))) {
@@ -1017,6 +1033,9 @@ for (i=0; i<objRows.size(); i++) {
                 ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(rows.get(i).get("symbol_date"))));
             } else {
                 ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
+                    // add empty gco:Date because of Validators !
+                    // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
+//                    .addElement("gco:Date");
             }
             ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
                 .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
@@ -1166,6 +1185,9 @@ function getDqConformanceResultElement(conformityRow) {
     if (conformityRow.get("degree_key").equals("3")) {
         // "not evaluated", we supply nilReason !
         dqConformanceResult.addElement("gmd:pass").addAttribute("gco:nilReason", "unknown");
+            // add empty gco:Boolean because of Validators !
+            // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
+//            .addElement("gco:Boolean");
     } else {
         dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(conformityRow.get("degree_key").equals("1"));
     }
@@ -1295,7 +1317,7 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
     }
 
     if (hasValue(role)) {
-	    idfResponsibleParty.addElement("gmd:role").addElement("gmd:CI_RoleCode")
+	    idfResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
 	        .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
 	        .addAttribute("codeListValue", role);   
     } else {
@@ -1877,19 +1899,25 @@ function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
             // ---------- <gmd:citation> ----------
             var ciCitation = mdDataIdentification.addElement("gmd:citation/gmd:CI_Citation");
             ciCitation.addElement("gmd:title")
-                .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
-                .addElement("gco:CharacterString").addText("");
+                .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo");
+                // add empty gco:CharacterString because of Validators !
+                // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
+//                .addElement("gco:CharacterString");
             var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
             ciDate.addElement("gmd:date")
                 .addAttribute("gco:nilReason", "other:providedInPreviousIdentification");
-            ciDate.addElement("gmd:dateType")
-                .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo");
+                // add empty gco:Date because of Validators !
+                // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
+//                .addElement("gco:Date");
+            ciDate.addElement("gmd:dateType").addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo");
 
             // add necessary elements for schema validation
             // ---------- <gmd:abstract> ----------
             mdDataIdentification.addElement("gmd:abstract")
-                .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
-                .addElement("gco:CharacterString").addText("");
+                .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo");
+                // add empty gco:CharacterString because of Validators !
+                // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
+//                .addElement("gco:CharacterString");
 
             // ---------- <gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale> ----------
             for (i=0; i<svScaleRows.size(); i++) {
@@ -1920,8 +1948,10 @@ function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
             // add necessary elements for schema validation
             // ---------- <gmd:language> ----------
             mdDataIdentification.addElement("gmd:language")
-                .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo")
-                .addElement("gco:CharacterString").addText("");
+                .addAttribute("gco:nilReason", "other:providedInPreviousIdentificationInfo");
+                // add empty gco:CharacterString because of Validators !
+                // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
+//                .addElement("gco:CharacterString");
         
             // ---------- <gmd:environmentDescription> ----------
             if (hasValue(objServRow.get("environment"))) {
