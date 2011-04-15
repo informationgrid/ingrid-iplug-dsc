@@ -240,8 +240,29 @@ public class TransformationUtils {
 
 		return retValue;
 	}
-	
-	
+
+	/**
+	 * Is the given entryValue an entry of the given ISO code list ? Return ID of entry if yes.
+	 * Return null if not an Entry !
+	 */
+	public String getISOCodeListEntryId(Long codeListId, String entryValue) {
+		if (entryValue == null) {
+			return null;
+		}
+
+		String retValue = null;
+		try {
+			retValue = UtilsUDKCodeLists.getCodeListDomainId(codeListId, entryValue, UtilsUDKCodeLists.LANG_ID_ISO_ENTRY);
+		} catch (Exception ex) {
+            log.error("Problems checking entryValue '" + entryValue + "' on ISO Code List '" + codeListId + "'.");
+		}
+        if (log.isDebugEnabled()) {
+            log.debug("Checking entryValue '" + entryValue + "' on ISO Code List '" + codeListId + "' delivers entryId '" + retValue + "'.");
+        }
+
+		return retValue;
+	}
+
 	/**
 	 * Returns a ISO3166-1 Alpha-3 code based on a given numeric id.
 	 * 
