@@ -479,7 +479,7 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- <gmd:identificationInfo/gmd:descriptiveKeywords> ----------
     
     // INSPIRE themes
-    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [objId, "I"]);
+    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.entry_id, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [objId, "I"]);
     var mdKeywords = getMdKeywords(rows);
     if (mdKeywords != null) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
@@ -1555,6 +1555,12 @@ function getMdKeywords(rows) {
         // "searchterm_value" table
         if (hasValue(row.get("term"))) {
             keywordValue = row.get("term");
+
+            // INSPIRE always has to be in ENGLISH for correct mapping in IGE CSW Import
+            var type = row.get("type");
+            if (type.equals("I")) {
+                keywordValue = TRANSF.getIGCSyslistEntryName(6100, row.get("entry_id"), "en");
+            }
 
         // "t011_obj_serv_type" table
         } else if (hasValue(row.get("serv_type_key"))) {
