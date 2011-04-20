@@ -427,8 +427,9 @@ for (i=0; i<objRows.size(); i++) {
 
     // ---------- <gmd:identificationInfo/gmd:resourceMaintenance/gmd:MD_MaintenanceInformation> ----------
     value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(518, objRow.get("time_period"));
+    var mdMaintenanceInformation;
     if (hasValue(value)) {
-        var mdMaintenanceInformation = identificationInfo.addElement("gmd:resourceMaintenance/gmd:MD_MaintenanceInformation");
+        mdMaintenanceInformation = identificationInfo.addElement("gmd:resourceMaintenance/gmd:MD_MaintenanceInformation");
         mdMaintenanceInformation.addElement("gmd:maintenanceAndUpdateFrequency/gmd:MD_MaintenanceFrequencyCode")
             .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_MaintenanceFrequencyCode")
             .addAttribute("codeListValue", value);
@@ -452,9 +453,12 @@ for (i=0; i<objRows.size(); i++) {
             mdMaintenanceInformation.addElement("gmd:userDefinedMaintenanceFrequency/gts:TM_PeriodDuration")
                 .addText(period19108);
         }
-        if (hasValue(objRow.get("time_descr"))) {
-            mdMaintenanceInformation.addElement("gmd:maintenanceNote/gco:CharacterString").addText(objRow.get("time_descr"));
+    }
+    if (hasValue(objRow.get("time_descr"))) {
+        if (!mdMaintenanceInformation) {
+            mdMaintenanceInformation = identificationInfo.addElement("gmd:resourceMaintenance/gmd:MD_MaintenanceInformation");
         }
+        mdMaintenanceInformation.addElement("gmd:maintenanceNote/gco:CharacterString").addText(objRow.get("time_descr"));
     }
 
     // ---------- <gmd:identificationInfo/gmd:resourceFormat> ----------
@@ -1782,7 +1786,10 @@ function addExtent(identificationInfo, objRow) {
         coordinateSystemAxis.addElement("gml:axisDirection").addAttribute("codeSpace", "");
 
         // T01_object.vertical_extent_vdatum = Wert [Domain-Id Codelist 101] MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/verticalElement/EX_VerticalExtent/verticalCRS/gml:VerticalCRS/gml:verticalDatum/gml:VerticalDatum/gml:name
-        var verticalExtentVDatum = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(101, objRow.get("vertical_extent_vdatum"));
+        var verticalExtentVDatum = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(101, objRow.get("vertical_extent_vdatum_key"));
+        if (!hasValue(verticalExtentVDatum)) {
+            verticalExtentVDatum = objRow.get("vertical_extent_vdatum_value");
+        }
         var verticalDatum = verticalCRS.addElement("gml:verticalDatum/gml:VerticalDatum")
             .addAttribute("gml:id", "verticalDatum_ID_".concat(TRANSF.getRandomUUID()));
         verticalDatum.addElement("gml:identifier").addAttribute("codeSpace", "");
