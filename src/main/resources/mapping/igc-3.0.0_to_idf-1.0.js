@@ -922,13 +922,22 @@ for (i=0; i<objRows.size(); i++) {
 	        if (!mdDistribution) {
 	            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
 	        }
-            var ciOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource");
-            ciOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("url_link"));
+            var idfOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/idf:idfOnlineResource");
+            idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("url_link"));
             if (hasValue(rows.get(i).get("content"))) {
-                ciOnlineResource.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("content"));
+                idfOnlineResource.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("content"));
             }
             if (hasValue(rows.get(i).get("descr"))) {
-                ciOnlineResource.addElement("gmd:description/gco:CharacterString").addText(rows.get(i).get("descr"));
+                idfOnlineResource.addElement("gmd:description/gco:CharacterString").addText(rows.get(i).get("descr"));
+            }
+            if (hasValue(rows.get(i).get("datatype_value"))) {
+                var datatypeKey = rows.get(i).get("datatype_key");
+                if (!hasValue(datatypeKey)) {
+                    datatypeKey = "-1";
+                }
+                idfOnlineResource.addElement("idf:datatype").addText(rows.get(i).get("datatype_value"))
+                    .addAttribute("list-id", "2240")
+                    .addAttribute("entry-id", datatypeKey);
             }
         }
     }
