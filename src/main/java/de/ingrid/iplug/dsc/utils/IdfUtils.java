@@ -3,6 +3,7 @@
  */
 package de.ingrid.iplug.dsc.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -96,27 +97,36 @@ public class IdfUtils {
             if (igcProfileControlNode.getLocalName().equals("tableControl")) {
                 String id = (String) sourceRecord.get(DatabaseSourceRecord.ID);
                 String igcProfileControlNodeId = XPathUtils.getString(igcProfileControlNode, "igcp:id");
+                // first count all data rows !
                 List<Map<String, String>> contentRows = SQL
                         .all(
-                                "SELECT afd.field_key, afd.data FROM additional_field_data afd, additional_field_data afd_parent WHERE afd.parent_field_id = afd_parent.id AND afd_parent.obj_id=? AND afd_parent.field_key=? ORDER BY afd.sort",
+                                "SELECT afd.sort, afd.field_key, afd.data " +
+                                "FROM additional_field_data afd, additional_field_data afd_parent " +
+                                "WHERE afd.parent_field_id = afd_parent.id " +
+                                "AND afd_parent.obj_id=? " +
+                                "AND afd_parent.field_key=? " +
+                                "ORDER BY afd.sort",
                                 new Object[] { id, igcProfileControlNodeId });
                 if (contentRows != null && !contentRows.isEmpty()) {
                     IdfElement additionalDataSection = createDataSectionElement(idfDoc, igcProfileControlNode);
                     // add IDF table element
-                    IdfElement additionalData = additionalDataSection.addElement("idf:additionalDataTable")
+                    IdfElement additionalDataTable = additionalDataSection.addElement("idf:additionalDataTable")
                     	.addAttribute("id", igcProfileControlNodeId);
                     NodeList localizedLabels = XPathUtils.getNodeList(igcProfileControlNode, "igcp:localizedLabel");
                     for (int i = 0; i < localizedLabels.getLength(); i++) {
                         Node localizedLabel = localizedLabels.item(i);
-                        additionalData.addElement("idf:title").addText(localizedLabel.getTextContent()).addAttribute(
+                        additionalDataTable.addElement("idf:title").addText(localizedLabel.getTextContent()).addAttribute(
                                 "lang", localizedLabel.getAttributes().getNamedItem("lang").getNodeValue());
                     }
                     // add IDF table column elements
+                    // remember them in list (order correctly)
+                    List<String> columnIds = new ArrayList<String>(); 
                     NodeList tableControls = XPathUtils.getNodeList(igcProfileControlNode, "igcp:columns/*");
                     for (int i = 0; i < tableControls.getLength(); i++) {
                         Node igcProfileTableControl = tableControls.item(i);
                         String igcProfileTableControlId = XPathUtils.getString(igcProfileTableControl, "igcp:id");
-                        IdfElement tableColumn = additionalData.addElement("idf:tableColumn").addAttribute("id",
+                        columnIds.add(igcProfileTableControlId);
+                        IdfElement tableColumn = additionalDataTable.addElement("idf:tableColumn").addAttribute("id",
                                 igcProfileTableControlId);
                         localizedLabels = XPathUtils.getNodeList(igcProfileTableControl, "igcp:localizedLabel");
                         for (int j = 0; j < localizedLabels.getLength(); j++) {
@@ -126,17 +136,32 @@ public class IdfUtils {
                         }
                     }
                     // add IDF table row data
+                    // copy column array, shows which columns per row are unprocessed (have NO DATA)
+            		ArrayList<String> columnIdsUnprocessed = new ArrayList<String>(columnIds);
+            		String currentRow = null;
                     for (int i = 0; i < contentRows.size(); i++) {
                         Map<String, String> contentRow = contentRows.get(i);
-                        Node tableColumnNode = XPathUtils.getNode(additionalData.getElement(), "idf:tableColumn[@id='"
-                                + contentRow.get("field_key") + "']");
-                        if (tableColumnNode == null) {
-                            throw new IllegalArgumentException("Unexpected table column id '"
-                                    + contentRow.get("field_key") + "'. Column ID does not exist in profile.");
-                        } else {
-                            DOM.addElement((Element) tableColumnNode, "idf:data").addText(contentRow.get("data"));
-                        }
+                    	if (currentRow == null) {
+                    		currentRow = contentRow.get("sort");
+                    	}
+                    	if (!currentRow.equals(contentRow.get("sort"))) {
+                    		// new row !
+                    		// we check whether unprocessed Columns and add empty values !
+                    		for (String columnIdUnprocessed : columnIdsUnprocessed) {
+                    			addDataToTableColumn(additionalDataTable, columnIdUnprocessed, "");
+                    		}
+                    		// initialize for next row !
+                    		currentRow = contentRow.get("sort");
+                    		columnIdsUnprocessed = new ArrayList<String>(columnIds);
+                    	}
+                    	String columnId = contentRow.get("field_key");
+            			addDataToTableColumn(additionalDataTable, columnId, contentRow.get("data"));
+            			columnIdsUnprocessed.remove(columnId);
                     }
+                    // process last Row !
+            		for (String columnIdUnprocessed : columnIdsUnprocessed) {
+            			addDataToTableColumn(additionalDataTable, columnIdUnprocessed, "");
+            		}
                 }
 
             } else {
@@ -170,6 +195,17 @@ public class IdfUtils {
             }
         } catch (Exception e) {
             log.error("Error adding additional data.", e);
+        }
+    }
+
+    private void addDataToTableColumn(IdfElement additionalDataTable, String columnId, String data) {
+        Node tableColumnNode =
+        	XPathUtils.getNode(additionalDataTable.getElement(), "idf:tableColumn[@id='" + columnId + "']");
+        if (tableColumnNode == null) {
+            throw new IllegalArgumentException("Unexpected table column id '"
+                    + columnId + "'. Column ID does not exist in profile.");
+        } else {
+            DOM.addElement((Element) tableColumnNode, "idf:data").addText(data);
         }
     }
 
