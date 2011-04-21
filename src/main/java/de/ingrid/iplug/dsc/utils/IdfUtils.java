@@ -97,7 +97,6 @@ public class IdfUtils {
             if (igcProfileControlNode.getLocalName().equals("tableControl")) {
                 String id = (String) sourceRecord.get(DatabaseSourceRecord.ID);
                 String igcProfileControlNodeId = XPathUtils.getString(igcProfileControlNode, "igcp:id");
-                // first count all data rows !
                 List<Map<String, String>> contentRows = SQL
                         .all(
                                 "SELECT afd.sort, afd.field_key, afd.data " +
