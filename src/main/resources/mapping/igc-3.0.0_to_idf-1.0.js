@@ -552,73 +552,9 @@ for (i=0; i<objRows.size(); i++) {
 
     // ---------- <gmd:identificationInfo/gmd:resourceConstraints> ----------
     // ---------- <gmd:MD_LegalConstraints> ----------
-
-    rows = SQL.all("SELECT terms_of_use FROM object_use WHERE obj_id=?", [objId]);
-    var mdLegalConstraints;
-    if (rows.size() > 0) {
-        mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
-        for (var i=0; i<rows.size(); i++) {
-            mdLegalConstraints.addElement("gmd:useLimitation/gco:CharacterString").addText(rows.get(i).get("terms_of_use"));
-        }
-    }
-
-    rows = SQL.all("SELECT * FROM object_access WHERE obj_id=?", [objId]);
-    if (rows.size() > 0) {
-        if (!mdLegalConstraints) {
-            mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
-        }
-        
-        // iterate all access constraint and build separate lists to be mapped to different ISO elements !
-        var accessConstraints = [];
-        var otherConstraints = [];
-
-        for (var i=0; i<rows.size(); i++) {
-            row = rows.get(i);
-
-            // IGC syslist entry or free entry ?
-            value = TRANSF.getIGCSyslistEntryName(6010, row.get("restriction_key"), "en");
-            if (hasValue(value)) {
-                // value from IGC syslist, map as gmd:otherConstraints
-                otherConstraints.push(value);
-            } else {
-                // free entry, check whether ISO entry
-                value = row.get("restriction_value");
-                if (hasValue(TRANSF.getISOCodeListEntryId(524, value))) {
-                    // we have entry from ISO restriction code list, map as gmd:accessConstraints
-                    accessConstraints.push(value);
-                } else if (hasValue(value)) {
-	                // no entry from ISO codelist, map as gmd:otherConstraints
-	                otherConstraints.push(value);
-                }
-            }            
-        }
-
-        // ---------- <gmd:MD_LegalConstraints/gmd:accessConstraints> ----------
-        // first map gmd:accessConstraints
-        var otherRestrictions;
-		for (var i=0; i<accessConstraints.length; i++) {
-            var accesConstraintElem = mdLegalConstraints.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
-                    .addAttribute("codeListValue", accessConstraints[i])
-                    .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode")
-                    .addText(accessConstraints[i]);
-            if (accessConstraints[i] == "otherRestrictions") {
-                otherRestrictions = accesConstraintElem;
-            }
-		}
-
-        // ---------- <gmd:MD_LegalConstraints/gmd:otherConstraints> ----------
-        // then map gmd:otherConstraints
-        for (var i=0; i<otherConstraints.length; i++) {
-            if (!otherRestrictions) {
-                otherRestrictions = mdLegalConstraints.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
-                    .addAttribute("codeListValue", "otherRestrictions")
-                    .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode")
-                    .addText("otherRestrictions");
-            }
-            mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(otherConstraints[i]);
-        }
-    }
-
+    addResourceConstraints(identificationInfo, objId);
+    
+    
     // ---------- <gmd:identificationInfo/gmd:resourceConstraints> ----------
     // ---------- <gmd:MD_SecurityConstraints> ----------
     value = getSecurityConstraint(objRow);
@@ -1414,19 +1350,9 @@ function map(needle, haystack) {
 }
 
 function getPurpose(objRow) {
-    // combine Herstellungszweck and rechtliche Grundlagen
     var purpose = objRow.get("info_note");
     if (!hasValue(purpose)) {
         purpose = "";
-    }
-    var rows = SQL.all("SELECT legist_value from t015_legist WHERE obj_id=?", [objId]);
-    for (var i=0; i<rows.size(); i++) {
-        if (hasValue(rows.get(i).get("legist_value"))) {
-            if (hasValue(purpose)) {
-                purpose = purpose.concat("\n");
-            }
-            purpose = purpose.concat(rows.get(i).get("legist_value"));
-        }
     }
     return purpose;
 }
@@ -1582,6 +1508,88 @@ function getServiceType(objClass, objServRow) {
     }
     return retValue;
 }
+
+
+function addResourceConstraints(identificationInfo, objId) {
+    rows = SQL.all("SELECT terms_of_use FROM object_use WHERE obj_id=?", [objId]);
+    var mdLegalConstraints;
+    if (rows.size() > 0) {
+        mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
+        for (var i=0; i<rows.size(); i++) {
+            mdLegalConstraints.addElement("gmd:useLimitation/gco:CharacterString").addText(rows.get(i).get("terms_of_use"));
+        }
+    }
+
+    rows = SQL.all("SELECT * FROM object_access WHERE obj_id=?", [objId]);
+    if (rows.size() > 0) {
+        if (!mdLegalConstraints) {
+            mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
+        }
+        
+        // iterate all access constraint and build separate lists to be mapped to different ISO elements !
+        var accessConstraints = [];
+        var otherConstraints = [];
+
+        for (var i=0; i<rows.size(); i++) {
+            row = rows.get(i);
+
+            // IGC syslist entry or free entry ?
+            value = TRANSF.getIGCSyslistEntryName(6010, row.get("restriction_key"), "en");
+            if (hasValue(value)) {
+                // value from IGC syslist, map as gmd:otherConstraints
+                otherConstraints.push(value);
+            } else {
+                // free entry, check whether ISO entry
+                value = row.get("restriction_value");
+                if (hasValue(TRANSF.getISOCodeListEntryId(524, value))) {
+                    // we have entry from ISO restriction code list, map as gmd:accessConstraints
+                    accessConstraints.push(value);
+                } else if (hasValue(value)) {
+	                // no entry from ISO codelist, map as gmd:otherConstraints
+	                otherConstraints.push(value);
+                }
+            }            
+        }
+
+        // ---------- <gmd:MD_LegalConstraints/gmd:accessConstraints> ----------
+        // first map gmd:accessConstraints
+        var otherRestrictions;
+		for (var i=0; i<accessConstraints.length; i++) {
+            var accesConstraintElem = mdLegalConstraints.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
+                    .addAttribute("codeListValue", accessConstraints[i])
+                    .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode")
+                    .addText(accessConstraints[i]);
+            if (accessConstraints[i] == "otherRestrictions") {
+                otherRestrictions = accesConstraintElem;
+            }
+		}
+
+        // ---------- <gmd:MD_LegalConstraints/gmd:otherConstraints> ----------
+        // then map gmd:otherConstraints
+        for (var i=0; i<otherConstraints.length; i++) {
+            if (!otherRestrictions) {
+                otherRestrictions = mdLegalConstraints.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
+                    .addAttribute("codeListValue", "otherRestrictions")
+                    .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode")
+                    .addText("otherRestrictions");
+            }
+            mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(otherConstraints[i]);
+        }
+    }
+
+    rows = SQL.all("SELECT legist_value from t015_legist WHERE obj_id=?", [objId]);
+    if (rows.size() > 0) {
+        mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/idf:idfLegalBasisConstraints");
+        mdLegalConstraints.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
+        .addAttribute("codeListValue", "otherRestrictions")
+        .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode")
+        .addText("otherRestrictions");
+        for (var i=0; i<rows.size(); i++) {
+        	mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(rows.get(i).get("legist_value"));
+        }
+    }	
+}
+
 
 function addExtent(identificationInfo, objRow) {
 // ---------- <gmd:identificationInfo/srv:extent/gmd:EX_Extent> ----------
