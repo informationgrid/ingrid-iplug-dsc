@@ -767,7 +767,7 @@ for (i=0; i<objRows.size(); i++) {
                     mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean").addText("false");
                 }
                 if (hasValue(objDataParaRows.get(i).get("unit"))) {
-                    featureType = featureType.concat(" ").concat(objDataParaRows.get(i).get("unit"));
+                    featureType = featureType.concat(" (").concat(objDataParaRows.get(i).get("unit")).concat(")");
                 }
                 mdFeatureCatalogueDescription.addElement("gmd:featureTypes/gco:LocalName").addText(featureType);
             }
