@@ -1821,7 +1821,23 @@ function addDistributionInfo(mdMetadata, objId) {
 	        if (!mdDistribution) {
 	            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
 	        }
-            var idfOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/idf:idfOnlineResource");
+            var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
+	        var transferSize = rows.get(i).get("volume").toLowerCase();
+            if (hasValue(transferSize)) {
+	        	var mult = 1;
+            	if (transferSize.indexOf("kb") != -1) {
+	        		mult = 1/1024;
+	        	} else if (transferSize.indexOf("gb") != -1) {
+	        		mult = 1024;
+	        	}
+            	transferSize = transferSize.replaceAll(",", ".");
+            	transferSize = transferSize.replaceAll("[^0-9\.]", "");
+            	if (transferSize >=0 || transferSize < 0) {
+            		transferSize = transferSize * mult;
+            	}
+            	digitalTransferOptions.addElement("gmd:transferSize/gco:Real").addText(transferSize);
+	        }
+            var idfOnlineResource = digitalTransferOptions.addElement("gmd:onLine/idf:idfOnlineResource");
             idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("url_link"));
             if (hasValue(rows.get(i).get("content"))) {
                 idfOnlineResource.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("content"));
