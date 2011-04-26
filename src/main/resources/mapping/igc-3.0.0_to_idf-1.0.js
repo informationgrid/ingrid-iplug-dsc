@@ -80,7 +80,7 @@ for (i=0; i<objRows.size(); i++) {
     value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
     if (hasValue(value)) {
     	mdMetadata.addElement("gmd:language/gmd:LanguageCode")
-    		.addAttribute("codeList", "http://www.loc.gov/standards/iso639-2/")
+    		.addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode")
     		.addAttribute("codeListValue", value).addText(value);
     }
 // ---------- <gmd:characterSet> ----------
