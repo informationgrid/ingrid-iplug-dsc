@@ -531,7 +531,7 @@ for (i=0; i<objRows.size(); i++) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
-    // IS_INSPIRE_RELEVANT leads to specific keyword, see Email Kst "Änderung am ChangeRequest INGRID23_CR_11", 08.02.2011 15:58
+    // IS_INSPIRE_RELEVANT leads to specific keyword, see Email Kst "ï¿½nderung am ChangeRequest INGRID23_CR_11", 08.02.2011 15:58
     value = objRow.get("is_inspire_relevant");
     if (hasValue(value) && value.equals('Y')) {
         mdKeywords = DOM.createElement("gmd:MD_Keywords");
@@ -854,124 +854,7 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
 
-// ALLE KLASSEN
-
-    // distributionInfo
-
-    // ---------- <idf:idfMdMetadata/gmd:distributionInfo/gmd:MD_Distribution> ----------
-    var mdDistribution;
-    rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [objId]);
-    for (i=0; i<rows.size(); i++) {
-        if (!mdDistribution) {
-            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
-        }
-        // ---------- <gmd:MD_Distributiongmd:distributionFormat/gmd:MD_Format> ----------
-        var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
-            // ---------- <gmd:MD_Format/gmd:name> ----------
-        mdFormat.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("format_value"));
-            // ---------- <gmd:MD_Format/gmd:version> ----------
-        if (hasValue(rows.get(i).get("ver"))) {
-            mdFormat.addElement("gmd:version/gco:CharacterString").addText(rows.get(i).get("ver"));
-        } else {
-            mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "missing");
-                // add empty gco:CharacterString because of Validators !
-                // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
-//                .addElement("gco:CharacterString");
-        }
-            // ---------- <gmd:MD_Format/gmd:specification> ----------
-        if (hasValue(rows.get(i).get("specification"))) {
-            mdFormat.addElement("gmd:specification/gco:CharacterString").addText(rows.get(i).get("specification"));
-        }
-            // ---------- <gmd:MD_Format/gmd:fileDecompressionTechnique> ----------
-        if (hasValue(rows.get(i).get("file_decompression_technique"))) {
-            mdFormat.addElement("gmd:fileDecompressionTechnique/gco:CharacterString").addText(rows.get(i).get("file_decompression_technique"));
-        }
-    }
-
-    // ---------- <gmd:MD_Distribution/gmd:distributor/gmd:MD_Distributor> ----------
-    var distributorContact;
-    if (hasValue(objRow.get("ordering_instructions"))) {
-        if (!mdDistribution) {
-            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
-        }
-        var mdDistributor = mdDistribution.addElement("gmd:distributor/gmd:MD_Distributor");
-        // MD_Distributor needs a distributorContact, will be set below !
-        distributorContact = mdDistributor.addElement("gmd:distributorContact");
-        mdDistributor.addElement("gmd:distributionOrderProcess/gmd:MD_StandardOrderProcess/gmd:orderingInstructions/gco:CharacterString")
-            .addText(objRow.get("ordering_instructions"));
-    }
-
-    // ---------- <gmd:MD_Distributor/gmd:distributorContact/gmd:CI_ResponsibleParty> ----------
-    if (distributorContact) {
-        // select only adresses associated with syslist 505 entry 5 ("Vertrieb") 
-        var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, 5, 505]);
-	    if (hasValue(addressRow)) {
-            distributorContact.addElement(getIdfResponsibleParty(addressRow, "distributor"));
-	    } else {
-            // add dummy distributor role, because no distributor was found
-            distributorContact.addElement("gmd:CI_ResponsibleParty/gmd:role/gmd:CI_RoleCode")
-                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
-                .addAttribute("codeListValue", "distributor");
-        }
-    }
-
-    // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource> ----------
-    rows = SQL.all("SELECT * FROM T017_url_ref WHERE obj_id=?", [objId]);
-    for (i=0; i<rows.size(); i++) {
-        if (hasValue(rows.get(i).get("url_link"))) {
-	        if (!mdDistribution) {
-	            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
-	        }
-            var idfOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/idf:idfOnlineResource");
-            idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("url_link"));
-            if (hasValue(rows.get(i).get("content"))) {
-                idfOnlineResource.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("content"));
-            }
-            if (hasValue(rows.get(i).get("descr"))) {
-                idfOnlineResource.addElement("gmd:description/gco:CharacterString").addText(rows.get(i).get("descr"));
-            }
-            if (hasValue(rows.get(i).get("datatype_value"))) {
-                var datatypeKey = rows.get(i).get("datatype_key");
-                if (!hasValue(datatypeKey)) {
-                    datatypeKey = "-1";
-                }
-                idfOnlineResource.addElement("idf:datatype").addText(rows.get(i).get("datatype_value"))
-                    .addAttribute("list-id", "2240")
-                    .addAttribute("entry-id", datatypeKey);
-            }
-        }
-    }
-
-    // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions> ----------
-    rows = SQL.all("SELECT * FROM T0112_media_option WHERE obj_id=?", [objId]);
-    for (i=0; i<rows.size(); i++) {
-        if (!mdDistribution) {
-            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
-        }
-        var mdDigitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
-        // ---------- <gmd:MD_DigitalTransferOptions/gmd:transferSize> ----------
-        if (hasValue(rows.get(i).get("transfer_size"))) {
-            mdDigitalTransferOptions.addElement("gmd:transferSize/gco:Real")
-                .addText(TRANSF.getISORealFromIGCNumber(rows.get(i).get("transfer_size")));
-        }
-        // ---------- <gmd:MD_DigitalTransferOptions/gmd:offLine/gmd:MD_Medium> ----------
-        var mdMedium;
-        // ---------- <gmd:MD_Medium/gmd:name/gmd:MD_MediumNameCode> ----------
-        var mediumName = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(520, rows.get(i).get("medium_name"));
-        if (hasValue(mediumName)) {
-            mdMedium = mdDigitalTransferOptions.addElement("gmd:offLine/gmd:MD_Medium");
-            mdMedium.addElement("gmd:name/gmd:MD_MediumNameCode")
-                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_MediumNameCode")
-                .addAttribute("codeListValue", mediumName);
-        }
-        // ---------- <gmd:MD_Medium/gmd:mediumNote> ----------
-        if (hasValue(rows.get(i).get("medium_note"))) {
-            if (!mdMedium) {
-                mdMedium = mdDigitalTransferOptions.addElement("gmd:offLine/gmd:MD_Medium");
-            }
-            mdMedium.addElement("gmd:mediumNote/gco:CharacterString").addText(rows.get(i).get("medium_note"));
-        }
-    }
+    addDistributionInfo(mdMetadata, objId);
 
     // ---------- <idf:idfMdMetadata/gmd:dataQualityInfo/gmd:DQ_DataQuality> ----------
     // ---------- <gmd:DQ_DataQuality/gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode> ----------
@@ -1841,6 +1724,145 @@ function getTimeRange(objRow) {
     }
 
     return retValue;
+}
+
+
+function addDistributionInfo(mdMetadata, objId) {
+	// GEO-INFORMATION/KARTE(1)
+    var mdDistribution;
+    if (objClass.equals("1")) {
+    	rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [objId]);
+        for (i=0; i<rows.size(); i++) {
+            if (!mdDistribution) {
+                mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+            }
+            // ---------- <gmd:MD_Distributiongmd:distributionFormat/gmd:MD_Format> ----------
+            var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
+                // ---------- <gmd:MD_Format/gmd:name> ----------
+            mdFormat.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("format_value"));
+            mdFormat.addElement("gmd:version/gco:CharacterString").addText("unknown");
+        }
+    }
+    
+    
+// ALLE KLASSEN
+
+    // distributionInfo
+
+    // ---------- <idf:idfMdMetadata/gmd:distributionInfo/gmd:MD_Distribution> ----------
+    var mdDistribution;
+    rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [objId]);
+    for (i=0; i<rows.size(); i++) {
+        if (!mdDistribution) {
+            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+        }
+        // ---------- <gmd:MD_Distributiongmd:distributionFormat/gmd:MD_Format> ----------
+        var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
+            // ---------- <gmd:MD_Format/gmd:name> ----------
+        mdFormat.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("format_value"));
+            // ---------- <gmd:MD_Format/gmd:version> ----------
+        if (hasValue(rows.get(i).get("ver"))) {
+            mdFormat.addElement("gmd:version/gco:CharacterString").addText(rows.get(i).get("ver"));
+        } else {
+            mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "missing");
+                // add empty gco:CharacterString because of Validators !
+                // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
+//                .addElement("gco:CharacterString");
+        }
+            // ---------- <gmd:MD_Format/gmd:specification> ----------
+        if (hasValue(rows.get(i).get("specification"))) {
+            mdFormat.addElement("gmd:specification/gco:CharacterString").addText(rows.get(i).get("specification"));
+        }
+            // ---------- <gmd:MD_Format/gmd:fileDecompressionTechnique> ----------
+        if (hasValue(rows.get(i).get("file_decompression_technique"))) {
+            mdFormat.addElement("gmd:fileDecompressionTechnique/gco:CharacterString").addText(rows.get(i).get("file_decompression_technique"));
+        }
+    }
+
+    // ---------- <gmd:MD_Distribution/gmd:distributor/gmd:MD_Distributor> ----------
+    var distributorContact;
+    if (hasValue(objRow.get("ordering_instructions"))) {
+        if (!mdDistribution) {
+            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+        }
+        var mdDistributor = mdDistribution.addElement("gmd:distributor/gmd:MD_Distributor");
+        // MD_Distributor needs a distributorContact, will be set below !
+        distributorContact = mdDistributor.addElement("gmd:distributorContact");
+        mdDistributor.addElement("gmd:distributionOrderProcess/gmd:MD_StandardOrderProcess/gmd:orderingInstructions/gco:CharacterString")
+            .addText(objRow.get("ordering_instructions"));
+    }
+
+    // ---------- <gmd:MD_Distributor/gmd:distributorContact/gmd:CI_ResponsibleParty> ----------
+    if (distributorContact) {
+        // select only adresses associated with syslist 505 entry 5 ("Vertrieb") 
+        var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, 5, 505]);
+	    if (hasValue(addressRow)) {
+            distributorContact.addElement(getIdfResponsibleParty(addressRow, "distributor"));
+	    } else {
+            // add dummy distributor role, because no distributor was found
+            distributorContact.addElement("gmd:CI_ResponsibleParty/gmd:role/gmd:CI_RoleCode")
+                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+                .addAttribute("codeListValue", "distributor");
+        }
+    }
+
+    // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource> ----------
+    rows = SQL.all("SELECT * FROM T017_url_ref WHERE obj_id=?", [objId]);
+    for (i=0; i<rows.size(); i++) {
+        if (hasValue(rows.get(i).get("url_link"))) {
+	        if (!mdDistribution) {
+	            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+	        }
+            var idfOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/idf:idfOnlineResource");
+            idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("url_link"));
+            if (hasValue(rows.get(i).get("content"))) {
+                idfOnlineResource.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("content"));
+            }
+            if (hasValue(rows.get(i).get("descr"))) {
+                idfOnlineResource.addElement("gmd:description/gco:CharacterString").addText(rows.get(i).get("descr"));
+            }
+            if (hasValue(rows.get(i).get("datatype_value"))) {
+                var datatypeKey = rows.get(i).get("datatype_key");
+                if (!hasValue(datatypeKey)) {
+                    datatypeKey = "-1";
+                }
+                idfOnlineResource.addElement("idf:datatype").addText(rows.get(i).get("datatype_value"))
+                    .addAttribute("list-id", "2240")
+                    .addAttribute("entry-id", datatypeKey);
+            }
+        }
+    }
+
+    // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions> ----------
+    rows = SQL.all("SELECT * FROM T0112_media_option WHERE obj_id=?", [objId]);
+    for (i=0; i<rows.size(); i++) {
+        if (!mdDistribution) {
+            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+        }
+        var mdDigitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
+        // ---------- <gmd:MD_DigitalTransferOptions/gmd:transferSize> ----------
+        if (hasValue(rows.get(i).get("transfer_size"))) {
+            mdDigitalTransferOptions.addElement("gmd:transferSize/gco:Real")
+                .addText(TRANSF.getISORealFromIGCNumber(rows.get(i).get("transfer_size")));
+        }
+        // ---------- <gmd:MD_DigitalTransferOptions/gmd:offLine/gmd:MD_Medium> ----------
+        var mdMedium;
+        // ---------- <gmd:MD_Medium/gmd:name/gmd:MD_MediumNameCode> ----------
+        var mediumName = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(520, rows.get(i).get("medium_name"));
+        if (hasValue(mediumName)) {
+            mdMedium = mdDigitalTransferOptions.addElement("gmd:offLine/gmd:MD_Medium");
+            mdMedium.addElement("gmd:name/gmd:MD_MediumNameCode")
+                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_MediumNameCode")
+                .addAttribute("codeListValue", mediumName);
+        }
+        // ---------- <gmd:MD_Medium/gmd:mediumNote> ----------
+        if (hasValue(rows.get(i).get("medium_note"))) {
+            if (!mdMedium) {
+                mdMedium = mdDigitalTransferOptions.addElement("gmd:offLine/gmd:MD_Medium");
+            }
+            mdMedium.addElement("gmd:mediumNote/gco:CharacterString").addText(rows.get(i).get("medium_note"));
+        }
+    }	
 }
 
 function addServiceOperations(identificationInfo, objServId) {
