@@ -1822,9 +1822,10 @@ function addDistributionInfo(mdMetadata, objId) {
 	            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
 	        }
             var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
-	        var transferSize = rows.get(i).get("volume").toLowerCase();
+	        var transferSize = rows.get(i).get("volume");
             if (hasValue(transferSize)) {
-	        	var mult = 1;
+            	transferSize = transferSize.toLowerCase();
+            	var mult = 1;
             	if (transferSize.indexOf("kb") != -1) {
 	        		mult = 1/1024;
 	        	} else if (transferSize.indexOf("gb") != -1) {
