@@ -217,15 +217,17 @@ for (i=0; i<objRows.size(); i++) {
         for (k=0; k<subRows.size(); k++) {
             var addrIdPublished = subRows.get(k).get("addr_id_published");
 
-	        // ---------- t02_address ----------
-	        var subSubRows = SQL.all("SELECT * FROM t02_address WHERE id=?", [addrIdPublished]);
-	        for (l=0; l<subSubRows.size(); l++) {
-	            addT02Address(subSubRows.get(l));
-	        }
-	        // ---------- t021_communication ----------
-	        var subSubRows = SQL.all("SELECT * FROM t021_communication WHERE adr_id=?", [addrIdPublished]);
-	        for (l=0; l<subSubRows.size(); l++) {
-	            addT021Communication(subSubRows.get(l));
+	        if (addrIdPublished) {
+	            // ---------- t02_address ----------
+		        var subSubRows = SQL.all("SELECT * FROM t02_address WHERE id=?", [addrIdPublished]);
+		        for (l=0; l<subSubRows.size(); l++) {
+		            addT02Address(subSubRows.get(l));
+		        }
+		        // ---------- t021_communication ----------
+		        var subSubRows = SQL.all("SELECT * FROM t021_communication WHERE adr_id=?", [addrIdPublished]);
+		        for (l=0; l<subSubRows.size(); l++) {
+		            addT021Communication(subSubRows.get(l));
+		        }
 	        }
             // ---------- address_node CHILDREN ----------
             // only published ones !
