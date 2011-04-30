@@ -686,15 +686,19 @@ for (i=0; i<objRows.size(); i++) {
     } else {
         // ---------- <gmd:identificationInfo/gmd:supplementalInformation> ----------
         value = null;
+        var rs;
         if (objClass.equals("5")) {
-            value = SQL.first("SELECT description FROM t011_obj_data WHERE obj_id=?", [objId]).get("description");
+            rs = SQL.first("SELECT description FROM t011_obj_data WHERE obj_id=?", [objId]);
         } else if (objClass.equals("2")) {
-            value = SQL.first("SELECT description FROM t011_obj_literature WHERE obj_id=?", [objId]).get("description");
+            rs = SQL.first("SELECT description FROM t011_obj_literature WHERE obj_id=?", [objId]);
         } else if (objClass.equals("4")) {
-            value = SQL.first("SELECT description FROM t011_obj_project WHERE obj_id=?", [objId]).get("description");
+            rs = SQL.first("SELECT description FROM t011_obj_project WHERE obj_id=?", [objId]);
         }
-        if (hasValue(value)) {
-            identificationInfo.addElement("gmd:supplementalInformation/gco:CharacterString").addText(value);
+        if (hasValue(rs)) {
+        	value = rs.get("description");
+        	if (hasValue(value)) {
+        		identificationInfo.addElement("gmd:supplementalInformation/gco:CharacterString").addText(value);
+        	}
         }
     }
 
@@ -963,22 +967,28 @@ for (i=0; i<objRows.size(); i++) {
 // DATENSAMMLUNG/DATENBANK(5)
     } else if (objClass.equals("5")) {
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
-        value = SQL.first("SELECT base FROM t011_obj_data WHERE obj_id=?", [objId]).get("base");
-        if (hasValue(value)) {
-            dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
-            liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(value);
-        }
+        var rs = SQL.first("SELECT base FROM t011_obj_data WHERE obj_id=?", [objId]);
+    	if (hasValue(rs)) {
+    		value = rs.get("base");
+            if (hasValue(value)) {
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
+                liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(value);
+            }
+    	}
 
 // DOKUMENT/BERICHT/LITERATUR(2)
     } else if (objClass.equals("2")) {
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
-        value = SQL.first("SELECT base FROM t011_obj_literature WHERE obj_id=?", [objId]).get("base");
-        if (hasValue(value)) {
-            dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
-            liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(value);
-        }
+        var rs = SQL.first("SELECT base FROM t011_obj_literature WHERE obj_id=?", [objId]);
+    	if (hasValue(rs)) {
+    		value = rs.get("base");
+	        if (hasValue(value)) {
+	            dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+	            liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
+	            liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(value);
+	        }
+    	}
     }
 
     // ---------- <idf:idfMdMetadata/idf:superiorReference> ----------
@@ -1045,17 +1055,25 @@ function getDateOrDateTime(dateValue) {
 
 // "nicht evaluiert"(3) leads to nilReason "unknown"
 function getDqConformanceResultElement(conformityRow) {
-    var dqConformanceResult = DOM.createElement("gmd:DQ_ConformanceResult");
+	var dqConformanceResult = DOM.createElement("gmd:DQ_ConformanceResult");
     var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
-    ciCitation.addElement("gmd:title/gco:CharacterString").addText(conformityRow.get("specification"));
+	if (hasValue(conformityRow.get("specification"))) {
+		ciCitation.addElement("gmd:title/gco:CharacterString").addText(conformityRow.get("specification"));
+	} else {
+		ciCitation.addElement("gmd:title").addAttribute("gco:nilReason", "missing");
+	}
     var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
-    ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(conformityRow.get("publication_date"))));
+    if (hasValue(conformityRow.get("publication_date"))) {
+	    ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(conformityRow.get("publication_date"))));
+    } else {
+    	ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
+    }
     ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
         .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
         .addAttribute("codeListValue", "publication")
         .addText("publication");
     dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("");
-    if (conformityRow.get("degree_key").equals("3")) {
+    if (!hasValue(conformityRow.get("degree_key")) || conformityRow.get("degree_key").equals("3")) {
         // "not evaluated", we supply nilReason !
         dqConformanceResult.addElement("gmd:pass").addAttribute("gco:nilReason", "unknown");
             // add empty gco:Boolean because of Validators !
