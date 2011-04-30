@@ -649,21 +649,21 @@ function addSpatialRefValue(row) {
     // Pass given Coordinate System, allowed values:
     // COORDS_ETRS89_UTM31N, COORDS_ETRS89_UTM32N, COORDS_ETRS89_UTM33N, COORDS_ETRS89_UTM34N, COORDS_GK2, COORDS_GK3, COORDS_GK4, COORDS_GK5, COORDS_WGS84
     var transfPoint = TRANSF.transformPointToWGS84(row.get("x1"), row.get("y1"), CoordTransformUtil.CoordType.COORDS_ETRS89_UTM31N)
-    IDX.add("x1", transfPoint[0]);
-    IDX.add("y1", transfPoint[1]);
+    IDX.addNumeric("x1", transfPoint[0]);
+    IDX.addNumeric("y1", transfPoint[1]);
 */
     // we already have WGS84, so we use orig values
-    IDX.add("x1", row.get("x1"));
-    IDX.add("y1", row.get("y1"));
+    IDX.addNumeric("x1", row.get("x1"));
+    IDX.addNumeric("y1", row.get("y1"));
     // also store orig coordinates in index
-    IDX.add("spatial_ref_value.x1", row.get("x1"));
-    IDX.add("spatial_ref_value.y1", row.get("y1"));
+    IDX.addNumeric("spatial_ref_value.x1", row.get("x1"));
+    IDX.addNumeric("spatial_ref_value.y1", row.get("y1"));
     // and fields x2, y2 for query
-    IDX.add("x2", row.get("x2"));
-    IDX.add("y2", row.get("y2"));
+    IDX.addNumeric("x2", row.get("x2"));
+    IDX.addNumeric("y2", row.get("y2"));
     // also store orig coordinates in index
-    IDX.add("spatial_ref_value.x2", row.get("x2"));
-    IDX.add("spatial_ref_value.y2", row.get("y2"));
+    IDX.addNumeric("spatial_ref_value.x2", row.get("x2"));
+    IDX.addNumeric("spatial_ref_value.y2", row.get("y2"));
     // --------------
 
     IDX.add("spatial_ref_value.topic_type", row.get("topic_type"));

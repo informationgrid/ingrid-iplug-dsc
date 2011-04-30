@@ -12,6 +12,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.NumericField;
 import org.apache.lucene.util.Version;
 
 /**
@@ -91,6 +92,27 @@ public class IndexUtils {
      */
     public void add(String fieldName, String value) throws IOException {
         add(fieldName, value, true);
+    }
+
+    /**
+     * Add a numeric index field with the value to the index document. The field
+     * will be STOREed.
+     * 
+     * @param fieldName
+     *            name of the field in the index
+     * @param value
+     *            content of the field !
+     */
+    public void addNumeric(String fieldName, String value) throws IOException {
+        double val = 0;
+        try {
+            val = Double.parseDouble(value);
+            luceneDoc.add(new NumericField(fieldName, Field.Store.YES, true).setDoubleValue(val));
+        } catch (Exception e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Value '" + value + "' is not a number. Ignoring field '" + fieldName + "'.");
+            }
+        }
     }
 
     private void add(String fieldName, String value, Field.Store stored, Field.Index tokenized) {
