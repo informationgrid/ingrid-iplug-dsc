@@ -329,13 +329,13 @@ for (i=0; i<objRows.size(); i++) {
 }
 
 function addT01Object(row) {
-    IDX.add("t01_object.id", row.get("id"), false);
-    IDX.add("t01_object.obj_id", row.get("obj_uuid"), false);
+    IDX.add("t01_object.id", row.get("id"));
+    IDX.add("t01_object.obj_id", row.get("obj_uuid"));
     IDX.add("title", row.get("obj_name"));
-    IDX.add("t01_object.org_obj_id", row.get("org_obj_id"), false);
+    IDX.add("t01_object.org_obj_id", row.get("org_obj_id"));
     IDX.add("t01_object.obj_class", row.get("obj_class"));
     IDX.add("summary", row.get("obj_descr"));
-    IDX.add("t01_object.cat_id", row.get("cat_id"), false);
+    IDX.add("t01_object.cat_id", row.get("cat_id"));
     IDX.add("t01_object.info_note", row.get("info_note"));
     IDX.add("t01_object.loc_descr", row.get("loc_descr"));
 
