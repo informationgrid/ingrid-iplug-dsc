@@ -83,7 +83,7 @@ public class DatabaseParameterController extends AbstractController {
         pdCommandObject.addField("metaclass");
 
         // add required datatypes to PD
-        pdCommandObject.addDataType("IDF_1.0");
+        //pdCommandObject.addDataType("IDF_1.0");
     }
 
     public boolean rankSupported(String rankType, String[] types) {
