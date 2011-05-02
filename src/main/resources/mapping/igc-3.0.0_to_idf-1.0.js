@@ -355,13 +355,20 @@ for (i=0; i<objRows.size(); i++) {
 	if (objClass.equals("3")) {
 		// More data of the service that cannot be mapped within ISO19119, but must be 
 		// supplied by INSPIRE. Add mapping in abstract
-		var abstractPostfix = "\n\n\nWeitere Daten des Dienstes, die nicht standard-konform (ISO 19119) hinterlegt werden k\u00F6nnen, zum Teil gem\u00E4\u00DF INSPIRE-Direktive aber bereit zu stellen sind*:\n\n\n";
+        var abstractPostfixIntro = "\n\n\nWeitere Daten des Dienstes, die nicht standard-konform (ISO 19119) hinterlegt werden k\u00F6nnen, zum Teil gem\u00E4\u00DF INSPIRE-Direktive aber bereit zu stellen sind*:\n\n\n";
+		var abstractPostfix; 
 		objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
 		if (hasValue(objServRow.get("environment"))) {
+            if (!abstractPostfix) {
+                abstractPostfix = abstractPostfixIntro;
+            }
 			abstractPostfix = abstractPostfix + "Systemumgebung: " + objServRow.get("environment") + "\n";
 			abstractPostfix = abstractPostfix + "(environmentDescription/gco:CharacterString= " + objServRow.get("environment") + ")\n\n";
 		}
 		if (hasValue(objServRow.get("description"))) {
+            if (!abstractPostfix) {
+                abstractPostfix = abstractPostfixIntro;
+            }
 			abstractPostfix = abstractPostfix + "Erl\u00E4uterung zum Fachbezug: " + objServRow.get("description") + "\n";
 			abstractPostfix = abstractPostfix + "(supplementalInformation/gco:CharacterString= " + objServRow.get("description") + ")\n\n";
 		}
@@ -370,6 +377,9 @@ for (i=0; i<objRows.size(); i++) {
 		for (var j=0; j<objServScaleRows.size(); j++) {
 			var objServScaleRow = objServScaleRows.get(j);
 			if (hasValue(objServScaleRow.get("scale"))) {
+                if (!abstractPostfix) {
+                    abstractPostfix = abstractPostfixIntro;
+                }
 				abstractPostfix = abstractPostfix + "Erstellungsma\u00DFstab: " + objServScaleRow.get("scale") + "\n";
 				abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/equivalentScale/MD_RepresentativeFraction/denominator/gco:Integer= " + objServScaleRow.get("scale") + ")\n";
 			}
@@ -377,6 +387,9 @@ for (i=0; i<objRows.size(); i++) {
 		for (var j=0; j<objServScaleRows.size(); j++) {
 			var objServScaleRow = objServScaleRows.get(j);
 			if (hasValue(objServScaleRow.get("resolution_ground"))) {
+                if (!abstractPostfix) {
+                    abstractPostfix = abstractPostfixIntro;
+                }
 				abstractPostfix = abstractPostfix + "Bodenaufl\u00F6sung (Meter): " + objServScaleRow.get("resolution_ground") + "\n";
 				abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/distance/gco:Distance[@uom=\"meter\"]= " + objServScaleRow.get("resolution_ground") + ")\n";
 			}
@@ -384,14 +397,18 @@ for (i=0; i<objRows.size(); i++) {
 		for (var j=0; j<objServScaleRows.size(); j++) {
 			var objServScaleRow = objServScaleRows.get(j);
 			if (hasValue(objServScaleRow.get("resolution_scan"))) {
+                if (!abstractPostfix) {
+                    abstractPostfix = abstractPostfixIntro;
+                }
 				abstractPostfix = abstractPostfix + "Scanaufl\u00F6sung (DPI): " + objServScaleRow.get("resolution_scan") + "\n";
 				abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/distance/gco:Distance[@uom=\"dpi\"]= " + objServScaleRow.get("resolution_scan") + ")\n";
 			}
 		}
-		abstractPostfix = abstractPostfix + "\n\n---\n";
-		abstractPostfix = abstractPostfix + "* N\u00E4here Informationen zur INSPIRE-Direktive: http://inspire.jrc.ec.europa.eu/implementingRulesDocs_md.cfm";
-		
-		abstr = abstr + abstractPostfix;
+        if (abstractPostfix) {
+            abstractPostfix = abstractPostfix + "\n\n---\n";
+            abstractPostfix = abstractPostfix + "* N\u00E4here Informationen zur INSPIRE-Direktive: http://inspire.jrc.ec.europa.eu/implementingRulesDocs_md.cfm";            
+            abstr = abstr + abstractPostfix;
+        }
 	}
 	identificationInfo.addElement("gmd:abstract/gco:CharacterString").addText(abstr);
 
