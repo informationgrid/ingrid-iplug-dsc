@@ -827,6 +827,7 @@ for (i=0; i<objRows.size(); i++) {
             // map now INSPIRE conform !
             completenessOmission.addElement("gmd:nameOfMeasure/gco:CharacterString").addText("Rate of missing items");
             completenessOmission.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("7");
+            // ATTENTION: ! measureDescription "completeness omission (rec_grade)" is used in portal to differ from DQ_CompletenessOmission in DataQuality Table !
             completenessOmission.addElement("gmd:measureDescription/gco:CharacterString").addText("completeness omission (rec_grade)");
             var dqQuantitativeResult = completenessOmission.addElement("gmd:result/gmd:DQ_QuantitativeResult");
             var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
