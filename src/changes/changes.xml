@@ -5,7 +5,11 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
-    <release version="3.0.0-SNAPSHOT" date="2011-xx-xx" description="Initial Release">
+    <release version="3.0.0" date="2011-05-05" description="Initial Release 3.0.0">
+			<action type="add">
+				Das Mapping der Daten erfolgt beim DSC ab Version 3.0.0 über ein Skript. Dabei wird in das (neue) InGridDataFormat (IDF)
+				transformiert, welches nur von anderen Komponenten ab der Version 3.0.0 verstanden wird.
+			</action>
     </release>
   </body>
 </document>
