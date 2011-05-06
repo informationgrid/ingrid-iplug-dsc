@@ -7,8 +7,8 @@
   <body>
     <release version="3.0.0" date="2011-05-05" description="Initial Release 3.0.0">
 			<action type="add">
-				Das Mapping der Daten erfolgt beim DSC ab Version 3.0.0 über ein Skript. Dabei wird in das (neue) InGridDataFormat (IDF)
-				transformiert, welches nur von anderen Komponenten ab der Version 3.0.0 verstanden wird.
+				From version 3.0.0 the data is mapped via a script. The data will be transformed into the (new) InGridDataFormat (IDF), which only
+				can be understood from other components starting from version 3.0.0.
 			</action>
     </release>
   </body>
