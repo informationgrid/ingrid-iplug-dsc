@@ -143,7 +143,7 @@ public class DOMUtils {
 	        if (e.hasChildNodes()) {
 	            for (int i=0; i<e.getChildNodes().getLength(); i++) {
 	                if (e.getChildNodes().item(i) instanceof Text) {
-	                    ((Text)e.getChildNodes().item(i)).setNodeValue(text);
+	                    ((Text)e.getChildNodes().item(i)).setNodeValue(escapeXmlText(text));
 	                    return this;
 	                }
 	            }
