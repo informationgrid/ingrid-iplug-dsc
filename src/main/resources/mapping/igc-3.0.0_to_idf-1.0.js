@@ -166,14 +166,22 @@ for (i=0; i<objRows.size(); i++) {
 		// ---------- <gmd:MD_GeometricObjects> ----------
 		var objGeoVectorRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=?", [objGeoId]);
 		for (var j=0; j<objGeoVectorRows.size(); j++) {
-			if (!mdVectorSpatialRepresentation) mdVectorSpatialRepresentation = mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation");
-			var objGeoVectorRow = objGeoVectorRows.get(j);
-			var mdGeometricObjects = mdVectorSpatialRepresentation.addElement("gmd:geometricObjects/gmd:MD_GeometricObjects");
-			var geometricObjectTypeCode = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(515, objGeoVectorRow.get("geometric_object_type")); 
-			mdGeometricObjects.addElement("gmd:geometricObjectType/gmd:MD_GeometricObjectTypeCode")
-				.addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_GeometricObjectTypeCode")
-				.addAttribute("codeListValue", geometricObjectTypeCode);
-			mdGeometricObjects.addElement("gmd:geometricObjectCount/gco:Integer").addText(objGeoVectorRow.get("geometric_object_count"));
+            var objGeoVectorRow = objGeoVectorRows.get(j);
+            var geoObjType = objGeoVectorRow.get("geometric_object_type");
+            var geoObjCount = objGeoVectorRow.get("geometric_object_count");
+            if (hasValue(geoObjType) || hasValue(geoObjCount)) {
+                if (!mdVectorSpatialRepresentation) {
+                    mdVectorSpatialRepresentation = mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation");
+                }
+                var mdGeometricObjects = mdVectorSpatialRepresentation.addElement("gmd:geometricObjects/gmd:MD_GeometricObjects");
+                var geometricObjectTypeCode = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(515, geoObjType); 
+                mdGeometricObjects.addElement("gmd:geometricObjectType/gmd:MD_GeometricObjectTypeCode")
+                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_GeometricObjectTypeCode")
+                    .addAttribute("codeListValue", geometricObjectTypeCode);
+                if (hasValue(geoObjCount)) {
+                    mdGeometricObjects.addElement("gmd:geometricObjectCount/gco:Integer").addText(geoObjCount);
+                }
+            }
 		}
 
 		// ---------- <gmd:referenceSystemIdentifier> ----------

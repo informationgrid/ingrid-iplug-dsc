@@ -292,7 +292,11 @@ public class DOMUtils {
 		return myDoc.createTextNode(escapeXmlText(data));
 	}
 
+	/** Escapes given text. NOTICE: returns empty string if passed text is null. */
 	private String escapeXmlText(String text) {
+		if (text == null) {
+			text = "";
+		}
 		return StringEscapeUtils.escapeXml(text);
 	}
 
