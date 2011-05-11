@@ -381,6 +381,12 @@ function addT01Object(row) {
     IDX.add("t01_object.mod_time", row.get("mod_time"));
     IDX.add("t01_object.mod_uuid", row.get("mod_uuid"));
     IDX.add("t01_object.responsible_uuid", row.get("responsible_uuid"));
+    if (hasValue(row.get("is_inspire_relevant")) && row.get("is_inspire_relevant")=='Y') {
+        // add all three fields here to equalize the multiplicity of the fields content in index
+    	IDX.add("t04_search.type", "F");
+        IDX.add("t04_search.searchterm", "inspireidentifiziert");
+        IDX.add("searchterm_value.alternate_term", "");        
+    }
 }
 function addT0110AvailFormat(row) {
     IDX.add("t0110_avail_format.line", row.get("line"));

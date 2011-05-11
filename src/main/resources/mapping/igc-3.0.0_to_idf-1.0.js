@@ -1463,7 +1463,7 @@ function getMdKeywords(rows) {
 	    } else if (type.equals("2") || type.equals("T")) {
 	        keywTitle = "UMTHES Thesaurus";
 	        keywDate = "2009-01-15";
-	    } else if (type.equals("1") || type.equals("F")) {
+	    } else if (type.equals("1") || type.equals("G")) {
 	        keywTitle = "GEMET - Concepts, version 2.1";
 	        keywDate = "2008-06-13";
 	    } else if (type.equals("I")) {
