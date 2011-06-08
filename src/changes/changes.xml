@@ -5,6 +5,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.0.1-SNAPSHOT" date="2011-?-?" description="Release InGrid 3.0.1">
+      <action type="update" issue="INGRID-1940">
+        Introduced new field "metainfo" in query for various control info to be handled by iBus / iPlugs. 
+      </action>
+    </release>
+
     <release version="3.0.0" date="2011-05-05" description="Initial Release 3.0.0">
 			<action type="add">
 				From version 3.0.0 the data is mapped via a script. The data will be transformed into the (new) InGridDataFormat (IDF), which only
