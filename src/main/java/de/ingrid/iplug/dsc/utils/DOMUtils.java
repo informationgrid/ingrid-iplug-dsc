@@ -102,6 +102,16 @@ public class DOMUtils {
             return new IdfElement(newElement);
         }
 
+        /**
+         * Add a new node (which can contain more sub nodes) as a sibling to the
+         * dom node from where it has been called (member variable 'e'). From the
+         * parent of 'e' the new node will be inserted before the sibling of 'e'.
+         * If this sibling does not exist (because it was the last one), the new
+         * node will added to the end.
+         *  
+         * @param qualifiedName, contains the path of nodes to create
+         * @return 
+         */
         public IdfElement addElementAsSibling(String qualifiedName) {
             String[] qNames = qualifiedName.split("/");
             
@@ -113,7 +123,7 @@ public class DOMUtils {
                 e.getParentNode().appendChild(parent);
             }
             
-            Element newElement = null;
+            Element newElement = parent;
             for (int i=1; i< qNames.length; i++) {
                 String qName = qNames[i];
                 newElement = domCreateElement(qName);
