@@ -166,7 +166,7 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
         idfResponsibleParty.addElement(getIdfAddressReference(row, "idf:responsibleParty"));
     }
 
-    var rows = SQL.all("SELECT t01_object.* FROM t01_object, t012_obj_adr WHERE t012_obj_adr.adr_uuid=? AND t012_obj_adr.obj_id=t01_object.id AND t01_object.work_state=?", [addressRow.get("adr_uuid"), 'V']);
+    var rows = SQL.all("SELECT DISTINCT t01_object.* FROM t01_object, t012_obj_adr WHERE t012_obj_adr.adr_uuid=? AND t012_obj_adr.obj_id=t01_object.id AND t01_object.work_state=?", [addressRow.get("adr_uuid"), 'V']);
     for (var j=0; j<rows.size(); j++) {
         idfResponsibleParty.addElement(getIdfObjectReference(rows.get(j), "idf:objectReference"));
     }
