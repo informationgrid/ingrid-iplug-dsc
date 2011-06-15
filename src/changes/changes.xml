@@ -9,6 +9,9 @@
       <action type="update" issue="INGRID-1940">
         Introduced new field "metainfo" in query for various control info to be handled by iBus / iPlugs. 
       </action>
+      <action type="fix" issue="INGRID23-257">
+        Fix display duplicate object references in address detail view. 
+      </action>
     </release>
 
     <release version="3.0.0" date="2011-05-05" description="Initial Release 3.0.0">
