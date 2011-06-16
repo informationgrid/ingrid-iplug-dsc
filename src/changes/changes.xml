@@ -6,6 +6,9 @@
   </properties>
   <body>
     <release version="3.0.1-SNAPSHOT" date="2011-?-?" description="Release InGrid 3.0.1">
+      <action type="add">
+        Add a new index.sh script to index an iPlug from command line.
+      </action>
       <action type="update" issue="INGRID-1940">
         Introduced new field "metainfo" in query for various control info to be handled by iBus / iPlugs. 
       </action>
