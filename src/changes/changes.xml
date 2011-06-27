@@ -9,6 +9,9 @@
       <action type="add">
         Add a new index.sh script to index an iPlug from command line.
       </action>
+      <action type="update" issue="INGRID23-60">
+        Allow multiple spatial systems ("Raumbezugssystem"), now 1:n association.
+      </action>
       <action type="update" issue="INGRID-1940">
         Introduced new field "metainfo" in query for various control info to be handled by iBus / iPlugs. 
       </action>

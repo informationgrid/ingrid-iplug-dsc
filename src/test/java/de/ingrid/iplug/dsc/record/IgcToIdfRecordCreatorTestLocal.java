@@ -19,7 +19,7 @@ import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
 
-public class Igc_3_0_0_To_Idf_1_0_RecordCreatorTestLocal extends TestCase {
+public class IgcToIdfRecordCreatorTestLocal extends TestCase {
 
     public void testDscRecordCreator() throws Exception {
         File plugDescriptionFile = new File(
@@ -33,7 +33,7 @@ public class Igc_3_0_0_To_Idf_1_0_RecordCreatorTestLocal extends TestCase {
 
         CreateIdfMapper m1 = new CreateIdfMapper();
         ScriptedIdfMapper m2 = new ScriptedIdfMapper();
-        m2.setMappingScript(new FileSystemResource("src/main/resources/mapping/igc-3.0.0_to_idf-1.0.js"));
+        m2.setMappingScript(new FileSystemResource("src/main/resources/mapping/igc-3.0.1_to_idf-1.0.js"));
         m2.setCompile(true);
         IgcProfileIdfMapper m3 = new IgcProfileIdfMapper();
         m3.setSql("SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'");

@@ -18,7 +18,7 @@ import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
 
-public class Igc_3_0_0_To_Idf_1_0_RecordCreatorAddressTestLocal extends TestCase {
+public class IgcToIdfRecordCreatorAddressTestLocal extends TestCase {
 
     public void testDscRecordCreator() throws Exception {
         File plugDescriptionFile = new File(

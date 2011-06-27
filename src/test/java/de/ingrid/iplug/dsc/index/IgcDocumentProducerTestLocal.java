@@ -15,7 +15,7 @@ import de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecor
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
 
-public class Igc_3_0_0_DocumentProducerAddressTestLocal extends TestCase {
+public class IgcDocumentProducerTestLocal extends TestCase {
 
     public void testScriptedDatabaseDocumentProducer() throws Exception {
         File plugDescriptionFile = new File(
@@ -24,18 +24,22 @@ public class Igc_3_0_0_DocumentProducerAddressTestLocal extends TestCase {
                 .deSerialize(plugDescriptionFile);
 
         PlugDescriptionConfiguredDatabaseRecordSetProducer p = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
-        String sql = "SELECT DISTINCT id FROM t02_address WHERE work_state='V'"
-        		+ " AND id=7422"	// Institution(0) TOP NODE
-        		+ " OR id=7763"		// Institution(0) with parent
-        		+ " OR id=7506"		// Einheit(1)
-        		+ " OR id=7421"		// Person(2)
-        		+ " OR id=7420"		// Freie Adresse(3) TOP NODE
+        String sql = "SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND publish_id='1'"
+        		+ " AND id=3778 "
+        		+ " OR id=6667" // t014_info_impart
+        		+ " OR id=3919" // t011_obj_literature
+        		+ " OR id=3782" // t011_obj_project
+        		+ " OR id=3820" // t011_obj_data
+        		+ " OR id=8781824" // t011_obj_serv
+        		+ " OR id=7897095" // t011_obj_serv with urls
+        		+ " OR id=6672" // t011_obj_geo
+        		+ " OR id=6685" // additional_field_data
         		;
         p.setRecordSql(sql);
         p.configure(pd);
 
         ScriptedDocumentMapper m = new ScriptedDocumentMapper();
-        m.setMappingScript(new FileSystemResource("src/main/resources/mapping/igc-3.0.0_to_lucene_address.js"));
+        m.setMappingScript(new FileSystemResource("src/main/resources/mapping/igc-3.0.1_to_lucene.js"));
         m.setCompile(true);
 
         List<IRecordMapper> mList = new ArrayList<IRecordMapper>();
