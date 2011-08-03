@@ -131,7 +131,9 @@ public class IgcProfileIdfMapper implements IIdfMapper {
             log.error("Error mapping IGC profile.", e);
             throw e;
         } finally {
-            if (ps != null &&! ps.isClosed()) {
+        	// isClosed() CAUSES EXCEPTION ON ORACLE !!!
+            // if (ps != null && !ps.isClosed()) {
+        	if (ps != null) {
                 ps.close();
             }
         }

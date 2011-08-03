@@ -15,7 +15,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
     </bean>
 
     <bean id="recordSetProducer" class="de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer">
-        <property name="recordSql" value="SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND publish_id='1';" />
+        <property name="recordSql" value="SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND publish_id=1" />
     </bean>
 
     <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">

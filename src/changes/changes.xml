@@ -5,6 +5,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.0.1.1" date="2011-08-??" description="Bugfix Release for InGrid 3.0.1">
+      <action type="fix" dev="wemove">
+        ORACLE fixes: fix mapping to IDF, SQL selects.
+      </action>
+    </release>
+
     <release version="3.0.1" date="2011-07-05" description="Add-Ons + Bugfixes for InGrid 3.0">
       <action type="add" dev="wemove" issue="INGRID23-152">
         Add a new index.sh script to index an iPlug from command line.

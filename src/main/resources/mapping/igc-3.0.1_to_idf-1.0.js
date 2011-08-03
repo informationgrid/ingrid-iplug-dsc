@@ -111,7 +111,7 @@ for (i=0; i<objRows.size(); i++) {
     	mdMetadata.addElement("gmd:hierarchyLevelName/gco:CharacterString").addText(hierarchyLevelName);
     }
     // ---------- <gmd:contact> ----------
-    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, 7]);
+    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '7']);
     for (var i=0; i< addressRows.size(); i++) {
     	var addressRow = addressRows.get(i); 
     	var role = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(505, addressRow.get("type"));
@@ -279,7 +279,7 @@ for (i=0; i<objRows.size(); i++) {
 	            	.addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
 	            	.addAttribute("codeListValue", "resourceProvider");
 			}
-		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, 3360]);
+		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3360']);
 		    for (var i=0; i< addressRows.size(); i++) {
 		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "resourceProvider"));
 		    }
@@ -340,7 +340,7 @@ for (i=0; i<objRows.size(); i++) {
 		            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
 		            .addAttribute("codeListValue", "projectManager");
 			}
-		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, 3400]);
+		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3400']);
 		    for (var i=0; i< addressRows.size(); i++) {
 		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "projectManager"));
 		    }
@@ -352,7 +352,7 @@ for (i=0; i<objRows.size(); i++) {
 		            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
 		            .addAttribute("codeListValue", "projectParticipant");
 			}
-		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, 3410]);
+		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3410']);
 		    for (var i=0; i< addressRows.size(); i++) {
 		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "projectParticipant"));
 		    }
@@ -441,7 +441,7 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- <gmd:identificationInfo/gmd:pointOfContact> ----------
     
     // select only entries from syslist 505 (!= 7) and free entries, all entries of syslist 2010 already mapped above (3360, 3400, 3410) 
-    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND (t012_obj_adr.type IS NULL OR t012_obj_adr.type!=?) AND (t012_obj_adr.special_ref IS NULL OR t012_obj_adr.special_ref=?) ORDER BY line", ['V', objId, 7, 505]);
+    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND (t012_obj_adr.type IS NULL OR t012_obj_adr.type!=?) AND (t012_obj_adr.special_ref IS NULL OR t012_obj_adr.special_ref=?) ORDER BY line", ['V', objId, '7', '505']);
     for (var i=0; i< addressRows.size(); i++) {
         var addressRow = addressRows.get(i); 
         var role = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(505, addressRow.get("type"));
@@ -688,7 +688,7 @@ for (i=0; i<objRows.size(); i++) {
     if (objClass.equals("3") || objClass.equals("6")) {
         // ---------- <gmd:identificationInfo/srv:couplingType/srv:SV_CouplingType> ----------
         // also check whether referenced object is published !
-        row = SQL.first("SELECT * FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3345, "V"]);
+        row = SQL.first("SELECT * FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3345', "V"]);
         var typeValue = "loose";
         if (hasValue(row)) {
             typeValue = "tight";
@@ -701,7 +701,7 @@ for (i=0; i<objRows.size(); i++) {
         addServiceOperations(identificationInfo, objServId);
     
 	    // ---------- <gmd:identificationInfo/srv:operatesOn/gmd:Reference> ----------
-	    rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3345, "V"]);
+	    rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3345', "V"]);
 	    for (i=0; i<rows.size(); i++) {
 	        identificationInfo.addElement("srv:operatesOn").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
 	    }
@@ -780,7 +780,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <idf:idfMdMetadata/gmd:contentInfo#uuidref> ----------
-        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3535, "V"]);
+        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3535', "V"]);
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:contentInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }
@@ -816,7 +816,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <idf:idfMdMetadata/gmd:contentInfo#uuidref> ----------
-        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3535, "V"]);
+        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3535', "V"]);
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:contentInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }
@@ -953,7 +953,7 @@ for (i=0; i<objRows.size(); i++) {
             }
         }
         // ---------- <idf:idfMdMetadata/gmd:portrayalCatalogueInfo#uuidref> ----------
-        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, 3555, "V"]);
+        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3555', "V"]);
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:portrayalCatalogueInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }
@@ -1842,7 +1842,7 @@ function addDistributionInfo(mdMetadata, objId) {
     // ---------- <gmd:MD_Distributor/gmd:distributorContact/gmd:CI_ResponsibleParty> ----------
     if (distributorContact) {
         // select only adresses associated with syslist 505 entry 5 ("Vertrieb") 
-        var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, 5, 505]);
+        var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, '5', '505']);
 	    if (hasValue(addressRow)) {
             distributorContact.addElement(getIdfResponsibleParty(addressRow, "distributor"));
 	    } else {
