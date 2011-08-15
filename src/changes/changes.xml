@@ -5,6 +5,11 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.1.0-SNAPSHOT" date="2011-xx-xx" description="">
+      <action type="update" dev="wemove" issue="INGRID-1962">
+        Rework title and general content query analysis to better match the analysis of the index process.
+      </action>
+    </release>  
     <release version="3.0.1.1" date="2011-08-??" description="Bugfix Release for InGrid 3.0.1">
       <action type="fix" dev="wemove">
         ORACLE fixes: fix mapping to IDF, SQL selects.
