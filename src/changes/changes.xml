@@ -9,6 +9,9 @@
       <action type="update" dev="wemove" issue="INGRID-1962">
         Rework title and general content query analysis to better match the analysis of the index process.
       </action>
+      <action type="update" dev="wemove">
+        Rework index handling to safely work with windows systems (file locking problems resolved).
+      </action>
     </release>  
     <release version="3.0.1.1" date="2011-08-??" description="Bugfix Release for InGrid 3.0.1">
       <action type="fix" dev="wemove">
