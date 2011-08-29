@@ -348,8 +348,10 @@ function addT01Object(row) {
     IDX.add("t01_object.time_from", row.get("time_from"));
     IDX.add("t01_object.time_to", row.get("time_to"));
     IDX.add("t01_object.time_type", row.get("time_type"));
+    // --------------
     // time: then add t0, t1, t2 fields dependent from time_type
     var timeMap = TRANSF.transformIGCTimeFields(row.get("time_from"), row.get("time_to"), row.get("time_type"));
+    // store as term and not as number, searcher queries via TermRangeQuery and NOT NumericRangeQuery !
     if (hasValue(timeMap.get("t0"))) {
         IDX.add("t0", timeMap.get("t0"));
     }
@@ -359,6 +361,7 @@ function addT01Object(row) {
     if (hasValue(timeMap.get("t2"))) {
         IDX.add("t2", timeMap.get("t2"));
     }
+    // --------------
     IDX.add("t01_object.time_descr", row.get("time_descr"));
     IDX.add("t01_object.time_period", row.get("time_period"));
     IDX.add("t01_object.time_interval", row.get("time_interval"));
@@ -653,6 +656,7 @@ function addSpatialRefValue(row) {
 
     // --------------
     // BB Coordinates ! stored as WGS84 in fields x1, y1, x2, y2 in index (will be queried) !
+    // store NUMERIC so spatial queries (range) work !
 /*
     // Example transforming single point (x,y) into WGS84 and store in x1, x2 !
     // Pass given Coordinate System, allowed values:
