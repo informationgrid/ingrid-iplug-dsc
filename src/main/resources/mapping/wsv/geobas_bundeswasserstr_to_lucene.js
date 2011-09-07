@@ -23,7 +23,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
     throw new IllegalArgumentException("Record is no DatabaseRecord!");
 }
 
-// ---------- t01_object ----------
+// ---------- bundeswasserstr ----------
 var objId = sourceRecord.get(DatabaseSourceRecord.ID);
 var objRows = SQL.all("SELECT * FROM bundeswasserstr WHERE id=?", [objId]);
 for (i=0; i<objRows.size(); i++) {
@@ -44,7 +44,7 @@ function addBundeswasserstr(row) {
     IDX.add("bundeswasserstr.kurzbezeichnung", row.get("kurzbezeichnung"));
     IDX.add("bundeswasserstr.name", row.get("name"));
     IDX.add("title", "Bundeswasserstr: " + row.get("name"));
-    IDX.add("summary", row.get("name") + "(" + row.get("kurzbezeichnung") + ")");
+    IDX.add("summary", "Stammdaten: " + row.get("name") + ", " + row.get("kurzbezeichnung"));
 }
 
 function hasValue(val) {

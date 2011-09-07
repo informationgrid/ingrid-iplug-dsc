@@ -26,14 +26,15 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 // ---------- <idf:body> ----------
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
 
-// ========== bundesland ==========
+// ========== bundeswasserstr ==========
 var objId = sourceRecord.get(DatabaseSourceRecord.ID);
 var objRows = SQL.all("SELECT * FROM bundeswasserstr WHERE id=?", [objId]);
 for (i=0; i<objRows.size(); i++) {
     var row = objRows.get(i);
     DOM.addElement(idfBody, "h1").addText("Bundeswasserstr: " + row.get("name"));
     DOM.addElement(idfBody, "p");
-    DOM.addElement(idfBody, "p").addText("Stammdaten: " + row.get("name") + ", " + row.get("kurzbezeichnung"));
+    DOM.addElement(idfBody, "p").addText("Name: " + row.get("name"));
+    DOM.addElement(idfBody, "p").addText("Kurzbezeichnung: " + row.get("kurzbezeichnung"));
 
 /*
     // Example iterating all columns !

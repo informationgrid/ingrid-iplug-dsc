@@ -38,7 +38,7 @@ for (i=0; i<lagesystemRows.size(); i++) {
     var rows = SQL.all("SELECT * FROM bundesland WHERE id=?", [lagesystemRow.get("bundesland")]);
     for (j=0; j<rows.size(); j++) {
     	var row = rows.get(j);
-        DOM.addElement(idfBody, "p").addText("Bundesland: " + row.get("name") + "(" + row.get("kurzbezeichnung") + ")");
+        DOM.addElement(idfBody, "p").addText("Bundesland: " + row.get("name") + ", " + row.get("kurzbezeichnung"));
     }
 
     // ---------- lagesystemdef ----------

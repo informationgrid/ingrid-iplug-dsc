@@ -33,7 +33,8 @@ for (i=0; i<objRows.size(); i++) {
     var row = objRows.get(i);
     DOM.addElement(idfBody, "h1").addText("Bundesland: " + row.get("name"));
     DOM.addElement(idfBody, "p");
-    DOM.addElement(idfBody, "p").addText("Stammdaten: " + row.get("name") + ", " + row.get("kurzbezeichnung"));
+    DOM.addElement(idfBody, "p").addText("Name: " + row.get("name"));
+    DOM.addElement(idfBody, "p").addText("Kurzbezeichnung: " + row.get("kurzbezeichnung"));
 
 /*
     // Example iterating all columns !
