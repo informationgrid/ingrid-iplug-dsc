@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:context="http://www.springframework.org/schema/context"
+xsi:schemaLocation="http://www.springframework.org/schema/beans 
+      http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean id="dscDocumentProducer" class="de.ingrid.iplug.dsc.index.DscDocumentProducer">
+        <property name="recordSetProducer" ref="recordSetProducer" />
+        <property name="recordMapperList">
+            <list>
+                <ref bean="recordMapper"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="recordSetProducer" class="de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer">
+        <property name="recordSql" value="SELECT DISTINCT id FROM punktkennzeichen" />
+    </bean>
+
+    <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
+        <property name="mappingScript" value="classpath:mapping/wsv/geobas_punktkennzeichen_to_lucene.js" />
+        <property name="compile" value="true" />
+    </bean>
+
+
+    <bean id="dscSearchPlug" class="de.ingrid.iplug.dsc.DscSearchPlug">
+        <property name="dscRecordProducer" ref="dscRecordProducer" />
+    </bean>
+    
+    <bean id="dscRecordProducer" class="de.ingrid.iplug.dsc.record.DscRecordCreator">
+        <property name="recordProducer" ref="recordProducer" />
+        <property name="record2IdfMapperList">
+            <list>
+                <ref bean="createIdfMapper"/>
+                <ref bean="scriptedIdfMapper"/>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="recordProducer" class="de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer">
+        <property name="indexFieldID" value="punktkennzeichen.id" />
+    </bean>
+    
+    <bean id="createIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper"/>
+
+    <bean id="scriptedIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
+        <property name="mappingScript" value="classpath:mapping/wsv/geobas_punktkennzeichen_to_idf-1.0.js" />
+        <property name="compile" value="true" />
+    </bean>
+
+</beans>

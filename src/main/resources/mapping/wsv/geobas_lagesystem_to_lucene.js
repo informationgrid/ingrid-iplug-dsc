@@ -28,59 +28,41 @@ var lagesystemId = sourceRecord.get(DatabaseSourceRecord.ID);
 var lagesystemRows = SQL.all("SELECT * FROM lagesystem WHERE id=?", [lagesystemId]);
 for (i=0; i<lagesystemRows.size(); i++) {
     var lagesystemRow = lagesystemRows.get(i);
+    var title = "Lagesystem: " + lagesystemRow.get("lagesystemnummer");
+    var summary = "Stammdaten: " + lagesystemRow.get("lagesystemnummer");
 
-/*
-    // Example iterating all columns !
-    var colNames = lagesystemRow.keySet().toArray();
-    for (var i in colNames) {
-        var colName = colNames[i];
-        IDX.add(colName, lagesystemRow.get(colName));
-	}
-*/
-    IDX.add("title", "Lagesystem: " + lagesystemRow.get("lagesystemnummer"));
-    // only objects passed by ref, NOT plain strings !
-    var summaryObj = { summary:"Stammdaten: " };
-
-    addLagesystem(lagesystemRow, summaryObj);
+    addLagesystem(lagesystemRow);
 
     // ---------- bundesland ----------
     var rows = SQL.all("SELECT * FROM bundesland WHERE id=?", [lagesystemRow.get("bundesland")]);
     for (j=0; j<rows.size(); j++) {
-    	addBundesland(rows.get(j), summaryObj);
-    }
+    	addBundesland(rows.get(j));
+    	summary = summary + ", " + rows.get(j).get("name");
+   }
 
     // ---------- lagesystemdef ----------
     var rows = SQL.all("SELECT * FROM lagesystemdef WHERE id=?", [lagesystemRow.get("lagesystemdef")]);
     for (j=0; j<rows.size(); j++) {
-    	addLagesystemdef(rows.get(j), summaryObj);
+    	addLagesystemdef(rows.get(j));
+    	summary = summary + ", " + rows.get(j).get("name");
     }
 
-    IDX.add("summary", summaryObj.summary);
+    IDX.add("title", title);
+    IDX.add("summary", summary);
 }
 
-function addLagesystem(row, summaryObj) {
+function addLagesystem(row) {
     IDX.add("lagesystem.id", row.get("id"));
     IDX.add("lagesystem.lagesystemnummer", row.get("lagesystemnummer"));
-    if (hasValue(row.get("lagesystemnummer"))) {
-    	summaryObj.summary = summaryObj.summary + row.get("lagesystemnummer");
-    }
 }
-
-function addBundesland(row, summary) {
+function addBundesland(row) {
     IDX.add("bundesland.id", row.get("id"));
     IDX.add("bundesland.kurzbezeichnung", row.get("kurzbezeichnung"));
     IDX.add("bundesland.name", row.get("name"));
-    if (hasValue(row.get("name"))) {
-    	summaryObj.summary = summaryObj.summary + ", " + row.get("name");
-    }
 }
-
-function addLagesystemdef(row, summary) {
+function addLagesystemdef(row) {
     IDX.add("lagesystemdef.id", row.get("id"));
     IDX.add("lagesystemdef.name", row.get("name"));
-    if (hasValue(row.get("name"))) {
-    	summaryObj.summary = summaryObj.summary + ", " + row.get("name");
-    }
 }
 
 function hasValue(val) {
