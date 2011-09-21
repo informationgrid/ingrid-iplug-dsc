@@ -1440,11 +1440,11 @@ function getMdKeywords(rows) {
 
         // "t0114_env_category" table
         } else if (hasValue(row.get("cat_key"))) {
-            keywordValue = TRANSF.getIGCSyslistEntryName(1410, row.get("cat_key"), "en");
+            keywordValue = TRANSF.getIGCSyslistEntryName(1400, row.get("cat_key"), "en");
 
         // "t0114_env_topic" table
         } else if (hasValue(row.get("topic_key"))) {
-            keywordValue = TRANSF.getIGCSyslistEntryName(1400, row.get("topic_key"), "en");
+            keywordValue = TRANSF.getIGCSyslistEntryName(1410, row.get("topic_key"), "en");
         }
 
         if (hasValue(keywordValue)) {
