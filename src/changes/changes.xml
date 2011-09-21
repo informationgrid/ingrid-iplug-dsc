@@ -5,6 +5,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.1.0.1-SNAPSHOT" date="2011-??-??" description="Bugfix Release for InGrid 3.1.0">
+      <action type="fix" dev="wemove">
+        Fixed error in IDF mapping script when getting hierarchyLevel in object class 1.
+      </action>
+    </release>
+
     <release version="3.1.0" date="2011-09-15" description="Release InGrid 3.1">
       <action type="update" dev="wemove">
         Prevent escaping of UTF-8 characters in IDF response.
@@ -27,7 +33,8 @@
       <action type="fix" dev="wemove">
         iPlug can now be used with ORACLE correctly.
       </action>
-    </release>  
+    </release>
+
     <release version="3.0.1.1" date="2011-08-??" description="Bugfix Release for InGrid 3.0.1">
       <action type="fix" dev="wemove">
         ORACLE fixes: fix mapping to IDF, SQL selects.
