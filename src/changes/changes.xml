@@ -7,7 +7,7 @@
   <body>
     <release version="3.1.0.1-SNAPSHOT" date="2011-??-??" description="Bugfix Release for InGrid 3.1.0">
       <action type="fix" dev="wemove">
-        Fixed error in IDF mapping script when getting hierarchyLevel in object class 1.
+        Fixed errors in IDF mapping script (hierarchyLevel in object class 1, mapping env category ...).
       </action>
     </release>
 
