@@ -7,6 +7,9 @@
   <body>
     <release version="3.1.0.1-SNAPSHOT" date="2011-??-??" description="Bugfix Release for InGrid 3.1.0">
       <action type="fix" dev="wemove">
+        Support now setting of schema in database, e.g. for switching schema in Oracle (set in admin UI -> PlugDescription).
+      </action>
+      <action type="fix" dev="wemove">
         Fixed errors in IDF mapping script (hierarchyLevel in object class 1, mapping env category ...).
       </action>
     </release>
