@@ -4,7 +4,6 @@
 package de.ingrid.iplug.dsc.record.producer;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import org.apache.commons.logging.Log;
@@ -15,6 +14,7 @@ import org.apache.lucene.document.Field;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 
@@ -93,12 +93,7 @@ public class PlugDescriptionConfiguredDatabaseRecordProducer implements
     private void openConnection() {
         try {
             if (connection == null || connection.isClosed()) {
-                Class.forName(internalDatabaseConnection.getDataBaseDriver());
-                String url = internalDatabaseConnection.getConnectionURL();
-                String user = internalDatabaseConnection.getUser();
-                String password = internalDatabaseConnection.getPassword();
-                log.info("Opening database connection.");
-                connection = DriverManager.getConnection(url, user, password);
+            	connection = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection);
             }
         } catch (Exception e) {
             log.error("Error opening connection!", e);
@@ -108,8 +103,7 @@ public class PlugDescriptionConfiguredDatabaseRecordProducer implements
     private void closeConnection() {
         if (connection != null) {
             try {
-                log.info("Closing database connection.");
-                connection.close();
+            	DatabaseConnectionUtils.getInstance().closeConnection(connection);
             } catch (SQLException e) {
                 log.error("Error closing connection.", e);
             }
