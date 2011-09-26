@@ -49,6 +49,8 @@ for (i=0; i<hoehensystemRows.size(); i++) {
     var rows = SQL.all("SELECT * FROM bundesland WHERE id=?", [hoehensystemRow.get("bundesland")]);
     for (j=0; j<rows.size(); j++) {
     	var row = rows.get(j);
+        IDX.add("bundesland.id", row.get("id"));
+        IDX.add("bundesland.name", row.get("name"));
     	summary = summary + row.get("name");
    }
 
@@ -56,6 +58,8 @@ for (i=0; i<hoehensystemRows.size(); i++) {
     var rows = SQL.all("SELECT * FROM hoehensystemdef WHERE id=?", [hoehensystemRow.get("hoehensystemdef")]);
     for (j=0; j<rows.size(); j++) {
     	var row = rows.get(j);
+        IDX.add("hoehensystemdef.id", row.get("id"));
+        IDX.add("hoehensystemdef.name", row.get("name"));
     	summary = summary + ", " + row.get("name");
     }
 

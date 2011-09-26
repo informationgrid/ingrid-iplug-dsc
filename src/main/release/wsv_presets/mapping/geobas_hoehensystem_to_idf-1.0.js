@@ -35,6 +35,8 @@ for (i=0; i<hoehensystemRows.size(); i++) {
     DOM.addElement(idfBody, "h1").addText("Stammdaten HOEHENSYSTEM: " + row.get("bundesland") + ", " + row.get("hoehensystemdef") + ", " + row.get("hoehensystemnummer"));
     DOM.addElement(idfBody, "p");
 
+    DOM.addElement(idfBody, "p").addText("Id: " + row.get("id"));
+
     // ---------- bundesland ----------
     var rows = SQL.all("SELECT * FROM bundesland WHERE id=?", [hoehensystemRow.get("bundesland")]);
     for (j=0; j<rows.size(); j++) {
@@ -56,8 +58,8 @@ for (i=0; i<hoehensystemRows.size(); i++) {
     for (j=0; j<rows.size(); j++) {
     	var row = rows.get(j);
 
-        var bundeslandRow = SQL.first("SELECT * FROM bundesland WHERE id=?", [row.get("bundesland")]);
     	var bundesland = row.get("bundesland");
+        var bundeslandRow = SQL.first("SELECT * FROM bundesland WHERE id=?", [row.get("bundesland")]);
     	if (hasValue(bundeslandRow)) {
     		bundesland = bundeslandRow.get("name");
     	}

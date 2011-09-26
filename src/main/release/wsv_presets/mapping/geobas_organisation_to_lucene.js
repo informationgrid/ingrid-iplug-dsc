@@ -23,34 +23,42 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
     throw new IllegalArgumentException("Record is no DatabaseRecord!");
 }
 
-// ---------- bundesland ----------
-var objId = sourceRecord.get(DatabaseSourceRecord.ID);
-var objRows = SQL.all("SELECT * FROM bundesland WHERE id=?", [objId]);
-for (i=0; i<objRows.size(); i++) {
-    var row = objRows.get(i);
-    var title = "Stammdaten BUNDESLAND: ";
+// ---------- organisation ----------
+var organisationId = sourceRecord.get(DatabaseSourceRecord.ID);
+var organisationRows = SQL.all("SELECT * FROM organisation WHERE id=?", [organisationId]);
+for (i=0; i<organisationRows.size(); i++) {
+    var organisationRow = organisationRows.get(i);
+    var row = organisationRow;
+    var title = "Stammdaten ORGANISATION: ";
     var summary = "";
 	var geobasUrl = "http://10.140.105.57:8080/geobas_q1/main?cmd=view_details&id=";
 
-    IDX.add("bundesland.id", row.get("id"));
-    IDX.add("bundesland.kurzbezeichnung", row.get("kurzbezeichnung"));
-    IDX.add("bundesland.name", row.get("name"));
-    IDX.add("bundesland.organisation", row.get("organisation"));
+    IDX.add("organisation.id", row.get("id"));
+    IDX.add("organisation.aktion", row.get("aktion"));
+    IDX.add("organisation.historie", row.get("historie"));
+    IDX.add("organisation.name", row.get("name"));
+    IDX.add("organisation.dienststellenid", row.get("dienststellenid"));
+    IDX.add("organisation.strasse", row.get("strasse"));
+    IDX.add("organisation.plz", row.get("plz"));
+    IDX.add("organisation.bundesland", row.get("bundesland"));
+    IDX.add("organisation.ort", row.get("ort"));
+    IDX.add("organisation.organisationparent", row.get("organisationparent"));
+    IDX.add("organisation.original", row.get("original"));
 
-	title = title + row.get("name") + ", " + row.get("kurzbezeichnung");
-	summary = summary + row.get("name") + ", " + row.get("kurzbezeichnung");
-	geobasUrl = geobasUrl + row.get("id") + "&table=bundesland";
+	title = title + row.get("name") + ", " + row.get("dienststellenid");
+	summary = summary + row.get("name") + ", " + row.get("dienststellenid") + ", " + row.get("strasse") + ", " + row.get("plz") + " " + row.get("ort");
+	geobasUrl = geobasUrl + row.get("id") + "&table=organisation";
 
-    // ---------- organisation ----------
-    var rows = SQL.all("SELECT * FROM organisation WHERE id=?", [row.get("organisation")]);
+    // ---------- bundesland ----------
+    var rows = SQL.all("SELECT * FROM bundesland WHERE id=?", [organisationRow.get("bundesland")]);
     for (j=0; j<rows.size(); j++) {
     	var row = rows.get(j);
-        IDX.add("organisation.id", row.get("id"));
-        IDX.add("organisation.name", row.get("name"));
+        IDX.add("bundesland.id", row.get("id"));
+        IDX.add("bundesland.name", row.get("name"));
     	summary = summary + ", " + row.get("name");
    }
 
-	IDX.add("title", title);
+    IDX.add("title", title);
     IDX.add("summary", summary);
     
     // deliver url or NOT !?
