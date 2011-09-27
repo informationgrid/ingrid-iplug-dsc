@@ -887,11 +887,15 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult> ----------
 	    rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [objId]);
 	    for (i=0; i<rows.size(); i++) {
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+            var dqConformanceResult = getDqConformanceResultElement(rows.get(i));
+    		// only write report if evaluated, see https://dev.wemove.com/jira/browse/INGRID23-165
+            if (hasValue(dqConformanceResult)) {
+                if (!dqDataQuality) {
+                    dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                }
+                dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result")
+                    .addElement(dqConformanceResult);
             }
-            var dqConformanceResult = dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result")
-                .addElement(getDqConformanceResultElement(rows.get(i)));
 	    }
 
         addObjectDataQualityTable(objRow, dqDataQuality);
@@ -966,11 +970,15 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult> ----------
         rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [objId]);
         for (i=0; i<rows.size(); i++) {
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+            var dqConformanceResult = getDqConformanceResultElement(rows.get(i));
+    		// only write report if evaluated, see https://dev.wemove.com/jira/browse/INGRID23-165
+            if (hasValue(dqConformanceResult)) {
+            	if (!dqDataQuality) {
+                    dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                }
+                dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result")
+                    .addElement(dqConformanceResult);
             }
-            var dqConformanceResult = dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result")
-                .addElement(getDqConformanceResultElement(rows.get(i)));
         }
 
         // class 3 and class 6
@@ -1084,6 +1092,15 @@ function getDateOrDateTime(dateValue) {
 
 // "nicht evaluiert"(3) leads to nilReason "unknown"
 function getDqConformanceResultElement(conformityRow) {
+	if (!hasValue(conformityRow.get("degree_key")) || conformityRow.get("degree_key").equals("3")) {
+        // "not evaluated", we retuen null element indicating no "gmd:report" should be written
+		// see https://dev.wemove.com/jira/browse/INGRID23-165
+		if (log.isDebugEnabled()) {
+			log.debug("Object_conformity degree_key = " + conformityRow.get("degree_key") + " (3=not evaluated), we skip this one, no gmd:report !");
+		}
+		return null;
+    }
+
 	var dqConformanceResult = DOM.createElement("gmd:DQ_ConformanceResult");
     var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
 	if (hasValue(conformityRow.get("specification"))) {
@@ -1102,15 +1119,7 @@ function getDqConformanceResultElement(conformityRow) {
         .addAttribute("codeListValue", "publication")
         .addText("publication");
     dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("");
-    if (!hasValue(conformityRow.get("degree_key")) || conformityRow.get("degree_key").equals("3")) {
-        // "not evaluated", we supply nilReason !
-        dqConformanceResult.addElement("gmd:pass").addAttribute("gco:nilReason", "unknown");
-            // add empty gco:Boolean because of Validators !
-            // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
-//            .addElement("gco:Boolean");
-    } else {
-        dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(conformityRow.get("degree_key").equals("1"));
-    }
+    dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(conformityRow.get("degree_key").equals("1"));
     return dqConformanceResult;
 }
 
