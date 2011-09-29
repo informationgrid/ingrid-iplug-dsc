@@ -1319,7 +1319,7 @@ function getIndividualNameFromAddressRow(addressRow) {
     } else if (!hasValue(title) && hasValue(addressing)) {
     	individualName = hasValue(individualName) ? individualName += ", " + addressing : addressing;
     } else if (hasValue(title) && hasValue(addressing)) {
-    	individualName = hasValue(individualName) ? individualName += ", " + title + " " + addressing : title + " " + addressing;
+    	individualName = hasValue(individualName) ? individualName += ", " + addressing + " " + title : addressing + " " + title;
     }
     
     if (log.isDebugEnabled()) {
