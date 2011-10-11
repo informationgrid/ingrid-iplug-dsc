@@ -74,7 +74,7 @@
                             <form:errors path="connectionURL" cssClass="error" element="div" />
                             <br />
                             Please supply the jdbc connection url.
-                            <p style="color: gray;">(Sample: jdbc:mysql:localhost:igc)</p>
+                            <p style="color: gray;">(Sample: jdbc:mysql://localhost:3306/igc)</p>
                         </td>
                     </tr>
                     <tr>
