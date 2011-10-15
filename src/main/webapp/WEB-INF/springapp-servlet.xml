@@ -50,45 +50,57 @@
         </property>
     </bean>
     
-    <bean id="indexWrapper" class="de.ingrid.facetsearch.utils.LuceneIndexReaderWrapper">
-        <qualifier value="XMLconfiguredIndexWrapper"/>
+    <!--
+        Wraps one ore more lucene index reader. The wrapper is injected via
+        XMLconfiguredIndexWrapper into IngridIndexSearcher constructor, so it
+        can be updated in the configure phase.
+    -->
+    <bean id="indexWrapper" class="de.ingrid.search.utils.LuceneIndexReaderWrapper">
+        <qualifier value="XMLconfiguredIndexWrapper" />
     </bean>
 
-    <bean id="facetClassProducer" class="de.ingrid.facetsearch.FacetClassProducer">
-        <property name="indexReaderWrapper" >
-            <ref bean="indexWrapper"/>
-        </property>
-        <property name="queryParsers">
-            <ref bean="de.ingrid.admin.search.QueryParsers"/>
-        </property>
-    </bean>
-    
-    <bean id="facetClassRegisty" class="de.ingrid.facetsearch.FacetClassRegistry">
-        <property name="facetClassProducer">
-            <ref bean="facetClassProducer"/>
-        </property>
-    </bean>
-
-    <bean id="indexFacetCounter" class="de.ingrid.facetsearch.counter.IndexFacetCounter">
-        <property name="facetClassRegistry">
-            <ref bean="facetClassRegisty"/>
-        </property>
-    </bean>
-
-    <bean id="plugDescriptionWrapper" class="de.ingrid.facetsearch.utils.ConfigurablePlugDescriptionWrapper" />
-
-    <bean id="plugDescriptionFacetCounter" class="de.ingrid.facetsearch.counter.DscPlugdescriptionFacetCounter">
-        <property name="plugDescriptionWrapper">
-            <ref bean="plugDescriptionWrapper"/>
-        </property>
-    </bean>
-    
-    <bean id="facetManager" class="de.ingrid.facetsearch.FacetManager">
+    <bean id="facetClassProducer" class="de.ingrid.search.utils.facet.FacetClassProducer">
         <property name="indexReaderWrapper">
-            <ref bean="indexWrapper"/>
+            <ref bean="indexWrapper" />
         </property>
         <property name="queryParsers">
-            <ref bean="de.ingrid.admin.search.QueryParsers"/>
+            <ref bean="de.ingrid.admin.search.QueryParsers" />
+        </property>
+    </bean>
+
+    <bean id="facetClassRegisty" class="de.ingrid.search.utils.facet.FacetClassRegistry">
+        <property name="facetClassProducer">
+            <ref bean="facetClassProducer" />
+        </property>
+    </bean>
+
+    <bean id="indexFacetCounter" class="de.ingrid.search.utils.facet.counter.IndexFacetCounter">
+        <property name="facetClassRegistry">
+            <ref bean="facetClassRegisty" />
+        </property>
+    </bean>
+
+    <!--
+        Wraps a plugdescription object. The wrapper implements IConfigurable
+        and will be updated every time the configure phase takes place (i.e.
+        after changing the iplug configuration).
+    -->
+    <bean id="plugDescriptionWrapper"
+        class="de.ingrid.search.utils.ConfigurablePlugDescriptionWrapper" />
+
+    <bean id="plugDescriptionFacetCounter"
+        class="de.ingrid.search.utils.facet.counter.DscPlugdescriptionFacetCounter">
+        <property name="plugDescriptionWrapper">
+            <ref bean="plugDescriptionWrapper" />
+        </property>
+    </bean>
+
+    <bean id="facetManager" class="de.ingrid.search.utils.facet.FacetManager">
+        <property name="indexReaderWrapper">
+            <ref bean="indexWrapper" />
+        </property>
+        <property name="queryParsers">
+            <ref bean="de.ingrid.admin.search.QueryParsers" />
         </property>
         <property name="facetCounters">
             <list>
@@ -96,7 +108,8 @@
                 <ref bean="indexFacetCounter" />
             </list>
         </property>
-    </bean>    
+    </bean>
+   
 
     <context:component-scan base-package="de.ingrid"/>
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"> 

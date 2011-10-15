@@ -5,7 +5,10 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
-    <release version="3.1.0.1-SNAPSHOT" date="2011-??-??" description="Bugfix Release for InGrid 3.1.0">
+    <release version="3.2.0-SNAPSHOT" date="2011-??-??" description="Feature Release">
+      <action type="add" dev="wemove">
+        Add support for generating facts if requested.
+      </action>
       <action type="fix" dev="wemove">
         Support now setting of schema in database, e.g. for switching schema in Oracle (set in admin UI -> PlugDescription).
       </action>
