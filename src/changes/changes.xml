@@ -7,7 +7,7 @@
   <body>
     <release version="3.2.0-SNAPSHOT" date="2011-??-??" description="Feature Release">
       <action type="add" dev="wemove">
-        Add support for generating facts if requested.
+        Add support for generating facets if requested.
       </action>
       <action type="fix" dev="wemove">
         Support now setting of schema in database, e.g. for switching schema in Oracle (set in admin UI -> PlugDescription).
