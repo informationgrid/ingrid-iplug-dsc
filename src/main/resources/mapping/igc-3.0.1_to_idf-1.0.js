@@ -1555,7 +1555,7 @@ function getServiceType(objClass, objServRow) {
             }
         } else if (objClass.equals("6")) {
             if (serviceTypeKey.equals("1")) {
-                retValue = "information service";
+                retValue = "information system";
             } else if (serviceTypeKey.equals("2")) {
                 retValue = "non geographic service";
 	        } else if (serviceTypeKey.equals("3")) {
