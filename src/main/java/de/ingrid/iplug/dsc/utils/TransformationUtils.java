@@ -37,6 +37,8 @@ public class TransformationUtils {
     private Map<String, String> tmpInfo = new HashMap<String, String>();
 
 	private static TransformationUtils myInstance;
+	
+	public static Long LANG_ID_INGRID_QUERY_VALUE = UtilsUDKCodeLists.LANG_ID_INGRID_QUERY_VALUE;
 
 	/** Get The Singleton.
 	 * NOTICE: Resets internal state (e.g. temporary info), uses passed sqlUtils.
@@ -236,6 +238,33 @@ public class TransformationUtils {
         if (log.isDebugEnabled()) {
             log.debug("Transform IGC syslist entry -> listId '" + igcCodeListId +
             		"', entryId '" + igcEntryId + "' to ISO CodeList entry '" + retValue + "'.");
+        }
+
+		return retValue;
+	}
+
+	/**
+	 * Returns a codeList entry based on an IGC code list domain id and a specific "language" code.
+	 * NOTICE: "language" code can also be just a code for fetching a ingrid specific representation
+	 * of the entry (e.g. ingrid query value of a topic in "Umweltthemen"). 
+	 * If the codelist entry cannot be found null is returned.
+	 */
+	public String getCodeListEntryFromIGCSyslistEntry(Long igcCodeListId, String igcEntryId, Long langIdInCodelist) {
+		if (igcEntryId == null) {
+			return null;
+		}
+
+		String retValue = null;
+		try {
+			retValue = UtilsUDKCodeLists.getCodeListEntryName(igcCodeListId, new Long(igcEntryId), langIdInCodelist);
+		} catch (Exception ex) {
+            log.error("Cannot transform IGC syslist entry -> listId '" + igcCodeListId +
+            	"', entryId '" + igcEntryId + "', langId '" + langIdInCodelist + "' to entry of CodeList.");
+		}
+        if (log.isDebugEnabled()) {
+            log.debug("Transform IGC syslist entry -> listId '" + igcCodeListId +
+            	"', entryId '" + igcEntryId + "', langId '" + langIdInCodelist + 
+            	"' to entry of CodeList '" + retValue + "'.");
         }
 
 		return retValue;

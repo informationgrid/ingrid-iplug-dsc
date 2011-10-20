@@ -715,10 +715,11 @@ function addT01ObjectFrom(row) {
 function addT0114EnvTopic(row) {
     IDX.add("t0114_env_topic.line", row.get("line"));
     IDX.add("t0114_env_topic.topic_key", row.get("topic_key"));
-    // add syslist value to index
-    var listEntryValue = TRANSF.getIGCSyslistEntryName(1410, row.get("topic_key"));
-    IDX.add("topic", listEntryValue);
-    IDX.add("t0114_env_topic.topic_value", listEntryValue);
+    // get the query value of the topic, this one has to be in the "topic" index field (queried by portal)
+    var specificLangId = TRANSF.LANG_ID_INGRID_QUERY_VALUE;
+    IDX.add("topic", TRANSF.getCodeListEntryFromIGCSyslistEntry(1410, row.get("topic_key"), specificLangId));
+    // we also index the displayed value of the topic
+    IDX.add("t0114_env_topic.topic_value", TRANSF.getIGCSyslistEntryName(1410, row.get("topic_key")));
 }
 function addT011ObjTopicCat(row) {
     IDX.add("t011_obj_topic_cat.line", row.get("line"));
