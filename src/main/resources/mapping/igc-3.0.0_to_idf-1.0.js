@@ -804,7 +804,7 @@ for (i=0; i<objRows.size(); i++) {
         if (mdFeatureCatalogueDescription) {
             // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureCatalogueCitation/gmd:CI_Citation> ----------
             var ciCitation = mdFeatureCatalogueDescription.addElement("gmd:featureCatalogueCitation/gmd:CI_Citation");
-            ciCitation.addElement("gmd:title/gco:CharacterString").addText("German Environmental Catalog - parameters of object type 'database', version 1.0");
+            ciCitation.addElement("gmd:title/gco:CharacterString").addText("unknown");
             var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
             ciDate.addElement("gmd:date/gco:Date").addText("2006-05-01");
             ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
