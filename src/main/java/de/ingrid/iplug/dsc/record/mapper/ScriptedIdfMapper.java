@@ -79,6 +79,7 @@ public class ScriptedIdfMapper implements IIdfMapper {
             XPathUtils xpathUtils = new XPathUtils(new IDFNamespaceContext());
             TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
             DOMUtils domUtils = new DOMUtils(doc, xpathUtils);
+            domUtils.addNS("idf", "http://www.portalu.de/IDF/1.0");
 
             Bindings bindings = engine.createBindings();
             bindings.put("sourceRecord", record);

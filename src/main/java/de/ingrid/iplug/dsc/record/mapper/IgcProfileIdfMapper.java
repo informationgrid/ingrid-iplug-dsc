@@ -104,6 +104,8 @@ public class IgcProfileIdfMapper implements IIdfMapper {
                             // get initialized XPathUtils (see above)
                             TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
                             DOMUtils domUtils = new DOMUtils(doc, xpathUtils);
+                            domUtils.addNS("idf", "http://www.portalu.de/IDF/1.0");
+                            
                             IdfUtils idfUtils = new IdfUtils(sqlUtils, domUtils, xpathUtils);
     
                             Bindings bindings = engine.createBindings();
