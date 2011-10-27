@@ -6,6 +6,9 @@
   </properties>
   <body>
     <release version="3.2.0-SNAPSHOT" date="2011-??-??" description="Feature Release">
+      <action type="fix" dev="wemove">
+        Make IDF record generation thread safe.
+      </action>
       <action type="add" dev="wemove">
         Add support for generating facets if requested.
       </action>

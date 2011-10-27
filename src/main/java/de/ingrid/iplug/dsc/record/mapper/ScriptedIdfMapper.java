@@ -22,7 +22,7 @@ import de.ingrid.iplug.dsc.utils.DOMUtils;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
 import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.utils.xml.IDFNamespaceContext;
-import de.ingrid.utils.xml.XPathUtils;
+import de.ingrid.utils.xpath.XPathUtils;
 
 /**
  * 
@@ -60,27 +60,25 @@ public class ScriptedIdfMapper implements IIdfMapper {
         try {
             if (engine == null) {
                 String scriptName = mappingScript.getFilename();
-                String extension = scriptName.substring(scriptName
-                        .lastIndexOf('.') + 1, scriptName.length());
+                String extension = scriptName.substring(scriptName.lastIndexOf('.') + 1, scriptName.length());
                 ScriptEngineManager mgr = new ScriptEngineManager();
                 engine = mgr.getEngineByExtension(extension);
                 if (compile) {
                     if (engine instanceof Compilable) {
                         Compilable compilable = (Compilable) engine;
-                        compiledScript = compilable
-                                .compile(new InputStreamReader(mappingScript
-                                        .getInputStream()));
+                        compiledScript = compilable.compile(new InputStreamReader(mappingScript.getInputStream()));
                     }
                 }
             }
 
             // create utils for script
             Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
-            SQLUtils sqlUtils = SQLUtils.getInstance(connection);
-            // initialize static XPathUtils (encapsulated static XPath instance))
-            XPathUtils xpathUtils = XPathUtils.getInstance(new IDFNamespaceContext());
-            TransformationUtils trafoUtils = TransformationUtils.getInstance(sqlUtils);
-            DOMUtils domUtils = DOMUtils.getInstance(doc);
+            SQLUtils sqlUtils = new SQLUtils(connection);
+            // initialize static XPathUtils (encapsulated static XPath
+            // instance))
+            XPathUtils xpathUtils = new XPathUtils(new IDFNamespaceContext());
+            TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
+            DOMUtils domUtils = new DOMUtils(doc, xpathUtils);
 
             Bindings bindings = engine.createBindings();
             bindings.put("sourceRecord", record);
@@ -94,8 +92,7 @@ public class ScriptedIdfMapper implements IIdfMapper {
             if (compiledScript != null) {
                 compiledScript.eval(bindings);
             } else {
-                engine.eval(new InputStreamReader(mappingScript
-                        .getInputStream()), bindings);
+                engine.eval(new InputStreamReader(mappingScript.getInputStream()), bindings);
             }
         } catch (Exception e) {
             log.error("Error mapping source record to idf document.", e);

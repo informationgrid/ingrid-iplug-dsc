@@ -21,7 +21,7 @@ import de.ingrid.utils.udk.UtilsUDKCodeLists;
 import de.ingrid.utils.udk.UtilsLanguageCodelist.ISO_639_2_Type;
 
 /**
- * Singleton helper class encapsulating functionality for transforming or processing values (e.g. used in mapping script).
+ * Helper class encapsulating functionality for transforming or processing values (e.g. used in mapping script). Must be instantiated to be thread safe.
  *  
  * @author Martin
  */
@@ -36,29 +36,10 @@ public class TransformationUtils {
      * Values/fields are added and cleared in according methods ! */
     private Map<String, String> tmpInfo = new HashMap<String, String>();
 
-	private static TransformationUtils myInstance;
-	
 	public static Long LANG_ID_INGRID_QUERY_VALUE = UtilsUDKCodeLists.LANG_ID_INGRID_QUERY_VALUE;
 
-	/** Get The Singleton.
-	 * NOTICE: Resets internal state (e.g. temporary info), uses passed sqlUtils.
-	 * @param sqlUtils always pass SQLUtils, e.g. needed when translating syslist keys to values ...
-	 * @return
-	 */
-	public static synchronized TransformationUtils getInstance(SQLUtils sqlUtils) {
-		if (myInstance == null) {
-	        myInstance = new TransformationUtils();
-		}
-		myInstance.initialize(sqlUtils);
-
-		return myInstance;
-	}
-
-	private TransformationUtils() {
-	}
-	private void initialize(SQLUtils sqlUtils) {
-		this.SQL = sqlUtils;
-		this.tmpInfo.clear();
+	public TransformationUtils(SQLUtils sqlUtils) {
+	    this.SQL = sqlUtils;
 	}
 
 	/** Get the name of the given entry in the given syslist IN THE LANGUAGE OF THE CATALOG.

@@ -16,8 +16,8 @@ import org.apache.lucene.document.NumericField;
 import org.apache.lucene.util.Version;
 
 /**
- * Singleton helper class encapsulating functionality on Lucene Index (e.g. used
- * in mapping script).
+ * Helper class encapsulating functionality on Lucene Index (e.g. used in
+ * mapping script). Must be instantiated to be thread safe.
  * 
  * @author Martin
  */
@@ -38,25 +38,7 @@ public class IndexUtils {
     // String[0]);
     private static StandardAnalyzer fAnalyzer = new StandardAnalyzer(Version.LUCENE_CURRENT);
 
-    // our single instance !
-    private static IndexUtils myInstance;
-
-    /**
-     * Get The Singleton. NOTICE: Resets internal state (uses passed luceneDoc).
-     */
-    public static synchronized IndexUtils getInstance(Document luceneDoc) {
-        if (myInstance == null) {
-            myInstance = new IndexUtils();
-        }
-        myInstance.initialize(luceneDoc);
-
-        return myInstance;
-    }
-
-    private IndexUtils() {
-    }
-
-    private void initialize(Document luceneDoc) {
+    public IndexUtils(Document luceneDoc) {
         this.luceneDoc = luceneDoc;
     }
 

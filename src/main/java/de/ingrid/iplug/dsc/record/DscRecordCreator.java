@@ -14,6 +14,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
 
+import de.ingrid.iplug.dsc.om.IClosableDataSource;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.record.producer.IRecordProducer;
@@ -36,8 +37,7 @@ import de.ingrid.utils.xml.XMLUtils;
  */
 public class DscRecordCreator {
 
-    protected static final Logger log = Logger
-            .getLogger(DscRecordCreator.class);
+    protected static final Logger log = Logger.getLogger(DscRecordCreator.class);
 
     private IRecordProducer recordProducer = null;
 
@@ -55,9 +55,10 @@ public class DscRecordCreator {
      * @throws Exception
      */
     public Record getRecord(Document idxDoc) throws Exception {
+        IClosableDataSource datasource = null;
         try {
-            recordProducer.openDatasource();
-            SourceRecord sourceRecord = recordProducer.getRecord(idxDoc);
+            datasource = recordProducer.openDatasource();
+            SourceRecord sourceRecord = recordProducer.getRecord(idxDoc, datasource);
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = dbf.newDocumentBuilder();
             org.w3c.dom.Document idfDoc = docBuilder.newDocument();
@@ -68,7 +69,8 @@ public class DscRecordCreator {
                 }
                 record2IdfMapper.map(sourceRecord, idfDoc);
                 if (log.isDebugEnabled()) {
-                    log.debug("Mapping of source record with " + record2IdfMapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
+                    log.debug("Mapping of source record with " + record2IdfMapper + " took: "
+                            + (System.currentTimeMillis() - start) + " ms.");
                 }
             }
             Record record = new Record();
@@ -78,8 +80,7 @@ public class DscRecordCreator {
             }
             if (compressed) {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                BufferedOutputStream bufos = new BufferedOutputStream(
-                        new GZIPOutputStream(bos));
+                BufferedOutputStream bufos = new BufferedOutputStream(new GZIPOutputStream(bos));
                 bufos.write(data.getBytes());
                 bufos.close();
                 data = new String(bos.toByteArray());
@@ -94,7 +95,9 @@ public class DscRecordCreator {
             log.error("Error creating IDF document.", e);
             throw e;
         } finally {
-            recordProducer.closeDatasource();
+            if (datasource != null) {
+                datasource.close();
+            }
         }
     }
 

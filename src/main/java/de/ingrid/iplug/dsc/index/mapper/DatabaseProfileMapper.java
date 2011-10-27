@@ -20,7 +20,8 @@ import org.xml.sax.InputSource;
 
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
-import de.ingrid.utils.xml.XPathUtils;
+import de.ingrid.utils.xml.IDFNamespaceContext;
+import de.ingrid.utils.xpath.XPathUtils;
 
 /**
  * Specialized class to add IGC profile defined values to a lucene document. It
@@ -39,6 +40,9 @@ public class DatabaseProfileMapper implements IRecordMapper {
     final private static Log log = LogFactory
             .getLog(DatabaseProfileMapper.class);
 
+    final private XPathUtils xPathUtils = new XPathUtils(new IDFNamespaceContext());
+    
+    
     /*
      * (non-Javadoc)
      * 
@@ -67,13 +71,13 @@ public class DatabaseProfileMapper implements IRecordMapper {
             org.w3c.dom.Document document = factory.newDocumentBuilder().parse(
                     source);
             rs.close();
-            NodeList nl = XPathUtils.getNodeList(document,
+            NodeList nl = xPathUtils.getNodeList(document,
                     "/PATH_TO_ADDITIONAL_FIELDS");
             for (int i = 0; i < nl.getLength(); i++) {
                 Node n = nl.item(i);
-                String dbName = XPathUtils.getString(n,
+                String dbName = xPathUtils.getString(n,
                         "/XPATH_TO_DB_FIELD_NAME");
-                String idxName = XPathUtils.getString(n,
+                String idxName = xPathUtils.getString(n,
                         "/XPATH_TO_INDEX_FIELD_NAME");
                 PreparedStatement ps = connection
                         .prepareStatement("SELECT value FROM additional_fields WHERE key_name='"

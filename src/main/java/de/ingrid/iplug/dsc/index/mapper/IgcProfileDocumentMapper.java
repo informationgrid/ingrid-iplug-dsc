@@ -26,7 +26,7 @@ import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.utils.xml.ConfigurableNamespaceContext;
 import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xml.IgcProfileNamespaceContext;
-import de.ingrid.utils.xml.XPathUtils;
+import de.ingrid.utils.xpath.XPathUtils;
 
 /**
  * IGC profile based source record to lucene document mapping. It maps the
@@ -46,6 +46,8 @@ public class IgcProfileDocumentMapper implements IRecordMapper {
     private String sql;
 
     private static final Logger log = Logger.getLogger(IgcProfileDocumentMapper.class);
+    
+    private XPathUtils xPathUtils = null;
 
     @Override
     public void map(SourceRecord record, Document doc) throws Exception {
@@ -55,7 +57,7 @@ public class IgcProfileDocumentMapper implements IRecordMapper {
         ConfigurableNamespaceContext cnc = new ConfigurableNamespaceContext();
         cnc.addNamespaceContext(new IDFNamespaceContext());
         cnc.addNamespaceContext(new IgcProfileNamespaceContext());
-        XPathUtils.getXPathInstance().setNamespaceContext(cnc);
+        xPathUtils = new XPathUtils(cnc);
         String objId = (String) record.get(DatabaseSourceRecord.ID);
 
         Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
@@ -72,13 +74,13 @@ public class IgcProfileDocumentMapper implements IRecordMapper {
                 DocumentBuilder db;
                 db = dbf.newDocumentBuilder();
                 org.w3c.dom.Document igcProfile = db.parse(new InputSource(new StringReader(igcProfileStr)));
-                NodeList igcProfileIndexNames = XPathUtils.getNodeList(igcProfile, "//igcp:controls/*//igcp:indexName");
+                NodeList igcProfileIndexNames = xPathUtils.getNodeList(igcProfile, "//igcp:controls/*//igcp:indexName");
                 Map<String, String> profileInfo = new HashMap<String, String>();
                 for (int i = 0; i < igcProfileIndexNames.getLength(); i++) {
                     String igcProfileIndexName = igcProfileIndexNames.item(i).getTextContent();
                     if (igcProfileIndexName != null && igcProfileIndexName.trim().length() > 0) {
                         Node igcProfileNode = igcProfileIndexNames.item(i).getParentNode();
-                        String igcProfileNodeId = XPathUtils.getString(igcProfileNode, "igcp:id");
+                        String igcProfileNodeId = xPathUtils.getString(igcProfileNode, "igcp:id");
                         profileInfo.put(igcProfileNodeId, igcProfileIndexName);
                     }
                 }

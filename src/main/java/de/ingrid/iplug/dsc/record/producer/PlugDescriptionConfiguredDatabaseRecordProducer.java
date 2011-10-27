@@ -3,16 +3,15 @@
  */
 package de.ingrid.iplug.dsc.record.producer;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
+import de.ingrid.iplug.dsc.om.ClosableDatabaseConnection;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
+import de.ingrid.iplug.dsc.om.IClosableDataSource;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
 import de.ingrid.utils.IConfigurable;
@@ -30,16 +29,13 @@ import de.ingrid.utils.PlugDescription;
  * @author joachim@wemove.com
  * 
  */
-public class PlugDescriptionConfiguredDatabaseRecordProducer implements
-        IRecordProducer, IConfigurable {
+public class PlugDescriptionConfiguredDatabaseRecordProducer implements IRecordProducer, IConfigurable {
 
     private String indexFieldID;
 
     DatabaseConnection internalDatabaseConnection = null;
-    Connection connection = null;
 
-    final private static Log log = LogFactory
-            .getLog(PlugDescriptionConfiguredDatabaseRecordProducer.class);
+    final private static Log log = LogFactory.getLog(PlugDescriptionConfiguredDatabaseRecordProducer.class);
 
     /*
      * (non-Javadoc)
@@ -49,15 +45,19 @@ public class PlugDescriptionConfiguredDatabaseRecordProducer implements
      * .document.Document)
      */
     @Override
-    public SourceRecord getRecord(Document doc) {
+    public SourceRecord getRecord(Document doc, IClosableDataSource ds) {
         if (indexFieldID == null) {
             log.error("Name of ID-Field in Lucene Doc is not set!");
             throw new IllegalArgumentException("Name of ID-Field in Lucene Doc is not set!");
         }
+        if (!(ds instanceof ClosableDatabaseConnection)) {
+            log.error("Datasource is no database datasource!");
+            throw new IllegalArgumentException("Datasource is no database datasource!");
+        }
 
-        openConnection();
         Field field = doc.getField(indexFieldID);
-        return new DatabaseSourceRecord(field.stringValue(), connection);
+
+        return new DatabaseSourceRecord(field.stringValue(), ((ClosableDatabaseConnection) ds).getConnection());
     }
 
     /*
@@ -69,52 +69,30 @@ public class PlugDescriptionConfiguredDatabaseRecordProducer implements
      */
     @Override
     public void configure(PlugDescription plugDescription) {
-        this.internalDatabaseConnection = (DatabaseConnection) plugDescription
-                .getConnection();
+        this.internalDatabaseConnection = (DatabaseConnection) plugDescription.getConnection();
     }
 
-    /* (non-Javadoc)
-     * @see de.ingrid.iplug.dsc.record.IRecordProducer#closeDatasource()
-     */
-    @Override
-    public void closeDatasource() {
-        closeConnection();
-    }
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see de.ingrid.iplug.dsc.record.IRecordProducer#openDatasource()
      */
     @Override
-    public void openDatasource() {
-        openConnection();
-
-    }
-
-    private void openConnection() {
+    public IClosableDataSource openDatasource() {
         try {
-            if (connection == null || connection.isClosed()) {
-            	connection = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection);
-            }
+            return new ClosableDatabaseConnection(DatabaseConnectionUtils.getInstance().openConnection(
+                    internalDatabaseConnection));
         } catch (Exception e) {
             log.error("Error opening connection!", e);
         }
+        return null;
     }
 
-    private void closeConnection() {
-        if (connection != null) {
-            try {
-            	DatabaseConnectionUtils.getInstance().closeConnection(connection);
-            } catch (SQLException e) {
-                log.error("Error closing connection.", e);
-            }
-        }
+    public String getIndexFieldID() {
+        return indexFieldID;
     }
 
-	public String getIndexFieldID() {
-		return indexFieldID;
-	}
-
-	public void setIndexFieldID(String indexFieldID) {
-		this.indexFieldID = indexFieldID;
-	}
+    public void setIndexFieldID(String indexFieldID) {
+        this.indexFieldID = indexFieldID;
+    }
 }

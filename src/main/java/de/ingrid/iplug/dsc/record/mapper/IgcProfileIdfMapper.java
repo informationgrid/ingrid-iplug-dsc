@@ -30,7 +30,7 @@ import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.utils.xml.ConfigurableNamespaceContext;
 import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xml.IgcProfileNamespaceContext;
-import de.ingrid.utils.xml.XPathUtils;
+import de.ingrid.utils.xpath.XPathUtils;
 
 /**
  * Analyzes a IGC Profile, obtained from an IGC database and executes all
@@ -61,8 +61,8 @@ public class IgcProfileIdfMapper implements IIdfMapper {
         cnc.addNamespaceContext(new IDFNamespaceContext());
         cnc.addNamespaceContext(new IgcProfileNamespaceContext());
         
-        XPathUtils.getXPathInstance().setNamespaceContext(cnc);
-        if (!(XPathUtils.nodeExists(doc, "//idf:html"))) {
+        XPathUtils xpathUtils = new XPathUtils(cnc);
+        if (!(xpathUtils.nodeExists(doc, "//idf:html"))) {
             throw new IllegalArgumentException("Document is no IDF!");
         }
         Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
@@ -82,7 +82,7 @@ public class IgcProfileIdfMapper implements IIdfMapper {
                 DocumentBuilder db;
                 db = dbf.newDocumentBuilder();
                 Document igcProfile = db.parse(new InputSource(new StringReader(igcProfileStr)));
-                NodeList igcProfileCswMappings = XPathUtils.getNodeList(igcProfile, "//igcp:controls/*/igcp:scriptedCswMapping");
+                NodeList igcProfileCswMappings = xpathUtils.getNodeList(igcProfile, "//igcp:controls/*/igcp:scriptedCswMapping");
                 if (log.isDebugEnabled()) {
                     log.debug("cswMappings found: " + igcProfileCswMappings.getLength());
                 }
@@ -100,12 +100,11 @@ public class IgcProfileIdfMapper implements IIdfMapper {
                             }
     
                             // create utils for script
-                            SQLUtils sqlUtils = SQLUtils.getInstance(connection);
+                            SQLUtils sqlUtils = new SQLUtils(connection);
                             // get initialized XPathUtils (see above)
-                            XPathUtils xpathUtils = XPathUtils.getInstance();
-                            TransformationUtils trafoUtils = TransformationUtils.getInstance(sqlUtils);
-                            DOMUtils domUtils = DOMUtils.getInstance(doc);
-                            IdfUtils idfUtils = IdfUtils.getInstance(sqlUtils, domUtils);
+                            TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
+                            DOMUtils domUtils = new DOMUtils(doc, xpathUtils);
+                            IdfUtils idfUtils = new IdfUtils(sqlUtils, domUtils, xpathUtils);
     
                             Bindings bindings = engine.createBindings();
                             bindings.put("sourceRecord", record);

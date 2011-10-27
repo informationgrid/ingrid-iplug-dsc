@@ -19,11 +19,12 @@ import de.ingrid.iplug.dsc.utils.DOMUtils.IdfElement;
 import de.ingrid.utils.xml.ConfigurableNamespaceContext;
 import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xml.IgcProfileNamespaceContext;
-import de.ingrid.utils.xml.XPathUtils;
+import de.ingrid.utils.xpath.XPathUtils;
 
 /**
  * This class provides helper functions for mapping certain data structures into
- * the IDF format. This class is IGC specific.
+ * the IDF format. This class is IGC specific. Must be instantiated to be thread
+ * safe.
  * 
  * @author joachim@wemove.com
  * 
@@ -38,33 +39,16 @@ public class IdfUtils {
     /** e.g. for creating values in DOM */
     private DOMUtils DOM = null;
 
-    private static IdfUtils myInstance;
+    private XPathUtils xPathUtils = null;
 
-    /**
-     * Get The Singleton.
-     * 
-     * @param sqlUtils
-     * @param domUtils
-     * @return
-     */
-    public static synchronized IdfUtils getInstance(SQLUtils sqlUtils, DOMUtils domUtils) {
-        if (myInstance == null) {
-            myInstance = new IdfUtils();
-        }
-        myInstance.initialize(sqlUtils, domUtils);
-
-        return myInstance;
-    }
-
-    private IdfUtils() {
-    }
-
-    private void initialize(SQLUtils sqlUtils, DOMUtils domUtils) {
+    public IdfUtils(SQLUtils sqlUtils, DOMUtils domUtils, XPathUtils xPathUtils) {
         this.SQL = sqlUtils;
         this.DOM = domUtils;
+        this.xPathUtils = xPathUtils;
         ConfigurableNamespaceContext nsc = new ConfigurableNamespaceContext();
         nsc.addNamespaceContext(new IDFNamespaceContext());
         nsc.addNamespaceContext(new IgcProfileNamespaceContext());
+
     }
 
     /**
@@ -96,38 +80,35 @@ public class IdfUtils {
 
             if (igcProfileControlNode.getLocalName().equals("tableControl")) {
                 String id = (String) sourceRecord.get(DatabaseSourceRecord.ID);
-                String igcProfileControlNodeId = XPathUtils.getString(igcProfileControlNode, "igcp:id");
-                List<Map<String, String>> contentRows = SQL
-                        .all(
-                                "SELECT afd.sort, afd.field_key, afd.data " +
-                                "FROM additional_field_data afd, additional_field_data afd_parent " +
-                                "WHERE afd.parent_field_id = afd_parent.id " +
-                                "AND afd_parent.obj_id=? " +
-                                "AND afd_parent.field_key=? " +
-                                "ORDER BY afd.sort",
-                                new Object[] { id, igcProfileControlNodeId });
+                String igcProfileControlNodeId = xPathUtils.getString(igcProfileControlNode, "igcp:id");
+                List<Map<String, String>> contentRows = SQL.all("SELECT afd.sort, afd.field_key, afd.data "
+                        + "FROM additional_field_data afd, additional_field_data afd_parent "
+                        + "WHERE afd.parent_field_id = afd_parent.id " + "AND afd_parent.obj_id=? "
+                        + "AND afd_parent.field_key=? " + "ORDER BY afd.sort", new Object[] { id,
+                        igcProfileControlNodeId });
                 if (contentRows != null && !contentRows.isEmpty()) {
                     IdfElement additionalDataSection = createDataSectionElement(idfDoc, igcProfileControlNode);
                     // add IDF table element
                     IdfElement additionalDataTable = additionalDataSection.addElement("idf:additionalDataTable")
-                    	.addAttribute("id", igcProfileControlNodeId);
-                    NodeList localizedLabels = XPathUtils.getNodeList(igcProfileControlNode, "igcp:localizedLabel");
+                            .addAttribute("id", igcProfileControlNodeId);
+                    NodeList localizedLabels = xPathUtils.getNodeList(igcProfileControlNode, "igcp:localizedLabel");
                     for (int i = 0; i < localizedLabels.getLength(); i++) {
                         Node localizedLabel = localizedLabels.item(i);
-                        additionalDataTable.addElement("idf:title").addText(localizedLabel.getTextContent()).addAttribute(
-                                "lang", localizedLabel.getAttributes().getNamedItem("lang").getNodeValue());
+                        additionalDataTable.addElement("idf:title").addText(localizedLabel.getTextContent())
+                                .addAttribute("lang",
+                                        localizedLabel.getAttributes().getNamedItem("lang").getNodeValue());
                     }
                     // add IDF table column elements
                     // remember them in list (order correctly)
-                    List<String> columnIds = new ArrayList<String>(); 
-                    NodeList tableControls = XPathUtils.getNodeList(igcProfileControlNode, "igcp:columns/*");
+                    List<String> columnIds = new ArrayList<String>();
+                    NodeList tableControls = xPathUtils.getNodeList(igcProfileControlNode, "igcp:columns/*");
                     for (int i = 0; i < tableControls.getLength(); i++) {
                         Node igcProfileTableControl = tableControls.item(i);
-                        String igcProfileTableControlId = XPathUtils.getString(igcProfileTableControl, "igcp:id");
+                        String igcProfileTableControlId = xPathUtils.getString(igcProfileTableControl, "igcp:id");
                         columnIds.add(igcProfileTableControlId);
                         IdfElement tableColumn = additionalDataTable.addElement("idf:tableColumn").addAttribute("id",
                                 igcProfileTableControlId);
-                        localizedLabels = XPathUtils.getNodeList(igcProfileTableControl, "igcp:localizedLabel");
+                        localizedLabels = xPathUtils.getNodeList(igcProfileTableControl, "igcp:localizedLabel");
                         for (int j = 0; j < localizedLabels.getLength(); j++) {
                             Node localizedLabel = localizedLabels.item(j);
                             tableColumn.addElement("idf:title").addText(localizedLabel.getTextContent()).addAttribute(
@@ -135,53 +116,56 @@ public class IdfUtils {
                         }
                     }
                     // add IDF table row data
-                    // copy column array, shows which columns per row are unprocessed (have NO DATA)
-            		ArrayList<String> columnIdsUnprocessed = new ArrayList<String>(columnIds);
-            		String currentRow = null;
+                    // copy column array, shows which columns per row are
+                    // unprocessed (have NO DATA)
+                    ArrayList<String> columnIdsUnprocessed = new ArrayList<String>(columnIds);
+                    String currentRow = null;
                     for (int i = 0; i < contentRows.size(); i++) {
                         Map<String, String> contentRow = contentRows.get(i);
-                    	if (currentRow == null) {
-                    		currentRow = contentRow.get("sort");
-                    	}
-                    	if (!currentRow.equals(contentRow.get("sort"))) {
-                    		// new row !
-                    		// we check whether unprocessed Columns and add empty values !
-                    		for (String columnIdUnprocessed : columnIdsUnprocessed) {
-                    			addDataToTableColumn(additionalDataTable, columnIdUnprocessed, "");
-                    		}
-                    		// initialize for next row !
-                    		currentRow = contentRow.get("sort");
-                    		columnIdsUnprocessed = new ArrayList<String>(columnIds);
-                    	}
-                    	String columnId = contentRow.get("field_key");
-            			addDataToTableColumn(additionalDataTable, columnId, contentRow.get("data"));
-            			columnIdsUnprocessed.remove(columnId);
+                        if (currentRow == null) {
+                            currentRow = contentRow.get("sort");
+                        }
+                        if (!currentRow.equals(contentRow.get("sort"))) {
+                            // new row !
+                            // we check whether unprocessed Columns and add
+                            // empty values !
+                            for (String columnIdUnprocessed : columnIdsUnprocessed) {
+                                addDataToTableColumn(additionalDataTable, columnIdUnprocessed, "");
+                            }
+                            // initialize for next row !
+                            currentRow = contentRow.get("sort");
+                            columnIdsUnprocessed = new ArrayList<String>(columnIds);
+                        }
+                        String columnId = contentRow.get("field_key");
+                        addDataToTableColumn(additionalDataTable, columnId, contentRow.get("data"));
+                        columnIdsUnprocessed.remove(columnId);
                     }
                     // process last Row !
-            		for (String columnIdUnprocessed : columnIdsUnprocessed) {
-            			addDataToTableColumn(additionalDataTable, columnIdUnprocessed, "");
-            		}
+                    for (String columnIdUnprocessed : columnIdsUnprocessed) {
+                        addDataToTableColumn(additionalDataTable, columnIdUnprocessed, "");
+                    }
                 }
 
             } else {
                 // add the IDF data node
                 String id = (String) sourceRecord.get(DatabaseSourceRecord.ID);
-                String igcProfileControlId = XPathUtils.getString(igcProfileControlNode, "igcp:id");
+                String igcProfileControlId = xPathUtils.getString(igcProfileControlNode, "igcp:id");
                 Map<String, String> content = SQL.first(
                         "SELECT data FROM additional_field_data WHERE obj_id=? AND field_key=?", new Object[] { id,
                                 igcProfileControlId });
                 if (content != null && !content.isEmpty()) {
                     IdfElement additionalDataSection = createDataSectionElement(idfDoc, igcProfileControlNode);
                     IdfElement additionalData = additionalDataSection.addElement("idf:additionalDataField")
-                    	.addAttribute("id", igcProfileControlId);
-                    NodeList localizedLabels = XPathUtils.getNodeList(igcProfileControlNode, "igcp:localizedLabel");
+                            .addAttribute("id", igcProfileControlId);
+                    NodeList localizedLabels = xPathUtils.getNodeList(igcProfileControlNode, "igcp:localizedLabel");
                     for (int i = 0; i < localizedLabels.getLength(); i++) {
                         Node localizedLabel = localizedLabels.item(i);
                         String title = localizedLabel.getTextContent();
                         String lang = localizedLabel.getAttributes().getNamedItem("lang").getNodeValue();
                         additionalData.addElement("idf:title").addText(title).addAttribute("lang", lang);
                     }
-                    NodeList localizedPostfixs = XPathUtils.getNodeList(igcProfileControlNode, "igcp:localizedLabelPostfix");
+                    NodeList localizedPostfixs = xPathUtils.getNodeList(igcProfileControlNode,
+                            "igcp:localizedLabelPostfix");
                     for (int i = 0; i < localizedPostfixs.getLength(); i++) {
                         Node localizedPostfix = localizedPostfixs.item(i);
                         String value = localizedPostfix.getTextContent();
@@ -198,11 +182,11 @@ public class IdfUtils {
     }
 
     private void addDataToTableColumn(IdfElement additionalDataTable, String columnId, String data) {
-        Node tableColumnNode =
-        	XPathUtils.getNode(additionalDataTable.getElement(), "idf:tableColumn[@id='" + columnId + "']");
+        Node tableColumnNode = xPathUtils.getNode(additionalDataTable.getElement(), "idf:tableColumn[@id='" + columnId
+                + "']");
         if (tableColumnNode == null) {
-            throw new IllegalArgumentException("Unexpected table column id '"
-                    + columnId + "'. Column ID does not exist in profile.");
+            throw new IllegalArgumentException("Unexpected table column id '" + columnId
+                    + "'. Column ID does not exist in profile.");
         } else {
             DOM.addElement((Element) tableColumnNode, "idf:data").addText(data);
         }
@@ -225,26 +209,27 @@ public class IdfUtils {
         // get IGC profile layout node
         Node igcProfileLayoutRubricNode = igcProfileControlNode.getParentNode().getParentNode();
         // get the id of the IGC profile layout node
-        String igcProfileLayoutRubricId = XPathUtils.getString(igcProfileLayoutRubricNode, "igcp:id");
+        String igcProfileLayoutRubricId = xPathUtils.getString(igcProfileLayoutRubricNode, "igcp:id");
         // try to get the IDF additional data section node
-        Node additionalDataSectionNode = XPathUtils.getNode(idfDoc,
+        Node additionalDataSectionNode = xPathUtils.getNode(idfDoc,
                 "/idf:html/idf:body/idf:idfMdMetadata/idf:additionalDataSection[@id='" + igcProfileLayoutRubricId
                         + "']");
         IdfElement additionalDataSection;
         if (additionalDataSectionNode == null) {
             // create IDF additional data section node
-            Node idfBodyNode = XPathUtils.getNode(idfDoc, "/idf:html/idf:body");
-            Element idfMetadataNode = (Element)XPathUtils.getNode(idfBodyNode, "idf:idfMdMetadata");
+            Node idfBodyNode = xPathUtils.getNode(idfDoc, "/idf:html/idf:body");
+            Element idfMetadataNode = (Element) xPathUtils.getNode(idfBodyNode, "idf:idfMdMetadata");
             if (idfMetadataNode == null) {
                 idfMetadataNode = DOM.addElement((Element) idfBodyNode, "idf:idfMdMetadata").getElement();
                 idfMetadataNode.setAttribute("xmlns:gmd", DOM.getNS("gmd"));
                 idfMetadataNode.setAttribute("xmlns:gco", DOM.getNS("gco"));
             }
-            String isLegacy = XPathUtils.getString(igcProfileLayoutRubricNode, "./@isLegacy");
-            if (isLegacy == null) isLegacy = "false";
+            String isLegacy = xPathUtils.getString(igcProfileLayoutRubricNode, "./@isLegacy");
+            if (isLegacy == null)
+                isLegacy = "false";
             additionalDataSection = DOM.addElement((Element) idfMetadataNode, "idf:additionalDataSection")
                     .addAttribute("id", igcProfileLayoutRubricId).addAttribute("isLegacy", isLegacy);
-            NodeList localizedLabels = XPathUtils.getNodeList(igcProfileLayoutRubricNode, "igcp:localizedLabel");
+            NodeList localizedLabels = xPathUtils.getNodeList(igcProfileLayoutRubricNode, "igcp:localizedLabel");
             for (int i = 0; i < localizedLabels.getLength(); i++) {
                 Node localizedLabel = localizedLabels.item(i);
                 additionalDataSection.addElement("idf:title").addText(localizedLabel.getTextContent()).addAttribute(

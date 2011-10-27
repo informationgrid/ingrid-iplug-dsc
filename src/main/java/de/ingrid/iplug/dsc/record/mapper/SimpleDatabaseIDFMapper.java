@@ -15,7 +15,7 @@ import org.w3c.dom.Node;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.utils.xml.IDFNamespaceContext;
-import de.ingrid.utils.xml.XPathUtils;
+import de.ingrid.utils.xpath.XPathUtils;
 
 /**
  * Maps a {@link DatabaseSourceRecord} into an InGrid Detail data Format (IDF).
@@ -36,6 +36,8 @@ public class SimpleDatabaseIDFMapper implements IIdfMapper {
             .getLogger(SimpleDatabaseIDFMapper.class);
 
     private String sql;
+    
+    final private XPathUtils xPathUtils = new XPathUtils(new IDFNamespaceContext());
 
     @Override
     public void map(SourceRecord record, Document doc) throws Exception {
@@ -54,8 +56,7 @@ public class SimpleDatabaseIDFMapper implements IIdfMapper {
             for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
                 String colName = rs.getMetaData().getColumnName(i);
                 String colValue = rs.getString(i);
-                XPathUtils.getXPathInstance().setNamespaceContext(new IDFNamespaceContext());
-                Node body = XPathUtils.getNode(doc, "/idf:html/idf:body");
+                Node body = xPathUtils.getNode(doc, "/idf:html/idf:body");
                 Node p = body.appendChild(doc.createElementNS("http://www.portalu.de/IDF/1.0", "p"));
                 Node strong = p.appendChild(doc.createElementNS("http://www.portalu.de/IDF/1.0", "strong"));
                 strong.appendChild(doc.createTextNode(colName+": "));
