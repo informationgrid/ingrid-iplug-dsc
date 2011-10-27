@@ -44,12 +44,12 @@ public class DatabaseConnectionUtils {
         String user = internalDatabaseConnection.getUser();
         String password = internalDatabaseConnection.getPassword();
 
-        log.info("Opening database connection.");
+        log.debug("Opening database connection.");
         Connection conn = DriverManager.getConnection(url, user, password); 
 
         String schema = internalDatabaseConnection.getSchema();
         if (schema != null && schema.length() > 0) {
-            log.info("database, set schema '" + schema + "'");
+            log.debug("database, set schema '" + schema + "'");
 // Throws Exception "AbstractMethod" seems to be not implemented in oracle driver !
 //        	conn.setSchema(schema);
         	
