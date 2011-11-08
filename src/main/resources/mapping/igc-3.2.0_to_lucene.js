@@ -732,14 +732,15 @@ function addObjectAccess(row) {
 }
 function addObjectUse(row) {
     IDX.add("object_use.line", row.get("line"));
-    IDX.add("object_use.terms_of_use", row.get("terms_of_use"));
+    IDX.add("object_use.terms_of_use_key", row.get("terms_of_use_key"));
+    IDX.add("object_use.terms_of_use_value", row.get("terms_of_use_value"));
 }
 function addObjectConformity(row) {
     IDX.add("object_conformity.line", row.get("line"));
-    IDX.add("object_conformity.specification", row.get("specification"));
     IDX.add("object_conformity.degree_key", row.get("degree_key"));
     IDX.add("object_conformity.degree_value", row.get("degree_value"));
-    IDX.add("object_conformity.publication_date", row.get("publication_date"));
+    IDX.add("object_conformity.specification_key", row.get("specification_key"));
+    IDX.add("object_conformity.specification_value", row.get("specification_value"));
 }
 function addObjectDataQuality(row) {
     IDX.add("object_data_quality.line", row.get("line"));

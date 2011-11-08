@@ -1096,14 +1096,38 @@ function getDqConformanceResultElement(conformityRow) {
 
 	var dqConformanceResult = DOM.createElement("gmd:DQ_ConformanceResult");
     var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
-	if (hasValue(conformityRow.get("specification"))) {
-		ciCitation.addElement("gmd:title/gco:CharacterString").addText(conformityRow.get("specification"));
+
+    var specification = TRANSF.getIGCSyslistEntryName(6005, conformityRow.get("specification_key"));
+    if (!hasValue(specification)) {
+    	specification = conformityRow.get("specification_value");
+    }            
+	if (hasValue(specification)) {
+		ciCitation.addElement("gmd:title/gco:CharacterString").addText(specification);
 	} else {
 		ciCitation.addElement("gmd:title").addAttribute("gco:nilReason", "missing");
 	}
+
+	// map specification_key to date, key is index, date is of type yyyyMMdd
+	var specificationDates = new Array("", // 0
+			"20100503", // 1
+			"20100503", // 2
+			"20100503", // 3
+			"20100503", // 4
+			"20100503", // 5
+			"20100503", // 6
+			"20100503", // 7
+			"20100503", // 8
+			"20100503", // 9
+			"20091019", // 10
+			"20081203", // 11
+			"20101121", // 12
+			"20070314" // 13
+			);
+	var specificationDate = specificationDates[conformityRow.get("specification_key")];
+	
     var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
-    if (hasValue(conformityRow.get("publication_date"))) {
-	    ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(conformityRow.get("publication_date"))));
+    if (hasValue(specificationDate)) {
+	    ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(specificationDate)));
     } else {
     	ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
     }
@@ -1554,9 +1578,16 @@ function getServiceType(objClass, objServRow) {
 
 
 function addResourceConstraints(identificationInfo, objId) {
-    rows = SQL.all("SELECT terms_of_use FROM object_use WHERE obj_id=?", [objId]);
+    rows = SQL.all("SELECT * FROM object_use WHERE obj_id=?", [objId]);
     for (var i=0; i<rows.size(); i++) {
-        var termsOfUse = rows.get(i).get("terms_of_use");
+        row = rows.get(i);
+
+        // IGC syslist entry or free entry ?
+        var termsOfUse = TRANSF.getIGCSyslistEntryName(6020, row.get("terms_of_use_key"));
+        if (!hasValue(termsOfUse)) {
+        	termsOfUse = row.get("terms_of_use_value");
+        }            
+
         if (hasValue(termsOfUse)) {
             identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString").addText(termsOfUse);
         }
