@@ -39,7 +39,7 @@ public class IgcDocumentProducerTestLocal extends TestCase {
         p.configure(pd);
 
         ScriptedDocumentMapper m = new ScriptedDocumentMapper();
-        m.setMappingScript(new FileSystemResource("src/main/resources/mapping/igc-3.1.1_to_lucene.js"));
+        m.setMappingScript(new FileSystemResource("src/main/resources/mapping/igc-3.2.0_to_lucene.js"));
         m.setCompile(true);
 
         List<IRecordMapper> mList = new ArrayList<IRecordMapper>();
