@@ -25,7 +25,7 @@ public class IgcDocumentProducerTestLocal extends TestCase {
 
         PlugDescriptionConfiguredDatabaseRecordSetProducer p = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
         String sql = "SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND publish_id='1'"
-        		+ " AND id=3778 "
+        		+ " AND id=3778 " // GEO-INFORMATION/KARTE(1)
         		+ " OR id=6667" // t014_info_impart
         		+ " OR id=3919" // t011_obj_literature
         		+ " OR id=3782" // t011_obj_project

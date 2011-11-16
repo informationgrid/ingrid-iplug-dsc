@@ -1098,36 +1098,26 @@ function getDqConformanceResultElement(conformityRow) {
     var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
 
     var specification = TRANSF.getIGCSyslistEntryName(6005, conformityRow.get("specification_key"));
+    var specificationDate;
     if (!hasValue(specification)) {
     	specification = conformityRow.get("specification_value");
-    }            
+    } else {
+    	// date of specification encoded in syslist value ! Parse and extract !
+    	var stringsParsed = TRANSF.parseIGCSyslistEntryName(specification, TRANSF.DATE_AT_END);
+    	if (hasValue(stringsParsed[1])) {
+    		specificationDate = stringsParsed[1];
+    		specification = stringsParsed[0];
+    	}
+    }
 	if (hasValue(specification)) {
 		ciCitation.addElement("gmd:title/gco:CharacterString").addText(specification);
 	} else {
 		ciCitation.addElement("gmd:title").addAttribute("gco:nilReason", "missing");
 	}
 
-	// map specification_key to date, key is index, date is of type yyyyMMdd
-	var specificationDates = new Array("", // 0
-			"20100503", // 1
-			"20100503", // 2
-			"20100503", // 3
-			"20100503", // 4
-			"20100503", // 5
-			"20100503", // 6
-			"20100503", // 7
-			"20100503", // 8
-			"20100503", // 9
-			"20091019", // 10
-			"20081203", // 11
-			"20101121", // 12
-			"20070314" // 13
-			);
-	var specificationDate = specificationDates[conformityRow.get("specification_key")];
-	
     var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
     if (hasValue(specificationDate)) {
-	    ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(specificationDate)));
+	    ciDate.addElement("gmd:date").addElement(getDateOrDateTime(specificationDate));
     } else {
     	ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
     }
