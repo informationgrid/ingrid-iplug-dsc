@@ -1119,7 +1119,7 @@ function getDqConformanceResultElement(conformityRow) {
     if (hasValue(specificationDate)) {
 	    ciDate.addElement("gmd:date").addElement(getDateOrDateTime(specificationDate));
     } else {
-    	ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
+    	ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "unknown");
     }
     ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
         .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
