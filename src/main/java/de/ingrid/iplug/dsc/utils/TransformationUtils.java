@@ -19,7 +19,6 @@ import de.ingrid.utils.udk.UtilsCountryCodelist;
 import de.ingrid.utils.udk.UtilsLanguageCodelist;
 import de.ingrid.utils.udk.UtilsLanguageCodelist.ISO_639_2_Type;
 import de.ingrid.utils.udk.UtilsUDKCodeLists;
-import de.ingrid.utils.udk.UtilsUDKCodeLists.ParseType;
 
 /**
  * Helper class encapsulating functionality for transforming or processing values (e.g. used in mapping script). Must be instantiated to be thread safe.
@@ -38,7 +37,6 @@ public class TransformationUtils {
     private Map<String, String> tmpInfo = new HashMap<String, String>();
 
 	public static Long LANG_ID_INGRID_QUERY_VALUE = UtilsUDKCodeLists.LANG_ID_INGRID_QUERY_VALUE;
-	public static ParseType DATE_AT_END = UtilsUDKCodeLists.ParseType.DATE_AT_END;
 
 	public TransformationUtils(SQLUtils sqlUtils) {
 	    this.SQL = sqlUtils;
@@ -83,12 +81,17 @@ public class TransformationUtils {
 
 	/** Parse given codelist entry and return parsed data in string array.
 	 * @param fullName full name of entry containing additional data
-	 * @param parseType how should the string be parsed to extract additional data
+	 * @param syslistId id of syslist the entry is from, determins how to parse entry
 	 * @return String array, 0=code list entry without additional data (displayed in selection list), 1 ...=additional data dependent from parseType
 	 * if parsing fails the full string is returned at index 0
 	 */
-	public String[] parseIGCSyslistEntryName(String fullName, ParseType parseType) {
-		return UtilsUDKCodeLists.parseCodeListEntryName(fullName, parseType);
+	public String[] parseIGCSyslistEntryName(String fullName, int syslistId) {
+		String[] result = new String[]{ fullName };
+		if (syslistId == 6005) {
+			result = UtilsUDKCodeLists.parseCodeListEntryName(fullName, UtilsUDKCodeLists.ParseType.DATE_AT_END);
+		}
+		
+		return result;
 	}
 
 	/** Get language of catalog (entry id of language syslist). 

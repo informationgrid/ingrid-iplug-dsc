@@ -1103,7 +1103,7 @@ function getDqConformanceResultElement(conformityRow) {
     	specification = conformityRow.get("specification_value");
     } else {
     	// date of specification encoded in syslist value ! Parse and extract !
-    	var stringsParsed = TRANSF.parseIGCSyslistEntryName(specification, TRANSF.DATE_AT_END);
+    	var stringsParsed = TRANSF.parseIGCSyslistEntryName(specification, 6005);
     	if (hasValue(stringsParsed[1])) {
     		specificationDate = stringsParsed[1];
     		specification = stringsParsed[0];
