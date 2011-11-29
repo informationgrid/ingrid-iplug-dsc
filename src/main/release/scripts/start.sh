@@ -38,7 +38,7 @@ stopIplug()
 		procid=`cat $PID`
 		idcount=`ps -p $procid | wc -l`
 		if [ $idcount -eq 2 ]; then
-			echo stopping $command
+			echo stopping $command, wait 3 sec to exit.
 			kill `cat $PID`
 			sleep 3
 			idcount=`ps -p $procid | wc -l`
@@ -47,8 +47,24 @@ stopIplug()
 				unlink $PID
 				exit 0
 			else
-				echo "process is still running. Exit."
-				exit 1
+				COUNTER=1
+				SECS=0
+				while [  $COUNTER -lt 10 ]; 
+				do
+					COUNTER=$(($COUNTER + 1))
+					echo "process is still running. wait 1 more sec."
+					sleep 1
+					idcount=`ps -p $procid | wc -l`
+					if [ $idcount -eq 1 ]; then
+						SECS=$(($COUNTER + $SECS))
+					    echo "process ($procid) has been terminated after $SECS sec."
+					    unlink $PID
+					    exit 0
+					fi					
+				done
+				echo "process is still running. force kill -9."
+				kill -9 `cat $PID`
+				exit 0
 			fi 
 		else
 			echo "process is not running. Exit."
@@ -63,15 +79,37 @@ stopNoExitIplug()
 {
   echo "Try stopping jetty ($INGRID_HOME)..."
   if [ -f $PID ]; then
-      procid=`cat $PID`
-      idcount=`ps -p $procid | wc -l`
-      if [ $idcount -eq 2 ]; then
-        echo stopping $command
-        kill -9 `cat $PID`
-        echo "process ($procid) has been terminated."
-      else
-        echo "process is not running. Exit."
-      fi
+		procid=`cat $PID`
+		idcount=`ps -p $procid | wc -l`
+		if [ $idcount -eq 2 ]; then
+			echo stopping $command, wait 3 sec to exit.
+			kill `cat $PID`
+			sleep 3
+			idcount=`ps -p $procid | wc -l`
+			if [ $idcount -eq 1 ]; then
+				echo "process ($procid) has been terminated."
+				unlink $PID
+			else
+				COUNTER=1
+				SECS=0
+				while [  $COUNTER -lt 10 ]; 
+				do
+					COUNTER=$(($COUNTER + 1))
+					echo "process is still running. wait 1 more sec."
+					sleep 1
+					idcount=`ps -p $procid | wc -l`
+					if [ $idcount -eq 1 ]; then
+						SECS=$(($COUNTER + $SECS))
+					    echo "process ($procid) has been terminated after $SECS sec."
+					    unlink $PID
+					fi					
+				done
+				echo "process is still running. force kill -9."
+				kill -9 `cat $PID`
+			fi
+		else
+			echo "process is not running. Exit."			
+		fi
     else
       echo "process is not running. Exit."
     fi
