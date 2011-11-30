@@ -10,7 +10,7 @@
         Add support for generating facets if requested.
       </action>
       <action type="update" dev="wemove" issue="INGRID-1885">
-        Updated start.sh, which had an issue when being batch-invoked, deleted RSYNC which is no longer used, see https://dev.wemove.com/jira/browse/INGRID-1885
+        Updated start.sh, which had an issue when being batch-invoked, deleted RSYNC which is no longer used.
       </action>	 
       <action type="fix" dev="wemove">
         Make IDF record generation thread safe.
