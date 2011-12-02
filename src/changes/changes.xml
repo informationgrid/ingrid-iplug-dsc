@@ -9,9 +9,12 @@
       <action type="add" dev="wemove">
         Add support for generating facets if requested.
       </action>
+      <action type="update" dev="wemove" issue="INGRID32-48">
+        Remove Mapping of DataQuality Table DQ_CompletenessOmission to IDF, was removed from IGC and is now handled as field "Datendefizit".
+      </action>
       <action type="update" dev="wemove" issue="INGRID-1885">
         Updated start.sh, which had an issue when being batch-invoked, deleted RSYNC which is no longer used.
-      </action>	 
+      </action>
       <action type="fix" dev="wemove">
         Make IDF record generation thread safe.
       </action>
