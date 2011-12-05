@@ -580,16 +580,6 @@ for (i=0; i<objRows.size(); i++) {
     addResourceConstraints(identificationInfo, objId);
     
     
-    // ---------- <gmd:identificationInfo/gmd:resourceConstraints> ----------
-    // ---------- <gmd:MD_SecurityConstraints> ----------
-    value = getSecurityConstraint(objRow);
-    if (hasValue(value)) {
-        identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_SecurityConstraints/gmd:classification/gmd:MD_ClassificationCode")
-            .addAttribute("codeListValue", value)
-            .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#gmd:MD_ClassificationCode")
-            .addText(value);
-    }
-
 // GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     if (objClass.equals("3") || objClass.equals("6")) {
         var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
@@ -1513,22 +1503,6 @@ function getMdKeywords(rows) {
         .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode");
 
     return mdKeywords;
-}
-
-function getSecurityConstraint(objRow) {
-    var retValue = null;
-
-    var publishId = objRow.get("publish_id");
-    if (hasValue(publishId)) {
-        if (publishId.equals("1")) {
-            retValue = "unclassified";
-        } else if (publishId.equals("2")) {
-            retValue = "restricted";
-        } else if (publishId.equals("3")) {
-            retValue = "confidential";
-        }
-    }
-    return retValue;
 }
 
 function getServiceType(objClass, objServRow) {
