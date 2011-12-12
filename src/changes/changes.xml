@@ -9,6 +9,9 @@
       <action type="add" dev="wemove">
         Add support for generating facets if requested.
       </action>
+      <action type="update" dev="wemove" issue="INGRID32-46">
+        Map now responsible user as contact for metadata in IDF. All other roles mapped as identificationInfo/pointOfContact.
+      </action>
       <action type="update" dev="wemove" issue="INGRID32-48">
         Remove Mapping of DataQuality Table DQ_CompletenessOmission to IDF, was removed from IGC and is now handled as field "Datendefizit".
       </action>

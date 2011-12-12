@@ -111,13 +111,13 @@ for (i=0; i<objRows.size(); i++) {
     	mdMetadata.addElement("gmd:hierarchyLevelName/gco:CharacterString").addText(hierarchyLevelName);
     }
     // ---------- <gmd:contact> ----------
-    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '7']);
-    for (var i=0; i< addressRows.size(); i++) {
-    	var addressRow = addressRows.get(i); 
-    	var role = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(505, addressRow.get("type"));
-    	if (hasValue(role)) {
-    		mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, role));
-    	}
+    // contact for metadata is now responsible user, see https://dev.wemove.com/jira/browse/INGRID32-46
+    if (hasValue(objRow.get("responsible_uuid"))) {
+        var addressRows = SQL.all("SELECT * FROM t02_address WHERE t02_address.work_state=? AND t02_address.adr_uuid=?", ['V', objRow.get("responsible_uuid")]);
+        for (var i=0; i< addressRows.size(); i++) {
+        	var addressRow = addressRows.get(i);
+        	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact"));
+        }
     }
     // ---------- <gmd:dateStamp> ----------
     if (hasValue(objRow.get("mod_time"))) {
@@ -439,9 +439,11 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // ---------- <gmd:identificationInfo/gmd:pointOfContact> ----------
-    
-    // select only entries from syslist 505 (!= 7) and free entries, all entries of syslist 2010 already mapped above (3360, 3400, 3410) 
-    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND (t012_obj_adr.type IS NULL OR t012_obj_adr.type!=?) AND (t012_obj_adr.special_ref IS NULL OR t012_obj_adr.special_ref=?) ORDER BY line", ['V', objId, '7', '505']);
+
+    // map contacts for data !
+    // contact for metadata already mapped above (responsible user).
+    // select all entries from syslist 505 and free entries, all entries of syslist 2010 already mapped above (3360, 3400, 3410) 
+    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND (t012_obj_adr.special_ref IS NULL OR t012_obj_adr.special_ref=?) ORDER BY line", ['V', objId, '505']);
     for (var i=0; i< addressRows.size(); i++) {
         var addressRow = addressRows.get(i); 
         var role = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(505, addressRow.get("type"));
