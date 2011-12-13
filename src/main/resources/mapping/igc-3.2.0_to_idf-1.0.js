@@ -835,36 +835,42 @@ for (i=0; i<objRows.size(); i++) {
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("rec_grade"));
         }
 
-        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy> ----------
+        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy> ----------
         if (hasValue(objGeoRow.get("pos_accuracy_vertical"))) {
             if (!dqDataQuality) {
 	            dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
-            var dqRelativeInternalPositionalAccuracy = dqDataQuality.addElement("gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy");
-            dqRelativeInternalPositionalAccuracy.addElement("gmd:measureDescription/gco:CharacterString").addText("vertical");
-            var dqQuantitativeResult = dqRelativeInternalPositionalAccuracy.addElement("gmd:result/gmd:DQ_QuantitativeResult");
+            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy");
+            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText("Mean value of positional uncertainties (1D)");
+            // mean value of positional uncertainties (1D, 2D and 3D)
+            dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("28");
+            dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText("vertical");
+            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
             var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
                 .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
             unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
             unitDefinition.addElement("gml:name").addText("meter");
-            unitDefinition.addElement("gml:quantityType").addText("vertical accuracy");
+            unitDefinition.addElement("gml:quantityType").addText("absolute external positional accuracy, vertical accuracy");
             unitDefinition.addElement("gml:catalogSymbol").addText("m");
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("pos_accuracy_vertical"));
         }
 
-        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy> ----------
+        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy> ----------
         if (hasValue(objGeoRow.get("rec_exact"))) {
             if (!dqDataQuality) {
                 dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
-            var dqRelativeInternalPositionalAccuracy = dqDataQuality.addElement("gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy");
-            dqRelativeInternalPositionalAccuracy.addElement("gmd:measureDescription/gco:CharacterString").addText("geographic");
-            var dqQuantitativeResult = dqRelativeInternalPositionalAccuracy.addElement("gmd:result/gmd:DQ_QuantitativeResult");
+            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy");
+            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText("Mean value of positional uncertainties (2D)");
+            // mean value of positional uncertainties (1D, 2D and 3D)
+            dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("28");
+            dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText("geographic");
+            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
             var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
                 .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
             unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
             unitDefinition.addElement("gml:name").addText("meter");
-            unitDefinition.addElement("gml:quantityType").addText("geographic accuracy");
+            unitDefinition.addElement("gml:quantityType").addText("absolute external positional accuracy, geographic accuracy");
             unitDefinition.addElement("gml:catalogSymbol").addText("m");
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("rec_exact"));
         }
@@ -2289,34 +2295,6 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
                 dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
             } else {
                 dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "inapplicable");
-            }
-            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
-
-        } else if (igcDqElementId.equals("117")) {
-            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy> ----------
-
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
-            if (igcNameOfMeasureKey.equals("1") || igcNameOfMeasureKey.equals("2") || igcNameOfMeasureKey.equals("3")) {
-                // mean value of positional uncertainties (1D, 2D and 3D)
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("28");
-            }
-            if (hasValue(igcMeasureDescription)) {
-                dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
-            }
-            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
-            if (igcNameOfMeasureKey.equals("1") || igcNameOfMeasureKey.equals("2") || igcNameOfMeasureKey.equals("3")) {
-                var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
-                    .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
-                unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
-                unitDefinition.addElement("gml:name").addText("meter");
-                unitDefinition.addElement("gml:quantityType").addText("absolute external positional accuracy");
-                unitDefinition.addElement("gml:catalogSymbol").addText("m");
-            } else {
-                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
             }
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
 
