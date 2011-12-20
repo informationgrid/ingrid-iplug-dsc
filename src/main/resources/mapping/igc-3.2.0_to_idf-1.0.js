@@ -722,8 +722,8 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <idf:idfMdMetadata/gmd:contentInfo/gmd:MD_FeatureCatalogueDescription> ----------
         if (objGeoId) {
             var mdFeatureCatalogueDescription;
-	        var objGeoKeycRows = SQL.all("SELECT * FROM t011_obj_geo_keyc WHERE obj_geo_id=?", [objGeoId]);
-	        for (i=0; i<objGeoKeycRows.size(); i++) {
+	        var objKeycRows = SQL.all("SELECT * FROM object_types_catalogue WHERE obj_id=?", [objId]);
+	        for (i=0; i<objKeycRows.size(); i++) {
 	            if (!mdFeatureCatalogueDescription) {
 	               mdFeatureCatalogueDescription = mdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
                    // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:includedWithDataset> ----------
@@ -743,11 +743,11 @@ for (i=0; i<objRows.size(); i++) {
                 // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureCatalogueCitation/gmd:CI_Citation> ----------
                 var ciCitation = mdFeatureCatalogueDescription.addElement("gmd:featureCatalogueCitation/gmd:CI_Citation");
                     // ---------- <gmd:CI_Citation/gmd:title> ----------
-                ciCitation.addElement("gmd:title/gco:CharacterString").addText(objGeoKeycRows.get(i).get("keyc_value"));
+                ciCitation.addElement("gmd:title/gco:CharacterString").addText(objKeycRows.get(i).get("title_value"));
                     // ---------- <gmd:CI_Citation/gmd:CI_Date> ----------
                 var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
-                if (hasValue(objGeoKeycRows.get(i).get("key_date"))) {
-                    ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(objGeoKeycRows.get(i).get("key_date"))));
+                if (hasValue(objKeycRows.get(i).get("type_date"))) {
+                    ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(objKeycRows.get(i).get("type_date"))));
                 } else {
                     ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
                         // add empty gco:Date because of Validators !
@@ -758,8 +758,8 @@ for (i=0; i<objRows.size(); i++) {
                     .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
                     .addAttribute("codeListValue", "creation");
                     // ---------- <gmd:CI_Citation/gmd:edition> ----------
-                if (hasValue(objGeoKeycRows.get(i).get("edition"))) {
-                    ciCitation.addElement("gmd:edition/gco:CharacterString").addText(objGeoKeycRows.get(i).get("edition"));
+                if (hasValue(objKeycRows.get(i).get("type_version"))) {
+                    ciCitation.addElement("gmd:edition/gco:CharacterString").addText(objKeycRows.get(i).get("type_version"));
                 }
 	        }
         }
@@ -774,7 +774,9 @@ for (i=0; i<objRows.size(); i++) {
     } else if (objClass.equals("5")) {
         // ---------- <idf:idfMdMetadata/gmd:contentInfo/gmd:MD_FeatureCatalogueDescription> ----------
         var mdFeatureCatalogueDescription;
+        var objKeycRows = SQL.all("SELECT * FROM object_types_catalogue WHERE obj_id=?", [objId]);
         var objDataParaRows = SQL.all("SELECT * FROM t011_obj_data_para WHERE obj_id=?", [objId]);
+
         for (i=0; i<objDataParaRows.size(); i++) {
             var featureType = objDataParaRows.get(i).get("parameter");
             if (hasValue(featureType)) {
@@ -783,25 +785,56 @@ for (i=0; i<objRows.size(); i++) {
                     // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:includedWithDataset> ----------
                     mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean").addText("false");
                 }
+                // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureTypes> ----------
                 if (hasValue(objDataParaRows.get(i).get("unit"))) {
                     featureType = featureType.concat(" (").concat(objDataParaRows.get(i).get("unit")).concat(")");
                 }
                 mdFeatureCatalogueDescription.addElement("gmd:featureTypes/gco:LocalName").addText(featureType);
             }
         }
-        if (mdFeatureCatalogueDescription) {
-            // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureCatalogueCitation/gmd:CI_Citation> ----------
-            var ciCitation = mdFeatureCatalogueDescription.addElement("gmd:featureCatalogueCitation/gmd:CI_Citation");
-            ciCitation.addElement("gmd:title/gco:CharacterString").addText("unknown");
-            var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
-            ciDate.addElement("gmd:date/gco:Date").addText("2006-05-01");
-            ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
-                .addAttribute("codeListValue", "publication");
+        if (objKeycRows.size() > 0) {
+            if (!mdFeatureCatalogueDescription) {
+                mdFeatureCatalogueDescription = mdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
+                // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:includedWithDataset> ----------
+                mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean").addText("false");
+            }
+	        for (i=0; i<objKeycRows.size(); i++) {
+                // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureCatalogueCitation/gmd:CI_Citation> ----------
+                var ciCitation = mdFeatureCatalogueDescription.addElement("gmd:featureCatalogueCitation/gmd:CI_Citation");
+                ciCitation.addElement("gmd:title/gco:CharacterString").addText(objKeycRows.get(i).get("title_value"));
+                var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
+                if (hasValue(objKeycRows.get(i).get("type_date"))) {
+                    ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(objKeycRows.get(i).get("type_date"))));
+                } else {
+                    ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
+                        // add empty gco:Date because of Validators !
+                        // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
+//                        .addElement("gco:Date");
+                }
+                ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
+                    .addAttribute("codeListValue", "creation");
+                    // ---------- <gmd:CI_Citation/gmd:edition> ----------
+                if (hasValue(objKeycRows.get(i).get("type_version"))) {
+                    ciCitation.addElement("gmd:edition/gco:CharacterString").addText(objKeycRows.get(i).get("type_version"));
+                }
+	        }
+        	
+        } else {
+            if (mdFeatureCatalogueDescription) {
+                // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureCatalogueCitation/gmd:CI_Citation> ----------
+                var ciCitation = mdFeatureCatalogueDescription.addElement("gmd:featureCatalogueCitation/gmd:CI_Citation");
+                ciCitation.addElement("gmd:title/gco:CharacterString").addText("unknown");
+                var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
+                ciDate.addElement("gmd:date/gco:Date").addText("2006-05-01");
+                ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
+                    .addAttribute("codeListValue", "publication");
+            }
         }
 
         // ---------- <idf:idfMdMetadata/gmd:contentInfo#uuidref> ----------
-        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3535', "V"]);
+        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3109', "V"]);
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:contentInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }

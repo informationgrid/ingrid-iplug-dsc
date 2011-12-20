@@ -70,6 +70,12 @@ for (i=0; i<objRows.size(); i++) {
     for (j=0; j<rows.size(); j++) {
         addT011ObjProject(rows.get(j));
     }
+    // ---------- object_types_catalogue ----------
+    var subRows = SQL.all("SELECT * FROM object_types_catalogue WHERE obj_id=?", [objId]);
+    for (k=0; k<subRows.size(); k++) {
+        addObjectTypesCatalogue(subRows.get(k));
+    }
+
     // ---------- t011_obj_data ----------
     var rows = SQL.all("SELECT * FROM t011_obj_data WHERE obj_id=?", [objId]);
     for (j=0; j<rows.size(); j++) {
@@ -140,11 +146,6 @@ for (i=0; i<objRows.size(); i++) {
         addT011ObjGeo(rows.get(j));
         var objGeoId = rows.get(j).get("id");
 
-        // ---------- t011_obj_geo_keyc ----------
-        var subRows = SQL.all("SELECT * FROM t011_obj_geo_keyc WHERE obj_geo_id=?", [objGeoId]);
-        for (k=0; k<subRows.size(); k++) {
-            addT011ObjGeoKeyc(subRows.get(k));
-        }
         // ---------- t011_obj_geo_scale ----------
         var subRows = SQL.all("SELECT * FROM t011_obj_geo_scale WHERE obj_geo_id=?", [objGeoId]);
         for (k=0; k<subRows.size(); k++) {
@@ -514,12 +515,12 @@ function addT011ObjGeo(row) {
     IDX.add("t011_obj_geo.keyc_incl_w_dataset", row.get("keyc_incl_w_dataset"));
     IDX.add("t011_obj_geo.datasource_uuid", row.get("datasource_uuid"));
 }
-function addT011ObjGeoKeyc(row) {
-    IDX.add("t011_obj_geo_keyc.line", row.get("line"));
-    IDX.add("t011_obj_geo_keyc.keyc_key", row.get("keyc_key"));
-    IDX.add("t011_obj_geo_keyc.subject_cat", row.get("keyc_value"));
-    IDX.add("t011_obj_geo_keyc.key_date", row.get("key_date"));
-    IDX.add("t011_obj_geo_keyc.edition", row.get("edition"));
+function addObjectTypesCatalogue(row) {
+    IDX.add("object_types_catalogue.line", row.get("line"));
+    IDX.add("object_types_catalogue.title_key", row.get("title_key"));
+    IDX.add("object_types_catalogue.title_value", row.get("title_value"));
+    IDX.add("object_types_catalogue.type_date", row.get("type_date"));
+    IDX.add("object_types_catalogue.type_version", row.get("type_version"));
 }
 function addT011ObjGeoScale(row) {
     IDX.add("t011_obj_geo_scale.line", row.get("line"));
