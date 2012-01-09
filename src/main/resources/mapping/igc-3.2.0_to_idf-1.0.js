@@ -1214,17 +1214,26 @@ function getCitationIdentifier(objRow) {
     
     // no namespace
     // namespace set in catalog ?
-    var catRow = SQL.first("SELECT cat_namespace FROM t03_catalogue");
+    var catRow = SQL.first("SELECT * FROM t03_catalogue");
     myNamespace = catRow.get("cat_namespace");
 
+    var myNamespaceLength = 0;
     if (!hasValue(myNamespace)) {
     	// not set in catalog, we use default namespace (database catalog name!)
     	// extract catalog from connection
     	var dbCatalog = SQL.getConnection().getCatalog();
-    	myNamespace = "http://portalu.de/" + dbCatalog;
+    	if (!hasValue(dbCatalog)) {
+    		dbCatalog = catRow.get("cat_name");
+    	}
+        myNamespace = "http://portalu.de/" + dbCatalog;
+    	// JS String !
+    	myNamespaceLength = myNamespace.length;
+    } else {
+    	// Java String !
+    	myNamespaceLength = myNamespace.length();
     }
     
-    if (hasValue(myNamespace) && myNamespace.substring(myNamespace.length()-1) != "#") {
+    if (myNamespaceLength > 0 && myNamespace.substring(myNamespaceLength-1) != "#") {
     	myNamespace = myNamespace + "#";
     }
 

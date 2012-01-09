@@ -551,6 +551,7 @@ function addT011ObjGeoVector(row) {
 function addT03Catalogue(row) {
     IDX.add("t03_catalogue.cat_uuid", row.get("cat_uuid"));
     IDX.add("t03_catalogue.cat_name", row.get("cat_name"));
+    IDX.add("t03_catalogue.cat_namespace", row.get("cat_namespace"));
     IDX.add("t03_catalogue.country_key", row.get("country_key"));
     IDX.add("t03_catalogue.country_code", row.get("country_value"));
     IDX.add("t03_catalogue.language_key", row.get("language_key"));

@@ -44,7 +44,7 @@ public class DatabaseConnectionUtils {
         String user = internalDatabaseConnection.getUser();
         String password = internalDatabaseConnection.getPassword();
 
-        log.debug("Opening database connection.");
+        log.debug("Opening database connection: " + url);
         Connection conn = DriverManager.getConnection(url, user, password); 
 
         String schema = internalDatabaseConnection.getSchema();
