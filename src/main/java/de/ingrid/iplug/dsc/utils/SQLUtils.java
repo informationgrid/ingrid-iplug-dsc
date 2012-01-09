@@ -32,6 +32,10 @@ public class SQLUtils {
         this.connection = connection;
     }
 
+    public Connection getConnection() {
+    	return connection;
+    }
+
     /**
      * Executes a SQL and returns the first record result.
      * 

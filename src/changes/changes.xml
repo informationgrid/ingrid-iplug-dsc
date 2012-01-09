@@ -9,6 +9,9 @@
       <action type="add" dev="wemove">
         Add support for generating facets if requested.
       </action>
+      <action type="update" dev="wemove" issue="INGRID32-30">
+        New mapping of "Identifikator der Datenquelle", now includes namespace read from catalog. Now mapped to MD_Identifier/code. 
+      </action>
       <action type="update" dev="wemove" issue="INGRID32-50">
         Map new field "Datensammlung/Datenbank - Objektartenkatalog" (equals "Geoinformation/Karte - Schlüsselkatalog").
       </action>

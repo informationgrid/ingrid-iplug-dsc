@@ -207,7 +207,7 @@ for (i=0; i<objRows.size(); i++) {
 	} else {
 		identificationInfo = mdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
 	}
-	identificationInfo.addAttribute("uuid", "ingrid#" + getCitationIdentifier(objRow));
+	identificationInfo.addAttribute("uuid", getCitationIdentifier(objRow));
 	
 	// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation> ----------
 	var ciCitation = identificationInfo.addElement("gmd:citation/gmd:CI_Citation");
@@ -252,10 +252,8 @@ for (i=0; i<objRows.size(); i++) {
 		}
 	}
 
-    // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier> ----------
-    var rsIdentifier = ciCitation.addElement("gmd:identifier/gmd:RS_Identifier");
-    rsIdentifier.addElement("gmd:code/gco:CharacterString").addText(getCitationIdentifier(objRow));
-    rsIdentifier.addElement("gmd:codeSpace/gco:CharacterString").addText("ingrid");
+    // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier> ----------
+    ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(getCitationIdentifier(objRow));
 
     // continue mapping literature properties
     if (objClass.equals("2")) {
@@ -1193,16 +1191,45 @@ function getFileIdentifier(objRow) {
  */
 function getCitationIdentifier(objRow) {
 	var id;
-	var objGeoRow = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=?", [objId]);
+	var objGeoRow = SQL.first("SELECT datasource_uuid FROM t011_obj_geo WHERE obj_id=?", [objId]);
 	if (hasValue(objGeoRow)) {
 		id = objGeoRow.get("datasource_uuid");
 	}
     if (!hasValue(id)) {
     	id = getFileIdentifier(objRow);
     	id = java.util.UUID.nameUUIDFromBytes(id.getBytes()).toString();
-    } else {
-    	id = id.replaceAll(":", "#");
     }
+    
+    // analyze namespace, add default if not set
+    var myNamespace = "";
+    var idTokens = id.split("#");
+    if (idTokens.length > 1) {
+        myNamespace = idTokens[0];
+    }
+
+    // namespace already part of id, ok ! 
+    if (hasValue(myNamespace)) {
+    	return id;
+    }
+    
+    // no namespace
+    // namespace set in catalog ?
+    var catRow = SQL.first("SELECT cat_namespace FROM t03_catalogue");
+    myNamespace = catRow.get("cat_namespace");
+
+    if (!hasValue(myNamespace)) {
+    	// not set in catalog, we use default namespace (database catalog name!)
+    	// extract catalog from connection
+    	var dbCatalog = SQL.getConnection().getCatalog();
+    	myNamespace = "http://portalu.de/" + dbCatalog;
+    }
+    
+    if (hasValue(myNamespace) && myNamespace.substring(myNamespace.length()-1) != "#") {
+    	myNamespace = myNamespace + "#";
+    }
+
+    id = myNamespace + id;
+
     return id;
 }
 
