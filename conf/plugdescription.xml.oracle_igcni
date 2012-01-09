@@ -284,10 +284,10 @@
   <string>connection</string>
   <list>
     <de.ingrid.iplug.dsc.index.DatabaseConnection>
-      <fDriver>com.mysql.jdbc.Driver</fDriver>
-      <fConnectionurl>jdbc:mysql://localhost/igc_test</fConnectionurl>
-      <fUser>root</fUser>
-      <fPassword></fPassword>
+      <fDriver>oracle.jdbc.OracleDriver</fDriver>
+      <fConnectionurl>jdbc:oracle:thin:IGC_TEST_NI/IGC_TEST_NI@192.168.0.238:1521:XE</fConnectionurl>
+      <fUser>IGC_TEST_NI</fUser>
+      <fPassword>IGC_TEST_NI</fPassword>
       <fSchema></fSchema>
     </de.ingrid.iplug.dsc.index.DatabaseConnection>
   </list>
