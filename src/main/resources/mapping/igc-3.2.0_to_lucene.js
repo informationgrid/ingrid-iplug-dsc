@@ -561,6 +561,9 @@ function addT03Catalogue(row) {
     IDX.add("t03_catalogue.create_time", row.get("create_time"));
     IDX.add("t03_catalogue.mod_uuid", row.get("mod_uuid"));
     IDX.add("t03_catalogue.mod_time", row.get("mod_time"));
+    // also language so index can deliver language specific requests !
+    // e.g. when portal requests language dependent !
+    IDX.add("lang", TRANSF.getLanguageShortcutFromIGCCode(row.get("language_key")));
 }
 function addT0112MediaOption(row) {
     IDX.add("t0112_media_option.line", row.get("line"));

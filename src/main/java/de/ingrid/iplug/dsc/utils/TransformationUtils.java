@@ -212,6 +212,17 @@ public class TransformationUtils {
 	    return UtilsLanguageCodelist.getLanguageISO639_2FromIGCCode(new Integer(igcLangCode), ISO_639_2_Type.BIBLIOGRAPHIC_CODE);
 	}
 
+	/** Determine ISO 639-1 language shortcut (e.g. "de, "en" ...") from IGC language code.
+	 * @param langCodeIGC IGC code of language
+	 * @return ISO 639-1 language shortcut or null if not found
+	 */
+	public String getLanguageShortcutFromIGCCode(String igcLangCode) {
+		if (igcLangCode == null) {
+			return null;
+		}
+	    return UtilsLanguageCodelist.getShortcutFromCode(new Integer(igcLangCode));
+	}
+
 	/**
 	 * Returns an iso codeList entry based on an IGC code list domain id.
 	 * The Data is based on ISO code lists from

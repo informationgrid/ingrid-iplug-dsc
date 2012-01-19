@@ -25,6 +25,9 @@
         Updated start.sh, which had an issue when being batch-invoked, deleted RSYNC which is no longer used.
       </action>
       <action type="fix" dev="wemove">
+        Also map catalog language into index, so language specific search works (e.g. when portal.search.language.independent=false in portal props).
+      </action>
+      <action type="fix" dev="wemove">
         Make IDF record generation thread safe.
       </action>
       <action type="fix" dev="wemove">
