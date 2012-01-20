@@ -31,6 +31,10 @@ DOM.addNS("gml", "http://www.opengis.net/gml");
 DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
+// ---------- <idf:html> ----------
+var idfHtml = XPATH.getNode(idfDoc, "/idf:html")
+DOM.addAttribute(idfHtml, "idf-version", "3.2.0");
+
 // ---------- <idf:body> ----------
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
 

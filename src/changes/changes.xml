@@ -9,6 +9,9 @@
       <action type="add" dev="wemove">
         Add support for generating facets if requested.
       </action>
+      <action type="update" dev="wemove">
+        IGC to IDF mapping scripts write now idf-version into IDF top element, removed IDF version from script names.
+      </action>
       <action type="update" dev="wemove" issue="INGRID32-30">
         New mapping of "Identifikator der Datenquelle", now includes namespace read from catalog. Now mapped to MD_Identifier/code. 
       </action>
