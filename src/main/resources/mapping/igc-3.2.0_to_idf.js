@@ -1067,7 +1067,7 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // ---------- <idf:idfMdMetadata/idf:crossReference> ----------
-    rows = SQL.all("SELECT t01_object.* FROM object_reference, t01_object WHERE object_reference.obj_from_id=? AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=?", [objId, 'V']);
+    rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_from_id=? AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=?", [objId, 'V']);
     for (i=0; i<rows.size(); i++) {
         mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:crossReference"));
     }
@@ -1930,22 +1930,6 @@ function addDistributionInfo(mdMetadata, objId) {
 	            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
 	        }
             var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
-	        var transferSize = rows.get(i).get("volume");
-            if (hasValue(transferSize)) {
-            	transferSize = transferSize.toLowerCase();
-            	var mult = 1;
-            	if (transferSize.indexOf("kb") != -1) {
-	        		mult = 1/1024;
-	        	} else if (transferSize.indexOf("gb") != -1) {
-	        		mult = 1024;
-	        	}
-            	transferSize = transferSize.replaceAll(",", ".");
-            	transferSize = transferSize.replaceAll("[^0-9\.]", "");
-            	if (transferSize >=0 || transferSize < 0) {
-            		transferSize = transferSize * mult;
-            	}
-            	digitalTransferOptions.addElement("gmd:transferSize/gco:Real").addText(transferSize);
-	        }
             var idfOnlineResource = digitalTransferOptions.addElement("gmd:onLine/idf:idfOnlineResource");
             idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("url_link"));
             if (hasValue(rows.get(i).get("content"))) {
@@ -1954,15 +1938,7 @@ function addDistributionInfo(mdMetadata, objId) {
             if (hasValue(rows.get(i).get("descr"))) {
                 idfOnlineResource.addElement("gmd:description/gco:CharacterString").addText(rows.get(i).get("descr"));
             }
-            if (hasValue(rows.get(i).get("datatype_value"))) {
-                var datatypeKey = rows.get(i).get("datatype_key");
-                if (!hasValue(datatypeKey)) {
-                    datatypeKey = "-1";
-                }
-                idfOnlineResource.addElement("idf:datatype").addText(rows.get(i).get("datatype_value"))
-                    .addAttribute("list-id", "2240")
-                    .addAttribute("entry-id", datatypeKey);
-            }
+            addAttachedToFieldElement(rows.get(i), idfOnlineResource);
         }
     }
 
@@ -2491,7 +2467,26 @@ function getIdfObjectReference(objRow, elementName) {
     idfObjectReference.addElement("idf:objectName").addText(objRow.get("obj_name"));
     idfObjectReference.addElement("idf:objectType").addText(objRow.get("obj_class"));
 
+    addAttachedToFieldElement(objRow, idfObjectReference);
+
+    if (hasValue(objRow.get("descr"))) {
+        idfObjectReference.addElement("idf:description").addText(objRow.get("descr"));    	
+    }
+
     return idfObjectReference;
+}
+
+function addAttachedToFieldElement(row, parentElement) {
+    if (hasValue(row.get("special_ref")) &&
+        hasValue(row.get("special_name"))) {
+        var attachedToFieldKey = row.get("special_ref");
+        // if not "Keine Kopplung"
+        if (!attachedToFieldKey.equals("9999") && !attachedToFieldKey.equals("-1")) {
+            parentElement.addElement("idf:attachedToField").addText(row.get("special_name"))
+                .addAttribute("list-id", "2000")
+                .addAttribute("entry-id", attachedToFieldKey);
+        }
+    }
 }
 
 function getIdfAddressReference(addrRow, elementName) {
