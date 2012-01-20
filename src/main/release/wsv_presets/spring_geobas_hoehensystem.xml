@@ -45,7 +45,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
     <bean id="createIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper"/>
 
     <bean id="scriptedIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
-        <property name="mappingScript" value="classpath:mapping/geobas_hoehensystem_to_idf-1.0.js" />
+        <property name="mappingScript" value="classpath:mapping/geobas_hoehensystem_to_idf.js" />
         <property name="compile" value="true" />
     </bean>
 
