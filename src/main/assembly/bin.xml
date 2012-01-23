@@ -15,8 +15,8 @@
       <outputDirectory>${project.artifactId}-${project.version}/udk_presets</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>src/main/release/wsv_presets</directory>
-      <outputDirectory>${project.artifactId}-${project.version}/wsv_presets</outputDirectory>
+      <directory>src/main/release/presets</directory>
+      <outputDirectory>${project.artifactId}-${project.version}/presets</outputDirectory>
     </fileSet>
     <fileSet>
       <directory>src/main/resources</directory>
