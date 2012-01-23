@@ -28,6 +28,9 @@
         Updated start.sh, which had an issue when being batch-invoked, deleted RSYNC which is no longer used.
       </action>
       <action type="fix" dev="wemove">
+        Fix query problems if a stop word is part of the query (i.e. 'is').
+      </action>
+      <action type="fix" dev="wemove">
         Also map catalog language into index, so language specific search works (e.g. when portal.search.language.independent=false in portal props).
       </action>
       <action type="fix" dev="wemove">
