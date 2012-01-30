@@ -39,7 +39,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
     </bean>
     
     <bean id="recordProducer" class="de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer">
-        <property name="indexFieldID" value="dnl_dokumente.id" />
+        <property name="indexFieldID" value="id" />
     </bean>
     
     <bean id="createIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper"/>

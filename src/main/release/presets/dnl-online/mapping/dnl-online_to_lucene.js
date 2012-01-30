@@ -29,8 +29,12 @@ var objRows = SQL.all("SELECT * FROM dnl_dokumente WHERE id=?", [objId]);
 for (i=0; i<objRows.size(); i++) {
     var row = objRows.get(i);
 
-    // queried when detail view requested !
-    IDX.add("dnl_dokumente.id", row.get("id"));
+    // database ID seems to start at 0 !
+    var databaseID = row.get("id");
+    IDX.add("id", databaseID);
+    // ID in URL starts at 1, so we have to add 1 to database ID !
+    var idInURL = parseInt(databaseID) + 1;
+    IDX.add("url", "http://www.dnl-online.de/1905.html?portalu=1&id=" + idInURL);
 
     IDX.add("title", row.get("titel"));
     IDX.add("t011_obj_data.description", row.get("titelzus"));
