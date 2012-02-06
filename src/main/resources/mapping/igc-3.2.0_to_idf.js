@@ -1994,7 +1994,7 @@ function addServiceOperations(identificationInfo, objServId) {
                 for (j=0; j<platfRows.size(); j++) {
                     svOperationMetadata.addElement("srv:DCP/srv:DCPList")
                         .addAttribute("codeList", "http://opengis.org/codelistRegistry?CSW_DCPCodeType")
-                        .addAttribute("codeListValue", platfRows.get(j).get("platform"));
+                        .addAttribute("codeListValue", platfRows.get(j).get("platform_value"));
                 }
 
         // ---------- <srv:SV_OperationMetadata/srv:operationDescription> ----------
