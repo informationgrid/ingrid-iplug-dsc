@@ -1938,7 +1938,12 @@ function addDistributionInfo(mdMetadata, objId) {
             if (hasValue(rows.get(i).get("descr"))) {
                 idfOnlineResource.addElement("gmd:description/gco:CharacterString").addText(rows.get(i).get("descr"));
             }
-            addAttachedToFieldElement(rows.get(i), idfOnlineResource);
+            
+            // Verweistyp added 2 times, as gmd:function (ISO) and as idf:attachedToField (InGrid detail)
+            // first ISO
+            addAttachedToField(rows.get(i), idfOnlineResource, true);
+            // then IDF
+            addAttachedToField(rows.get(i), idfOnlineResource);
         }
     }
 
@@ -2467,7 +2472,7 @@ function getIdfObjectReference(objRow, elementName) {
     idfObjectReference.addElement("idf:objectName").addText(objRow.get("obj_name"));
     idfObjectReference.addElement("idf:objectType").addText(objRow.get("obj_class"));
 
-    addAttachedToFieldElement(objRow, idfObjectReference);
+    addAttachedToField(objRow, idfObjectReference);
 
     if (hasValue(objRow.get("descr"))) {
         idfObjectReference.addElement("idf:description").addText(objRow.get("descr"));    	
@@ -2476,15 +2481,40 @@ function getIdfObjectReference(objRow, elementName) {
     return idfObjectReference;
 }
 
-function addAttachedToFieldElement(row, parentElement) {
-    if (hasValue(row.get("special_ref")) &&
-        hasValue(row.get("special_name"))) {
-        var attachedToFieldKey = row.get("special_ref");
-        // if not "Keine Kopplung"
-        if (!attachedToFieldKey.equals("9999") && !attachedToFieldKey.equals("-1")) {
-            parentElement.addElement("idf:attachedToField").addText(row.get("special_name"))
-                .addAttribute("list-id", "2000")
-                .addAttribute("entry-id", attachedToFieldKey);
+function addAttachedToField(row, parentElement, addAsISO) {
+    var attachedToFieldKey = row.get("special_ref");
+    var attachedToFieldValue = row.get("special_name");
+
+    if (hasValue(attachedToFieldKey) &&
+        hasValue(attachedToFieldValue)) {
+
+        var textContent;
+        if (attachedToFieldKey.equals("-1")) {
+            // free entry, only add if ISO
+        	if (addAsISO) {
+        	   textContent = attachedToFieldValue;
+        	}
+        } else if (!attachedToFieldKey.equals("9999")) {
+        	// syslist entry, NOT "Keine Kopplung"
+        	if (addAsISO) {
+        	   // ISO: translate to english !
+        	   textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, 123);
+        	} else {
+        		// IDF: use catalog language like it was entered
+               textContent = attachedToFieldValue;
+        	}
+        }
+
+        if (hasValue(textContent)) {
+        	if (addAsISO) {
+        	   parentElement.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
+        	       .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_OnLineFunctionCode")
+        	       .addAttribute("codeListValue", textContent);
+        	} else {
+        	   parentElement.addElement("idf:attachedToField").addText(textContent)
+        	       .addAttribute("list-id", "2000")
+        	       .addAttribute("entry-id", attachedToFieldKey);
+        	}
         }
     }
 }
