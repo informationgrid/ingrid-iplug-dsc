@@ -213,30 +213,8 @@ for (i=0; i<objRows.size(); i++) {
         addT012ObjAdr(rows.get(j));
         var adrUuid = rows.get(j).get("adr_uuid");
 
-        // ---------- referenced address_node ----------
-        var subRows = SQL.all("SELECT * FROM address_node WHERE addr_uuid=?", [adrUuid]);
-        for (k=0; k<subRows.size(); k++) {
-            var addrIdPublished = subRows.get(k).get("addr_id_published");
-
-	        if (addrIdPublished) {
-	            // ---------- t02_address ----------
-		        var subSubRows = SQL.all("SELECT * FROM t02_address WHERE id=?", [addrIdPublished]);
-		        for (l=0; l<subSubRows.size(); l++) {
-		            addT02Address(subSubRows.get(l));
-		        }
-		        // ---------- t021_communication ----------
-		        var subSubRows = SQL.all("SELECT * FROM t021_communication WHERE adr_id=?", [addrIdPublished]);
-		        for (l=0; l<subSubRows.size(); l++) {
-		            addT021Communication(subSubRows.get(l));
-		        }
-	        }
-            // ---------- address_node CHILDREN ----------
-            // only published ones !
-            var subSubRows = SQL.all("SELECT * FROM address_node WHERE fk_addr_uuid=? AND addr_id_published IS NOT NULL", [adrUuid]);
-            for (l=0; l<subSubRows.size(); l++) {
-                addAddressNodeChildren(subSubRows.get(l));
-            }
-        }
+        // ---------- add referenced address ----------
+        addAddress(adrUuid);
     }
     // ---------- spatial_reference ----------
     var rows = SQL.all("SELECT * FROM spatial_reference WHERE obj_id=?", [objId]);
@@ -605,6 +583,47 @@ function addT012ObjAdr(row) {
     IDX.add("t012_obj_adr.special_name", row.get("special_name"));
     IDX.add("t012_obj_adr.mod_time", row.get("mod_time"));
 }
+
+// Adds address to index. If address is hidden then parent address is added.
+// Also adds address children not hidden (queried from portal ???).
+function addAddress(addrUuid) {
+	// ---------- address_node ----------
+    var addrNodeRows = SQL.all("SELECT * FROM address_node WHERE addr_uuid=? AND addr_id_published IS NOT NULL", [addrUuid]);
+    for (k=0; k<addrNodeRows.size(); k++) {
+        var parentAddrUuid = addrNodeRows.get(k).get("fk_addr_uuid");
+        var addrIdPublished = addrNodeRows.get(k).get("addr_id_published");
+
+        // ---------- t02_address ----------
+        var addrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [addrIdPublished]);
+        if (hasValue(addrRow)) {
+            // address not hidden, add all data
+            addT02Address(addrRow);
+
+            // ---------- t021_communication ----------
+            var commRows = SQL.all("SELECT * FROM t021_communication WHERE adr_id=?", [addrIdPublished]);
+            for (l=0; l<commRows.size(); l++) {
+                addT021Communication(commRows.get(l));
+            }
+
+            // ---------- address_node CHILDREN, queried from portal ??? ----------
+            // only children published and NOT hidden !
+            var childRows = SQL.all("SELECT address_node.* FROM address_node, t02_address WHERE address_node.fk_addr_uuid=? AND address_node.addr_id_published=t02_address.id AND (t02_address.hide_address IS NULL OR t02_address.hide_address != 'Y')", [addrUuid]);
+            for (l=0; l<childRows.size(); l++) {
+                addAddressNodeChildren(childRows.get(l));
+            }
+
+        } else {
+if (log.isDebugEnabled()) {
+    log.debug("Hidden address !!! uuid=" + addrUuid + " -> instead map parent address uuid=" + parentAddrUuid);
+}
+            // address hidden, add parent !
+            if (hasValue(parentAddrUuid)) {
+                addAddress(parentAddrUuid);
+            }
+        }
+    }	
+}
+
 function addT02Address(row) {
     IDX.add("t02_address.adr_id", row.get("adr_uuid"));
     IDX.add("t02_address.org_adr_id", row.get("org_adr_id"));
@@ -638,6 +657,7 @@ function addT021Communication(row) {
     IDX.add("t021_communication.descr", row.get("descr"));
 }
 function addAddressNodeChildren(row) {
+	// QUERIED FROM PORTAL !?
     IDX.add("t022_adr_adr.adr_from_id", row.get("fk_addr_uuid"));
     IDX.add("t022_adr_adr.adr_to_id", row.get("addr_uuid"));
 }

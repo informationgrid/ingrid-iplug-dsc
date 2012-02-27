@@ -117,9 +117,9 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- <gmd:contact> ----------
     // contact for metadata is now responsible user, see https://dev.wemove.com/jira/browse/INGRID32-46
     if (hasValue(objRow.get("responsible_uuid"))) {
-        var addressRows = SQL.all("SELECT * FROM t02_address WHERE t02_address.work_state=? AND t02_address.adr_uuid=?", ['V', objRow.get("responsible_uuid")]);
-        for (var i=0; i< addressRows.size(); i++) {
-        	var addressRow = addressRows.get(i);
+        // responsible user may be hidden ! then get first visible parent in hierarchy !
+        var addressRow = getFirstVisibleAddress(objRow.get("responsible_uuid"));
+        if (addressRow) {
         	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact"));
         }
     }
@@ -283,7 +283,11 @@ for (i=0; i<objRows.size(); i++) {
 			}
 		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3360']);
 		    for (var i=0; i< addressRows.size(); i++) {
-		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "resourceProvider"));
+                // address may be hidden ! then get first visible parent in hierarchy !
+                var addressRow = getFirstVisibleAddress(addressRows.get(i).get("adr_uuid"));
+                if (addressRow) {
+                    ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRow, "resourceProvider"));
+                }
 		    }
 			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=publisher> ----------
 			if (hasValue(literatureRow.get("publish_loc")) || hasValue(literatureRow.get("publisher"))) {
@@ -344,7 +348,11 @@ for (i=0; i<objRows.size(); i++) {
 			}
 		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3400']);
 		    for (var i=0; i< addressRows.size(); i++) {
-		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "projectManager"));
+                // address may be hidden ! then get first visible parent in hierarchy !
+                var addressRow = getFirstVisibleAddress(addressRows.get(i).get("adr_uuid"));
+                if (addressRow) {
+                    ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRow, "projectManager"));
+                }
 		    }
 			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=projectParticipant> ----------
 			if (hasValue(projectRow.get("member"))) {
@@ -356,7 +364,11 @@ for (i=0; i<objRows.size(); i++) {
 			}
 		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3410']);
 		    for (var i=0; i< addressRows.size(); i++) {
-		    	ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRows.get(i), "projectParticipant"));
+                // address may be hidden ! then get first visible parent in hierarchy !
+                var addressRow = getFirstVisibleAddress(addressRows.get(i).get("adr_uuid"));
+                if (addressRow) {
+                    ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRow, "projectParticipant"));
+                }
 		    }
 		}
 		
@@ -447,13 +459,16 @@ for (i=0; i<objRows.size(); i++) {
     // select all entries from syslist 505 and free entries, all entries of syslist 2010 already mapped above (3360, 3400, 3410) 
     var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND (t012_obj_adr.special_ref IS NULL OR t012_obj_adr.special_ref=?) ORDER BY line", ['V', objId, '505']);
     for (var i=0; i< addressRows.size(); i++) {
-        var addressRow = addressRows.get(i); 
-        var role = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(505, addressRow.get("type"));
+        var role = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(505, addressRows.get(i).get("type"));
         if (!hasValue(role)) {
-            role = addressRow.get("special_name");
+            role = addressRows.get(i).get("special_name");
         }
         if (hasValue(role)) {
-            identificationInfo.addElement("gmd:pointOfContact").addElement(getIdfResponsibleParty(addressRow, role));
+            // address may be hidden ! then get first visible parent in hierarchy !
+            var addressRow = getFirstVisibleAddress(addressRows.get(i).get("adr_uuid"));
+            if (addressRow) {
+                identificationInfo.addElement("gmd:pointOfContact").addElement(getIdfResponsibleParty(addressRow, role));
+            }
         }
     }
 
@@ -1246,6 +1261,33 @@ function getCitationIdentifier(objRow) {
     return id;
 }
 
+// Get published address with given uuid.
+// If address is hidden then first visible parent in hierarchy is returned.
+function getFirstVisibleAddress(addrUuid) {
+	var resultAddrRow;
+
+    // ---------- address_node ----------
+    var addrNodeRows = SQL.all("SELECT * FROM address_node WHERE addr_uuid=? AND addr_id_published IS NOT NULL", [addrUuid]);
+    for (k=0; k<addrNodeRows.size(); k++) {
+        var parentAddrUuid = addrNodeRows.get(k).get("fk_addr_uuid");
+        var addrIdPublished = addrNodeRows.get(k).get("addr_id_published");
+
+        // ---------- t02_address ----------
+        resultAddrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [addrIdPublished]);
+        if (!hasValue(resultAddrRow)) {
+if (log.isDebugEnabled()) {
+    log.debug("Hidden address !!! uuid=" + addrUuid + " -> instead map parent address uuid=" + parentAddrUuid);
+}
+            // address hidden, get parent !
+            if (hasValue(parentAddrUuid)) {
+                resultAddrRow = getFirstVisibleAddress(parentAddrUuid);
+            }
+        }
+    }
+    
+    return resultAddrRow;
+}
+
 /**
  * Creates an ISO CI_ResponsibleParty element based on a address row and a role. 
  * 
@@ -1913,6 +1955,10 @@ function addDistributionInfo(mdMetadata, objId) {
         // select only adresses associated with syslist 505 entry 5 ("Vertrieb") 
         var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, '5', '505']);
 	    if (hasValue(addressRow)) {
+	        // address may be hidden ! then get first visible parent in hierarchy !
+	        addressRow = getFirstVisibleAddress(addressRow.get("adr_uuid"));
+	    }
+        if (hasValue(addressRow)) {
             distributorContact.addElement(getIdfResponsibleParty(addressRow, "distributor"));
 	    } else {
             // add dummy distributor role, because no distributor was found
