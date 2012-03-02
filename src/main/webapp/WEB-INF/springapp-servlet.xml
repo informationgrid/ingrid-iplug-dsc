@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:util="http://www.springframework.org/schema/util" xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
 		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd http://www.springframework.org/schema/util
+                        http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
     <!-- import spring beans for the iPlug -->
     <import resource="spring.xml"/>    
@@ -102,6 +103,31 @@
  -->
     </bean>
 
+    
+    
+    <!--
+        Defines a facet definition filter. Will be applied before a facet 
+        definition is analyzed. This construct is used in igc dsc scripted
+        iPlug to map incompatible queries to compatible.
+        
+        See also de.ingrid.iplug.dscIGCTopicsSearchPreProcessor.
+
+        This is IGC DB specific. Please comment for other databases.
+    -->
+    <bean id="configurableFacetDefinitionProcessors"
+        class="de.ingrid.search.utils.facet.ConfigurableFacetClassPreProcessor" >
+        <property name="facetFilterDefinitions">
+            <map>
+                <entry key="type:topic" value-ref="topicFilterDef"/>
+            </map>                
+        </property>
+    </bean>
+
+    <util:map id="topicFilterDef" key-type="java.lang.String">
+        <entry key="datatype:topics" value="t01_object.is_catalog_data:y" />
+    </util:map>
+
+    
     <bean id="facetManager" class="de.ingrid.search.utils.facet.FacetManager">
         <property name="indexReaderWrapper">
             <ref bean="indexWrapper" />
@@ -113,6 +139,14 @@
             <list>
                 <ref bean="plugDescriptionFacetCounter" />
                 <ref bean="indexFacetCounter" />
+            </list>
+        </property>
+	    <!--
+            This is IGC DB specific. Please comment for other databases.
+	    -->
+        <property name="facetDefinitionProcessors">
+            <list>
+                <ref bean="configurableFacetDefinitionProcessors" />
             </list>
         </property>
     </bean>
