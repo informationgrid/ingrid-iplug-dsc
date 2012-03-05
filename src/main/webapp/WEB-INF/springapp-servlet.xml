@@ -115,7 +115,7 @@
         This is IGC DB specific. Please comment for other databases.
     -->
     <bean id="configurableFacetDefinitionProcessors"
-        class="de.ingrid.search.utils.facet.ConfigurableFacetClassPreProcessor" >
+        class="de.ingrid.search.utils.facet.ConfigurableFacetClassProcessor" >
         <property name="facetFilterDefinitions">
             <map>
                 <entry key="type:topic" value-ref="topicFilterDef"/>
