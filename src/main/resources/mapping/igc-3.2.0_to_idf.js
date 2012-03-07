@@ -1676,7 +1676,7 @@ function addResourceConstraints(identificationInfo, objId) {
         }            
 
         if (hasValue(termsOfUse)) {
-            identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString").addText(termsOfUse);
+            identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation/gco:CharacterString").addText(termsOfUse);
         }
     }
 

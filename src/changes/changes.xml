@@ -13,6 +13,9 @@
         Add support for generating facets if requested.
       </action>
       <action type="update" dev="wemove">
+        Change mapping from useLimitation, the element is now encapsulated in MD_Constraints instead of MD-LegelConstrains.
+      </action>
+      <action type="update" dev="wemove">
         IGC to IDF mapping scripts write now idf-version into IDF top element, removed IDF version from script names.
       </action>
       <action type="update" dev="wemove" issue="INGRID32-26">
