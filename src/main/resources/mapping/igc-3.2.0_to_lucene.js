@@ -36,7 +36,10 @@ for (i=0; i<objRows.size(); i++) {
         IDX.add(colName, objRow.get(colName));
 	}
 */
-    addT01Object(objRows.get(i));
+    // Example adding additional HTML to result
+//    IDX.add("additional_html_1", "<h1>MEIN ZUSATZ</h1>", false);
+
+	addT01Object(objRows.get(i));
     var catalogId = objRows.get(i).get("cat_id");
     var objUuid = objRows.get(i).get("obj_uuid");
 
