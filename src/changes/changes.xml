@@ -59,6 +59,12 @@
       </action>
     </release>
 
+  	 <release version="3.1.0.1" date="2012-03-13" description="Bugfix Release for InGrid 3.1">
+      <action type="fix" dev="wemove">
+        XML fix: fixed double escaping of xml files
+      </action>
+    </release>
+    
     <release version="3.1.0" date="2011-09-15" description="Release InGrid 3.1">
       <action type="update" dev="wemove">
         Prevent escaping of UTF-8 characters in IDF response.

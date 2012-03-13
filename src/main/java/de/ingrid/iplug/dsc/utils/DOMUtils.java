@@ -139,7 +139,7 @@ public class DOMUtils {
             if (e.hasChildNodes()) {
                 for (int i = 0; i < e.getChildNodes().getLength(); i++) {
                     if (e.getChildNodes().item(i) instanceof Text) {
-                        ((Text) e.getChildNodes().item(i)).setNodeValue(escapeXmlText(text));
+                        ((Text) e.getChildNodes().item(i)).setNodeValue(unNullify(text));
                         return this;
                     }
                 }
@@ -167,7 +167,7 @@ public class DOMUtils {
     }
 
     public IdfElement addAttribute(Element element, String attrName, String attrValue) {
-        element.setAttribute(attrName, escapeXmlText(attrValue));
+        element.setAttribute(attrName, unNullify(attrValue));
         return new IdfElement(element);
     }
 
@@ -294,15 +294,15 @@ public class DOMUtils {
     }
 
     private Text domNewTextNode(String data) {
-        return myDoc.createTextNode(escapeXmlText(data));
+        return myDoc.createTextNode(unNullify(data));
     }
 
-    /** Escapes given text. NOTICE: returns empty string if passed text is null. */
-    private String escapeXmlText(String text) {
-        if (text == null) {
-            text = "";
-        }
-        return StringEscapeUtils.escapeXml(text);
-    }
+	/** NOTICE: returns empty string if passed text is null. Used to be named escapeXmlText with StringEscapeUtils.escapeXml(text) as return value*/
+	private String unNullify(String text) {
+		if (text == null) {
+			text = "";
+		}
+		return text;
+	}
 
 }

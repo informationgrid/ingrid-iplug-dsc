@@ -41,6 +41,32 @@ public class DOMUtilsTest extends TestCase {
         .addAttribute("type", "1");
 
         assertNotNull(idfResponsibleParty);
+        
+    }
+    
+    public void testCreateElementDontEscapeChars() {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = null;
+        try {
+            docBuilder = dbf.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        org.w3c.dom.Document idfDoc = docBuilder.newDocument();
+        
+        DOMUtils domUtils = new DOMUtils(idfDoc, new XPathUtils(new IDFNamespaceContext()));
+        domUtils.addNS("idf", "textWith\"Invalid&amp;\"Chars");
+        
+        IdfElement idfResponsibleParty = domUtils.createElement("idf:idfResponsibleParty")
+        .addAttribute("uuid", "972\"assertMe\"839273819&amp;2739213")
+        .addAttribute("type", "1");
+        
+        IdfElement idfElement = domUtils.createElement("idfElement").addText("Test\"with&Uuml;sÄsAnd\"whatElse");
+        
+        assertEquals("Test\"with&Uuml;sÄsAnd\"whatElse",idfElement.getElement().getTextContent());
+        assertEquals("972\"assertMe\"839273819&amp;2739213",idfResponsibleParty.getElement().getAttribute("uuid"));
+        assertEquals("textWith\"Invalid&amp;\"Chars", domUtils.getNS("idf"));
     }
 
 }
