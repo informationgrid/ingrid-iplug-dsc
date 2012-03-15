@@ -36,11 +36,45 @@ public class TransformationUtils {
      * Values/fields are added and cleared in according methods ! */
     private Map<String, String> tmpInfo = new HashMap<String, String>();
 
-	public static Long LANG_ID_INGRID_QUERY_VALUE = UtilsUDKCodeLists.LANG_ID_INGRID_QUERY_VALUE;
+	public static String LANG_ID_INGRID_QUERY_VALUE = UtilsUDKCodeLists.LANG_ID_INGRID_QUERY_VALUE;
 
 	public TransformationUtils(SQLUtils sqlUtils) {
 	    this.SQL = sqlUtils;
+	    //initCodelists();
 	}
+	
+	/**
+	 * Transform the codelists from the database into a hierarchical hashmap to
+	 * access each codelist entry easily.
+	 * 
+	 * Now there are separate SQL-queries for each syslist transformation!
+	 */
+//	private void initCodelists() {
+//	    this.codelists = new HashMap();
+//	    try {
+//            List<Map<String,String>> allSyslists = SQL.all("SELECT * FROM sys_list");
+//            for (Map<String, String> syslist : allSyslists) {
+//                // check if list already was added
+//                Map<String, Map<String, String>> cl = (Map<String, Map<String, String>>) codelists.get(syslist.get("lst_id"));
+//                if (cl == null) {
+//                    cl = new HashMap<String, Map<String, String>>();
+//                    codelists.put(syslist.get("lst_id"), cl);
+//                }
+//                
+//                Map<String, String> clEntry = (Map<String, String>) cl.get(syslist.get("entry_id"));
+//                if (clEntry == null) {
+//                    clEntry = new HashMap<String, String>();
+//                    cl.put(syslist.get("entry_id"), clEntry);
+//                }
+//                
+//                clEntry.put(syslist.get("lang_id"), syslist.get("name"));
+//                
+//            }
+//        } catch (SQLException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//	}
 
 	/** Get the name of the given entry in the given syslist IN THE LANGUAGE OF THE CATALOG.
 	 * @param listId id of syslist
@@ -237,7 +271,7 @@ public class TransformationUtils {
 
 		String retValue = null;
 		try {
-			retValue = UtilsUDKCodeLists.getIsoCodeListEntryFromIgcId(igcCodeListId, new Long(igcEntryId));
+			retValue = SQL.first("SELECT name FROM sys_list WHERE lst_id="+igcCodeListId+" AND lang_id='"+UtilsUDKCodeLists.LANG_ID_ISO_ENTRY+"' AND entry_id="+igcEntryId).get("name");
 		} catch (Exception ex) {
             log.error("Cannot transform IGC syslist entry -> listId '" + igcCodeListId +
             		"', entryId '" + igcEntryId + "' to ISO CodeList entry.");
@@ -256,14 +290,14 @@ public class TransformationUtils {
 	 * of the entry (e.g. ingrid query value of a topic in "Umweltthemen"). 
 	 * If the codelist entry cannot be found null is returned.
 	 */
-	public String getCodeListEntryFromIGCSyslistEntry(Long igcCodeListId, String igcEntryId, Long langIdInCodelist) {
+	public String getCodeListEntryFromIGCSyslistEntry(Long igcCodeListId, String igcEntryId, String langIdInCodelist) {
 		if (igcEntryId == null) {
 			return null;
 		}
 
 		String retValue = null;
 		try {
-			retValue = UtilsUDKCodeLists.getCodeListEntryName(igcCodeListId, new Long(igcEntryId), langIdInCodelist);
+			retValue = SQL.first("SELECT name FROM sys_list WHERE lst_id="+igcCodeListId+" AND lang_id='"+langIdInCodelist+"' AND entry_id="+igcEntryId).get("name");
 		} catch (Exception ex) {
             log.error("Cannot transform IGC syslist entry -> listId '" + igcCodeListId +
             	"', entryId '" + igcEntryId + "', langId '" + langIdInCodelist + "' to entry of CodeList.");
@@ -288,7 +322,7 @@ public class TransformationUtils {
 
 		String retValue = null;
 		try {
-			retValue = UtilsUDKCodeLists.getCodeListDomainId(codeListId, entryValue, UtilsUDKCodeLists.LANG_ID_ISO_ENTRY);
+			retValue = SQL.first("SELECT entry_id FROM sys_list WHERE lst_id="+codeListId+" AND name="+entryValue).get("entry_id");
 		} catch (Exception ex) {
             log.error("Problems checking entryValue '" + entryValue + "' on ISO Code List '" + codeListId + "'.");
 		}

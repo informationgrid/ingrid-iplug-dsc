@@ -6,6 +6,10 @@
   </properties>
   <body>
     <release version="3.2.0-SNAPSHOT" date="2011-??-??" description="Feature Release">
+      <action type="add" dev="wemove" issue="INGRID32-24">
+        Get syslist values directly from database instead of static file. Syslists from the database will be synchronized with
+        a repository to have the latest changes.
+      </action>
       <action type="add" dev="wemove" issue="INGRID32-37">
         Handle new "hide address" field in mapping. If address is hidden then parent address is mapped.
       </action>

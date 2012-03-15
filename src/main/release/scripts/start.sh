@@ -172,7 +172,7 @@ startIplug()
   # run it
   export CLASSPATH="$CLASSPATH"
   INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME"
-  CLASS=de.ingrid.iplug.dsc.JettyStarter
+  CLASS=de.ingrid.admin.JettyStarter
 	
   exec nohup "$JAVA" $JAVA_HEAPSIZE $INGRID_OPTS $CLASS > console.log & 
   

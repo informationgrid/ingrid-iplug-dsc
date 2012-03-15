@@ -83,7 +83,7 @@ public class IGCTopicsSearchPreProcessor implements IPreProcessor {
 
     	if (fq.getFieldName().equalsIgnoreCase(QFIELD_TOPIC)) {
     		String newValue = UtilsUDKCodeLists.getCodeListDomainId(UtilsUDKCodeLists.SYSLIST_ID_ENV_TOPICS,
-        			fq.getFieldValue(), UtilsUDKCodeLists.LANG_ID_INGRID_QUERY_VALUE);
+        			fq.getFieldValue(), TransformationUtils.LANG_ID_INGRID_QUERY_VALUE);
 
     		if (LOG.isDebugEnabled()) {
                 LOG.debug("replace " + QFIELD_TOPIC + ":" + fq.getFieldValue() + " with "
@@ -96,7 +96,7 @@ public class IGCTopicsSearchPreProcessor implements IPreProcessor {
 
     	} else if (fq.getFieldName().equalsIgnoreCase(QFIELD_FUNCT_CATEGORY)) {
     		String newValue = UtilsUDKCodeLists.getCodeListDomainId(UtilsUDKCodeLists.SYSLIST_ID_ENV_FUNCT_CATEGORY,
-        			fq.getFieldValue(), UtilsUDKCodeLists.LANG_ID_INGRID_QUERY_VALUE);
+        			fq.getFieldValue(), TransformationUtils.LANG_ID_INGRID_QUERY_VALUE);
     		
     		if (LOG.isDebugEnabled()) {
                 LOG.debug("replace " + QFIELD_FUNCT_CATEGORY + ":" + fq.getFieldValue() + " with "

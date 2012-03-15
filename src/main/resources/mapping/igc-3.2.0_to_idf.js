@@ -2544,7 +2544,7 @@ function addAttachedToField(row, parentElement, addAsISO) {
         	// syslist entry, NOT "Keine Kopplung"
         	if (addAsISO) {
         	   // ISO: translate to english !
-        	   textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, 123);
+        	   textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "en");
         	} else {
         		// IDF: use catalog language like it was entered
                textContent = attachedToFieldValue;
