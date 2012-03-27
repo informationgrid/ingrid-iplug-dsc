@@ -61,6 +61,9 @@
       <action type="fix" dev="wemove">
         Fixed errors in IDF mapping script (hierarchyLevel in object class 1, mapping env category ...).
       </action>
+      <action type="fix" dev="wemove">
+        Fixed update bug of PlugDescription to the iBus, where an old one was used when it was changed by the indexer.
+      </action>
     </release>
 
   	 <release version="3.1.0.1" date="2012-03-13" description="Bugfix Release for InGrid 3.1">
