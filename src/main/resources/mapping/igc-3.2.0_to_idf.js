@@ -601,9 +601,9 @@ for (i=0; i<objRows.size(); i++) {
         var objServId = objServRow.get("id");
         
         // ---------- <gmd:identificationInfo/srv:serviceType> ----------
-        value = getServiceType(objClass, objServRow);
-        if (hasValue(value)) {
-            identificationInfo.addElement("srv:serviceType/gco:LocalName").addText(value);
+        var serviceTypeISOName = getServiceType(objClass, objServRow);
+        if (hasValue(serviceTypeISOName)) {
+            identificationInfo.addElement("srv:serviceType/gco:LocalName").addText(serviceTypeISOName);
         } else {
             identificationInfo.addElement("srv:serviceType").addAttribute("gco:nilReason", "missing");
                 // add empty gco:LocalName because of Validators !
@@ -700,7 +700,7 @@ for (i=0; i<objRows.size(); i++) {
             .addAttribute("codeListValue", typeValue);
 
         // ---------- <gmd:identificationInfo/srv:containsOperations/srv:SV_OperationMetadata> ----------
-        addServiceOperations(identificationInfo, objServId);
+        addServiceOperations(identificationInfo, objServId, serviceTypeISOName);
     
 	    // ---------- <gmd:identificationInfo/srv:operatesOn/gmd:Reference> ----------
 	    rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3345', "V"]);
@@ -1635,29 +1635,12 @@ function getServiceType(objClass, objServRow) {
     var serviceTypeKey = objServRow.get("type_key");
     if (serviceTypeKey != null) {
         if (objClass.equals("3")) {
-            if (serviceTypeKey.equals("1")) {
-	            retValue = "discovery";
-	        } else if (serviceTypeKey.equals("2")) {
-	            retValue = "view";
-	        } else if (serviceTypeKey.equals("3")) {
-	            retValue = "download";
-	        } else if (serviceTypeKey.equals("4")) {
-                retValue = "transformation";
-            } else if (serviceTypeKey.equals("5")) {
-                retValue = "invoke";
-            } else  {
-                retValue = "other";
-            }
+            retValue = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, serviceTypeKey);
         } else if (objClass.equals("6")) {
-            if (serviceTypeKey.equals("1")) {
-                retValue = "information system";
-            } else if (serviceTypeKey.equals("2")) {
-                retValue = "non geographic service";
-	        } else if (serviceTypeKey.equals("3")) {
-	           retValue = "application";
-	        } else  {
-	           retValue = "other";
-	        }
+            retValue = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5300, serviceTypeKey);
+            if (!hasValue(retValue)) {
+               retValue = "other";
+            }
         }
     }
     return retValue;
@@ -2025,7 +2008,7 @@ function addDistributionInfo(mdMetadata, objId) {
     }	
 }
 
-function addServiceOperations(identificationInfo, objServId) {
+function addServiceOperations(identificationInfo, objServId, serviceTypeISOName) {
         var svContainsOperations;
 // GEODATENDIENST(3)
     // ---------- <srv:containsOperations/srv:SV_OperationMetadata> ----------
@@ -2038,7 +2021,8 @@ function addServiceOperations(identificationInfo, objServId) {
                 var svOperationMetadata = svContainsOperations.addElement("srv:SV_OperationMetadata");
 
         // ---------- <srv:SV_OperationMetadata/srv:operationName> ----------
-                svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText(svOpRow.get("name_value"));
+                var opName = svOpRow.get("name_value");
+                svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText(opName);
 
         // ---------- <srv:SV_OperationMetadata/srv:DCP/srv:DCPList> ----------
                 var platfRows = SQL.all("SELECT * FROM t011_obj_serv_op_platform WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
@@ -2092,8 +2076,23 @@ function addServiceOperations(identificationInfo, objServId) {
         // ---------- <srv:SV_OperationMetadata/srv:connectPoint> ----------
                 var connRows = SQL.all("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
                 for (j=0; j<connRows.size(); j++) {
-                    if (hasValue(connRows.get(j).get("connect_point"))) {
-                        svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(connRows.get(j).get("connect_point"));
+                	var connUrl = connRows.get(j).get("connect_point");
+                    if (hasValue(connUrl)) {
+                    	// always add some parameters to "getcapabilities" url when VIEW-Service, see INGRID-2107
+                    	if (hasValue(serviceTypeISOName) && serviceTypeISOName.equals("view") &&
+                    	    hasValue(opName) && opName.toLowerCase().equals("getcapabilities"))
+                    	{
+                    	   if (connUrl.toLowerCase().indexOf("request=getcapabilities") == -1) {
+                    	       if (connUrl.indexOf("?") == -1) {
+                    	           connUrl = connUrl + "?";
+                    	       }
+                    	       if (!(connUrl.lastIndexOf("?") == connUrl.length-1) && !(connUrl.lastIndexOf("&") == connUrl.length-1)) {
+                    	           connUrl = connUrl + "&";
+                    	       }
+                    	       connUrl = connUrl + "REQUEST=GetCapabilities&SERVICE=WMS";
+                    	   }
+                    	}
+                        svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(connUrl);
                     }
                 }
             }

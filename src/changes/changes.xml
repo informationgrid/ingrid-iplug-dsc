@@ -16,6 +16,9 @@
       <action type="add" dev="wemove">
         Add support for generating facets if requested.
       </action>
+      <action type="update" dev="wemove" issue="INGRID-2107">
+        GetCapabilities of view services now always mapped to IDF with REQUEST=GetCapabilities and SERVICE=WMS. 
+      </action>
       <action type="update" dev="wemove">
         Change mapping from useLimitation, the element is now encapsulated in MD_Constraints instead of MD-LegelConstrains.
       </action>
