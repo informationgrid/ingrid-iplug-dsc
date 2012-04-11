@@ -61,7 +61,25 @@ public class IndexUtils {
         add(CONTENT_FIELD_NAME, value, Field.Store.NO, analyzed ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
         add(CONTENT_FIELD_NAME, filterTerm(value), Field.Store.NO, Field.Index.ANALYZED);
     }
-
+    
+    /**
+     * Add a index field with the value to the index document. If analyzed=true
+     * the field will be TOKENIZE, if analyze=false not (use this for IDs). 
+     * Invokes the private add method, mainly for storing an idf as string,
+     * the wms indexer stores the idf already in the lucene index for faster fetching.
+     * 
+     * @param fieldName
+     *            name of the field in the index
+     * @param value
+     *            content of the field !
+     */
+    public void add(String fieldName, String value, boolean analyzed, boolean idf) throws IOException {
+        if (value == null) {
+            value = "";
+        }
+        if(idf)
+        add(fieldName, value, Field.Store.YES, analyzed ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
+    }
     /**
      * Add a index field with the value to the index document. The field will be
      * TOKENIZE and STORE and will be added to a separate "content" field
