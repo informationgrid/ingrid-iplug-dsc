@@ -685,15 +685,44 @@ for (i=0; i<objRows.size(); i++) {
 
 // ALLE KLASSEN
     addExtent(identificationInfo, objRow);
+    
+    if (objClass.equals("3")) {
+        // ---------- <gmd:identificationInfo/srv:coupledResource/srv:SV_CoupledResource/srv:identifier/gco:CharacterString> ----------
+        var rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3210', "V"]);
+        var resourceIdentifiers = [];
+        for (i=0; i<rows.size(); i++) {
+            var refObjUuid = rows.get(i).get("obj_to_uuid");
+            // get the referenced object from where the identifier might be created if no datasource entry was found
+            var refObjRow = SQL.first("SELECT * FROM t01_object WHERE obj_uuid=?", [refObjUuid]);
+            var coupledResource = identificationInfo.addElement("srv:coupledResource/srv:SV_CoupledResource");
+            coupledResource.addElement("srv:operationName/gco:CharacterString").addText("GetMap");
+            resourceIdentifiers.push(getCitationIdentifier(refObjRow, refObjUuid));
+            coupledResource.addElement("srv:identifier/gco:CharacterString").addText(resourceIdentifiers[resourceIdentifiers.length-1]);
+        }
+        // AND ALL INCOMING LINKS => BIDIRECTIONAL!
+        // Not anymore! Links are only coming from Services to Data!
+//        var inlinkRows = SQL.all("SELECT obj_from_id FROM `object_reference` WHERE obj_to_uuid=? and special_ref=?", [objUuid, 5066]);
+//        for (i=0; i<inlinkRows.size(); i++) {
+//            var refObjId = inlinkRows.get(i).get("obj_from_id");
+//            // get the referenced object from where the identifier might be created if no datasource entry was found
+//            var refObjRow = SQL.first("SELECT * FROM t01_object WHERE id=?", [refObjId]);
+//            var coupledResource = identificationInfo.addElement("srv:coupledResource/srv:SV_CoupledResource");
+//            coupledResource.addElement("srv:operationName/gco:CharacterString").addText("GetMap");
+//            resourceIdentifiers.push(getCitationIdentifier(refObjRow, null, refObjId));
+//            coupledResource.addElement("srv:identifier/gco:CharacterString").addText(resourceIdentifiers[resourceIdentifiers.length-1]);
+//        }
+    }
 
-// GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+    // GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     if (objClass.equals("3") || objClass.equals("6")) {
         // ---------- <gmd:identificationInfo/srv:couplingType/srv:SV_CouplingType> ----------
         // also check whether referenced object is published !
-        row = SQL.first("SELECT * FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3345', "V"]);
+        row = SQL.first("SELECT * FROM object_reference, t01_object, t011_obj_serv WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=t011_obj_serv.obj_id AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3210', "V"]);
         var typeValue = "loose";
-        if (hasValue(row)) {
-            typeValue = "tight";
+        log.info("GETTING COUPLING TYPE:");
+        log.info(row.get("coupling_type"));
+        if (hasValue(row) && row.get("coupling_type") != null ) {
+            typeValue = row.get("coupling_type");
         }
         identificationInfo.addElement("srv:couplingType/srv:SV_CouplingType")
             .addAttribute("codeList", "http://opengis.org/codelistRegistry?SV_CouplingType")
@@ -703,11 +732,12 @@ for (i=0; i<objRows.size(); i++) {
         addServiceOperations(identificationInfo, objServId, serviceTypeISOName);
     
 	    // ---------- <gmd:identificationInfo/srv:operatesOn/gmd:Reference> ----------
-	    rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3345', "V"]);
-	    for (i=0; i<rows.size(); i++) {
-	        identificationInfo.addElement("srv:operatesOn").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
+//	    rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3210', "V"]);
+	    for (i=0; i<resourceIdentifiers.length; i++) {
+//	        identificationInfo.addElement("srv:operatesOn").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
+	        identificationInfo.addElement("srv:operatesOn").addAttribute("href", resourceIdentifiers[i]);
 	    }
-	
+	    
 	    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
         // add second identification info for all information that cannot be mapped into a SV_ServiceIdentification element
         addServiceAdditionalIdentification(mdMetadata, objServRow, objServId);
@@ -1208,9 +1238,20 @@ function getFileIdentifier(objRow) {
  * @param hit
  * @return
  */
-function getCitationIdentifier(objRow) {
+function getCitationIdentifier(objRow, objUuid, otherObjId) {
 	var id;
-	var objGeoRow = SQL.first("SELECT datasource_uuid FROM t011_obj_geo WHERE obj_id=?", [objId]);
+	var usedObjId = objId;
+	// get identifier from other object providing a uuid or id
+	if (objUuid) {
+	   usedObjId = SQL.first("SELECT id FROM t01_object WHERE obj_uuid=?", [objUuid]).get("id");
+	} else if (otherObjId) {
+	    usedObjId = otherObjId;
+	}
+	
+	var objGeoRow = SQL.first("SELECT datasource_uuid FROM t011_obj_geo WHERE obj_id=?", [usedObjId]);
+	
+	log.debug("ID Resource:");
+	log.debug(objGeoRow);	
 	if (hasValue(objGeoRow)) {
 		id = objGeoRow.get("datasource_uuid");
 	}
@@ -1877,10 +1918,11 @@ function addDistributionInfo(mdMetadata, objId) {
             if (!mdDistribution) {
                 mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
             }
-            // ---------- <gmd:MD_Distributiongmd:distributionFormat/gmd:MD_Format> ----------
+            // ---------- <gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format> ----------
             var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
-                // ---------- <gmd:MD_Format/gmd:name> ----------
+            // ---------- <gmd:MD_Format/gmd:name> ----------
             mdFormat.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("format_value"));
+         // ---------- <gmd:MD_Format/gmd:version> ----------
             mdFormat.addElement("gmd:version/gco:CharacterString").addText("unknown");
         }
     }
@@ -1973,6 +2015,26 @@ function addDistributionInfo(mdMetadata, objId) {
             addAttachedToField(rows.get(i), idfOnlineResource, true);
             // then IDF
             addAttachedToField(rows.get(i), idfOnlineResource);
+        }
+    }
+    
+    // add connection to the service(s) for class 1
+    if (objClass.equals("1")) {
+        // ---------- <gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:online/gmd:CI_OnlineResource ----------
+        // all from links
+        //rows = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_to_uuid=t01obj.obj_uuid AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_from_id=? and special_ref=?", [objId, "5066"]);
+        // TODO: AND Class == 3 ???
+        // the links should all come from service objects (class=3)
+        rows = SQL.all("SELECT * FROM `object_reference` oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, "3210", "3"]);
+        for (i=0; i<rows.size(); i++) {
+            if (hasValue(rows.get(i).get("connect_point"))) {
+                if (!mdDistribution) {
+                    mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+                }
+                var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
+                var idfOnlineResource = digitalTransferOptions.addElement("gmd:onLine/idf:idfOnlineResource");
+                idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("connect_point"));
+            }
         }
     }
 

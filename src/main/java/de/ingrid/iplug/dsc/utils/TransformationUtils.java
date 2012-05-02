@@ -273,8 +273,15 @@ public class TransformationUtils {
 		try {
 			retValue = SQL.first("SELECT name FROM sys_list WHERE lst_id="+igcCodeListId+" AND lang_id='"+UtilsUDKCodeLists.LANG_ID_ISO_ENTRY+"' AND entry_id="+igcEntryId).get("name");
 		} catch (Exception ex) {
-            log.error("Cannot transform IGC syslist entry -> listId '" + igcCodeListId +
-            		"', entryId '" + igcEntryId + "' to ISO CodeList entry.");
+		    // fallback and search for english entry
+            if (retValue == null) {
+                try {
+                    retValue = SQL.first("SELECT name FROM sys_list WHERE lst_id="+igcCodeListId+" AND lang_id='en' AND entry_id="+igcEntryId).get("name");
+                } catch (SQLException e) {
+                    log.error("Cannot transform IGC syslist entry -> listId '" + igcCodeListId +
+                            "', entryId '" + igcEntryId + "' to ISO CodeList entry.");
+                }
+            }
 		}
         if (log.isDebugEnabled()) {
             log.debug("Transform IGC syslist entry -> listId '" + igcCodeListId +

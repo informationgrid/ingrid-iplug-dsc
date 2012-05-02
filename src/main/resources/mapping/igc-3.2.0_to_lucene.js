@@ -99,12 +99,13 @@ for (i=0; i<objRows.size(); i++) {
         var subRows = SQL.all("SELECT * FROM t011_obj_serv_operation WHERE obj_serv_id=?", [objServId]);
         for (k=0; k<subRows.size(); k++) {
             addT011ObjServOperation(subRows.get(k));
-            var objServOpId = subRows.get(k).get("id");
+            var objServOpId   = subRows.get(k).get("id");
+            var isCapabilityOperation = subRows.get(k).get("name_key") == "1"; // key of "GetCapabilities" is "1"! 
 
             // ---------- t011_obj_serv_op_connpoint ----------
             var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [objServOpId]);
             for (l=0; l<subSubRows.size(); l++) {
-                addT011ObjServOpConnpoint(subSubRows.get(l));
+                addT011ObjServOpConnpoint(subSubRows.get(l), isCapabilityOperation);
             }
             // ---------- t011_obj_serv_op_depends ----------
             var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_depends WHERE obj_serv_op_id=?", [objServOpId]);
@@ -443,9 +444,14 @@ function addT011ObjServOperation(row) {
     IDX.add("t011_obj_serv_operation.descr", row.get("descr"));
     IDX.add("t011_obj_serv_operation.invocation_name", row.get("invocation_name"));
 }
-function addT011ObjServOpConnpoint(row) {
+function addT011ObjServOpConnpoint(row, isCapabilityUrl) {
     IDX.add("t011_obj_serv_op_connpoint.line", row.get("line"));
     IDX.add("t011_obj_serv_op_connpoint.connect_point", row.get("connect_point"));
+    
+    // add capability url if it was defined as one
+    if (isCapabilityUrl == true) {
+        IDX.add("capabilitiesUrl", row.get("connect_point"));
+    }
 }
 function addT011ObjServOpDepends(row) {
     IDX.add("t011_obj_serv_op_depends.line", row.get("line"));
