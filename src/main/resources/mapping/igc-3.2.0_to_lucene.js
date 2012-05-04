@@ -42,6 +42,7 @@ for (i=0; i<objRows.size(); i++) {
 	addT01Object(objRows.get(i));
     var catalogId = objRows.get(i).get("cat_id");
     var objUuid = objRows.get(i).get("obj_uuid");
+    var objClass = objRows.get(i).get("obj_class");
 
     // ---------- t0110_avail_format ----------
     var rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [objId]);
@@ -100,7 +101,7 @@ for (i=0; i<objRows.size(); i++) {
         for (k=0; k<subRows.size(); k++) {
             addT011ObjServOperation(subRows.get(k));
             var objServOpId   = subRows.get(k).get("id");
-            var isCapabilityOperation = subRows.get(k).get("name_key") == "1"; // key of "GetCapabilities" is "1"! 
+            var isCapabilityOperation = rows.get(j).get("type_key") == "2" && subRows.get(k).get("name_key") == "1"; // key of "Darstellungsdienste" is "2" and "GetCapabilities" is "1" !
 
             // ---------- t011_obj_serv_op_connpoint ----------
             var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [objServOpId]);
@@ -144,6 +145,19 @@ for (i=0; i<objRows.size(); i++) {
             addT011ObjServUrl(subRows.get(k));
         }
     }
+    // add Capabilities Url from service to coupled data object (INGRID32-81)
+    if (objClass == "1") {
+        var serviceObjects = SQL.all("SELECT * FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=? AND oRef.obj_to_uuid=t01.obj_uuid AND t01.obj_class=1 AND oRef.obj_from_id IN (SELECT t01_b.id FROM t01_object t01_b WHERE t01_b.obj_class=3)", [objUuid]);
+        log.debug("Found ServiceObjects from uuid=" + objUuid + ": " + serviceObjects.size());
+        for (k=0; k<serviceObjects.size(); k++) {
+            // get capabilities urls from service object
+            var capabilitiesUrls = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_from_id=t01obj.id AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_from_id=? and special_ref=3210 and serv.type_key=2", [serviceObjects.get(k).get("obj_from_id")]);
+            for (l=0; l<capabilitiesUrls.size(); l++) {
+                log.debug("Found capabilitiesUrls: " + capabilitiesUrls.size());
+                addCapabilitiesUrl(capabilitiesUrls.get(l));
+            }
+        }
+    }    
     // ---------- t011_obj_geo ----------
     var rows = SQL.all("SELECT * FROM t011_obj_geo WHERE obj_id=?", [objId]);
     for (j=0; j<rows.size(); j++) {
@@ -272,6 +286,12 @@ for (i=0; i<objRows.size(); i++) {
         var subRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objFromId]);
         for (k=0; k<subRows.size(); k++) {
             addT01ObjectFrom(subRows.get(k));
+            
+            // service FROM (helps to identify links from services to data-objects)
+            // this kind of link comes from an object of class 3 and has a link type of '3210'
+            if ("3210".equals(rows.get(j).get("special_ref")) && "3".equals(subRows.get(k).get("obj_class"))) {
+                addServiceLinkInfo(subRows.get(k));
+            }
         }
     }
     // ---------- t0114_env_topic ----------
@@ -450,8 +470,11 @@ function addT011ObjServOpConnpoint(row, isCapabilityUrl) {
     
     // add capability url if it was defined as one
     if (isCapabilityUrl == true) {
-        IDX.add("capabilitiesUrl", row.get("connect_point"));
+        addCapabilitiesUrl(row);
     }
+}
+function addCapabilitiesUrl(row) {
+    IDX.add("capabilitiesUrl", row.get("connect_point"));
 }
 function addT011ObjServOpDepends(row) {
     IDX.add("t011_obj_serv_op_depends.line", row.get("line"));
@@ -747,6 +770,11 @@ function addObjectReferenceFrom(row) {
     IDX.add("refering.object_reference.special_ref", row.get("special_ref"));
     IDX.add("refering.object_reference.special_name", row.get("special_name"));
     IDX.add("refering.object_reference.descr", row.get("descr"));
+}
+function addServiceLinkInfo(row) {
+    // add class from refering object, which is used to determine in-links from services (INGRID32-81)
+    // same special_ref is used in class 3 and 6!
+    IDX.add("refering_service_uuid", row.get("obj_uuid"));
 }
 function addT01ObjectFrom(row) {
     IDX.add("refering.object_reference.obj_uuid", row.get("obj_uuid"));

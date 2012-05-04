@@ -735,7 +735,7 @@ for (i=0; i<objRows.size(); i++) {
 //	    rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3210', "V"]);
 	    for (i=0; i<resourceIdentifiers.length; i++) {
 //	        identificationInfo.addElement("srv:operatesOn").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
-	        identificationInfo.addElement("srv:operatesOn").addAttribute("href", resourceIdentifiers[i]);
+	        identificationInfo.addElement("srv:operatesOn").addAttribute("xlink:href", resourceIdentifiers[i]);
 	    }
 	    
 	    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
