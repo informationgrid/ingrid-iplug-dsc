@@ -688,15 +688,13 @@ for (i=0; i<objRows.size(); i++) {
     
     if (objClass.equals("3")) {
         // ---------- <gmd:identificationInfo/srv:coupledResource/srv:SV_CoupledResource/srv:identifier/gco:CharacterString> ----------
-        var rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3210', "V"]);
+        var rows = SQL.all("SELECT object_reference.obj_to_uuid, t01_object.org_obj_id, t01_object.id FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3210', "V"]);
         var resourceIdentifiers = [];
         for (i=0; i<rows.size(); i++) {
-            var refObjUuid = rows.get(i).get("obj_to_uuid");
-            // get the referenced object from where the identifier might be created if no datasource entry was found
-            var refObjRow = SQL.first("SELECT * FROM t01_object WHERE obj_uuid=?", [refObjUuid]);
+            var refObjId = rows.get(i).get("id");
             var coupledResource = identificationInfo.addElement("srv:coupledResource/srv:SV_CoupledResource");
             coupledResource.addElement("srv:operationName/gco:CharacterString").addText("GetMap");
-            resourceIdentifiers.push(getCitationIdentifier(refObjRow, refObjUuid));
+            resourceIdentifiers.push(getCitationIdentifier(rows.get(i), refObjId));
             coupledResource.addElement("srv:identifier/gco:CharacterString").addText(resourceIdentifiers[resourceIdentifiers.length-1]);
         }
         // AND ALL INCOMING LINKS => BIDIRECTIONAL!
@@ -708,7 +706,7 @@ for (i=0; i<objRows.size(); i++) {
 //            var refObjRow = SQL.first("SELECT * FROM t01_object WHERE id=?", [refObjId]);
 //            var coupledResource = identificationInfo.addElement("srv:coupledResource/srv:SV_CoupledResource");
 //            coupledResource.addElement("srv:operationName/gco:CharacterString").addText("GetMap");
-//            resourceIdentifiers.push(getCitationIdentifier(refObjRow, null, refObjId));
+//            resourceIdentifiers.push(getCitationIdentifier(refObjRow, refObjId));
 //            coupledResource.addElement("srv:identifier/gco:CharacterString").addText(resourceIdentifiers[resourceIdentifiers.length-1]);
 //        }
     }
@@ -1238,13 +1236,11 @@ function getFileIdentifier(objRow) {
  * @param hit
  * @return
  */
-function getCitationIdentifier(objRow, objUuid, otherObjId) {
+function getCitationIdentifier(objRow, otherObjId) {
 	var id;
-	var usedObjId = objId;
+	var usedObjId = objId; // global variable!
 	// get identifier from other object providing a uuid or id
-	if (objUuid) {
-	   usedObjId = SQL.first("SELECT id FROM t01_object WHERE obj_uuid=?", [objUuid]).get("id");
-	} else if (otherObjId) {
+	if (otherObjId) {
 	    usedObjId = otherObjId;
 	}
 	
