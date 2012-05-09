@@ -280,6 +280,9 @@ public class TransformationUtils {
                 } catch (SQLException e) {
                     log.error("Cannot transform IGC syslist entry -> listId '" + igcCodeListId +
                             "', entryId '" + igcEntryId + "' to ISO CodeList entry.");
+                } catch (NullPointerException e) {
+                    log.error("Cannot get name of syslist entry -> listId '" + igcCodeListId +
+                            "', entryId '" + igcEntryId);
                 }
             }
 		}

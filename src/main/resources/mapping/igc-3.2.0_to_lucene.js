@@ -150,10 +150,10 @@ for (i=0; i<objRows.size(); i++) {
         var serviceObjects = SQL.all("SELECT * FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=? AND oRef.obj_to_uuid=t01.obj_uuid AND t01.obj_class=1 AND oRef.obj_from_id IN (SELECT t01_b.id FROM t01_object t01_b WHERE t01_b.obj_class=3)", [objUuid]);
         log.debug("Found ServiceObjects from uuid=" + objUuid + ": " + serviceObjects.size());
         for (k=0; k<serviceObjects.size(); k++) {
-            // get capabilities urls from service object
-            var capabilitiesUrls = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_from_id=t01obj.id AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_from_id=? and special_ref=3210 and serv.type_key=2", [serviceObjects.get(k).get("obj_from_id")]);
+            // get capabilities urls from service object, who links to this object!
+            var capabilitiesUrls = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_from_id=t01obj.id AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_to_uuid=? AND obj_from_id=? AND special_ref=3210 AND serv.type_key=2 AND t01obj.work_state='V'", [objUuid, serviceObjects.get(k).get("obj_from_id")]);
             for (l=0; l<capabilitiesUrls.size(); l++) {
-                log.debug("Found capabilitiesUrls: " + capabilitiesUrls.size());
+                //log.debug("Found capabilitiesUrls for "+k+". service object: " + capabilitiesUrls.size());
                 addCapabilitiesUrl(capabilitiesUrls.get(l));
             }
         }
@@ -272,9 +272,18 @@ for (i=0; i<objRows.size(); i++) {
         addObjectNodeParent(rows.get(j));
     }
     // ---------- object_reference TO ----------
-    var rows = SQL.all("SELECT * FROM object_reference WHERE obj_from_id=?", [objId]);
+    var rows = SQL.all("SELECT oRef.*, t01.obj_name FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=t01.obj_uuid AND oRef.obj_from_id=?", [objId]);
     for (j=0; j<rows.size(); j++) {
         addObjectReferenceTo(rows.get(j));
+    }
+    // add explicitly coupled resources of a service, for easier extraction on portal side
+    if (objClass == "3") {
+        for (j=0; j<rows.size(); j++) {
+            // only add references from coupled resources ( service <-> data )
+            if (rows.get(j).get("special_ref") == "3210") {
+                addCoupledResource(rows.get(j));
+            }
+        }
     }
     // ---------- object_reference FROM ----------
     var rows = SQL.all("SELECT * FROM object_reference WHERE obj_to_uuid=?", [objUuid]);
@@ -290,7 +299,9 @@ for (i=0; i<objRows.size(); i++) {
             // service FROM (helps to identify links from services to data-objects)
             // this kind of link comes from an object of class 3 and has a link type of '3210'
             if ("3210".equals(rows.get(j).get("special_ref")) && "3".equals(subRows.get(k).get("obj_class"))) {
-                addServiceLinkInfo(subRows.get(k));
+                //var firstCapabilitiesUrl = SQL.first("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_from_id=t01obj.id AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_to_uuid=? AND obj_from_id=? AND special_ref=3210 AND serv.type_key=2 AND t01obj.work_state='V'", [rows.get(j).get("obj_to_uuid"), objFromId]);
+                var dsIdentifier = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=?", [objFromId]);
+                addServiceLinkInfo(dsIdentifier);
             }
         }
     }
@@ -771,10 +782,13 @@ function addObjectReferenceFrom(row) {
     IDX.add("refering.object_reference.special_name", row.get("special_name"));
     IDX.add("refering.object_reference.descr", row.get("descr"));
 }
+function addCoupledResource(row) {
+    IDX.add("coupled_resource", row.get("obj_to_uuid") + "#" + row.get("obj_name")); // + "#" + row.get("datasource_uuid"));
+}
 function addServiceLinkInfo(row) {
     // add class from refering object, which is used to determine in-links from services (INGRID32-81)
     // same special_ref is used in class 3 and 6!
-    IDX.add("refering_service_uuid", row.get("obj_uuid"));
+    IDX.add("refering_service_uuid", row.get("obj_uuid") + "#" + row.get("obj_name")); // + "#" + row.get("datasource_uuid"));
 }
 function addT01ObjectFrom(row) {
     IDX.add("refering.object_reference.obj_uuid", row.get("obj_uuid"));

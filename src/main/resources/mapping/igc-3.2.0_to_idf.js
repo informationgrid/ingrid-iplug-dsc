@@ -692,9 +692,10 @@ for (i=0; i<objRows.size(); i++) {
         var resourceIdentifiers = [];
         for (i=0; i<rows.size(); i++) {
             var refObjId = rows.get(i).get("id");
+            var refObjUuid = rows.get(i).get("obj_uuid");
             var coupledResource = identificationInfo.addElement("srv:coupledResource/srv:SV_CoupledResource");
             coupledResource.addElement("srv:operationName/gco:CharacterString").addText("GetMap");
-            resourceIdentifiers.push(getCitationIdentifier(rows.get(i), refObjId));
+            resourceIdentifiers.push([getCitationIdentifier(rows.get(i), refObjId), refObjUuid]);
             coupledResource.addElement("srv:identifier/gco:CharacterString").addText(resourceIdentifiers[resourceIdentifiers.length-1]);
         }
         // AND ALL INCOMING LINKS => BIDIRECTIONAL!
@@ -730,10 +731,8 @@ for (i=0; i<objRows.size(); i++) {
         addServiceOperations(identificationInfo, objServId, serviceTypeISOName);
     
 	    // ---------- <gmd:identificationInfo/srv:operatesOn/gmd:Reference> ----------
-//	    rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3210', "V"]);
 	    for (i=0; i<resourceIdentifiers.length; i++) {
-//	        identificationInfo.addElement("srv:operatesOn").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
-	        identificationInfo.addElement("srv:operatesOn").addAttribute("xlink:href", resourceIdentifiers[i]);
+	        identificationInfo.addElement("srv:operatesOn").addAttribute("xlink:href", resourceIdentifiers[i][0]).addAttribute("uuidref", resourceIdentifiers[i][1]);
 	    }
 	    
 	    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
@@ -1114,6 +1113,17 @@ for (i=0; i<objRows.size(); i++) {
     for (i=0; i<rows.size(); i++) {
         mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:crossReference"));
     }
+    
+    // add cross references coming from Service to Data to simulate bidirectionality
+    if (objClass.equals("1")) {
+        var serviceObjects = SQL.all("SELECT * FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=? AND oRef.obj_from_id=t01.id AND t01.obj_class=3", [objUuid]);
+        for (i=0; i<serviceObjects.size(); i++) {
+            var row = serviceObjects.get(i);
+            // due to the sql query the link direction is already reversed (see obj_uuid!)
+            mdMetadata.addElement(getIdfObjectReference(serviceObjects.get(i), "idf:crossReference"));
+        }
+    }
+    
 
 // GEODATENDIENST(3)
     if (objClass.equals("3")) {
@@ -2019,9 +2029,8 @@ function addDistributionInfo(mdMetadata, objId) {
         // ---------- <gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:online/gmd:CI_OnlineResource ----------
         // all from links
         //rows = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_to_uuid=t01obj.obj_uuid AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_from_id=? and special_ref=?", [objId, "5066"]);
-        // TODO: AND Class == 3 ???
         // the links should all come from service objects (class=3)
-        rows = SQL.all("SELECT * FROM `object_reference` oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, "3210", "3"]);
+        rows = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, "3210", "3"]);
         for (i=0; i<rows.size(); i++) {
             if (hasValue(rows.get(i).get("connect_point"))) {
                 if (!mdDistribution) {
