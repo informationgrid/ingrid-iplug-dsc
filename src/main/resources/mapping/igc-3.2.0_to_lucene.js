@@ -297,13 +297,13 @@ for (i=0; i<objRows.size(); i++) {
         boostDocumentsByReferences(numCoupledResources);
     }
     // ---------- object_reference FROM ----------
-    var rows = SQL.all("SELECT * FROM object_reference WHERE obj_to_uuid=?", [objUuid]);
+    var rows = SQL.all("SELECT * FROM object_reference, t01_object WHERE obj_to_uuid=? AND obj_to_uuid=obj_uuid AND work_state='V'", [objUuid]);
     for (j=0; j<rows.size(); j++) {
         addObjectReferenceFrom(rows.get(j));
         var objFromId = rows.get(j).get("obj_from_id");
 
         // ---------- t01_object FROM ----------
-        var subRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objFromId]);
+        var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V'", [objFromId]);
         for (k=0; k<subRows.size(); k++) {
             addT01ObjectFrom(subRows.get(k));
             
