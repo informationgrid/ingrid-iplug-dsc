@@ -799,7 +799,11 @@ function addCoupledResource(row) {
 function addServiceLinkInfo(row, dsIdentifier) {
     // add class from refering object, which is used to determine in-links from services (INGRID32-81)
     // same special_ref is used in class 3 and 6!
-    IDX.add("refering_service_uuid", row.get("obj_uuid") + "#" + row.get("obj_name") + "#" + dsIdentifier.get("datasource_uuid"));
+    var data = row.get("obj_uuid") + "#" + row.get("obj_name") + "#";
+    if (dsIdentifier) {
+        data += dsIdentifier.get("datasource_uuid");
+    }
+    IDX.add("refering_service_uuid", data);
 }
 function addT01ObjectFrom(row) {
     IDX.add("refering.object_reference.obj_uuid", row.get("obj_uuid"));
