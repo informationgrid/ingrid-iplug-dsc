@@ -310,9 +310,9 @@ for (i=0; i<objRows.size(); i++) {
             // service FROM (helps to identify links from services to data-objects)
             // this kind of link comes from an object of class 3 and has a link type of '3210'
             if ("3210".equals(rows.get(j).get("special_ref")) && "3".equals(subRows.get(k).get("obj_class"))) {
-                //var firstCapabilitiesUrl = SQL.first("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_from_id=t01obj.id AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_to_uuid=? AND obj_from_id=? AND special_ref=3210 AND serv.type_key=2 AND t01obj.work_state='V'", [rows.get(j).get("obj_to_uuid"), objFromId]);
+                var firstCapabilitiesUrl = SQL.first("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_from_id=t01obj.id AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_to_uuid=? AND obj_from_id=? AND special_ref=3210 AND serv.type_key=2 AND t01obj.work_state='V'", [rows.get(j).get("obj_to_uuid"), objFromId]);
                 var dsIdentifier = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=(SELECT id FROM t01_object WHERE obj_uuid=? AND work_state='V')", [objUuid]);
-                addServiceLinkInfo(subRows.get(k), dsIdentifier);
+                addServiceLinkInfo(subRows.get(k), firstCapabilitiesUrl, dsIdentifier);
             }
         }
     }
@@ -796,10 +796,14 @@ function addObjectReferenceFrom(row) {
 function addCoupledResource(row) {
     IDX.add("coupled_resource", row.get("obj_to_uuid") + "#" + row.get("obj_name")); // + "#" + row.get("datasource_uuid"));
 }
-function addServiceLinkInfo(row, dsIdentifier) {
+function addServiceLinkInfo(row, capabilitiyUrl, dsIdentifier) {
     // add class from refering object, which is used to determine in-links from services (INGRID32-81)
     // same special_ref is used in class 3 and 6!
     var data = row.get("obj_uuid") + "#" + row.get("obj_name") + "#";
+    if (capabilitiyUrl) {
+        data += capabilitiyUrl.get("connect_point");
+    }
+    data += "#";
     if (dsIdentifier) {
         data += dsIdentifier.get("datasource_uuid");
     }
