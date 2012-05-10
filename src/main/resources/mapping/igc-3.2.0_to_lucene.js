@@ -15,6 +15,11 @@ importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 importPackage(Packages.de.ingrid.geo.utils.transformation);
 
+// constant to punish the rank of a service/data object, which has no coupled resource
+var BOOST_NO_COUPLED_RESOURCE  = 0.9;
+//constant to boost the rank of a service/data object, which has at least one coupled resource
+var BOOST_HAS_COUPLED_RESOURCE = 1.0;
+
 if (log.isDebugEnabled()) {
 	log.debug("Mapping source record to lucene document: " + sourceRecord.toString());
 }
@@ -157,6 +162,8 @@ for (i=0; i<objRows.size(); i++) {
                 addCapabilitiesUrl(capabilitiesUrls.get(l));
             }
         }
+        // boost this documents according to how many services are connected to this data object
+        boostDocumentsByReferences(serviceObjects.size());
     }    
     // ---------- t011_obj_geo ----------
     var rows = SQL.all("SELECT * FROM t011_obj_geo WHERE obj_id=?", [objId]);
@@ -278,12 +285,16 @@ for (i=0; i<objRows.size(); i++) {
     }
     // add explicitly coupled resources of a service, for easier extraction on portal side
     if (objClass == "3") {
+        var numCoupledResources = 0;
         for (j=0; j<rows.size(); j++) {
             // only add references from coupled resources ( service <-> data )
             if (rows.get(j).get("special_ref") == "3210") {
                 addCoupledResource(rows.get(j));
+                numCoupledResources++;
             }
         }
+        // boost this documents according to how many data objects are connected to this service
+        boostDocumentsByReferences(numCoupledResources);
     }
     // ---------- object_reference FROM ----------
     var rows = SQL.all("SELECT * FROM object_reference WHERE obj_to_uuid=?", [objUuid]);
@@ -300,8 +311,8 @@ for (i=0; i<objRows.size(); i++) {
             // this kind of link comes from an object of class 3 and has a link type of '3210'
             if ("3210".equals(rows.get(j).get("special_ref")) && "3".equals(subRows.get(k).get("obj_class"))) {
                 //var firstCapabilitiesUrl = SQL.first("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_from_id=t01obj.id AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_to_uuid=? AND obj_from_id=? AND special_ref=3210 AND serv.type_key=2 AND t01obj.work_state='V'", [rows.get(j).get("obj_to_uuid"), objFromId]);
-                var dsIdentifier = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=?", [objFromId]);
-                addServiceLinkInfo(dsIdentifier);
+                var dsIdentifier = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=(SELECT id FROM t01_object WHERE obj_uuid=? AND work_state='V')", [objUuid]);
+                addServiceLinkInfo(subRows.get(k), dsIdentifier);
             }
         }
     }
@@ -485,7 +496,7 @@ function addT011ObjServOpConnpoint(row, isCapabilityUrl) {
     }
 }
 function addCapabilitiesUrl(row) {
-    IDX.add("capabilitiesUrl", row.get("connect_point"));
+    IDX.add("capabilities_url", row.get("connect_point"));
 }
 function addT011ObjServOpDepends(row) {
     IDX.add("t011_obj_serv_op_depends.line", row.get("line"));
@@ -785,10 +796,10 @@ function addObjectReferenceFrom(row) {
 function addCoupledResource(row) {
     IDX.add("coupled_resource", row.get("obj_to_uuid") + "#" + row.get("obj_name")); // + "#" + row.get("datasource_uuid"));
 }
-function addServiceLinkInfo(row) {
+function addServiceLinkInfo(row, dsIdentifier) {
     // add class from refering object, which is used to determine in-links from services (INGRID32-81)
     // same special_ref is used in class 3 and 6!
-    IDX.add("refering_service_uuid", row.get("obj_uuid") + "#" + row.get("obj_name")); // + "#" + row.get("datasource_uuid"));
+    IDX.add("refering_service_uuid", row.get("obj_uuid") + "#" + row.get("obj_name") + "#" + dsIdentifier.get("datasource_uuid"));
 }
 function addT01ObjectFrom(row) {
     IDX.add("refering.object_reference.obj_uuid", row.get("obj_uuid"));
@@ -849,5 +860,15 @@ function hasValue(val) {
         return false;
     } else {
       return true;
+    }
+}
+
+function boostDocumentsByReferences(num) {
+    // punish score of document if no coupled resource has been found
+    if (num == 0) {
+        IDX.addDocumentBoost(BOOST_NO_COUPLED_RESOURCE);
+    } else {
+        // boost document if it has more than one coupled resource
+        IDX.addDocumentBoost(BOOST_HAS_COUPLED_RESOURCE);
     }
 }

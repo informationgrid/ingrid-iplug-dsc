@@ -159,4 +159,14 @@ public class IndexUtils {
 
         return result.trim();
     }
+    
+    /**
+     * Set a boost for this document in case it has more important information than other
+     * (similar) documents! A boost should be greater than 1.0f to make a document more
+     * important and less than 1.0f otherwise.
+     * @param boost
+     */
+    public void addDocumentBoost(float boost) {
+        luceneDoc.setBoost(boost);
+    }
 }
