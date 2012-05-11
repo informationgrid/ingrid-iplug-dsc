@@ -279,7 +279,7 @@ for (i=0; i<objRows.size(); i++) {
         addObjectNodeParent(rows.get(j));
     }
     // ---------- object_reference TO ----------
-    var rows = SQL.all("SELECT oRef.*, t01.obj_name FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=t01.obj_uuid AND oRef.obj_from_id=?", [objId]);
+    var rows = SQL.all("SELECT oRef.*, t01.obj_name FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=t01.obj_uuid AND oRef.obj_from_id=? AND t01.work_state='V'", [objId]);
     for (j=0; j<rows.size(); j++) {
         addObjectReferenceTo(rows.get(j));
     }
