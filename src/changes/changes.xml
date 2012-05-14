@@ -6,6 +6,10 @@
   </properties>
   <body>
     <release version="3.2.0-SNAPSHOT" date="2011-??-??" description="Feature Release">
+      <action type="add" dev="wemove" issue="INGRID32-81">
+            Handle new "coupling type" field in mapping. Also add coupled resources to IDF document and extra information
+            into the index for showing coupled resources inside the search results of the portal.
+      </action>
       <action type="add" dev="wemove" issue="INGRID32-24">
         Get syslist values directly from database instead of static file. Syslists from the database will be synchronized with
         a repository to have the latest changes.
