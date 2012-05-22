@@ -501,9 +501,17 @@ for (i=0; i<objRows.size(); i++) {
                 .addText(period19108);
         }
     }
+    if (mdMaintenanceInformation) {
+    	mdMaintenanceInformation.addElement("gmd:updateScope/gmd:MD_ScopeCode")
+    	.addAttribute("codeListValue", getHierarchLevel(objClass))
+    	.addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode");
+    }
     if (hasValue(objRow.get("time_descr"))) {
         if (!mdMaintenanceInformation) {
             mdMaintenanceInformation = identificationInfo.addElement("gmd:resourceMaintenance/gmd:MD_MaintenanceInformation");
+        	mdMaintenanceInformation.addElement("gmd:updateScope/gmd:MD_ScopeCode")
+        	.addAttribute("codeListValue", getHierarchLevel(objClass))
+        	.addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode");
         }
         mdMaintenanceInformation.addElement("gmd:maintenanceNote/gco:CharacterString").addText(objRow.get("time_descr"));
     }
