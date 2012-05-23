@@ -115,10 +115,10 @@ for (i=0; i<objRows.size(); i++) {
     	mdMetadata.addElement("gmd:hierarchyLevelName/gco:CharacterString").addText(hierarchyLevelName);
     }
     // ---------- <gmd:contact> ----------
-    // contact for metadata is now responsible user, see https://dev.wemove.com/jira/browse/INGRID32-46
+    // contact for metadata is now responsible user, see INGRID32-46
     if (hasValue(objRow.get("responsible_uuid"))) {
-        // responsible user may be hidden ! then get first visible parent in hierarchy !
-        var addressRow = getFirstVisibleAddress(objRow.get("responsible_uuid"));
+    	// USE WORKING VERSION ! user addresses are now separated and NOT published, see INGRID32-36
+        var addressRow = getFirstVisibleAddress(objRow.get("responsible_uuid"), true);
         if (addressRow) {
         	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact"));
         }
@@ -1316,26 +1316,35 @@ function getCitationIdentifier(objRow, otherObjId) {
     return id;
 }
 
-// Get published address with given uuid.
+// Get published (or working version if flag passed) address with given uuid.
 // If address is hidden then first visible parent in hierarchy is returned.
-function getFirstVisibleAddress(addrUuid) {
+function getFirstVisibleAddress(addrUuid, useWorkingVersion) {
 	var resultAddrRow;
 
     // ---------- address_node ----------
-    var addrNodeRows = SQL.all("SELECT * FROM address_node WHERE addr_uuid=? AND addr_id_published IS NOT NULL", [addrUuid]);
+	var sqlQuery = "SELECT * FROM address_node WHERE addr_uuid=? AND ";
+	var addrIdToFetch = "addr_id_published";
+	if (useWorkingVersion) {
+        if (log.isDebugEnabled()) {
+            log.debug("Fetch working version of address !!! USER ADDRESS(?) uuid=" + addrUuid);
+        }
+        addrIdToFetch = "addr_id";		
+	}
+	sqlQuery = sqlQuery + addrIdToFetch + " IS NOT NULL"
+    var addrNodeRows = SQL.all(sqlQuery, [addrUuid]);
     for (k=0; k<addrNodeRows.size(); k++) {
         var parentAddrUuid = addrNodeRows.get(k).get("fk_addr_uuid");
-        var addrIdPublished = addrNodeRows.get(k).get("addr_id_published");
+        var addrId = addrNodeRows.get(k).get(addrIdToFetch);
 
         // ---------- t02_address ----------
-        resultAddrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [addrIdPublished]);
+        resultAddrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [addrId]);
         if (!hasValue(resultAddrRow)) {
-if (log.isDebugEnabled()) {
-    log.debug("Hidden address !!! uuid=" + addrUuid + " -> instead map parent address uuid=" + parentAddrUuid);
-}
+            if (log.isDebugEnabled()) {
+                log.debug("Hidden address !!! uuid=" + addrUuid + " -> instead map parent address uuid=" + parentAddrUuid);
+            }
             // address hidden, get parent !
             if (hasValue(parentAddrUuid)) {
-                resultAddrRow = getFirstVisibleAddress(parentAddrUuid);
+                resultAddrRow = getFirstVisibleAddress(parentAddrUuid, useWorkingVersion);
             }
         }
     }
@@ -1377,6 +1386,7 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
     var communicationsRows = SQL.all("SELECT t021_communication.* FROM t021_communication WHERE t021_communication.adr_id=? order by line", [addressRow.get("id")]);
 	var ciTelephone;
 	var emailAddresses = new Array();
+    var emailAddressesToShow = new Array();
 	var urls = new Array();
     for (var j=0; j< communicationsRows.size(); j++) {
     	if (!ciTelephone) ciTelephone = ciContact.addElement("gmd:phone").addElement("gmd:CI_Telephone");
@@ -1391,7 +1401,17 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
     		emailAddresses.push(communicationsRow.get("comm_value"));
     	} else if (communicationsRow.get("commtype_key") == 4) {
     		urls.push(communicationsRow.get("comm_value"));
+
+    	// special values saved as free entries !
+        } else if (communicationsRow.get("commtype_key") == -1) {
+        	// users email to be shown instead of other emails !
+        	if (communicationsRow.get("commtype_value") == "emailPointOfContact") {
+        		emailAddressesToShow.push(communicationsRow.get("comm_value"));
+        	}
     	}
+    }
+    if (emailAddressesToShow.length > 0) {
+    	emailAddresses = emailAddressesToShow;
     }
     var ciAddress;
     if (hasValue(addressRow.get("postbox")) || hasValue(addressRow.get("postbox_pc")) ||

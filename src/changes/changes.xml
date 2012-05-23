@@ -6,6 +6,9 @@
   </properties>
   <body>
     <release version="3.2.0-SNAPSHOT" date="2011-??-??" description="Feature Release">
+      <action type="add" dev="wemove" issue="INGRID32-36">
+        Use new email field for metadata point of contact if set in address of responsible user. 
+      </action>
       <action type="add" dev="wemove" issue="GSSOIL-24">
             Add scope of maintenance data.
       </action>
