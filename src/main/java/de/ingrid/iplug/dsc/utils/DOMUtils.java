@@ -6,7 +6,6 @@ package de.ingrid.iplug.dsc.utils;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -65,7 +64,7 @@ public class DOMUtils {
             Element parent = e;
             Element newElement = null;
             for (String qName : qNames) {
-                newElement = domCreateElement(qName);
+                newElement = DOMUtils.this.domCreateElement(qName);
                 parent.appendChild(newElement);
                 parent = newElement;
             }
@@ -77,7 +76,7 @@ public class DOMUtils {
             Element parent = e;
             Element newElement = null;
             for (String qName : qNames) {
-                newElement = domCreateElement(qName);
+                newElement = DOMUtils.this.domCreateElement(qName);
                 if (parent.hasChildNodes()) {
                     parent.insertBefore(newElement, parent.getFirstChild());
                 } else {
@@ -103,7 +102,7 @@ public class DOMUtils {
             String[] qNames = qualifiedName.split("/");
 
             Node sibling = e.getNextSibling();
-            Element parent = domCreateElement(qNames[0]);
+            Element parent = DOMUtils.this.domCreateElement(qNames[0]);
             if (sibling != null) {
                 e.getParentNode().insertBefore(parent, sibling);
             } else {
@@ -113,8 +112,8 @@ public class DOMUtils {
             Element newElement = parent;
             for (int i = 1; i < qNames.length; i++) {
                 String qName = qNames[i];
-                newElement = domCreateElement(qName);
-                NodeList siblings = xPathUtils.getNodeList(e, qName);
+                newElement = DOMUtils.this.domCreateElement(qName);
+                NodeList siblings = DOMUtils.this.xPathUtils.getNodeList(e, qName);
                 if (siblings != null && siblings.getLength() > 0) {
                     Node refNode = siblings.item(siblings.getLength() - 1).getNextSibling();
                     if (refNode != null) {
@@ -159,25 +158,25 @@ public class DOMUtils {
     }
 
     public IdfElement convertToIdfElement(Element element) {
-        return new IdfElement(element);
+        return this.new IdfElement(element);
     }
 
     public IdfElement addElement(Element element, String qualifiedName) {
-        return new IdfElement(element).addElement(qualifiedName);
+        return this.new IdfElement(element).addElement(qualifiedName);
     }
 
     public IdfElement addAttribute(Element element, String attrName, String attrValue) {
         element.setAttribute(attrName, unNullify(attrValue));
-        return new IdfElement(element);
+        return this.new IdfElement(element);
     }
 
     public IdfElement addText(Element element, String text) {
         element.appendChild(domNewTextNode(text));
-        return new IdfElement(element);
+        return this.new IdfElement(element);
     }
 
     public IdfElement createElement(String qualifiedName) {
-        return new IdfElement(domCreateElement(qualifiedName));
+        return this.new IdfElement(domCreateElement(qualifiedName));
     }
 
     public IdfElement addElementFromXPath(IdfElement element, String xpath) {
@@ -209,7 +208,7 @@ public class DOMUtils {
                 tmpXpath = "";
             }
         }
-        return new IdfElement(result);
+        return this.new IdfElement(result);
     }
 
     public IdfElement getElement(Object node, String xPath) {
@@ -227,7 +226,7 @@ public class DOMUtils {
         }
         Element e = (Element) xPathUtils.getNode(element, xPath);
         if (e != null) {
-            return new IdfElement(e);
+            return this.new IdfElement(e);
         } else {
             return null;
         }

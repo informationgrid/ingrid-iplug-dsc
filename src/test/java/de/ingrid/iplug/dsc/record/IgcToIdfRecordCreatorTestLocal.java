@@ -21,11 +21,15 @@ import de.ingrid.utils.xml.PlugdescriptionSerializer;
 
 public class IgcToIdfRecordCreatorTestLocal extends TestCase {
 
-    public void testDscRecordCreator() throws Exception {
-        File plugDescriptionFile = new File(
-        	"src/test/resources/plugdescription_igc-3.0.0_test.xml");
-        PlugDescription pd = new PlugdescriptionSerializer()
-        	.deSerialize(plugDescriptionFile);
+	// set num threads here !!!
+	int numThreads = 10;
+	
+	DscRecordCreator recordCreator;
+
+    /** Initialize mappers, record producer etc. Only one instance of these classes (like spring beans) */
+    public IgcToIdfRecordCreatorTestLocal() throws Exception {
+        File plugDescriptionFile = new File("src/test/resources/plugdescription_igc-3.0.0_test.xml");
+        PlugDescription pd = new PlugdescriptionSerializer().deSerialize(plugDescriptionFile);
 
         PlugDescriptionConfiguredDatabaseRecordProducer p = new PlugDescriptionConfiguredDatabaseRecordProducer();
         p.setIndexFieldID("t01_object.id");
@@ -43,10 +47,40 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
         mList.add(m2);
         mList.add(m3);
 
-        DscRecordCreator dc = new DscRecordCreator();
-        dc.setRecordProducer(p);
-        dc.setRecord2IdfMapperList(mList);
+        recordCreator = new DscRecordCreator();
+        recordCreator.setRecordProducer(p);
+        recordCreator.setRecord2IdfMapperList(mList);
+    }
 
+    public void testDscRecordCreatorMultithreaded() throws Exception {
+		// all threads
+		TestDscRecordCreatorThread[] threads = new TestDscRecordCreatorThread[numThreads];
+
+		// initialize
+		for (int i=0; i<numThreads; i++) {
+			threads[i] = new TestDscRecordCreatorThread(i+1);
+		}
+		// fire
+		for (int i=0; i<numThreads; i++) {
+            System.out.println("!!! Start thread " + (i+1));
+			threads[i].start();
+		}
+
+		// wait till all threads are finished
+		boolean threadsFinished = false;
+		while (!threadsFinished) {
+			threadsFinished = true;
+			for (int i=0; i<numThreads; i++) {
+				if (threads[i].isRunning()) {
+					threadsFinished = false;
+					Thread.sleep(500);
+					break;
+				}
+			}
+		}
+    }
+
+    private void doTestDscRecordCreator() throws Exception {
         String[] t01ObjectIds = new String[] {
         		"6667",		// class 0 = Organisationseinheit/Fachaufgabe
         		"3778",		// class 1 = Geo-Information/Karte -> t0114_env_category, t0114_env_topic -> gmd:descriptiveKeywords + object_data_quality
@@ -69,8 +103,8 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
         for (String t01ObjectId : t01ObjectIds) {
             Document idxDoc = new Document();
             idxDoc.add(new Field("t01_object.id", t01ObjectId, Field.Store.YES, Field.Index.ANALYZED));
-            dc.setCompressed(false);
-            Record r = dc.getRecord(idxDoc);
+            recordCreator.setCompressed(false);
+            Record r = recordCreator.getRecord(idxDoc);
             assertNotNull(r.get("data"));
             assertTrue(r.getString("compressed").equals("false"));
             System.out.println("Size of uncompressed IDF document: " + r.getString("data").length());
@@ -93,5 +127,42 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
             System.out.println("Size of compressed IDF document with compiled mapper script: " + r.getString("data").length());
 */
         }
+    }
+
+    class TestDscRecordCreatorThread extends Thread {
+    	private int threadNumber;
+    	private boolean isRunning = false;
+
+    	public TestDscRecordCreatorThread(int threadNumber) {
+    		this.threadNumber = threadNumber;
+    	}
+
+    	public void run() {
+    		isRunning = true;
+    		long startTime = System.currentTimeMillis();
+    		
+    		try {
+        		doTestDscRecordCreator();    			
+    		} catch (Exception ex) {
+        		System.out.println("!!!!!!!!!! Thread " + threadNumber + " EXCEPTION: " + ex);
+        		throw new RuntimeException(ex);
+    		}
+
+    		long endTime = System.currentTimeMillis();
+    		long neededTime = endTime - startTime;
+    		System.out.println("\n----------");
+    		System.out.println("Thread " + threadNumber + " EXECUTION TIME: " + (neededTime/1000) + " s");
+
+    		isRunning = false;
+    	}
+
+    	public void start() {
+    		this.isRunning = true;
+    		super.start();
+    	}
+
+    	public boolean isRunning() {
+    		return isRunning;
+    	}
     }
 }
