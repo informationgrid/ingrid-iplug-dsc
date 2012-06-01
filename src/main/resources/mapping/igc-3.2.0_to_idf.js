@@ -727,8 +727,8 @@ for (i=0; i<objRows.size(); i++) {
         row = SQL.first("SELECT * FROM object_reference, t01_object, t011_obj_serv WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=t011_obj_serv.obj_id AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3210', "V"]);
         var typeValue = "loose";
         log.info("GETTING COUPLING TYPE:");
-        log.info(row.get("coupling_type"));
         if (hasValue(row) && row.get("coupling_type") != null ) {
+            log.info(row.get("coupling_type"));
             typeValue = row.get("coupling_type");
         }
         identificationInfo.addElement("srv:couplingType/srv:SV_CouplingType")
@@ -739,9 +739,11 @@ for (i=0; i<objRows.size(); i++) {
         addServiceOperations(identificationInfo, objServId, serviceTypeISOName);
     
 	    // ---------- <gmd:identificationInfo/srv:operatesOn/gmd:Reference> ----------
-	    for (i=0; i<resourceIdentifiers.length; i++) {
-	        identificationInfo.addElement("srv:operatesOn").addAttribute("xlink:href", resourceIdentifiers[i][0]).addAttribute("uuidref", resourceIdentifiers[i][1]);
-	    }
+        if (resourceIdentifiers) {
+            for (i=0; i<resourceIdentifiers.length; i++) {
+                identificationInfo.addElement("srv:operatesOn").addAttribute("xlink:href", resourceIdentifiers[i][0]).addAttribute("uuidref", resourceIdentifiers[i][1]);
+            }
+        }
 	    
 	    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
         // add second identification info for all information that cannot be mapped into a SV_ServiceIdentification element
