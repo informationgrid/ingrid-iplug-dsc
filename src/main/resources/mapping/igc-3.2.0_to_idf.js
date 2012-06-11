@@ -2053,20 +2053,28 @@ function addDistributionInfo(mdMetadata, objId) {
     }
     
     // add connection to the service(s) for class 1
-    if (objClass.equals("1")) {
+    if (objClass.equals("1") || objClass.equals("3")) {
         // ---------- <gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:online/gmd:CI_OnlineResource ----------
         // all from links
         //rows = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_to_uuid=t01obj.obj_uuid AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_from_id=? and special_ref=?", [objId, "5066"]);
         // the links should all come from service objects (class=3)
-        rows = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, "3210", "3"]);
+        if (objClass.equals("1"))
+            rows = SQL.all("SELECT serv.*, servOp.*, servOpConn.* FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, "3210", "3"]);
+        else
+            rows = SQL.all("SELECT servOp.*, servOpConn.* FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_from_id=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objId, "3210", "3"]);
+
         for (i=0; i<rows.size(); i++) {
             if (hasValue(rows.get(i).get("connect_point"))) {
+                // determine if type of connected service is of type "view", which is needed for
+                // modifications of the getCapabilities Url!
+                serviceTypeISOName = getServiceType("3", rows.get(i));
                 if (!mdDistribution) {
                     mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
                 }
                 var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
                 var idfOnlineResource = digitalTransferOptions.addElement("gmd:onLine/idf:idfOnlineResource");
-                idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("connect_point"));
+                var connUrl = prepareGetCapabilitiesUrl(rows.get(i).get("connect_point"), rows.get(i).get("name_value"));
+                idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(connUrl);
             }
         }
     }
@@ -2174,19 +2182,7 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                 	var connUrl = connRows.get(j).get("connect_point");
                     if (hasValue(connUrl)) {
                     	// always add some parameters to "getcapabilities" url when VIEW-Service, see INGRID-2107
-                    	if (hasValue(serviceTypeISOName) && serviceTypeISOName.equals("view") &&
-                    	    hasValue(opName) && opName.toLowerCase().equals("getcapabilities"))
-                    	{
-                    	   if (connUrl.toLowerCase().indexOf("request=getcapabilities") == -1) {
-                    	       if (connUrl.indexOf("?") == -1) {
-                    	           connUrl = connUrl + "?";
-                    	       }
-                    	       if (!(connUrl.lastIndexOf("?") == connUrl.length-1) && !(connUrl.lastIndexOf("&") == connUrl.length-1)) {
-                    	           connUrl = connUrl + "&";
-                    	       }
-                    	       connUrl = connUrl + "REQUEST=GetCapabilities&SERVICE=WMS";
-                    	   }
-                    	}
+                    	connUrl = prepareGetCapabilitiesUrl(connUrl, opName);
                         svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(connUrl);
                     }
                 }
@@ -2224,6 +2220,25 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
     if (!svContainsOperations) {
         identificationInfo.addElement("srv:containsOperations").addAttribute("gco:nilReason", "missing");
     }
+}
+
+function prepareGetCapabilitiesUrl(connUrl, opName) {
+    log.debug("prepareGetCapabilitiesUrl: " + connUrl + " : " + opName);
+    if (hasValue(serviceTypeISOName) && serviceTypeISOName.equals("view") &&
+        hasValue(opName) && opName.toLowerCase().equals("getcapabilities"))
+    {
+       if (connUrl.toLowerCase().indexOf("request=getcapabilities") == -1) {
+           if (connUrl.indexOf("?") == -1) {
+               connUrl = connUrl + "?";
+           }
+           if (!(connUrl.lastIndexOf("?") == connUrl.length-1) && !(connUrl.lastIndexOf("&") == connUrl.length-1)) {
+               connUrl = connUrl + "&";
+           }
+           connUrl = connUrl + "REQUEST=GetCapabilities&SERVICE=WMS";
+       }
+    }
+    log.debug("result connUrl: " + connUrl);
+    return connUrl;
 }
 
 // add second identification info for all information that cannot be mapped into a SV_ServiceIdentification element
