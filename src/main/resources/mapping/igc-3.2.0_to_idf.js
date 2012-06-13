@@ -117,10 +117,11 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- <gmd:contact> ----------
     // contact for metadata is now responsible user, see INGRID32-46
     if (hasValue(objRow.get("responsible_uuid"))) {
-    	// USE WORKING VERSION ! user addresses are now separated and NOT published, see INGRID32-36
+    	// USE WORKING VERSION (pass true) ! user addresses are now separated and NOT published, see INGRID32-36
         var addressRow = getFirstVisibleAddress(objRow.get("responsible_uuid"), true);
         if (addressRow) {
-        	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact"));
+            // map only email address (pass true), see INGRID32-36
+        	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
         }
     }
     // ---------- <gmd:dateStamp> ----------
@@ -579,7 +580,7 @@ for (i=0; i<objRows.size(); i++) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
-    // IS_INSPIRE_RELEVANT leads to specific keyword, see Email Kst "�nderung am ChangeRequest INGRID23_CR_11", 08.02.2011 15:58
+    // IS_INSPIRE_RELEVANT leads to specific keyword, see Email Kst "Aenderung am ChangeRequest INGRID23_CR_11", 08.02.2011 15:58
     value = objRow.get("is_inspire_relevant");
     if (hasValue(value) && value.equals('Y')) {
         mdKeywords = DOM.createElement("gmd:MD_Keywords");
@@ -1361,88 +1362,121 @@ function getFirstVisibleAddress(addrUuid, useWorkingVersion) {
  * @param role
  * @return
  */
-function getIdfResponsibleParty(addressRow, role, specialElementName) {
+function getIdfResponsibleParty(addressRow, role, onlyEmails) {
+    var mapOnlyEmails = false;
+    if (onlyEmails) {
+        mapOnlyEmails = true;
+    }
+
 	var parentAddressRowPathArray = getAddressRowPathArray(addressRow);
 	var myElementName = "idf:idfResponsibleParty";
-	if (hasValue(specialElementName)) {
-	   myElementName = specialElementName;
-	}
 	var idfResponsibleParty = DOM.createElement(myElementName)
         .addAttribute("uuid", addressRow.get("adr_uuid"))
         .addAttribute("type", addressRow.get("adr_type"));
     if (hasValue(addressRow.get("org_adr_id"))) {
         idfResponsibleParty.addAttribute("orig-uuid", addressRow.get("org_adr_id"));
-    }   
-	var individualName = getIndividualNameFromAddressRow(addressRow);
-	if (hasValue(individualName)) {
-    	idfResponsibleParty.addElement("gmd:individualName").addElement("gco:CharacterString").addText(individualName);
-	}
-	var institution = getInstitution(parentAddressRowPathArray);
-	if (hasValue(institution)) {
-		idfResponsibleParty.addElement("gmd:organisationName").addElement("gco:CharacterString").addText(institution);
-	}
-	if (hasValue(addressRow.get("job"))) {
-		idfResponsibleParty.addElement("gmd:positionName").addElement("gco:CharacterString").addText(addressRow.get("job"));
-	}
-	var ciContact = idfResponsibleParty.addElement("gmd:contactInfo").addElement("gmd:CI_Contact");
-    var communicationsRows = SQL.all("SELECT t021_communication.* FROM t021_communication WHERE t021_communication.adr_id=? order by line", [addressRow.get("id")]);
-	var ciTelephone;
-	var emailAddresses = new Array();
-    var emailAddressesToShow = new Array();
-	var urls = new Array();
-    for (var j=0; j< communicationsRows.size(); j++) {
-    	if (!ciTelephone) ciTelephone = ciContact.addElement("gmd:phone").addElement("gmd:CI_Telephone");
-    	var communicationsRow = communicationsRows.get(j);
-    	if (communicationsRow.get("commtype_key") == 1) {
-    		// phone
-    		ciTelephone.addElement("gmd:voice/gco:CharacterString").addText(communicationsRow.get("comm_value"));
-    	} else if (communicationsRow.get("commtype_key") == 2) {
-    		// fax
-    		ciTelephone.addElement("gmd:facsimile/gco:CharacterString").addText(communicationsRow.get("comm_value"));
-    	} else if (communicationsRow.get("commtype_key") == 3) {
-    		emailAddresses.push(communicationsRow.get("comm_value"));
-    	} else if (communicationsRow.get("commtype_key") == 4) {
-    		urls.push(communicationsRow.get("comm_value"));
+    }
 
-    	// special values saved as free entries !
-        } else if (communicationsRow.get("commtype_key") == -1) {
-        	// users email to be shown instead of other emails !
-        	if (communicationsRow.get("commtype_value") == "emailPointOfContact") {
-        		emailAddressesToShow.push(communicationsRow.get("comm_value"));
-        	}
-    	}
+    // first extract communication values
+    var communicationsRows = SQL.all("SELECT t021_communication.* FROM t021_communication WHERE t021_communication.adr_id=? order by line", [addressRow.get("id")]);
+    var phones = new Array();
+    var faxes = new Array;
+    var emailAddresses = new Array();
+    var emailAddressesToShow = new Array();
+    var urls = new Array();
+    for (var j=0; j< communicationsRows.size(); j++) {
+        var communicationsRow = communicationsRows.get(j);
+        var commTypeKey = communicationsRow.get("commtype_key");
+        var commTypeValue = communicationsRow.get("commtype_value");
+        var commValue = communicationsRow.get("comm_value");
+        if (commTypeKey == 1) {
+            phones.push(commValue);
+        } else if (commTypeKey == 2) {
+            faxes.push(commValue);
+        } else if (commTypeKey == 3) {
+            emailAddresses.push(commValue);
+        } else if (commTypeKey == 4) {
+            urls.push(commValue);
+
+        // special values saved as free entries !
+        } else if (commTypeKey == -1) {
+            // users email to be shown instead of other emails !
+            if (commTypeValue == "emailPointOfContact") {
+                emailAddressesToShow.push(commValue);
+            }
+        }
     }
     if (emailAddressesToShow.length > 0) {
-    	emailAddresses = emailAddressesToShow;
+        emailAddresses = emailAddressesToShow;
     }
-    var ciAddress;
-    if (hasValue(addressRow.get("postbox")) || hasValue(addressRow.get("postbox_pc")) ||
-    		hasValue(addressRow.get("city")) || hasValue(addressRow.get("street"))) {
-    	if (!ciAddress) ciAddress = ciContact.addElement("gmd:address").addElement("gmd:CI_Address");
-    	if (hasValue(addressRow.get("postbox"))) {
-			if(hasValue(addressRow.get("postbox_pc"))){
-				ciAddress.addElement("gmd:deliveryPoint").addElement("gco:CharacterString").addText("Postbox " + addressRow.get("postbox") + "," + addressRow.get("postbox_pc") + " " + addressRow.get("city"));
-			}else if(hasValue(addressRow.get("postcode"))){
-				ciAddress.addElement("gmd:deliveryPoint").addElement("gco:CharacterString").addText("Postbox " + addressRow.get("postbox") + "," + addressRow.get("postcode") + " " + addressRow.get("city"));
-			}else{
-				ciAddress.addElement("gmd:deliveryPoint").addElement("gco:CharacterString").addText("Postbox " + addressRow.get("postbox"));
-			}
-		}
-    	ciAddress.addElement("gmd:deliveryPoint").addElement("gco:CharacterString").addText(addressRow.get("street"));
-		ciAddress.addElement("gmd:city").addElement("gco:CharacterString").addText(addressRow.get("city"));
-		ciAddress.addElement("gmd:postalCode").addElement("gco:CharacterString").addText(addressRow.get("postcode"));
-	}
-    if (hasValue(addressRow.get("country_key"))) {
-    	if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
-    	ciAddress.addElement("gmd:country/gco:CharacterString").addText(TRANSF.getISO3166_1_Alpha_3FromNumericLanguageCode(addressRow.get("country_key")));
+    
+    // map all if no email addresses ???
+/*
+    if (emailAddresses.length == 0) {
+    	mapOnlyEmails = false;
     }
+*/
+    if (!mapOnlyEmails) {
+        var individualName = getIndividualNameFromAddressRow(addressRow);
+        if (hasValue(individualName)) {
+            idfResponsibleParty.addElement("gmd:individualName").addElement("gco:CharacterString").addText(individualName);
+        }
+        var institution = getInstitution(parentAddressRowPathArray);
+        if (hasValue(institution)) {
+            idfResponsibleParty.addElement("gmd:organisationName").addElement("gco:CharacterString").addText(institution);
+        }
+        if (hasValue(addressRow.get("job"))) {
+            idfResponsibleParty.addElement("gmd:positionName").addElement("gco:CharacterString").addText(addressRow.get("job"));
+        }
+    }
+
+    var ciContact = idfResponsibleParty.addElement("gmd:contactInfo").addElement("gmd:CI_Contact");
+
+	var ciAddress;
+
+    if (!mapOnlyEmails) {
+    	if (phones.length > 1 || faxes.length > 1) {
+            var ciTelephone = ciContact.addElement("gmd:phone").addElement("gmd:CI_Telephone");
+            for (var j=0; j<phones.length; j++) {
+                ciTelephone.addElement("gmd:voice/gco:CharacterString").addText(phones[j]);
+            }
+            for (var j=0; j<faxes.length; j++) {
+                ciTelephone.addElement("gmd:facsimile/gco:CharacterString").addText(faxes[j]);
+            }
+    	}
+
+        if (hasValue(addressRow.get("postbox")) || hasValue(addressRow.get("postbox_pc")) ||
+                hasValue(addressRow.get("city")) || hasValue(addressRow.get("street"))) {
+            if (!ciAddress) ciAddress = ciContact.addElement("gmd:address").addElement("gmd:CI_Address");
+            if (hasValue(addressRow.get("postbox"))) {
+                if(hasValue(addressRow.get("postbox_pc"))){
+                    ciAddress.addElement("gmd:deliveryPoint").addElement("gco:CharacterString").addText("Postbox " + addressRow.get("postbox") + "," + addressRow.get("postbox_pc") + " " + addressRow.get("city"));
+                }else if(hasValue(addressRow.get("postcode"))){
+                    ciAddress.addElement("gmd:deliveryPoint").addElement("gco:CharacterString").addText("Postbox " + addressRow.get("postbox") + "," + addressRow.get("postcode") + " " + addressRow.get("city"));
+                }else{
+                    ciAddress.addElement("gmd:deliveryPoint").addElement("gco:CharacterString").addText("Postbox " + addressRow.get("postbox"));
+                }
+            }
+            ciAddress.addElement("gmd:deliveryPoint").addElement("gco:CharacterString").addText(addressRow.get("street"));
+            ciAddress.addElement("gmd:city").addElement("gco:CharacterString").addText(addressRow.get("city"));
+            ciAddress.addElement("gmd:postalCode").addElement("gco:CharacterString").addText(addressRow.get("postcode"));
+        }
+        if (hasValue(addressRow.get("country_key"))) {
+            if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
+            ciAddress.addElement("gmd:country/gco:CharacterString").addText(TRANSF.getISO3166_1_Alpha_3FromNumericLanguageCode(addressRow.get("country_key")));
+        }
+    }
+
     for (var j=0; j<emailAddresses.length; j++) {
     	if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
     	ciAddress.addElement("gmd:electronicMailAddress/gco:CharacterString").addText(emailAddresses[j]);
     }
-    // ISO only supports ONE url per contact
-    if (urls.length > 0) {
-    	ciContact.addElement("gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(urls[0]);
+
+    if (!mapOnlyEmails) {
+        // ISO only supports ONE url per contact
+        if (urls.length > 0) {
+            ciContact.addElement("gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(urls[0]);
+        }
     }
 
     if (hasValue(role)) {
@@ -1455,16 +1489,18 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
 
     // -------------- IDF ----------------------
 
-    // First URL already mapped ISO conform, now add all other ones IDF like (skip first one)
-    if (urls.length > 1) {
-	    for (var j=1; j<urls.length; j++) {
-	        idfResponsibleParty.addElement("idf:additionalOnlineResource/gmd:linkage/gmd:URL").addText(urls[j]);
-	    }
-    }
-
-    // flatten parent hierarchy, add every parent (including myself) separately
-    for (var j=0; j<parentAddressRowPathArray.length; j++) {
-        idfResponsibleParty.addElement(getIdfAddressReference(parentAddressRowPathArray[j], "idf:hierarchyParty"));
+    if (!mapOnlyEmails) {
+        // First URL already mapped ISO conform, now add all other ones IDF like (skip first one)
+        if (urls.length > 1) {
+            for (var j=1; j<urls.length; j++) {
+                idfResponsibleParty.addElement("idf:additionalOnlineResource/gmd:linkage/gmd:URL").addText(urls[j]);
+            }
+        }
+    
+        // flatten parent hierarchy, add every parent (including myself) separately
+        for (var j=0; j<parentAddressRowPathArray.length; j++) {
+            idfResponsibleParty.addElement(getIdfAddressReference(parentAddressRowPathArray[j], "idf:hierarchyParty"));
+        }
     }
 
     return idfResponsibleParty;
