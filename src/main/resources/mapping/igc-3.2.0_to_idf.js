@@ -641,7 +641,7 @@ for (i=0; i<objRows.size(); i++) {
 	        }
 	
 	        // ---------- <gmd:identificationInfo/gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale> ----------
-	        rows = SQL.all("SELECT * FROM t011_obj_geo_scale WHERE obj_geo_id=?", [objGeoId]);
+	        rows = SQL.all("SELECT * FROM t011_obj_geo_scale WHERE obj_geo_id=? ORDER BY line", [objGeoId]);
 	        for (i=0; i<rows.size(); i++) {
                 if (hasValue(rows.get(i).get("scale"))) {
 	                identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer")
