@@ -72,8 +72,7 @@
             ifTarget    ="setUpdateProperty"
             type        ="input"
             name        ="properties"
-            displayText ="Benötigte Installationsoptionen"
-            target      ="startComponent">
+            displayText ="Benötigte Installationsoptionen">
         <directory
             property            ="installDir"
             defaultValue        ="/opt/ingrid/${project.artifactId}-${project.version}"
