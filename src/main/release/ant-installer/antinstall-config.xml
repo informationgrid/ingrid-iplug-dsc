@@ -16,14 +16,21 @@
 	<page
 			type		="input"
 			name		="intro"
-			displayText	="Willkommen zur InGrid iPlug-DSC Installation"
-			target		="extract">
-			<comment displayText="" bold="true" explanatoryText="Dieser Assistent hilft Ihnen bei der Installation sowie Konfiguration des iPlugs."/>
-      <comment displayText="Hinweis: " bold="true"/>
-      <comment displayText="" explanatoryText="Wenn dies ein Update ist, dann können die Einstellungen der vorherigen Installation verwendet werden. Dazu muss sich die Datei 'ant.install.properties' im gleichen Verzeichnis wie der Installer befinden. Es empfiehlt sich daher, die Updates immer vom gleichen Verzeichnis auszuführen."/>
+			displayText	="Willkommen zur InGrid iPlug-DSC Installation">
+        <comment displayText="" bold="true" explanatoryText="Dieser Assistent hilft Ihnen bei der Installation sowie Konfiguration des iPlugs."/>
+        <comment displayText="Hinweis: " bold="true"/>
+        <comment displayText="" explanatoryText="Wenn dies ein Update ist, dann können die Einstellungen der vorherigen Installation verwendet werden. Dazu muss sich die Datei 'ant.install.properties' im gleichen Verzeichnis wie der Installer befinden. Es empfiehlt sich daher, die Updates immer vom gleichen Verzeichnis auszuführen."/>
+        <target-select
+            property      ="updateOrNew"
+            displayText   ="Neuinstallation oder Update"
+            defaultValue  ="true">
+            <option value="setUpdateProperty" text="Update (Einstellungen bleiben erhalten)"/>
+            <option value="setInstallProperty" text="Neuinstallation"/>
+        </target-select>
 	</page>
 
     <page
+            ifTarget    ="setInstallProperty"
             type        ="input"
             name        ="componentOptions"
             displayText ="Einstellungen fuer das iPlug">
@@ -33,6 +40,7 @@
     </page>
 
   <page
+            ifTarget    ="setInstallProperty"
             type        ="input"
             name        ="udkPreset"
             displayText ="UDK Einstellung"
@@ -48,6 +56,7 @@
     
 	<!--  type="input" shows a list of editable options for the installer -->
 	<page
+            ifTarget    ="setInstallProperty"
 			type		="input"
 			name		="properties"
 			displayText	="Benötigte Installationsoptionen">
@@ -58,6 +67,21 @@
 				displayText		="Installationsverzeichnis"
 				create			="true"/>
 	</page>
+    
+    <page
+            ifTarget    ="setUpdateProperty"
+            type        ="input"
+            name        ="properties"
+            displayText ="Benötigte Installationsoptionen"
+            target      ="startComponent">
+        <directory
+            property            ="installDir"
+            defaultValue        ="/opt/ingrid/${project.artifactId}-${project.version}"
+			defaultValueWin	    ="${env.ProgramFiles}\${project.artifactId}-${project.version}"
+            displayText         ="Altes Installationsverzeichnis"
+            create              ="false"
+            checkExists         ="true" />
+    </page>
 
 	<page
 			type		="progress"

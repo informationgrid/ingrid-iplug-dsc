@@ -3,10 +3,20 @@
         InGrid iPlug-DSC Installation Script
     </description>
 	<!-- set global properties for this build -->
-	<property name="componentName" 			value="${project.build.finalName}"/>
+	<property name="componentName" 		value="${project.build.finalName}"/>
 	<property name="xml-communication" 	value="${installDir}/conf/communication.xml"/>
     <property name="start-script"       value="${installDir}/start.sh"/>
 	
+    
+    <target name="setUpdateProperty" depends="extractUpdate">
+        <property name="installType" value="update" />
+        <property name="updateProcedure" value="true" />
+    </target>
+    
+    <target name="setInstallProperty" depends="extract">
+        <property name="installProcedure" value="true" />
+    </target>
+    
 	<target name="extract" description="Extract all files to the installation directory.">
 		<unzip src="${antinstaller.jar}" dest="${installDir}">
 			<patternset>
@@ -21,6 +31,21 @@
 		<mkdir dir="${installDir}/logs"/>
         
         <replace file="${start-script}" token="@SERVER_PORT@" value="${localServerPort}"/>
+	</target>
+    
+    <target name="extractUpdate">
+		<unzip src="${antinstaller.jar}" dest="${installDir}">
+			<patternset>
+				<include name="${componentName}/**/*.*"/>
+                <exclude name="${componentName}/webapp/WEB-INF/spring.xml" />
+			</patternset>
+		</unzip>
+        
+        <delete dir="${installDir}/lib"/>
+		
+		<move toDir="${installDir}">
+			<fileset dir="${installDir}/${componentName}"/>
+		</move>
 	</target>
   
   <target name="udkPreset" description="Set spring config.">
