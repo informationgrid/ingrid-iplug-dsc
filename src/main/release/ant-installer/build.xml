@@ -37,7 +37,7 @@
 		<unzip src="${antinstaller.jar}" dest="${installDir}">
 			<patternset>
 				<include name="${componentName}/**/*.*"/>
-                <exclude name="${componentName}/webapp/WEB-INF/spring.xml" />
+                <!--<exclude name="${componentName}/webapp/WEB-INF/spring.xml" />-->
 			</patternset>
 		</unzip>
         
@@ -46,6 +46,13 @@
 		<move toDir="${installDir}">
 			<fileset dir="${installDir}/${componentName}"/>
 		</move>
+    
+        <!-- update spring file with newest mapping version -->
+        <replaceregexp file="spring.xml"
+               match="classpath:mapping/igc-(.*)js"
+               replace="classpath:mapping/igc-3.2.0_to_lucene.js"
+               byline="true"
+        />
 	</target>
   
   <target name="udkPreset" description="Set spring config.">
