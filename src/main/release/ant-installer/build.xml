@@ -49,8 +49,13 @@
         
         <!-- update spring file with newest mapping version -->
         <replaceregexp file="${installDir}/webapp/WEB-INF/spring.xml"
-               match="classpath:mapping/igc-(.*)js"
+               match="classpath:mapping/igc-(.*)lucene.js"
                replace="classpath:mapping/igc-3.2.0_to_lucene.js"
+               byline="true"
+        />
+        <replaceregexp file="${installDir}/webapp/WEB-INF/spring.xml"
+               match="classpath:mapping/igc-(.*)idf.js"
+               replace="classpath:mapping/igc-3.2.0_to_idf.js"
                byline="true"
         />
 	</target>
