@@ -46,9 +46,9 @@
 		<move toDir="${installDir}">
 			<fileset dir="${installDir}/${componentName}"/>
 		</move>
-    
+        
         <!-- update spring file with newest mapping version -->
-        <replaceregexp file="spring.xml"
+        <replaceregexp file="${installDir}/webapp/WEB-INF/spring.xml"
                match="classpath:mapping/igc-(.*)js"
                replace="classpath:mapping/igc-3.2.0_to_lucene.js"
                byline="true"
