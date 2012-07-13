@@ -120,8 +120,9 @@ for (i=0; i<objRows.size(); i++) {
     	// USE WORKING VERSION (pass true) ! user addresses are now separated and NOT published, see INGRID32-36
         var addressRow = getFirstVisibleAddress(objRow.get("responsible_uuid"), true);
         if (addressRow) {
-            // map only email address (pass true), see INGRID32-36
-        	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
+            // map only email address (pass true as third parameter), see INGRID32-36
+            // NO, ISO needs more data, see INGRID32-146
+        	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", false));
         }
     }
     // ---------- <gmd:dateStamp> ----------
@@ -1995,7 +1996,7 @@ function addDistributionInfo(mdMetadata, objId) {
             // ---------- <gmd:MD_Format/gmd:name> ----------
             mdFormat.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("format_value"));
          // ---------- <gmd:MD_Format/gmd:version> ----------
-            mdFormat.addElement("gmd:version/gco:CharacterString").addText("unknown");
+            mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
         }
     }
     
@@ -2019,7 +2020,7 @@ function addDistributionInfo(mdMetadata, objId) {
         if (hasValue(rows.get(i).get("ver"))) {
             mdFormat.addElement("gmd:version/gco:CharacterString").addText(rows.get(i).get("ver"));
         } else {
-            mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "missing");
+            mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
                 // add empty gco:CharacterString because of Validators !
                 // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
 //                .addElement("gco:CharacterString");
