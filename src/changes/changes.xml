@@ -5,7 +5,7 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
-    <release version="3.2.0-SNAPSHOT" date="2011-??-??" description="Feature Release">
+    <release version="3.2.0" date="2012-07-13" description="Release InGrid 3.2">
       <action type="add" dev="wemove" issue="INGRID32-36">
         IDF: Use new email field for metadata point of contact if set in user address of responsible user. Only map email for user address.
       </action>
