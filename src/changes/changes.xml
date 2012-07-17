@@ -57,7 +57,7 @@
         Updated start.sh, which had an issue when being batch-invoked, deleted RSYNC which is no longer used.
       </action>
       <action type="fix" dev="wemove" issue="INGRID32-146">
-        IDF/CSW: Create "distributionFormat" with nilReason if not present.
+        IDF/CSW: Create "gmd:distributionFormat" with nilReason if not present. Also write "srv:DCP" with nilReason if not present.
       </action>
       <action type="fix" dev="wemove">
         Fix problem in start script. Heap memory settings were not set correctly.
