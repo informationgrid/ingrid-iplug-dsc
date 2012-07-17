@@ -1985,6 +1985,8 @@ function getTimeRange(objRow) {
 function addDistributionInfo(mdMetadata, objId) {
 	// GEO-INFORMATION/KARTE(1)
     var mdDistribution;
+    var formatWritten = false;
+    var distributorWritten = false;
     if (objClass.equals("1")) {
     	rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [objId]);
         for (i=0; i<rows.size(); i++) {
@@ -1993,6 +1995,7 @@ function addDistributionInfo(mdMetadata, objId) {
             }
             // ---------- <gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format> ----------
             var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
+            formatWritten = true;
             // ---------- <gmd:MD_Format/gmd:name> ----------
             mdFormat.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("format_value"));
          // ---------- <gmd:MD_Format/gmd:version> ----------
@@ -2014,7 +2017,8 @@ function addDistributionInfo(mdMetadata, objId) {
         }
         // ---------- <gmd:MD_Distributiongmd:distributionFormat/gmd:MD_Format> ----------
         var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
-            // ---------- <gmd:MD_Format/gmd:name> ----------
+        formatWritten = true;
+        // ---------- <gmd:MD_Format/gmd:name> ----------
         mdFormat.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("format_value"));
             // ---------- <gmd:MD_Format/gmd:version> ----------
         if (hasValue(rows.get(i).get("ver"))) {
@@ -2042,6 +2046,7 @@ function addDistributionInfo(mdMetadata, objId) {
             mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
         }
         var mdDistributor = mdDistribution.addElement("gmd:distributor/gmd:MD_Distributor");
+        var distributorWritten = true;
         // MD_Distributor needs a distributorContact, will be set below !
         distributorContact = mdDistributor.addElement("gmd:distributorContact");
         mdDistributor.addElement("gmd:distributionOrderProcess/gmd:MD_StandardOrderProcess/gmd:orderingInstructions/gco:CharacterString")
@@ -2072,6 +2077,11 @@ function addDistributionInfo(mdMetadata, objId) {
         if (hasValue(rows.get(i).get("url_link"))) {
 	        if (!mdDistribution) {
 	            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+	        }
+	        if (!formatWritten && !distributorWritten) {
+	        	// always write format, here with nilReason, see INGRID32-146
+                mdDistribution.addElement("gmd:distributionFormat").addAttribute("gco:nilReason", "unknown");
+                formatWritten = true;
 	        }
             var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
             var idfOnlineResource = digitalTransferOptions.addElement("gmd:onLine/idf:idfOnlineResource");
@@ -2111,6 +2121,11 @@ function addDistributionInfo(mdMetadata, objId) {
                 if (!mdDistribution) {
                     mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
                 }
+                if (!formatWritten && !distributorWritten) {
+                    // always write format, here with nilReason, see INGRID32-146
+                    mdDistribution.addElement("gmd:distributionFormat").addAttribute("gco:nilReason", "unknown");
+                    formatWritten = true;
+                }
                 var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
                 var idfOnlineResource = digitalTransferOptions.addElement("gmd:onLine/idf:idfOnlineResource");
                 var connUrl = prepareGetCapabilitiesUrl(rows.get(i).get("connect_point"), rows.get(i).get("name_value"));
@@ -2124,6 +2139,11 @@ function addDistributionInfo(mdMetadata, objId) {
     for (i=0; i<rows.size(); i++) {
         if (!mdDistribution) {
             mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+        }
+        if (!formatWritten && !distributorWritten) {
+            // always write format, here with nilReason, see INGRID32-146
+            mdDistribution.addElement("gmd:distributionFormat").addAttribute("gco:nilReason", "unknown");
+            formatWritten = true;
         }
         var mdDigitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
         // ---------- <gmd:MD_DigitalTransferOptions/gmd:transferSize> ----------
@@ -2173,6 +2193,10 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                     svOperationMetadata.addElement("srv:DCP/srv:DCPList")
                         .addAttribute("codeList", "http://opengis.org/codelistRegistry?CSW_DCPCodeType")
                         .addAttribute("codeListValue", platfRows.get(j).get("platform_value"));
+                }
+                if (platfRows.size() == 0) {
+                	// mandatory !
+                    svOperationMetadata.addElement("srv:DCP").addAttribute("gco:nilReason", "unknown");
                 }
 
         // ---------- <srv:SV_OperationMetadata/srv:operationDescription> ----------
