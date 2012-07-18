@@ -2079,8 +2079,10 @@ function addDistributionInfo(mdMetadata, objId) {
 	            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
 	        }
 	        if (!formatWritten && !distributorWritten) {
-	        	// always write format, here with nilReason, see INGRID32-146
-                mdDistribution.addElement("gmd:distributionFormat").addAttribute("gco:nilReason", "unknown");
+	        	// always write format, here with nilReason children, see INGRID32-146
+                var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
+                mdFormat.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
+                mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
                 formatWritten = true;
 	        }
             var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
@@ -2122,8 +2124,10 @@ function addDistributionInfo(mdMetadata, objId) {
                     mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
                 }
                 if (!formatWritten && !distributorWritten) {
-                    // always write format, here with nilReason, see INGRID32-146
-                    mdDistribution.addElement("gmd:distributionFormat").addAttribute("gco:nilReason", "unknown");
+                    // always write format, here with nilReason children, see INGRID32-146
+                    var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
+                    mdFormat.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
+                    mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
                     formatWritten = true;
                 }
                 var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
@@ -2141,8 +2145,10 @@ function addDistributionInfo(mdMetadata, objId) {
             mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
         }
         if (!formatWritten && !distributorWritten) {
-            // always write format, here with nilReason, see INGRID32-146
-            mdDistribution.addElement("gmd:distributionFormat").addAttribute("gco:nilReason", "unknown");
+            // always write format, here with nilReason children, see INGRID32-146
+            var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
+            mdFormat.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
+            mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
             formatWritten = true;
         }
         var mdDigitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
