@@ -33,7 +33,7 @@
         <replace file="${start-script}" token="@SERVER_PORT@" value="${localServerPort}"/>
 	</target>
     
-    <target name="extractUpdate">
+    <target name="extractUpdate" depends="findSpringConfig">
 		<unzip src="${antinstaller.jar}" dest="${installDir}">
 			<patternset>
 				<include name="${componentName}/**/*.*"/>
@@ -48,17 +48,23 @@
 		</move>
         
         <!-- update spring file with newest mapping version -->
-        <replaceregexp file="${installDir}/webapp/WEB-INF/spring.xml"
-               match="classpath:mapping/igc-(.*)lucene.js"
-               replace="classpath:mapping/igc-3.2.0_to_lucene.js"
-               byline="true"
-        />
-        <replaceregexp file="${installDir}/webapp/WEB-INF/spring.xml"
-               match="classpath:mapping/igc-(.*)idf.js"
-               replace="classpath:mapping/igc-3.2.0_to_idf.js"
-               byline="true"
-        />
+        <copy file="${installDir}/udk_presets/${springConfig}" toFile="${installDir}/webapp/WEB-INF/spring.xml" overwrite="true"/>
 	</target>
+    
+    <target name="findSpringConfig">
+        <property name="xml" value="${installDir}/webapp/WEB-INF/spring.xml"/>
+        <condition property="springConfig" value="spring_addresses.xml">
+            <resourcecontains resource="${xml}" substring="_address.js"/>
+        </condition>
+        <condition property="springConfig" value="spring_objects_intranet.xml">
+            <resourcecontains resource="${xml}" substring="publish_id=1 OR publish_id=2"/>
+        </condition>
+        <condition property="springConfig" value="spring_objects_internet.xml">
+            <not>
+                <isset property="springConfig"/> 
+            </not>
+        </condition>
+    </target>
   
   <target name="udkPreset" description="Set spring config.">
     <echo>Verwende UDK-Konfiguration: ${springConfig}</echo>
