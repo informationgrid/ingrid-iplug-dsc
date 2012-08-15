@@ -11,7 +11,7 @@
   <artifactId>ingrid-iplug-dsc-scripted</artifactId>
   <version>3.3.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>ingrid-iplug-dsc-scripted:war</name>
+  <name>ingrid-iplug-dsc-scripted</name>
   <scm>
     <connection>
     scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-iplug-dsc-scripted/trunk</connection>
