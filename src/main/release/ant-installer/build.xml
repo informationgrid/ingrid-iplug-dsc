@@ -29,6 +29,7 @@
 		</move>
 		
 		<mkdir dir="${installDir}/logs"/>
+		<mkdir dir="${installDir}/webapp/WEB-INF/work"/>
         
         <replace file="${start-script}" token="@SERVER_PORT@" value="${localServerPort}"/>
 	</target>
@@ -46,7 +47,9 @@
 		<move toDir="${installDir}">
 			<fileset dir="${installDir}/${componentName}"/>
 		</move>
-        
+    	
+    	<mkdir dir="${installDir}/webapp/WEB-INF/work"/>
+    	
         <!-- update spring file with newest mapping version -->
         <copy file="${installDir}/udk_presets/${springConfig}" toFile="${installDir}/webapp/WEB-INF/spring.xml" overwrite="true"/>
 	</target>
