@@ -1516,7 +1516,8 @@ function filterUserPostfix(name) {
     var filteredName = name;
 
     if (hasValue(name)) {
-    	filteredName = name.replace(/ \[.*\]/g,"");
+    	// first make JS String out of name, so we call JS replace method !!!
+    	filteredName = ("" + name).replace(/ \[.*\]/g,"");
     	// just for sure
     	if (!hasValue(filteredName)) {
     		filteredName = name;
