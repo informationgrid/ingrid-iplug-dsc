@@ -1420,10 +1420,12 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
     if (!mapOnlyEmails) {
         var individualName = getIndividualNameFromAddressRow(addressRow);
         if (hasValue(individualName)) {
+        	individualName = filterUserPostfix(individualName);
             idfResponsibleParty.addElement("gmd:individualName").addElement("gco:CharacterString").addText(individualName);
         }
         var institution = getInstitution(parentAddressRowPathArray);
         if (hasValue(institution)) {
+            institution = filterUserPostfix(institution);
             idfResponsibleParty.addElement("gmd:organisationName").addElement("gco:CharacterString").addText(institution);
         }
         if (hasValue(addressRow.get("job"))) {
@@ -1505,6 +1507,29 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
     }
 
     return idfResponsibleParty;
+}
+
+/**
+ * Removes all [...] from passed name, e.g. "[Nutzer]" was added when user addresses were migrated to hidden addresses. 
+ */
+function filterUserPostfix(name) {
+    var filteredName = name;
+
+    if (hasValue(name)) {
+    	filteredName = name.replace(/ \[.*\]/g,"");
+    	// just for sure
+    	if (!hasValue(filteredName)) {
+    		filteredName = name;
+    	}
+
+        if (log.isDebugEnabled()) {
+        	if (name.length != filteredName.length) {
+                log.debug("Filtered name '" + name + "' to '" + filteredName + "' !");
+        	}
+        }
+    }
+
+    return filteredName;
 }
 
 /**
