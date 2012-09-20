@@ -705,8 +705,9 @@ for (i=0; i<objRows.size(); i++) {
             var refObjUuid = rows.get(i).get("obj_uuid");
             var coupledResource = identificationInfo.addElement("srv:coupledResource/srv:SV_CoupledResource");
             coupledResource.addElement("srv:operationName/gco:CharacterString").addText("GetMap");
+            // remember datasourceId AND referenced object Uuid for later use (see below)
             resourceIdentifiers.push([getCitationIdentifier(rows.get(i), refObjId), refObjUuid]);
-            coupledResource.addElement("srv:identifier/gco:CharacterString").addText(resourceIdentifiers[resourceIdentifiers.length-1]);
+            coupledResource.addElement("srv:identifier/gco:CharacterString").addText(resourceIdentifiers[resourceIdentifiers.length-1][0]);
         }
         // AND ALL INCOMING LINKS => BIDIRECTIONAL!
         // Not anymore! Links are only coming from Services to Data!

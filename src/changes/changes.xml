@@ -5,7 +5,10 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
-    <release version="3.3.0-SNAPSHOT" date="2012-???" description="Release InGrid 3.3">
+    <release version="3.2.1-SNAPSHOT" date="2012-???" description="Release InGrid 3.2.1">
+      <action type="fix" dev="wemove" issue="INGRID32-186">
+        Coupled resource was not correctly mapped. The creation of the identifier has been fixed now.
+      </action>
       <action type="add" dev="wemove">
         Added local working directory, so that temp-dir is not deleted accidentally when cleaning up global temp dir.
       </action>
