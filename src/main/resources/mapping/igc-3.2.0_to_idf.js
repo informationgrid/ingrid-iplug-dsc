@@ -259,8 +259,11 @@ for (i=0; i<objRows.size(); i++) {
 	}
 
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier> ----------
-    ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(getCitationIdentifier(objRow));
-
+	// only put/generate a resource identifier for class Geoinformation/Karte (Class 1) (INGRID32-184)
+	if (objClass.equals("1")) {
+	    ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(getCitationIdentifier(objRow));
+	}
+	
     // continue mapping literature properties
     if (objClass.equals("2")) {
         var literatureRow = SQL.first("SELECT * from t011_obj_literature WHERE obj_id=?", [objId]);
