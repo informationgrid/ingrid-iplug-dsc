@@ -5,7 +5,7 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
-    <release version="3.2.1-SNAPSHOT" date="2012-???" description="Release InGrid 3.2.1">
+    <release version="3.2.1" date="2012-09-26" description="Release InGrid 3.2.1">
       <action type="fix" dev="wemove" issue="INGRID32-186">
         Coupled resource was not correctly mapped. The creation of the identifier has been fixed now.
       </action>
@@ -14,6 +14,9 @@
       </action>
       <action type="update" dev="wemove" issue="INGRID-2144">
         Remove postfix [...] from user names when exported to CSW (e.g. [Nutzer] postfix). 
+      </action>
+      <action type="fix" dev="wemove">
+        Infobox during indexing now updates correctly and disappears when finished.
       </action>
     </release>
 
