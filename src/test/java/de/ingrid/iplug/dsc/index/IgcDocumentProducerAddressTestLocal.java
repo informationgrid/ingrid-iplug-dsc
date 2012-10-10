@@ -35,7 +35,7 @@ public class IgcDocumentProducerAddressTestLocal extends TestCase {
         p.configure(pd);
 
         ScriptedDocumentMapper m = new ScriptedDocumentMapper();
-        m.setMappingScript(new FileSystemResource("src/main/resources/mapping/igc-3.2.0_to_lucene_address.js"));
+        m.setMappingScript(new FileSystemResource("src/main/resources/mapping/igc_to_lucene_address.js"));
         m.setCompile(true);
 
         List<IRecordMapper> mList = new ArrayList<IRecordMapper>();

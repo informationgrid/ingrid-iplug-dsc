@@ -25,7 +25,8 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 
 // ---------- t02_address ----------
 var addrId = sourceRecord.get(DatabaseSourceRecord.ID);
-var addrRows = SQL.all("SELECT * FROM t02_address WHERE id=?", [addrId]);
+// only index addresses where hide_address is not set !
+var addrRows = SQL.all("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [addrId]);
 for (i=0; i<addrRows.size(); i++) {
     addT02Address(addrRows.get(i));
     var addrUuid = addrRows.get(i).get("adr_uuid");
@@ -36,8 +37,8 @@ for (i=0; i<addrRows.size(); i++) {
         addT021Communication(rows.get(j));
     }
     // ---------- address_node CHILDREN ----------
-    // only published ones !
-    var rows = SQL.all("SELECT * FROM address_node WHERE fk_addr_uuid=? AND addr_id_published IS NOT NULL", [addrUuid]);
+    // only children published and NOT hidden !
+    var rows = SQL.all("SELECT address_node.* FROM address_node, t02_address WHERE address_node.fk_addr_uuid=? AND address_node.addr_id_published=t02_address.id AND (t02_address.hide_address IS NULL OR t02_address.hide_address != 'Y')", [addrUuid]);
     for (j=0; j<rows.size(); j++) {
         addAddressNodeChildren(rows.get(j));
     }
@@ -46,7 +47,7 @@ for (i=0; i<addrRows.size(); i++) {
     var parentUuid = row.get("fk_addr_uuid");
     var level = 1;
     while (hasValue(parentUuid)) {
-        // NOTICE: Parents HAVE TO BE published if child is published !
+        // NOTICE: Parents HAVE TO BE published if child is published ! We do NOT check hidden address cause only persons are hidden and persons cannot be parents
 	    var parentRow = SQL.first("SELECT * FROM address_node, t02_address WHERE address_node.addr_uuid=? AND address_node.addr_id_published=t02_address.id", [parentUuid]);
 	    addAddressParent(level, parentRow);
 	    parentUuid = parentRow.get("fk_addr_uuid");
@@ -94,7 +95,6 @@ function addT02Address(row) {
     IDX.add("t02_address.country_key", row.get("country_key"));
     IDX.add("t02_address.country_code", row.get("country_value"));
     IDX.add("summary", row.get("job"));
-    IDX.add("t02_address.descr", row.get("descr"));
     IDX.add("t02_address.work_state", row.get("work_state"));
     IDX.add("t02_address.create_time", row.get("create_time"));
     IDX.add("t02_address.mod_time", row.get("mod_time"));
