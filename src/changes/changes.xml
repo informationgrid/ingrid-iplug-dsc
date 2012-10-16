@@ -6,14 +6,17 @@
   </properties>
   <body>
     <release version="3.3.0-SNAPSHOT" date="??" description="Release InGrid 3.3">
+      <action type="add" dev="wemove" issue="INGRID-2150">
+        Add java parameter "-Dfile.encoding=UTF8" to start script.
+      </action>
       <action type="update" dev="wemove">
         No version specific mapping scripts anymore, older versions not needed (mapping to IDF/index).
       </action>
       <action type="update" dev="wemove" issue="INGRID33-10">
         Note field of addresses removed from indexing. 
       </action>
-    </release>
-
+	</release>
+	
     <release version="3.2.1" date="2012-09-26" description="Release InGrid 3.2.1">
       <action type="fix" dev="wemove" issue="INGRID32-186">
         Coupled resource was not correctly mapped. The creation of the identifier has been fixed now.
