@@ -49,7 +49,8 @@
             <select displayText="Zu verwendende UDK Konfiguration:" property="springConfig" defaultValue="true">
         <option text="Objekte (Veröffentlichung: Internet)" value="spring_objects_internet.xml"/>
         <option text="Objekte (Veröffentlichung: Intranet+Internet)" value="spring_objects_intranet.xml"/>
-        <option text="Adresse (Veröffentlichung: Internet)" value="spring_addresses.xml"/>
+        <option text="Adresse (Veröffentlichung: Internet)" value="spring_addresses_internet.xml"/>
+        <option text="Adresse (Veröffentlichung: Intranet+Internet)" value="spring_addresses_intranet.xml"/>
       </select>
             <comment displayText="" explanatoryText="Welche UDK Daten sollen zugänglich gemacht werden ? Es kann jederzeit ein eigenes Mapping definiert werden."/>
     </page>

@@ -6,6 +6,9 @@
   </properties>
   <body>
     <release version="3.3.0-SNAPSHOT" date="??" description="Release InGrid 3.3">
+      <action type="add" dev="wemove" issue="INGRID33-12">
+        Add new field "publication condition" to addresses. Selection of Adresses via installer (INTERNET or INTRANET).
+      </action>
       <action type="add" dev="wemove" issue="INGRID-2150">
         Add java parameter "-Dfile.encoding=UTF8" to start script.
       </action>

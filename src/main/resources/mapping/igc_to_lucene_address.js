@@ -100,6 +100,7 @@ function addT02Address(row) {
     IDX.add("t02_address.mod_time", row.get("mod_time"));
     IDX.add("t02_address.mod_uuid", row.get("mod_uuid"));
     IDX.add("t02_address.responsible_uuid", row.get("responsible_uuid"));
+    IDX.add("t02_address.publish_id", row.get("publish_id"));
 }
 function addT021Communication(row) {
     IDX.add("t021_communication.line", row.get("line"));
