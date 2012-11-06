@@ -207,11 +207,19 @@ for (i=0; i<objRows.size(); i++) {
     for (j=0; j<rows.size(); j++) {
         addT0112MediaOption(rows.get(j));
     }
-    // ---------- t017_url_ref ----------
-    var rows = SQL.all("SELECT * FROM t017_url_ref WHERE obj_id=?", [objId]);
+    // ---------- t017_url_ref (except preview image) ----------
+    var rows = SQL.all("SELECT * FROM t017_url_ref WHERE obj_id=? AND special_ref!=9000", [objId]);
     for (j=0; j<rows.size(); j++) {
         addT017UrlRef(rows.get(j));
     }
+    // ---------- t017_url_ref - preview image----------
+    var rows = SQL.all("SELECT * FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        // add complete styling information, so we don't have to make any changes in the portal
+        var previewImageHtmlTag = "<img src='" + rows.get(j).get("url_link") + "' height='100' style='float:left; margin: 0 5px 0 0;' />";
+        IDX.add("additional_html_1", previewImageHtmlTag);
+    }
+    
     // ---------- searchterm_obj ----------
     var rows = SQL.all("SELECT * FROM searchterm_obj WHERE obj_id=?", [objId]);
     for (j=0; j<rows.size(); j++) {

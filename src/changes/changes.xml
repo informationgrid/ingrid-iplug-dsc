@@ -6,6 +6,9 @@
   </properties>
   <body>
     <release version="3.3.0-SNAPSHOT" date="??" description="Release InGrid 3.3">
+      <action type="add" dev="wemove" issue="INGRID33-20">
+        Map url of preview image of an object to Lucene and IDF (graphicOverview).
+      </action>
       <action type="add" dev="wemove" issue="INGRID33-12">
         Add new field "publication condition" to addresses. Selection of Adresses via installer (INTERNET or INTRANET).
       </action>

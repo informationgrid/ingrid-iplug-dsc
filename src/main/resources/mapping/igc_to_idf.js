@@ -520,7 +520,14 @@ for (i=0; i<objRows.size(); i++) {
         }
         mdMaintenanceInformation.addElement("gmd:maintenanceNote/gco:CharacterString").addText(objRow.get("time_descr"));
     }
-
+    
+    // ---------- <gmd:identificationInfo/gmd:graphicOverview> ----------
+    row = SQL.first("SELECT url_link FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [objId]);
+    if (hasValue(row)) {
+        var graphic = identificationInfo.addElement("gmd:graphicOverview/gmd:MD_BrowseGraphic");
+        graphic.addAttribute("gco:href", row.get("url_link"));
+    }
+    
     // ---------- <gmd:identificationInfo/gmd:resourceFormat> ----------
     if (objClass.equals("2")) {
 	    row = SQL.first("SELECT type_key, type_value from t011_obj_literature WHERE obj_id=?", [objId]);
@@ -2105,16 +2112,16 @@ function addDistributionInfo(mdMetadata, objId) {
     rows = SQL.all("SELECT * FROM T017_url_ref WHERE obj_id=?", [objId]);
     for (i=0; i<rows.size(); i++) {
         if (hasValue(rows.get(i).get("url_link"))) {
-	        if (!mdDistribution) {
-	            mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
-	        }
-	        if (!formatWritten && !distributorWritten) {
-	        	// always write format, here with nilReason children, see INGRID32-146
+            if (!mdDistribution) {
+                mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+            }
+            if (!formatWritten && !distributorWritten) {
+                // always write format, here with nilReason children, see INGRID32-146
                 var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
                 mdFormat.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
                 mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
                 formatWritten = true;
-	        }
+            }
             var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
             var idfOnlineResource = digitalTransferOptions.addElement("gmd:onLine/idf:idfOnlineResource");
             idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("url_link"));
