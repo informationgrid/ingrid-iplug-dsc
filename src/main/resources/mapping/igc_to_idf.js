@@ -525,7 +525,7 @@ for (i=0; i<objRows.size(); i++) {
     row = SQL.first("SELECT url_link FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [objId]);
     if (hasValue(row)) {
         var graphic = identificationInfo.addElement("gmd:graphicOverview/gmd:MD_BrowseGraphic");
-        graphic.addAttribute("gco:href", row.get("url_link"));
+        graphic.addElement("gmd:fileName/gco:CharacterString").addText(row.get("url_link"));
     }
     
     // ---------- <gmd:identificationInfo/gmd:resourceFormat> ----------
