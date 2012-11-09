@@ -2109,7 +2109,7 @@ function addDistributionInfo(mdMetadata, objId) {
     }
 
     // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource> ----------
-    rows = SQL.all("SELECT * FROM T017_url_ref WHERE obj_id=?", [objId]);
+    rows = SQL.all("SELECT * FROM T017_url_ref WHERE obj_id=? AND special_ref!=9000", [objId]);
     for (i=0; i<rows.size(); i++) {
         if (hasValue(rows.get(i).get("url_link"))) {
             if (!mdDistribution) {
