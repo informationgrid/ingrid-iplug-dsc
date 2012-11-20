@@ -70,6 +70,7 @@ for (i=0; i<hoehensystemRows.size(); i++) {
     DOM.addElement(idfBody, "p");
     DOM.addElement(idfBody, "p/a")
 		.addAttribute("href", "http://10.140.105.57:8080/geobas_q1/main?cmd=view_details&id=" + hoehensystemRow.get("id") + "&table=hoehensystem")
+        .addAttribute("target", "_blank")
 		.addText("GEOBAS")
 }
 

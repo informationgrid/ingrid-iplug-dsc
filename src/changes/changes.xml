@@ -18,6 +18,9 @@
       <action type="update" dev="wemove">
         No version specific mapping scripts anymore, older versions not needed (mapping to IDF/index).
       </action>
+      <action type="update" dev="wemove" issue="GEOPORTALWSV-13">
+        Updated GeoPortal.WSV presets (mapping).
+      </action>
       <action type="update" dev="wemove" issue="INGRID33-10">
         Note field of addresses removed from indexing. 
       </action>

@@ -54,6 +54,7 @@ for (i=0; i<objRows.size(); i++) {
     DOM.addElement(idfBody, "p");
     DOM.addElement(idfBody, "p/a")
 		.addAttribute("href", "http://10.140.105.57:8080/geobas_q1/main?cmd=view_details&id=" + organisationRow.get("id") + "&table=organisation")
+        .addAttribute("target", "_blank")
 		.addText("GEOBAS")
 }
 
