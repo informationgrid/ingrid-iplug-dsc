@@ -55,7 +55,7 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- link to GEOBAS ----------
     DOM.addElement(idfBody, "p");
     DOM.addElement(idfBody, "p/a")
-		.addAttribute("href", "http://10.140.105.57:8080/geobas_q1/main?cmd=view_details&id=" + bundeslandRow.get("id") + "&table=bundesland")
+		.addAttribute("href", "http://geobas.wsv.bvbs.bund.de/geobas_p1/main?cmd=view_details&id=" + bundeslandRow.get("id") + "&table=bundesland")
         .addAttribute("target", "_blank")
 		.addText("GEOBAS")
 }

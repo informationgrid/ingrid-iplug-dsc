@@ -66,6 +66,13 @@ for (i=0; i<punktkennzeichenRows.size(); i++) {
     // ---------- punktkennzeichen ----------
     DOM.addElement(idfBody, "p").addText("Station: " + punktkennzeichenRow.get("station"));
     DOM.addElement(idfBody, "p").addText("Punktnummer: " + punktkennzeichenRow.get("punktnummer"));
+
+    // ---------- link to GEOBAS ----------
+    DOM.addElement(idfBody, "p");
+    DOM.addElement(idfBody, "p/a")
+        .addAttribute("href", "http://geobas.wsv.bvbs.bund.de/geobas_p1/main?cmd=view_details&id=" + punktkennzeichenRow.get("id") + "&table=punktkennzeichen")
+        .addAttribute("target", "_blank")
+        .addText("GEOBAS")
 }
 
 function hasValue(val) {
