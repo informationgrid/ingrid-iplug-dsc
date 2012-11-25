@@ -15,9 +15,9 @@
 	<name>ingrid-iplug-dsc-scripted</name>
 	<scm>
 		<connection>
-    scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-iplug-dsc-scripted/tags/ingrid-iplug-dsc-scripted-3.2.1</connection>
+    scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-iplug-dsc-scripted/branches/ingrid-iplug-dsc-scripted-3.2.x</connection>
 		<developerConnection>
-    scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-iplug-dsc-scripted/tags/ingrid-iplug-dsc-scripted-3.2.1</developerConnection>
+    scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-iplug-dsc-scripted/branches/ingrid-iplug-dsc-scripted-3.2.x</developerConnection>
 	</scm>
 	<repositories>
 		<!--
