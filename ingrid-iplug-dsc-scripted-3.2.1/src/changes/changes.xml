@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<document>
+  <properties>
+    <title>History Ingrid DSC (scripted) iPlug</title>
+    <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
+  </properties>
+  <body>
+    <release version="3.2.1" date="2012-09-26" description="Release InGrid 3.2.1">
+      <action type="fix" dev="wemove" issue="INGRID32-186">
+        Coupled resource was not correctly mapped. The creation of the identifier has been fixed now.
+      </action>
+      <action type="add" dev="wemove">
+        Added local working directory, so that temp-dir is not deleted accidentally when cleaning up global temp dir.
+      </action>
+      <action type="update" dev="wemove" issue="INGRID-2144">
+        Remove postfix [...] from user names when exported to CSW (e.g. [Nutzer] postfix). 
+      </action>
+      <action type="fix" dev="wemove">
+        Infobox during indexing now updates correctly and disappears when finished.
+      </action>
+    </release>
+
+    <release version="3.2.0" date="2012-07-18" description="Release InGrid 3.2">
+      <action type="add" dev="wemove" issue="INGRID32-36">
+        IDF: Use new email field for metadata point of contact if set in user address of responsible user. Only map email for user address.
+      </action>
+      <action type="add" dev="wemove" issue="GSSOIL-24">
+            Add scope of maintenance data.
+      </action>
+      <action type="add" dev="wemove" issue="INGRID32-81">
+            Handle new "coupling type" field in mapping. Also add coupled resources to IDF document and extra information
+            into the index for showing coupled resources inside the search results of the portal.
+      </action>
+      <action type="add" dev="wemove" issue="INGRID32-24">
+        Get syslist values directly from database instead of static file. Syslists from the database will be synchronized with
+        a repository to have the latest changes.
+      </action>
+      <action type="add" dev="wemove" issue="INGRID32-37">
+        Handle new "hide address" field in mapping. If address is hidden then parent address is mapped.
+      </action>
+      <action type="add" dev="wemove">
+        Add support for generating facets if requested.
+      </action>
+      <action type="update" dev="wemove" issue="INGRID-2107">
+        GetCapabilities of view services now always mapped to IDF with REQUEST=GetCapabilities and SERVICE=WMS. 
+      </action>
+      <action type="update" dev="wemove">
+        Change mapping from useLimitation, the element is now encapsulated in MD_Constraints instead of MD-LegelConstrains.
+      </action>
+      <action type="update" dev="wemove">
+        IGC to IDF mapping scripts write now idf-version into IDF top element, removed IDF version from script names.
+      </action>
+      <action type="update" dev="wemove" issue="INGRID32-26">
+        New mapping of operation platform to index and IDF (now syslist). 
+      </action>
+      <action type="update" dev="wemove" issue="INGRID32-27">
+        New mapping of references (Verweise) to IDF. 
+      </action>
+      <action type="update" dev="wemove" issue="INGRID32-30">
+        New mapping of "Identifikator der Datenquelle", now includes namespace read from catalog. Now mapped to MD_Identifier/code. 
+      </action>
+      <action type="update" dev="wemove" issue="INGRID32-50">
+        Map new field "Datensammlung/Datenbank - Objektartenkatalog" (equals "Geoinformation/Karte - Schlüsselkatalog").
+      </action>
+      <action type="update" dev="wemove" issue="INGRID32-46">
+        Map now responsible user as contact for metadata in IDF. All other roles mapped as identificationInfo/pointOfContact.
+      </action>
+      <action type="update" dev="wemove" issue="INGRID32-48">
+        Remove IDF Mapping of DataQuality Tables DQ_110_CompletenessOmission and DQ_117_AbsoluteExternalPositionalAccuracy, now handled via fields "Datendefizit", "Lagegenauigkeit" and "Höhengenauigkeit".
+      </action>
+      <action type="update" dev="wemove" issue="INGRID-1885">
+        Updated start.sh, which had an issue when being batch-invoked, deleted RSYNC which is no longer used.
+      </action>
+      <action type="fix" dev="wemove" issue="INGRID32-146">
+        IDF/CSW: Create "gmd:distributionFormat" with nilReason if not present. Also write "srv:DCP" with nilReason if not present.
+      </action>
+      <action type="fix" dev="wemove">
+        Fix problem in start script. Heap memory settings were not set correctly.
+      </action>
+      <action type="fix" dev="wemove">
+        Fix query problems if a stop word is part of the query (i.e. 'is').
+      </action>
+      <action type="fix" dev="wemove">
+        Also map catalog language into index, so language specific search works (e.g. when portal.search.language.independent=false in portal props).
+      </action>
+      <action type="fix" dev="wemove">
+        Make IDF record generation thread safe.
+      </action>
+      <action type="fix" dev="wemove">
+        Support now setting of schema in database, e.g. for switching schema in Oracle (set in admin UI -> PlugDescription).
+      </action>
+      <action type="fix" dev="wemove" issue="INGRID-2057">
+        Fixed errors when searching via coordinates (BBox, intersect, inside, include). Fixed in base-webapp.
+      </action>
+      <action type="fix" dev="wemove">
+        Fixed errors in IDF mapping script (hierarchyLevel in object class 1, mapping env category ...).
+      </action>
+      <action type="fix" dev="wemove">
+        Fixed update bug of PlugDescription to the iBus, where an old one was used when it was changed by the indexer.
+      </action>
+    </release>
+
+  	 <release version="3.1.0.1" date="2012-03-13" description="Bugfix Release for InGrid 3.1">
+      <action type="fix" dev="wemove">
+        XML fix: fixed double escaping of xml files
+      </action>
+    </release>
+    
+    <release version="3.1.0" date="2011-09-15" description="Release InGrid 3.1">
+      <action type="update" dev="wemove">
+        Prevent escaping of UTF-8 characters in IDF response.
+      </action>
+      <action type="update" dev="wemove" issue="INGRID-1962">
+        Rework title and general content query analysis to better match the analysis of the index process.
+      </action>
+      <action type="update" dev="wemove">
+        Rework index handling to safely work with windows systems (file locking problems resolved).
+      </action>
+      <action type="update" dev="wemove">
+        Added several example scripts for WSV GeoBas.
+      </action>
+      <action type="fix" dev="wemove" issue="INGRID-1942">
+        Fixed time range search.
+      </action>
+      <action type="fix" issue="INGRID-1992">
+        Changed logging behavior, so that not so many files will be created.
+      </action>
+      <action type="fix" dev="wemove">
+        iPlug can now be used with ORACLE correctly.
+      </action>
+    </release>
+
+    <release version="3.0.1" date="2011-07-05" description="Add-Ons + Bugfixes for InGrid 3.0">
+      <action type="add" dev="wemove" issue="INGRID23-152">
+        Add a new index.sh script to index an iPlug from command line.
+      </action>
+      <action type="update" dev="wemove" issue="INGRID23-60">
+        Allow multiple spatial systems ("Raumbezugssystem"), now 1:n association.
+      </action>
+      <action type="update" dev="wemove" issue="INGRID-1940">
+        Introduced new field "metainfo" in query for various control info to be handled by iBus / iPlugs. 
+      </action>
+      <action type="fix" dev="wemove" issue="INGRID-1949">
+        IDF: Fix street and post box in address detail view.
+      </action>
+      <action type="fix" dev="wemove" issue="INGRID23-257">
+        IDF: Fix display duplicate object references in address detail view.
+      </action>
+      <action type="fix" dev="wemove" issue="INGRID23-239">
+        Fix keyword "inspireidentifiziert" in index.
+      </action>
+      <action type="fix" dev="wemove">
+        IDF: Make sure xml text is XML escaped, map null to empty text, improve various mappings (gmd:MD_GeometricObjects, GEMET search terms, ...)
+      </action>
+    </release>
+
+    <release version="3.0.0" date="2011-05-05" description="Initial Release InGrid 3.0">
+			<action type="add">
+				From version 3.0.0 the data is mapped via a script. The data will be transformed into the (new) InGridDataFormat (IDF), which only
+				can be understood from other components starting from version 3.0.0.
+			</action>
+    </release>
+  </body>
+</document>

@@ -1,0 +1,266 @@
+<dataset>
+    <table name="TEST_TABLE">
+        <column>ID</column>
+        <column>KEY</column>
+        <column>VALUE</column>
+        <row>
+            <value>1</value>
+            <value>igc_profile</value>
+            <value><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<profile xmlns="http://www.portalu.de/igc-profile"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.portalu.de/igc-profile file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/docs/igc_profile.xsd" version="1.0.0">
+    <name>name0</name>
+    <supportedLanguages>supportedLanguages0</supportedLanguages>
+    <layoutRubric isLegacy="false">
+        <id>id0</id>
+        <localizedLabel lang="lang1">localizedLabel0</localizedLabel>
+        <localizedHelp lang="lang3">localizedHelp0</localizedHelp>
+        <controls>
+            <legacyControl>
+                <id>id1</id>
+                <isMandatory>false</isMandatory>
+                <isVisible>optional</isVisible>
+                <scriptedProperties>scriptedProperties0</scriptedProperties>
+            </legacyControl>
+                <textControl>
+                            <id>id2</id>
+                            <isMandatory>false</isMandatory>
+                            <isVisible>optional</isVisible>
+                            <scriptedProperties>scriptedProperties1</scriptedProperties>
+                            <localizedLabel lang="lang5">localizedLabel1</localizedLabel>
+                            <localizedLabelPostfix lang="lang7">localizedLabelPostfix0</localizedLabelPostfix>
+                            <localizedHelp lang="lang9">localizedHelp1</localizedHelp>
+                            <scriptedCswMapping>
+IDF.addAdditionalData(sourceRecord, idfDoc, igcProfileControlNode);                          
+                            </scriptedCswMapping>
+                            <indexName>indexName0</indexName>
+                            <layoutWidth>100</layoutWidth>
+                        <layoutNumLines>1</layoutNumLines>
+                </textControl>        
+                <tableControl>
+                            <id>id6</id>
+                            <isMandatory>false</isMandatory>
+                            <isVisible>optional</isVisible>
+                            <scriptedProperties>scriptedProperties5</scriptedProperties>
+                            <localizedLabel lang="lang31">localizedLabel5</localizedLabel>
+                            <localizedLabelPostfix lang="lang33">localizedLabelPostfix4</localizedLabelPostfix>
+                            <localizedHelp lang="lang35">localizedHelp5</localizedHelp>
+                            <scriptedCswMapping>IDF.addAdditionalData(sourceRecord, idfDoc, igcProfileControlNode);</scriptedCswMapping>
+                            <indexName>indexName4</indexName>
+                            <layoutWidth>100</layoutWidth>
+                        <layoutNumLines>1</layoutNumLines>
+                        <columns>
+                            <textControl>
+                                        <id>id7</id>
+                                        <isMandatory>false</isMandatory>
+                                        <isVisible>optional</isVisible>
+                                        <scriptedProperties>scriptedProperties6</scriptedProperties>
+                                        <localizedLabel lang="lang37">localizedLabel6</localizedLabel>
+                                        <localizedLabelPostfix lang="lang39">localizedLabelPostfix5</localizedLabelPostfix>
+                                        <localizedHelp lang="lang41">localizedHelp6</localizedHelp>
+                                        <scriptedCswMapping></scriptedCswMapping>
+                                        <indexName>indexName5</indexName>
+                                        <layoutWidth>100</layoutWidth>
+                                    <layoutNumLines>1</layoutNumLines>
+                            </textControl>
+                            <selectControl isExtendable="false">
+                                        <id>id8</id>
+                                        <isMandatory>false</isMandatory>
+                                        <isVisible>optional</isVisible>
+                                        <scriptedProperties>scriptedProperties7</scriptedProperties>
+                                        <localizedLabel lang="lang43">localizedLabel7</localizedLabel>
+                                        <localizedLabelPostfix lang="lang45">localizedLabelPostfix6</localizedLabelPostfix>
+                                        <localizedHelp lang="lang47">localizedHelp7</localizedHelp>
+                                        <scriptedCswMapping></scriptedCswMapping>
+                                        <indexName>indexName6</indexName>
+                                        <layoutWidth>100</layoutWidth>
+                                    <selectionList>
+                                        <items lang="lang49">
+                                            <item id="id3">item1</item>
+                                        </items>
+                                    </selectionList>
+                            </selectControl>
+                        </columns>
+                </tableControl>                </controls>
+    </layoutRubric>
+    <layoutRubric isLegacy="false">
+        <id>id45</id>
+        <localizedLabel lang="lang1">localizedLabel45</localizedLabel>
+        <localizedHelp lang="lang3">localizedHelp0</localizedHelp>
+        <controls>
+            <legacyControl>
+                <id>id46</id>
+                <isMandatory>false</isMandatory>
+                <isVisible>optional</isVisible>
+                <scriptedProperties>scriptedProperties0</scriptedProperties>
+            </legacyControl>
+                <textControl>
+                            <id>id47</id>
+                            <isMandatory>false</isMandatory>
+                            <isVisible>optional</isVisible>
+                            <scriptedProperties>scriptedProperties1</scriptedProperties>
+                            <localizedLabel lang="lang5">localizedLabel47</localizedLabel>
+                            <localizedLabelPostfix lang="lang7">localizedLabelPostfix0</localizedLabelPostfix>
+                            <localizedHelp lang="lang9">localizedHelp1</localizedHelp>
+                            <scriptedCswMapping>
+IDF.addAdditionalData(sourceRecord, idfDoc, igcProfileControlNode);                          
+                            </scriptedCswMapping>
+                            <indexName>indexName0</indexName>
+                            <layoutWidth>100</layoutWidth>
+                        <layoutNumLines>1</layoutNumLines>
+                </textControl> 
+      <selectControl isExtendable="false">
+        <id>Feature Catalog Compliance Code</id>
+        <isMandatory>false</isMandatory>
+        <isVisible>show</isVisible>
+        <scriptedProperties/>
+        <localizedLabel lang="de">Feature Catalog Compliance Code</localizedLabel>
+        <localizedLabel lang="en">Feature Catalog Compliance Code</localizedLabel>
+        <localizedHelp lang="de">Feature Catalog Compliance Code</localizedHelp>
+        <localizedHelp lang="en">Feature Catalog Compliance Code</localizedHelp>
+        <scriptedCswMapping>
+importPackage(Packages.de.ingrid.iplug.dsc.om);
+
+// add Namespaces to Utility for convenient handling of NS !
+DOM.addNS("gmd", "http://www.isotc211.org/2005/gmd");
+DOM.addNS("gco", "http://www.isotc211.org/2005/gco");
+
+if (!(sourceRecord instanceof DatabaseSourceRecord)) {
+    throw new IllegalArgumentException("Record is no DatabaseRecord!");
+}
+
+var id = sourceRecord.get(DatabaseSourceRecord.ID);
+var igcProfileControlId = XPATH.getString(igcProfileControlNode, "igcp:id");
+
+var content = SQL.first("SELECT data FROM additional_field_data WHERE obj_id=? AND field_key=?", [id, igcProfileControlId]);
+
+if (content) {
+	// get mdFeatureCatalogDescription element
+	var mdFeatureCatalogDescription = DOM.getElement(idfDoc, "//gmd:MD_FeatureCatalogueDescription");
+	
+	if (!mdFeatureCatalogDescription) {
+      var idfMetaData = DOM.getElement(idfDoc, "//idf:idfMdMetadata");
+	  idfMetaData.addElement("gmd:identificationInfo");
+      idfMetaData.addElement("gmd:distributionInfo");
+	  var identificationInfo = DOM.getElement(idfDoc, "//gmd:identificationInfo");
+	  if (identificationInfo) {
+        mdFeatureCatalogDescription = identificationInfo.addElementAsSibling("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");	   
+	  } else {
+        mdFeatureCatalogDescription = idfMetaData.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
+	  }
+	  mdFeatureCatalogDescription.addElement("gmd:includedWithDataset/gco:Boolean").addText("false");
+      var ciCitation = mdFeatureCatalogDescription.addElement("gmd:featureCatalogueCitation/gmd:CI_Citation");
+      ciCitation.addElement("gmd:title/gco:CharacterString").addAttribute("gco:nilReason", "inapplicable");
+      var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
+      ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
+      ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
+                    .addAttribute("codeListValue", "creation");
+	}
+	
+	// get compliance code element
+	var complianceCode = DOM.getElement(mdFeatureCatalogDescription, "gmd:complianceCode/gco:Boolean");
+	
+	if (!complianceCode) {
+	    // add compliance code
+	    log.debug("No compliance code found, create a new one.");
+	    mdFeatureCatalogDescription.addElementAsFirst("gmd:complianceCode").addElement("gco:Boolean").addText(content.get("data"));
+	} else {
+        log.debug("compliance code found!");
+	    complianceCode.addText(content.get("data"));
+	}
+}
+
+</scriptedCswMapping>
+        <indexName>fetaureCatalogDescriptionComplianceCode</indexName>
+        <layoutWidth>100</layoutWidth>
+        <selectionList>
+          <items lang="de">
+            <item id="1">ja</item>
+            <item id="2">nein</item>
+          </items>
+          <items lang="en">
+            <item id="1">true</item>
+            <item id="2">false</item>
+          </items>
+        </selectionList>
+      </selectControl>
+        </controls>
+    </layoutRubric>    
+                
+</profile>      
+            ]]></value>
+        </row>
+    </table>
+    <table name="additional_field_data">
+        <column>id</column>
+        <column>obj_id</column>
+        <column>parent_field_id</column>
+        <column>field_key</column>
+        <column>data</column>
+        <column>sort</column>
+        <row>
+          <value>1</value>
+          <value>2</value>
+          <value>0</value> <!-- should be null but is needed here for column type detection -->
+          <value>id2</value>
+          <value>test content for field id2</value>
+          <value>1</value>
+        </row>
+        <row>
+          <value>2</value>
+          <value>2</value>
+          <null/>
+          <value>id6</value>
+          <value></value>
+          <value>1</value>
+        </row>
+        <row>
+          <value>3</value>
+          <null/>
+          <value>2</value>
+          <value>id7</value>
+          <value>erster eintrag in erster spalte</value>
+          <value>1</value>
+        </row>
+        <row>
+          <value>4</value>
+          <null/>
+          <value>2</value>
+          <value>id8</value>
+          <value>erster eintrag in zweiter spalte</value>
+          <value>1</value>
+        </row>
+        <row>
+          <value>5</value>
+          <null/>
+          <value>2</value>
+          <value>id7</value>
+          <value>zweiter eintrag in erster spalte</value>
+          <value>2</value>
+        </row>
+        <row>
+          <value>6</value>
+          <null/>
+          <value>2</value>
+          <value>id8</value>
+          <value>zweiter eintrag in zweiter spalte</value>
+          <value>2</value>
+        </row>
+        <row>
+          <value>7</value>
+          <value>2</value>
+          <null/>
+          <value>Feature Catalog Compliance Code</value>
+          <value>true</value>
+          <value>1</value>
+        </row>
+    </table>
+    <table name="t01_object">
+        <column>id</column>
+        <row>
+          <value>2</value>
+        </row>
+    </table>
+</dataset>

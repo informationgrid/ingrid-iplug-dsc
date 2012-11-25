@@ -1,0 +1,11 @@
+<dataset>
+    <TEST_TABLE id="1" COL1="row 0 col 1" COL2="row 0 col 2"/> 
+    <TEST_TABLE id="2" COL1="row 1 col 1" COL2="row 1 col 2"/> 
+    <TEST_TABLE id="3" COL1="row 2 col 1" COL2="row 2 col 2"/> 
+    <TEST_TABLE id="4" COL1="row 3 col 1" COL2="row 3 col 2"/> 
+    <TEST_TABLE id="5" COL1="row 4 col 1" COL2="row 4 col 2"/> 
+    <TEST_TABLE id="6" COL1="row 5 col 1" COL2="row 5 col 2"/> 
+    <TEST_TABLE id="7" COL1="row 6 col 1" COL2="row 6 col 2"/> 
+    <TEST_TABLE id="8" COL1="row 7 col 1" COL2="row 7 col 2"/> 
+    <TEST_TABLE id="9" COL1="row 8 col 1" COL2="row 8 col 2"/> 
+</dataset>

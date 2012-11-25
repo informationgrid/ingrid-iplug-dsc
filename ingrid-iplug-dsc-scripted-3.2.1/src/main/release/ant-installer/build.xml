@@ -1,0 +1,107 @@
+<project name="PortalU Installation">
+    <description>
+        InGrid iPlug-DSC Installation Script
+    </description>
+	<!-- set global properties for this build -->
+	<property name="componentName" 		value="${project.build.finalName}"/>
+	<property name="xml-communication" 	value="${installDir}/conf/communication.xml"/>
+    <property name="start-script"       value="${installDir}/start.sh"/>
+	
+    
+    <target name="setUpdateProperty" depends="extractUpdate">
+        <property name="installType" value="update" />
+        <property name="updateProcedure" value="true" />
+    </target>
+    
+    <target name="setInstallProperty" depends="extract">
+        <property name="installProcedure" value="true" />
+    </target>
+    
+	<target name="extract" description="Extract all files to the installation directory.">
+		<unzip src="${antinstaller.jar}" dest="${installDir}">
+			<patternset>
+				<include name="${componentName}/**/*.*"/>
+			</patternset>
+		</unzip>
+		
+		<move toDir="${installDir}">
+			<fileset dir="${installDir}/${componentName}"/>
+		</move>
+		
+		<mkdir dir="${installDir}/logs"/>
+		<mkdir dir="${installDir}/webapp/WEB-INF/work"/>
+        
+        <replace file="${start-script}" token="@SERVER_PORT@" value="${localServerPort}"/>
+	</target>
+    
+    <target name="extractUpdate" depends="findSpringConfig">
+		<unzip src="${antinstaller.jar}" dest="${installDir}">
+			<patternset>
+				<include name="${componentName}/**/*.*"/>
+                <!--<exclude name="${componentName}/webapp/WEB-INF/spring.xml" />-->
+			</patternset>
+		</unzip>
+        
+        <delete dir="${installDir}/lib"/>
+		
+		<move toDir="${installDir}">
+			<fileset dir="${installDir}/${componentName}"/>
+		</move>
+    	
+    	<mkdir dir="${installDir}/webapp/WEB-INF/work"/>
+    	
+        <!-- update spring file with newest mapping version -->
+        <copy file="${installDir}/udk_presets/${springConfig}" toFile="${installDir}/webapp/WEB-INF/spring.xml" overwrite="true"/>
+	</target>
+    
+    <target name="findSpringConfig">
+        <property name="xml" value="${installDir}/webapp/WEB-INF/spring.xml"/>
+        <condition property="springConfig" value="spring_addresses.xml">
+            <resourcecontains resource="${xml}" substring="_address.js"/>
+        </condition>
+        <condition property="springConfig" value="spring_objects_intranet.xml">
+            <resourcecontains resource="${xml}" substring="publish_id=1 OR publish_id=2"/>
+        </condition>
+        <condition property="springConfig" value="spring_objects_internet.xml">
+            <not>
+                <isset property="springConfig"/> 
+            </not>
+        </condition>
+    </target>
+  
+  <target name="udkPreset" description="Set spring config.">
+    <echo>Verwende UDK-Konfiguration: ${springConfig}</echo>
+<!--
+    <echo>Copy ${installDir}/udk_presets/${springConfig} to ${installDir}/webapp/WEB-INF/spring.xml</echo>
+-->
+    <copy file="${installDir}/udk_presets/${springConfig}" toFile="${installDir}/webapp/WEB-INF/spring.xml" overwrite="true"/>
+  </target>
+    
+	<target name="startComponent">
+		<echo>
+=================
+Weiteres Vorgehen
+=================
+
+		</echo>
+		<echo>
+Gehen Sie ins Verzeichnis:
+${installDir}
+und rufen sie von der Kommandozeile folgendes auf
+"sh start.sh start", um im Webbrowser die Komponente unter
+der folgenden Adresse "http://localhost:${localServerPort}"
+zu konfigurieren. Anstelle von localhost koennen Sie
+auch die IP-Adresse des Computers eingeben!
+Bitte lesen Sie bzgl. der Administration die Kapitel unter
+"http://www.kst.portalu.de/wiki/index.php/IPlug_DSC".
+
+Bevor das iPlug benutzt werden kann, muss es in der iBus-
+Administration (im Portal) eingeschaltet werden.
+
+Weitere Informationen entnehmen Sie bitte dem
+Online-Handbuch unter 
+http://www.kst.portalu.de/wiki/index.php/InGrid_Installation.
+		</echo>
+	</target>
+	
+</project>
