@@ -332,7 +332,7 @@ public class TransformationUtils {
 
 		String retValue = null;
 		try {
-			retValue = SQL.first("SELECT entry_id FROM sys_list WHERE lst_id="+codeListId+" AND name="+entryValue).get("entry_id");
+			retValue = SQL.first("SELECT entry_id FROM sys_list WHERE lst_id="+codeListId+" AND name=?", new Object[] { entryValue }).get("entry_id");
 		} catch (Exception ex) {
             log.error("Problems checking entryValue '" + entryValue + "' on ISO Code List '" + codeListId + "'.");
 		}
