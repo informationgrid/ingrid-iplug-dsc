@@ -24,6 +24,9 @@
       <action type="update" dev="wemove" issue="INGRID33-10">
         Note field of addresses removed from indexing. 
       </action>
+      <action type="fix" dev="wemove" issue="INGRID-2178">
+          Fix mapping script: remove reference to missing helper class in individual name extraction.
+      </action>
       <action type="fix" dev="wemove">
          Fix mapping to ISO key in IDF mapping if ISO value has multiple words and may contain "'".
       </action>

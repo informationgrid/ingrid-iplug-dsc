@@ -1589,7 +1589,7 @@ function getIndividualNameFromAddressRow(addressRow) {
     }
     
     if (hasValue(title) && !hasValue(addressing)) {
-    	individualName = IngridQueryHelper.hasValue(individualName) ? individualName += ", " + title : title;
+    	individualName = hasValue(individualName) ? individualName += ", " + title : title;
     } else if (!hasValue(title) && hasValue(addressing)) {
     	individualName = hasValue(individualName) ? individualName += ", " + addressing : addressing;
     } else if (hasValue(title) && hasValue(addressing)) {
