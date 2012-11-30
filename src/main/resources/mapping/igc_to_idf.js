@@ -542,7 +542,7 @@ for (i=0; i<objRows.size(); i++) {
                 mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "inapplicable");
                     // add empty gco:CharacterString because of Validators !
                     // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
-//                    .addElement("gco:CharacterString");
+                    // .addElement("gco:CharacterString");
             }
 	    }
     }
@@ -711,26 +711,16 @@ for (i=0; i<objRows.size(); i++) {
         var rows = SQL.all("SELECT t01_object.* FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3600', "V"]);
         var resourceIdentifiers = [];
         for (i=0; i<rows.size(); i++) {
-            var refObjId = rows.get(i).get("id");
-            var refObjUuid = rows.get(i).get("obj_uuid");
+            var refObjId        = rows.get(i).get("id");
+            // try to get first OrigUuid and then the Uuid (INGRID-2180)
+            var refObjUuid      = getFileIdentifier(rows.get(i));
             var coupledResource = identificationInfo.addElement("srv:coupledResource/srv:SV_CoupledResource");
+            
             coupledResource.addElement("srv:operationName/gco:CharacterString").addText("GetMap");
             // remember datasourceId AND referenced object Uuid for later use (see below)
             resourceIdentifiers.push([getCitationIdentifier(rows.get(i), refObjId), refObjUuid]);
             coupledResource.addElement("srv:identifier/gco:CharacterString").addText(resourceIdentifiers[resourceIdentifiers.length-1][0]);
         }
-        // AND ALL INCOMING LINKS => BIDIRECTIONAL!
-        // Not anymore! Links are only coming from Services to Data!
-//        var inlinkRows = SQL.all("SELECT obj_from_id FROM `object_reference` WHERE obj_to_uuid=? and special_ref=?", [objUuid, 5066]);
-//        for (i=0; i<inlinkRows.size(); i++) {
-//            var refObjId = inlinkRows.get(i).get("obj_from_id");
-//            // get the referenced object from where the identifier might be created if no datasource entry was found
-//            var refObjRow = SQL.first("SELECT * FROM t01_object WHERE id=?", [refObjId]);
-//            var coupledResource = identificationInfo.addElement("srv:coupledResource/srv:SV_CoupledResource");
-//            coupledResource.addElement("srv:operationName/gco:CharacterString").addText("GetMap");
-//            resourceIdentifiers.push(getCitationIdentifier(refObjRow, refObjId));
-//            coupledResource.addElement("srv:identifier/gco:CharacterString").addText(resourceIdentifiers[resourceIdentifiers.length-1]);
-//        }
     }
 
     // GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
@@ -819,7 +809,7 @@ for (i=0; i<objRows.size(); i++) {
                     ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
                         // add empty gco:Date because of Validators !
                         // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
-//                        .addElement("gco:Date");
+                        // .addElement("gco:Date");
                 }
                 ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
                     .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
@@ -876,7 +866,7 @@ for (i=0; i<objRows.size(); i++) {
                     ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
                         // add empty gco:Date because of Validators !
                         // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
-//                        .addElement("gco:Date");
+                        // .addElement("gco:Date");
                 }
                 ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
                     .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
@@ -1036,7 +1026,7 @@ for (i=0; i<objRows.size(); i++) {
                 ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
                     // add empty gco:Date because of Validators !
                     // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
-//                    .addElement("gco:Date");
+                    // .addElement("gco:Date");
             }
             ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
                 .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")

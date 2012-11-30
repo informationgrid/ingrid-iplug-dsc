@@ -320,7 +320,8 @@ for (i=0; i<objRows.size(); i++) {
             if ("3600".equals(rows.get(j).get("special_ref")) && "3".equals(subRows.get(k).get("obj_class"))) {
                 var firstCapabilitiesUrl = SQL.first("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_from_id=t01obj.id AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_to_uuid=? AND obj_from_id=? AND special_ref=3600 AND serv.type_key=2 AND t01obj.work_state='V'", [rows.get(j).get("obj_to_uuid"), objFromId]);
                 var dsIdentifier = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=(SELECT id FROM t01_object WHERE obj_uuid=? AND work_state='V')", [objUuid]);
-                addServiceLinkInfo(subRows.get(k), firstCapabilitiesUrl, dsIdentifier);
+                var catalog = SQL.first("SELECT * FROM t03_catalogue WHERE id=?", [catalogId]);
+                addServiceLinkInfo(subRows.get(k), firstCapabilitiesUrl, dsIdentifier, catalog);
             }
         }
     }
@@ -804,17 +805,45 @@ function addObjectReferenceFrom(row) {
 function addCoupledResource(row) {
     IDX.add("coupled_resource", row.get("obj_to_uuid") + "#" + row.get("obj_name")); // + "#" + row.get("datasource_uuid"));
 }
-function addServiceLinkInfo(row, capabilitiyUrl, dsIdentifier) {
+function addServiceLinkInfo(row, capabilitiyUrl, dsIdentifier, catalog) {
     // add class from refering object, which is used to determine in-links from services (INGRID32-81)
-    var data = row.get("obj_uuid") + "#" + row.get("obj_name") + "#";
+    var data = row.get("obj_uuid") + "@@" + row.get("obj_name") + "@@";
     if (capabilitiyUrl) {
         data += capabilitiyUrl.get("connect_point");
     }
-    data += "#";
+    data += "@@";
     if (dsIdentifier) {
-        data += dsIdentifier.get("datasource_uuid");
+        data += addNamespace(dsIdentifier.get("datasource_uuid"), catalog);
     }
     IDX.add("refering_service_uuid", data);
+}
+function addNamespace(identifier, catalog) {
+    var myNamespace = "";
+    // check if namespace already exists
+    var idTokens = identifier.split("#");
+    if (idTokens.length > 1 && hasValue(idTokens[0])) {
+        return identifier;
+    }
+    
+    myNamespace = catalog.get("cat_namespace");
+
+    var myNamespaceLength = 0;
+    if (!hasValue(myNamespace)) {
+        // not set in catalog, we use default namespace (database catalog name!)
+        var dbCatalog = SQL.getConnection().getCatalog();
+        if (!hasValue(dbCatalog)) {
+            dbCatalog = catRow.get("cat_name");
+        }
+        myNamespace = "http://portalu.de/" + dbCatalog;
+        // JS String !
+        myNamespaceLength = myNamespace.length;
+    }
+    
+    if (myNamespaceLength > 0 && myNamespace.substring(myNamespaceLength-1) != "#") {
+        myNamespace = myNamespace + "#";
+    }
+
+    return myNamespace + identifier;
 }
 function addT01ObjectFrom(row) {
     IDX.add("refering.object_reference.obj_uuid", row.get("obj_uuid"));
