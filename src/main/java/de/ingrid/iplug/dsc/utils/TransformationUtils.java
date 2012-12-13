@@ -265,7 +265,7 @@ public class TransformationUtils {
 	 * IGC syslist will be returned. If this also cannot be found, null is returned.
 	 */
 	public String getISOCodeListEntryFromIGCSyslistEntry(Long igcCodeListId, String igcEntryId) {
-		if (igcEntryId == null) {
+		if (igcEntryId == null || igcEntryId.equals("-1") ) {
 			return null;
 		}
 
