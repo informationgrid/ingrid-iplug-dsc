@@ -15,6 +15,9 @@
       <action type="add" dev="wemove" issue="INGRID-2150">
         Add java parameter "-Dfile.encoding=UTF8" to start script.
       </action>
+      <action type="update" dev="wemove" issue="INGRID-2156">
+        Connect to iBus even if the iBus was started after the iPlug.
+      </action>
       <action type="update" dev="wemove">
         No version specific mapping scripts anymore, older versions not needed (mapping to IDF/index).
       </action>
