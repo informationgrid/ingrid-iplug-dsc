@@ -16,7 +16,7 @@ importPackage(Packages.org.w3c.dom);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 
 if (log.isDebugEnabled()) {
-	log.debug("Mapping source record to idf document: " + sourceRecord.toString());
+    log.debug("Mapping source record to idf document: " + sourceRecord.toString());
 }
 
 if (!(sourceRecord instanceof DatabaseSourceRecord)) {
@@ -59,6 +59,7 @@ for (i=0; i<objRows.size(); i++) {
     var objUuid = objRow.get("obj_uuid");
     var objClass = objRow.get("obj_class");
     var objParentUuid = null; // will be set below
+    var publicationConditionFilter = determinePublicationConditionQueryExt(objRow.get("publish_id"));
     
     // local variables
     var row = null;
@@ -77,22 +78,22 @@ for (i=0; i<objRows.size(); i++) {
 // ---------- <gmd:fileIdentifier> ----------
     value = getFileIdentifier(objRow);
     if (hasValue(value)) {
-    	mdMetadata.addElement("gmd:fileIdentifier/gco:CharacterString").addText(value);
+        mdMetadata.addElement("gmd:fileIdentifier/gco:CharacterString").addText(value);
     }
 
 // ---------- <gmd:language> ----------
     value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
     if (hasValue(value)) {
-    	mdMetadata.addElement("gmd:language/gmd:LanguageCode")
-    		.addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode")
-    		.addAttribute("codeListValue", value).addText(value);
+        mdMetadata.addElement("gmd:language/gmd:LanguageCode")
+            .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode")
+            .addAttribute("codeListValue", value).addText(value);
     }
 // ---------- <gmd:characterSet> ----------
     value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("metadata_character_set"));
     if (hasValue(value)) {
-    	mdMetadata.addElement("gmd:characterSet/gmd:MD_CharacterSetCode")
-    		.addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_CharacterSetCode")
-    		.addAttribute("codeListValue", value);
+        mdMetadata.addElement("gmd:characterSet/gmd:MD_CharacterSetCode")
+            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_CharacterSetCode")
+            .addAttribute("codeListValue", value);
     }
 // ---------- <gmd:parentIdentifier> ----------
     // NOTICE: Has to be published ! Guaranteed by select of passed sourceRecord ! 
@@ -100,78 +101,78 @@ for (i=0; i<objRows.size(); i++) {
     // Should be only one row !
     objParentUuid = rows.get(0).get("fk_obj_uuid");
     if (hasValue(objParentUuid)) {
-    	mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
+        mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
     }
 // ---------- <gmd:hierarchyLevel> ----------
 // ---------- <gmd:hierarchyLevelName> ----------
     var hierarchyLevel = getHierarchLevel(objClass);
     var hierarchyLevelName = map(objClass, {"0":"job", "1":"", "2":"document", "3":"service", "4":"project", "5":"database", "6":"application"});
     if (hasValue(hierarchyLevel)) {
-    	mdMetadata.addElement("gmd:hierarchyLevel/gmd:MD_ScopeCode")
-    		.addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_ScopeCode")
-    		.addAttribute("codeListValue", hierarchyLevel).addText(hierarchyLevel);
+        mdMetadata.addElement("gmd:hierarchyLevel/gmd:MD_ScopeCode")
+            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_ScopeCode")
+            .addAttribute("codeListValue", hierarchyLevel).addText(hierarchyLevel);
     }
     if (hasValue(hierarchyLevelName)) {
-    	mdMetadata.addElement("gmd:hierarchyLevelName/gco:CharacterString").addText(hierarchyLevelName);
+        mdMetadata.addElement("gmd:hierarchyLevelName/gco:CharacterString").addText(hierarchyLevelName);
     }
     // ---------- <gmd:contact> ----------
     // contact for metadata is now responsible user, see INGRID32-46
     if (hasValue(objRow.get("responsible_uuid"))) {
-    	// USE WORKING VERSION (pass true) ! user addresses are now separated and NOT published, see INGRID32-36
+        // USE WORKING VERSION (pass true) ! user addresses are now separated and NOT published, see INGRID32-36
         var addressRow = getFirstVisibleAddress(objRow.get("responsible_uuid"), true);
         if (addressRow) {
             // map only email address (pass true as third parameter), see INGRID32-36
             // NO, ISO needs more data, see INGRID32-146
-        	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", false));
+            mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", false));
         }
     }
     // ---------- <gmd:dateStamp> ----------
     if (hasValue(objRow.get("mod_time"))) {
-    	var isoDate = TRANSF.getISODateFromIGCDate(objRow.get("mod_time"));
-       	// do only return the date section, ignore the time part of the date
-    	// see CSW 2.0.2 AP ISO 1.0 (p.41)
-    	mdMetadata.addElement("gmd:dateStamp").addElement(getDate(isoDate));
+        var isoDate = TRANSF.getISODateFromIGCDate(objRow.get("mod_time"));
+        // do only return the date section, ignore the time part of the date
+        // see CSW 2.0.2 AP ISO 1.0 (p.41)
+        mdMetadata.addElement("gmd:dateStamp").addElement(getDate(isoDate));
     }
     
     // ---------- <gmd:metadataStandardName> ----------
     var mdStandardName;
     if (hasValue(objRow.get("metadata_standard_name"))) {
-    	mdStandardName=objRow.get("metadata_standard_name");
+        mdStandardName=objRow.get("metadata_standard_name");
     } else if (objClass.equals("3") || objClass.equals("6")) {
-    	mdStandardName="ISO19119";
+        mdStandardName="ISO19119";
     } else {
-    	mdStandardName="ISO19115";
+        mdStandardName="ISO19115";
     }
-	mdMetadata.addElement("gmd:metadataStandardName/gco:CharacterString").addText(mdStandardName);
+    mdMetadata.addElement("gmd:metadataStandardName/gco:CharacterString").addText(mdStandardName);
 
     // ---------- <gmd:metadataStandardVersion> ----------
     var mdStandardName;
     if (hasValue(objRow.get("metadata_standard_version"))) {
-    	mdStandardName=objRow.get("metadata_standard_version");
+        mdStandardName=objRow.get("metadata_standard_version");
     } else if (objClass.equals("3") || objClass.equals("6")) {
-    	mdStandardName="2005/PDAM 1";
+        mdStandardName="2005/PDAM 1";
     } else {
-    	mdStandardName="2003/Cor.1:2006";
+        mdStandardName="2003/Cor.1:2006";
     }
-	mdMetadata.addElement("gmd:metadataStandardVersion/gco:CharacterString").addText(mdStandardName);
+    mdMetadata.addElement("gmd:metadataStandardVersion/gco:CharacterString").addText(mdStandardName);
 
     // ---------- <gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation> ----------
-	var objGeoRow = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=?", [objId]);
-	var objGeoId;
-	if (hasValue(objGeoRow)) {
+    var objGeoRow = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=?", [objId]);
+    var objGeoId;
+    if (hasValue(objGeoRow)) {
         objGeoId = objGeoRow.get("id");
-		var mdVectorSpatialRepresentation;
-		var vectorTopologyLevel = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(528, objGeoRow.get("vector_topology_level"));
-		if (hasValue(vectorTopologyLevel)) {
-			if (!mdVectorSpatialRepresentation) mdVectorSpatialRepresentation = mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation");
-			mdVectorSpatialRepresentation.addElement("gmd:topologyLevel/gmd:MD_TopologyLevelCode")
-				.addAttribute("codeList","http://www.tc211.org/ISO19139/resources/codeList.xml#MD_TopologyLevelCode")
-				.addAttribute("codeListValue", vectorTopologyLevel);
-		}
-		
-		// ---------- <gmd:MD_GeometricObjects> ----------
-		var objGeoVectorRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=?", [objGeoId]);
-		for (var j=0; j<objGeoVectorRows.size(); j++) {
+        var mdVectorSpatialRepresentation;
+        var vectorTopologyLevel = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(528, objGeoRow.get("vector_topology_level"));
+        if (hasValue(vectorTopologyLevel)) {
+            if (!mdVectorSpatialRepresentation) mdVectorSpatialRepresentation = mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation");
+            mdVectorSpatialRepresentation.addElement("gmd:topologyLevel/gmd:MD_TopologyLevelCode")
+                .addAttribute("codeList","http://www.tc211.org/ISO19139/resources/codeList.xml#MD_TopologyLevelCode")
+                .addAttribute("codeListValue", vectorTopologyLevel);
+        }
+        
+        // ---------- <gmd:MD_GeometricObjects> ----------
+        var objGeoVectorRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=?", [objGeoId]);
+        for (var j=0; j<objGeoVectorRows.size(); j++) {
             var objGeoVectorRow = objGeoVectorRows.get(j);
             var geoObjType = objGeoVectorRow.get("geometric_object_type");
             var geoObjCount = objGeoVectorRow.get("geometric_object_count");
@@ -188,8 +189,8 @@ for (i=0; i<objRows.size(); i++) {
                     mdGeometricObjects.addElement("gmd:geometricObjectCount/gco:Integer").addText(geoObjCount);
                 }
             }
-		}
-	}
+        }
+    }
     // ---------- <gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/gmd:referenceSystemIdentifier> ----------
     var spatialSystemRows = SQL.all("SELECT * FROM spatial_system WHERE obj_id=?", [objId]);
     for (j=0; j<spatialSystemRows.size(); j++) {
@@ -206,36 +207,36 @@ for (i=0; i<objRows.size(); i++) {
             }
         }
     }
-	// ---------- <gmd:identificationInfo> ----------
-	var identificationInfo;
-	if (objClass.equals("3") || objClass.equals("6")) {
-		identificationInfo = mdMetadata.addElement("gmd:identificationInfo/srv:SV_ServiceIdentification");
-	} else {
-		identificationInfo = mdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
-	}
-	identificationInfo.addAttribute("uuid", getCitationIdentifier(objRow));
-	
-	// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation> ----------
-	var ciCitation = identificationInfo.addElement("gmd:citation/gmd:CI_Citation");
-	// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:title> ----------
-	ciCitation.addElement("gmd:title/gco:CharacterString").addText(objRow.get("obj_name"));
-	// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:alternateTitle> ----------
-	if (hasValue(objRow.get("dataset_alternate_name"))) {
-		ciCitation.addElement("gmd:alternateTitle/gco:CharacterString").addText(objRow.get("dataset_alternate_name"));
-	}
-	// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date> ----------
-	var referenceDateRows = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=?", [objId]);
-	for (j=0; j<referenceDateRows.size(); j++) {
-		var referenceDateRow = referenceDateRows.get(j); 
-		var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
+    // ---------- <gmd:identificationInfo> ----------
+    var identificationInfo;
+    if (objClass.equals("3") || objClass.equals("6")) {
+        identificationInfo = mdMetadata.addElement("gmd:identificationInfo/srv:SV_ServiceIdentification");
+    } else {
+        identificationInfo = mdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
+    }
+    identificationInfo.addAttribute("uuid", getCitationIdentifier(objRow));
+    
+    // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation> ----------
+    var ciCitation = identificationInfo.addElement("gmd:citation/gmd:CI_Citation");
+    // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:title> ----------
+    ciCitation.addElement("gmd:title/gco:CharacterString").addText(objRow.get("obj_name"));
+    // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:alternateTitle> ----------
+    if (hasValue(objRow.get("dataset_alternate_name"))) {
+        ciCitation.addElement("gmd:alternateTitle/gco:CharacterString").addText(objRow.get("dataset_alternate_name"));
+    }
+    // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date> ----------
+    var referenceDateRows = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=?", [objId]);
+    for (j=0; j<referenceDateRows.size(); j++) {
+        var referenceDateRow = referenceDateRows.get(j); 
+        var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
         ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(referenceDateRow.get("reference_date"))));
         var dateType = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(502, referenceDateRow.get("type"));
         ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-        	.addAttribute("codeList","http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
-        	.addAttribute("codeListValue", dateType);
-	}
-	// date needed, we add dummy if no date !
-	if (referenceDateRows.size() == 0) {
+            .addAttribute("codeList","http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
+            .addAttribute("codeListValue", dateType);
+    }
+    // date needed, we add dummy if no date !
+    if (referenceDateRows.size() == 0) {
         ciCitation.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
         // or add gco:nilReason underneath gmd:CI_Date ???
 /*
@@ -244,203 +245,203 @@ for (i=0; i<objRows.size(); i++) {
             .addElement("gco:Date");
         ciDate.addElement("gmd:dateType").addAttribute("gco:nilReason", "missing");
 */
-	}
+    }
 
     // gmd:editionDate MUST BE BEFORE gmd:identifier (next one below !)
-	// start mapping literature properties
-	if (objClass.equals("2")) {
-		var literatureRow = SQL.first("SELECT * from t011_obj_literature WHERE obj_id=?", [objId]);
-		if (hasValue(literatureRow)) {
-			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:editionDate> ----------			
-			if (hasValue(literatureRow.get("publish_year"))) {
+    // start mapping literature properties
+    if (objClass.equals("2")) {
+        var literatureRow = SQL.first("SELECT * from t011_obj_literature WHERE obj_id=?", [objId]);
+        if (hasValue(literatureRow)) {
+            // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:editionDate> ----------          
+            if (hasValue(literatureRow.get("publish_year"))) {
                 ciCitation.addElement("gmd:editionDate").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(literatureRow.get("publish_year"))));
-			}
-		}
-	}
+            }
+        }
+    }
 
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier> ----------
-	// only put/generate a resource identifier for class Geoinformation/Karte (Class 1) (INGRID32-184)
-	if (objClass.equals("1")) {
-	    ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(getCitationIdentifier(objRow));
-	}
-	
+    // only put/generate a resource identifier for class Geoinformation/Karte (Class 1) (INGRID32-184)
+    if (objClass.equals("1")) {
+        ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(getCitationIdentifier(objRow));
+    }
+    
     // continue mapping literature properties
     if (objClass.equals("2")) {
         var literatureRow = SQL.first("SELECT * from t011_obj_literature WHERE obj_id=?", [objId]);
         if (hasValue(literatureRow)) {
-			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=originator> ----------
-			if (hasValue(literatureRow.get("author"))) {
-				var responsiblePartyOriginator = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
-				responsiblePartyOriginator.addElement("gmd:individualName/gco:CharacterString").addText(literatureRow.get("author"));
-				responsiblePartyOriginator.addElement("gmd:role/gmd:CI_RoleCode")
-	            	.addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
-	            	.addAttribute("codeListValue", "originator");
-			}
-			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=resourceProvider> ----------
-			if (hasValue(literatureRow.get("loc"))) {
-				var responsiblePartyResourceProvider = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
-				responsiblePartyResourceProvider.addElement("gmd:organisationName/gco:CharacterString").addText("Contact intructions for the location of resource");
-				responsiblePartyResourceProvider.addElement("gmd:contactInfo/gmd:CI_Contact/gmd:contactInstructions/gco:CharacterString")
-					.addText(literatureRow.get("loc"));
-				responsiblePartyResourceProvider.addElement("gmd:role/gmd:CI_RoleCode")
-	            	.addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
-	            	.addAttribute("codeListValue", "resourceProvider");
-			}
-		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3360']);
-		    for (var i=0; i< addressRows.size(); i++) {
+            // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=originator> ----------
+            if (hasValue(literatureRow.get("author"))) {
+                var responsiblePartyOriginator = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
+                responsiblePartyOriginator.addElement("gmd:individualName/gco:CharacterString").addText(literatureRow.get("author"));
+                responsiblePartyOriginator.addElement("gmd:role/gmd:CI_RoleCode")
+                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+                    .addAttribute("codeListValue", "originator");
+            }
+            // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=resourceProvider> ----------
+            if (hasValue(literatureRow.get("loc"))) {
+                var responsiblePartyResourceProvider = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
+                responsiblePartyResourceProvider.addElement("gmd:organisationName/gco:CharacterString").addText("Contact intructions for the location of resource");
+                responsiblePartyResourceProvider.addElement("gmd:contactInfo/gmd:CI_Contact/gmd:contactInstructions/gco:CharacterString")
+                    .addText(literatureRow.get("loc"));
+                responsiblePartyResourceProvider.addElement("gmd:role/gmd:CI_RoleCode")
+                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+                    .addAttribute("codeListValue", "resourceProvider");
+            }
+            var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3360']);
+            for (var i=0; i< addressRows.size(); i++) {
                 // address may be hidden ! then get first visible parent in hierarchy !
                 var addressRow = getFirstVisibleAddress(addressRows.get(i).get("adr_uuid"));
                 if (addressRow) {
                     ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRow, "resourceProvider"));
                 }
-		    }
-			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=publisher> ----------
-			if (hasValue(literatureRow.get("publish_loc")) || hasValue(literatureRow.get("publisher"))) {
-				var responsiblePartyPublisher = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
-				if (!hasValue(literatureRow.get("publisher"))) {
-					responsiblePartyPublisher.addElement("gmd:individualName/gco:CharacterString").addText("Location of the editor");
-				} else {
-					responsiblePartyPublisher.addElement("gmd:individualName/gco:CharacterString").addText(literatureRow.get("publisher"));
-				}
-				if (hasValue(literatureRow.get("publish_loc"))) {
-					responsiblePartyPublisher.addElement("gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:city/gco:CharacterString")
-						.addText(literatureRow.get("publish_loc"));
-				}
-				responsiblePartyPublisher.addElement("gmd:role/gmd:CI_RoleCode")
-	            	.addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
-	            	.addAttribute("codeListValue", "publisher");
-			}
-			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=distribute> ----------
-			if (hasValue(literatureRow.get("publishing"))) {
-				var responsiblePartyDistributor = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
-				responsiblePartyDistributor.addElement("gmd:organisationName/gco:CharacterString").addText(literatureRow.get("publishing"));
-				responsiblePartyDistributor.addElement("gmd:role/gmd:CI_RoleCode")
-		            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
-		            .addAttribute("codeListValue", "distribute");
-			}
-			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:series> ----------
-			var citationSeries;
-			if (hasValue(literatureRow.get("publish_in"))) {
-				citationSeries = ciCitation.addElement("gmd:series/gmd:CI_Series");
-				citationSeries.addElement("gmd:name/gco:CharacterString").addText(literatureRow.get("publish_in"));
-			}
-			if (hasValue(literatureRow.get("volume"))) {
-				if (!citationSeries) citationSeries = ciCitation.addElement("gmd:series/gmd:CI_Series");
-				citationSeries.addElement("gmd:issueIdentification/gco:CharacterString").addText(literatureRow.get("volume"));
-			}
-			if (hasValue(literatureRow.get("sides"))) {
-				if (!citationSeries) citationSeries = ciCitation.addElement("gmd:series/gmd:CI_Series");
-				citationSeries.addElement("gmd:page/gco:CharacterString").addText(literatureRow.get("sides"));
-			}
-			if (hasValue(literatureRow.get("doc_info"))) {
-				ciCitation.addElement("gmd:otherCitationDetails/gco:CharacterString").addText(literatureRow.get("doc_info"));
-			}
-			if (hasValue(literatureRow.get("isbn"))) {
-				if (!citationSeries) citationSeries = ciCitation.addElement("gmd:series/gmd:CI_Series");
-				ciCitation.addElement("gmd:ISBN/gco:CharacterString").addText(literatureRow.get("isbn"));
-			}
-		}
-	} else if (objClass.equals("4")) {
-		var projectRow = SQL.first("SELECT * from t011_obj_project WHERE obj_id=?", [objId]);
-		if (hasValue(projectRow)) {
-			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=projectManager> ----------
-			if (hasValue(projectRow.get("leader"))) {
-				var responsiblePartyOriginator = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
-				responsiblePartyOriginator.addElement("gmd:individualName/gco:CharacterString").addText(projectRow.get("leader"));
-				responsiblePartyOriginator.addElement("gmd:role/gmd:CI_RoleCode")
-		            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
-		            .addAttribute("codeListValue", "projectManager");
-			}
-		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3400']);
-		    for (var i=0; i< addressRows.size(); i++) {
+            }
+            // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=publisher> ----------
+            if (hasValue(literatureRow.get("publish_loc")) || hasValue(literatureRow.get("publisher"))) {
+                var responsiblePartyPublisher = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
+                if (!hasValue(literatureRow.get("publisher"))) {
+                    responsiblePartyPublisher.addElement("gmd:individualName/gco:CharacterString").addText("Location of the editor");
+                } else {
+                    responsiblePartyPublisher.addElement("gmd:individualName/gco:CharacterString").addText(literatureRow.get("publisher"));
+                }
+                if (hasValue(literatureRow.get("publish_loc"))) {
+                    responsiblePartyPublisher.addElement("gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:city/gco:CharacterString")
+                        .addText(literatureRow.get("publish_loc"));
+                }
+                responsiblePartyPublisher.addElement("gmd:role/gmd:CI_RoleCode")
+                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+                    .addAttribute("codeListValue", "publisher");
+            }
+            // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=distribute> ----------
+            if (hasValue(literatureRow.get("publishing"))) {
+                var responsiblePartyDistributor = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
+                responsiblePartyDistributor.addElement("gmd:organisationName/gco:CharacterString").addText(literatureRow.get("publishing"));
+                responsiblePartyDistributor.addElement("gmd:role/gmd:CI_RoleCode")
+                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+                    .addAttribute("codeListValue", "distribute");
+            }
+            // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:series> ----------
+            var citationSeries;
+            if (hasValue(literatureRow.get("publish_in"))) {
+                citationSeries = ciCitation.addElement("gmd:series/gmd:CI_Series");
+                citationSeries.addElement("gmd:name/gco:CharacterString").addText(literatureRow.get("publish_in"));
+            }
+            if (hasValue(literatureRow.get("volume"))) {
+                if (!citationSeries) citationSeries = ciCitation.addElement("gmd:series/gmd:CI_Series");
+                citationSeries.addElement("gmd:issueIdentification/gco:CharacterString").addText(literatureRow.get("volume"));
+            }
+            if (hasValue(literatureRow.get("sides"))) {
+                if (!citationSeries) citationSeries = ciCitation.addElement("gmd:series/gmd:CI_Series");
+                citationSeries.addElement("gmd:page/gco:CharacterString").addText(literatureRow.get("sides"));
+            }
+            if (hasValue(literatureRow.get("doc_info"))) {
+                ciCitation.addElement("gmd:otherCitationDetails/gco:CharacterString").addText(literatureRow.get("doc_info"));
+            }
+            if (hasValue(literatureRow.get("isbn"))) {
+                if (!citationSeries) citationSeries = ciCitation.addElement("gmd:series/gmd:CI_Series");
+                ciCitation.addElement("gmd:ISBN/gco:CharacterString").addText(literatureRow.get("isbn"));
+            }
+        }
+    } else if (objClass.equals("4")) {
+        var projectRow = SQL.first("SELECT * from t011_obj_project WHERE obj_id=?", [objId]);
+        if (hasValue(projectRow)) {
+            // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=projectManager> ----------
+            if (hasValue(projectRow.get("leader"))) {
+                var responsiblePartyOriginator = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
+                responsiblePartyOriginator.addElement("gmd:individualName/gco:CharacterString").addText(projectRow.get("leader"));
+                responsiblePartyOriginator.addElement("gmd:role/gmd:CI_RoleCode")
+                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+                    .addAttribute("codeListValue", "projectManager");
+            }
+            var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3400']);
+            for (var i=0; i< addressRows.size(); i++) {
                 // address may be hidden ! then get first visible parent in hierarchy !
                 var addressRow = getFirstVisibleAddress(addressRows.get(i).get("adr_uuid"));
                 if (addressRow) {
                     ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRow, "projectManager"));
                 }
-		    }
-			// ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=projectParticipant> ----------
-			if (hasValue(projectRow.get("member"))) {
-				var responsiblePartyOriginator = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
-				responsiblePartyOriginator.addElement("gmd:individualName/gco:CharacterString").addText(projectRow.get("member"));
-				responsiblePartyOriginator.addElement("gmd:role/gmd:CI_RoleCode")
-		            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
-		            .addAttribute("codeListValue", "projectParticipant");
-			}
-		    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3410']);
-		    for (var i=0; i< addressRows.size(); i++) {
+            }
+            // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=projectParticipant> ----------
+            if (hasValue(projectRow.get("member"))) {
+                var responsiblePartyOriginator = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
+                responsiblePartyOriginator.addElement("gmd:individualName/gco:CharacterString").addText(projectRow.get("member"));
+                responsiblePartyOriginator.addElement("gmd:role/gmd:CI_RoleCode")
+                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+                    .addAttribute("codeListValue", "projectParticipant");
+            }
+            var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3410']);
+            for (var i=0; i< addressRows.size(); i++) {
                 // address may be hidden ! then get first visible parent in hierarchy !
                 var addressRow = getFirstVisibleAddress(addressRows.get(i).get("adr_uuid"));
                 if (addressRow) {
                     ciCitation.addElement("gmd:citedResponsibleParty").addElement(getIdfResponsibleParty(addressRow, "projectParticipant"));
                 }
-		    }
-		}
-		
-	}
-	
-	// ---------- <gmd:identificationInfo/gmd:abstract> ----------
-	var abstr = objRow.get("obj_descr");
+            }
+        }
+        
+    }
+    
+    // ---------- <gmd:identificationInfo/gmd:abstract> ----------
+    var abstr = objRow.get("obj_descr");
     var objServRow;
-	if (objClass.equals("3")) {
-		// More data of the service that cannot be mapped within ISO19119, but must be 
-		// supplied by INSPIRE. Add mapping in abstract
+    if (objClass.equals("3")) {
+        // More data of the service that cannot be mapped within ISO19119, but must be 
+        // supplied by INSPIRE. Add mapping in abstract
         var abstractPostfixIntro = "\n\n\nWeitere Daten des Dienstes, die nicht standard-konform (ISO 19119) hinterlegt werden k\u00F6nnen, zum Teil gem\u00E4\u00DF INSPIRE-Direktive aber bereit zu stellen sind*:\n\n\n";
-		var abstractPostfix; 
-		objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
-		if (hasValue(objServRow.get("environment"))) {
+        var abstractPostfix; 
+        objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
+        if (hasValue(objServRow.get("environment"))) {
             if (!abstractPostfix) {
                 abstractPostfix = abstractPostfixIntro;
             }
-			abstractPostfix = abstractPostfix + "Systemumgebung: " + objServRow.get("environment") + "\n";
-			abstractPostfix = abstractPostfix + "(environmentDescription/gco:CharacterString= " + objServRow.get("environment") + ")\n\n";
-		}
-		if (hasValue(objServRow.get("description"))) {
+            abstractPostfix = abstractPostfix + "Systemumgebung: " + objServRow.get("environment") + "\n";
+            abstractPostfix = abstractPostfix + "(environmentDescription/gco:CharacterString= " + objServRow.get("environment") + ")\n\n";
+        }
+        if (hasValue(objServRow.get("description"))) {
             if (!abstractPostfix) {
                 abstractPostfix = abstractPostfixIntro;
             }
-			abstractPostfix = abstractPostfix + "Erl\u00E4uterung zum Fachbezug: " + objServRow.get("description") + "\n";
-			abstractPostfix = abstractPostfix + "(supplementalInformation/gco:CharacterString= " + objServRow.get("description") + ")\n\n";
-		}
-		
-		var objServScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServRow.get("id")]);
-		for (var j=0; j<objServScaleRows.size(); j++) {
-			var objServScaleRow = objServScaleRows.get(j);
-			if (hasValue(objServScaleRow.get("scale"))) {
+            abstractPostfix = abstractPostfix + "Erl\u00E4uterung zum Fachbezug: " + objServRow.get("description") + "\n";
+            abstractPostfix = abstractPostfix + "(supplementalInformation/gco:CharacterString= " + objServRow.get("description") + ")\n\n";
+        }
+        
+        var objServScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServRow.get("id")]);
+        for (var j=0; j<objServScaleRows.size(); j++) {
+            var objServScaleRow = objServScaleRows.get(j);
+            if (hasValue(objServScaleRow.get("scale"))) {
                 if (!abstractPostfix) {
                     abstractPostfix = abstractPostfixIntro;
                 }
-				abstractPostfix = abstractPostfix + "Erstellungsma\u00DFstab: " + objServScaleRow.get("scale") + "\n";
-				abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/equivalentScale/MD_RepresentativeFraction/denominator/gco:Integer= " + objServScaleRow.get("scale") + ")\n";
-			}
-		}
-		for (var j=0; j<objServScaleRows.size(); j++) {
-			var objServScaleRow = objServScaleRows.get(j);
-			if (hasValue(objServScaleRow.get("resolution_ground"))) {
+                abstractPostfix = abstractPostfix + "Erstellungsma\u00DFstab: " + objServScaleRow.get("scale") + "\n";
+                abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/equivalentScale/MD_RepresentativeFraction/denominator/gco:Integer= " + objServScaleRow.get("scale") + ")\n";
+            }
+        }
+        for (var j=0; j<objServScaleRows.size(); j++) {
+            var objServScaleRow = objServScaleRows.get(j);
+            if (hasValue(objServScaleRow.get("resolution_ground"))) {
                 if (!abstractPostfix) {
                     abstractPostfix = abstractPostfixIntro;
                 }
-				abstractPostfix = abstractPostfix + "Bodenaufl\u00F6sung (Meter): " + objServScaleRow.get("resolution_ground") + "\n";
-				abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/distance/gco:Distance[@uom=\"meter\"]= " + objServScaleRow.get("resolution_ground") + ")\n";
-			}
-		}
-		for (var j=0; j<objServScaleRows.size(); j++) {
-			var objServScaleRow = objServScaleRows.get(j);
-			if (hasValue(objServScaleRow.get("resolution_scan"))) {
+                abstractPostfix = abstractPostfix + "Bodenaufl\u00F6sung (Meter): " + objServScaleRow.get("resolution_ground") + "\n";
+                abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/distance/gco:Distance[@uom=\"meter\"]= " + objServScaleRow.get("resolution_ground") + ")\n";
+            }
+        }
+        for (var j=0; j<objServScaleRows.size(); j++) {
+            var objServScaleRow = objServScaleRows.get(j);
+            if (hasValue(objServScaleRow.get("resolution_scan"))) {
                 if (!abstractPostfix) {
                     abstractPostfix = abstractPostfixIntro;
                 }
-				abstractPostfix = abstractPostfix + "Scanaufl\u00F6sung (DPI): " + objServScaleRow.get("resolution_scan") + "\n";
-				abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/distance/gco:Distance[@uom=\"dpi\"]= " + objServScaleRow.get("resolution_scan") + ")\n";
-			}
-		}
+                abstractPostfix = abstractPostfix + "Scanaufl\u00F6sung (DPI): " + objServScaleRow.get("resolution_scan") + "\n";
+                abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/distance/gco:Distance[@uom=\"dpi\"]= " + objServScaleRow.get("resolution_scan") + ")\n";
+            }
+        }
         if (abstractPostfix) {
             abstractPostfix = abstractPostfix + "\n\n---\n";
             abstractPostfix = abstractPostfix + "* N\u00E4here Informationen zur INSPIRE-Direktive: http://inspire.jrc.ec.europa.eu/implementingRulesDocs_md.cfm";            
             abstr = abstr + abstractPostfix;
         }
-	}
-	identificationInfo.addElement("gmd:abstract/gco:CharacterString").addText(abstr);
+    }
+    identificationInfo.addElement("gmd:abstract/gco:CharacterString").addText(abstr);
 
     // ---------- <gmd:identificationInfo/gmd:purpose> ----------
     
@@ -507,16 +508,16 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
     if (mdMaintenanceInformation) {
-    	mdMaintenanceInformation.addElement("gmd:updateScope/gmd:MD_ScopeCode")
-    	.addAttribute("codeListValue", getHierarchLevel(objClass))
-    	.addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode");
+        mdMaintenanceInformation.addElement("gmd:updateScope/gmd:MD_ScopeCode")
+        .addAttribute("codeListValue", getHierarchLevel(objClass))
+        .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode");
     }
     if (hasValue(objRow.get("time_descr"))) {
         if (!mdMaintenanceInformation) {
             mdMaintenanceInformation = identificationInfo.addElement("gmd:resourceMaintenance/gmd:MD_MaintenanceInformation");
-        	mdMaintenanceInformation.addElement("gmd:updateScope/gmd:MD_ScopeCode")
-        	.addAttribute("codeListValue", getHierarchLevel(objClass))
-        	.addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode");
+            mdMaintenanceInformation.addElement("gmd:updateScope/gmd:MD_ScopeCode")
+            .addAttribute("codeListValue", getHierarchLevel(objClass))
+            .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode");
         }
         mdMaintenanceInformation.addElement("gmd:maintenanceNote/gco:CharacterString").addText(objRow.get("time_descr"));
     }
@@ -530,12 +531,12 @@ for (i=0; i<objRows.size(); i++) {
     
     // ---------- <gmd:identificationInfo/gmd:resourceFormat> ----------
     if (objClass.equals("2")) {
-	    row = SQL.first("SELECT type_key, type_value from t011_obj_literature WHERE obj_id=?", [objId]);
-	    if (hasValue(row)) {
+        row = SQL.first("SELECT type_key, type_value from t011_obj_literature WHERE obj_id=?", [objId]);
+        if (hasValue(row)) {
             value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(3385, row.get("type_key"));
-	        if (!hasValue(value)) {
-	            value = row.get("type_value");
-	        }
+            if (!hasValue(value)) {
+                value = row.get("type_value");
+            }
             if (hasValue(value)) {
                 var mdFormat = identificationInfo.addElement("gmd:resourceFormat/gmd:MD_Format");
                 mdFormat.addElement("gmd:name/gco:CharacterString").addText(value);
@@ -544,7 +545,7 @@ for (i=0; i<objRows.size(); i++) {
                     // NO EMPTY VALUE NOT ALLOWED BY SCHEMA !
                     // .addElement("gco:CharacterString");
             }
-	    }
+        }
     }
 
     // ---------- <gmd:identificationInfo/gmd:descriptiveKeywords> ----------
@@ -640,39 +641,39 @@ for (i=0; i<objRows.size(); i++) {
 // NICHT GEODATENDIENST(3) + NICHT INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     } else {
         if (objGeoId) {
-	        // ---------- <gmd:identificationInfo/gmd:spatialRepresentationType> ----------
-	        rows = SQL.all("SELECT type FROM t011_obj_geo_spatial_rep WHERE obj_geo_id=?", [objGeoId]);
-	        for (i=0; i<rows.size(); i++) {
-	            value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(526, rows.get(i).get("type"));
-	            if (hasValue(value)) {
-	                identificationInfo.addElement("gmd:spatialRepresentationType/gmd:MD_SpatialRepresentationTypeCode")
-	                    .addAttribute("codeList", "http://www.tc211.org/ISO19115/resources/codeList.xml#MD_SpatialRepresentationTypeCode")
-	                    .addAttribute("codeListValue", value);
-	            }
-	        }
-	
-	        // ---------- <gmd:identificationInfo/gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale> ----------
-	        rows = SQL.all("SELECT * FROM t011_obj_geo_scale WHERE obj_geo_id=? ORDER BY line", [objGeoId]);
-	        for (i=0; i<rows.size(); i++) {
-                if (hasValue(rows.get(i).get("scale"))) {
-	                identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer")
-	                    .addText(TRANSF.getISOIntegerFromIGCNumber(rows.get(i).get("scale")));
+            // ---------- <gmd:identificationInfo/gmd:spatialRepresentationType> ----------
+            rows = SQL.all("SELECT type FROM t011_obj_geo_spatial_rep WHERE obj_geo_id=?", [objGeoId]);
+            for (i=0; i<rows.size(); i++) {
+                value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(526, rows.get(i).get("type"));
+                if (hasValue(value)) {
+                    identificationInfo.addElement("gmd:spatialRepresentationType/gmd:MD_SpatialRepresentationTypeCode")
+                        .addAttribute("codeList", "http://www.tc211.org/ISO19115/resources/codeList.xml#MD_SpatialRepresentationTypeCode")
+                        .addAttribute("codeListValue", value);
                 }
-	        }
+            }
+    
+            // ---------- <gmd:identificationInfo/gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale> ----------
+            rows = SQL.all("SELECT * FROM t011_obj_geo_scale WHERE obj_geo_id=? ORDER BY line", [objGeoId]);
+            for (i=0; i<rows.size(); i++) {
+                if (hasValue(rows.get(i).get("scale"))) {
+                    identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer")
+                        .addText(TRANSF.getISOIntegerFromIGCNumber(rows.get(i).get("scale")));
+                }
+            }
 
             // ---------- <gmd:identificationInfo/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance> ----------
             for (i=0; i<rows.size(); i++) {
                 if (hasValue(rows.get(i).get("resolution_ground"))) {
-	                identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance")
-	                    .addAttribute("uom", "meter").addText(rows.get(i).get("resolution_ground"));
+                    identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance")
+                        .addAttribute("uom", "meter").addText(rows.get(i).get("resolution_ground"));
                 }
             }
 
             // ---------- <gmd:identificationInfo/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance> ----------
             for (i=0; i<rows.size(); i++) {
                 if (hasValue(rows.get(i).get("resolution_scan"))) {
-	                identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance")
-	                    .addAttribute("uom", "dpi").addText(rows.get(i).get("resolution_scan"));
+                    identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance")
+                        .addAttribute("uom", "dpi").addText(rows.get(i).get("resolution_scan"));
                 }
             }
         }
@@ -708,7 +709,7 @@ for (i=0; i<objRows.size(); i++) {
     
     if (objClass.equals("3")) {
         // ---------- <gmd:identificationInfo/srv:coupledResource/srv:SV_CoupledResource/srv:identifier/gco:CharacterString> ----------
-        var rows = SQL.all("SELECT t01_object.* FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3600', "V"]);
+        var rows = SQL.all("SELECT t01_object.* FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?" + publicationConditionFilter, [objId, '3600', "V"]);
         var resourceIdentifiers = [];
         for (i=0; i<rows.size(); i++) {
             var refObjId        = rows.get(i).get("id");
@@ -739,16 +740,16 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:identificationInfo/srv:containsOperations/srv:SV_OperationMetadata> ----------
         addServiceOperations(identificationInfo, objServId, serviceTypeISOName);
     
-	    // ---------- <gmd:identificationInfo/srv:operatesOn/gmd:Reference> ----------
+        // ---------- <gmd:identificationInfo/srv:operatesOn/gmd:Reference> ----------
         // the variable 'resourceIdentifiers' is defined above if it's class 3!
         // all information is already available so no new sql query is necessary
         if (hasValue(resourceIdentifiers)) {
-    	    for (i=0; i<resourceIdentifiers.length; i++) {
-    	        identificationInfo.addElement("srv:operatesOn").addAttribute("xlink:href", resourceIdentifiers[i][0]).addAttribute("uuidref", resourceIdentifiers[i][1]);
-    	    }
+            for (i=0; i<resourceIdentifiers.length; i++) {
+                identificationInfo.addElement("srv:operatesOn").addAttribute("xlink:href", resourceIdentifiers[i][0]).addAttribute("uuidref", resourceIdentifiers[i][1]);
+            }
         }
-	    
-	    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
+        
+        // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
         // add second identification info for all information that cannot be mapped into a SV_ServiceIdentification element
         addServiceAdditionalIdentification(mdMetadata, objServRow, objServId);
 
@@ -765,10 +766,10 @@ for (i=0; i<objRows.size(); i++) {
             rs = SQL.first("SELECT description FROM t011_obj_project WHERE obj_id=?", [objId]);
         }
         if (hasValue(rs)) {
-        	value = rs.get("description");
-        	if (hasValue(value)) {
-        		identificationInfo.addElement("gmd:supplementalInformation/gco:CharacterString").addText(value);
-        	}
+            value = rs.get("description");
+            if (hasValue(value)) {
+                identificationInfo.addElement("gmd:supplementalInformation/gco:CharacterString").addText(value);
+            }
         }
     }
 
@@ -779,23 +780,23 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <idf:idfMdMetadata/gmd:contentInfo/gmd:MD_FeatureCatalogueDescription> ----------
         if (objGeoId) {
             var mdFeatureCatalogueDescription;
-	        var objKeycRows = SQL.all("SELECT * FROM object_types_catalogue WHERE obj_id=?", [objId]);
-	        for (i=0; i<objKeycRows.size(); i++) {
-	            if (!mdFeatureCatalogueDescription) {
-	               mdFeatureCatalogueDescription = mdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
+            var objKeycRows = SQL.all("SELECT * FROM object_types_catalogue WHERE obj_id=?", [objId]);
+            for (i=0; i<objKeycRows.size(); i++) {
+                if (!mdFeatureCatalogueDescription) {
+                   mdFeatureCatalogueDescription = mdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
                    // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:includedWithDataset> ----------
-	               var inclWithDataset = objGeoRow.get("keyc_incl_w_dataset");
-	               mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean")
-	                   .addText(hasValue(inclWithDataset) && inclWithDataset.equals("1"));
-	
+                   var inclWithDataset = objGeoRow.get("keyc_incl_w_dataset");
+                   mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean")
+                       .addText(hasValue(inclWithDataset) && inclWithDataset.equals("1"));
+    
                     // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureTypes> ----------
-	                var objGeoSupplinfoRows = SQL.all("SELECT feature_type FROM t011_obj_geo_supplinfo WHERE obj_geo_id=?", [objGeoId]);
-	                for (j=0; j<objGeoSupplinfoRows.size(); j++) {
-	                    if (hasValue(objGeoSupplinfoRows.get(j).get("feature_type"))) {
-	                        mdFeatureCatalogueDescription.addElement("gmd:featureTypes/gco:LocalName").addText(objGeoSupplinfoRows.get(j).get("feature_type"));
-	                    }
-	                }
-	            }
+                    var objGeoSupplinfoRows = SQL.all("SELECT feature_type FROM t011_obj_geo_supplinfo WHERE obj_geo_id=?", [objGeoId]);
+                    for (j=0; j<objGeoSupplinfoRows.size(); j++) {
+                        if (hasValue(objGeoSupplinfoRows.get(j).get("feature_type"))) {
+                            mdFeatureCatalogueDescription.addElement("gmd:featureTypes/gco:LocalName").addText(objGeoSupplinfoRows.get(j).get("feature_type"));
+                        }
+                    }
+                }
 
                 // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureCatalogueCitation/gmd:CI_Citation> ----------
                 var ciCitation = mdFeatureCatalogueDescription.addElement("gmd:featureCatalogueCitation/gmd:CI_Citation");
@@ -818,7 +819,7 @@ for (i=0; i<objRows.size(); i++) {
                 if (hasValue(objKeycRows.get(i).get("type_version"))) {
                     ciCitation.addElement("gmd:edition/gco:CharacterString").addText(objKeycRows.get(i).get("type_version"));
                 }
-	        }
+            }
         }
 
         // ---------- <idf:idfMdMetadata/gmd:contentInfo#uuidref> ----------
@@ -855,7 +856,7 @@ for (i=0; i<objRows.size(); i++) {
                 // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:includedWithDataset> ----------
                 mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean").addText("false");
             }
-	        for (i=0; i<objKeycRows.size(); i++) {
+            for (i=0; i<objKeycRows.size(); i++) {
                 // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureCatalogueCitation/gmd:CI_Citation> ----------
                 var ciCitation = mdFeatureCatalogueDescription.addElement("gmd:featureCatalogueCitation/gmd:CI_Citation");
                 ciCitation.addElement("gmd:title/gco:CharacterString").addText(objKeycRows.get(i).get("title_value"));
@@ -875,8 +876,8 @@ for (i=0; i<objRows.size(); i++) {
                 if (hasValue(objKeycRows.get(i).get("type_version"))) {
                     ciCitation.addElement("gmd:edition/gco:CharacterString").addText(objKeycRows.get(i).get("type_version"));
                 }
-	        }
-        	
+            }
+            
         } else {
             if (mdFeatureCatalogueDescription) {
                 // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureCatalogueCitation/gmd:CI_Citation> ----------
@@ -928,7 +929,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy> ----------
         if (hasValue(objGeoRow.get("pos_accuracy_vertical"))) {
             if (!dqDataQuality) {
-	            dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy");
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText("Mean value of positional uncertainties (1D)");
@@ -966,10 +967,10 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult> ----------
-	    rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [objId]);
-	    for (i=0; i<rows.size(); i++) {
+        rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [objId]);
+        for (i=0; i<rows.size(); i++) {
             var dqConformanceResult = getDqConformanceResultElement(rows.get(i));
-    		// only write report if evaluated, see https://dev.wemove.com/jira/browse/INGRID23-165
+            // only write report if evaluated, see https://dev.wemove.com/jira/browse/INGRID23-165
             if (hasValue(dqConformanceResult)) {
                 if (!dqDataQuality) {
                     dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
@@ -977,7 +978,7 @@ for (i=0; i<objRows.size(); i++) {
                 dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result")
                     .addElement(dqConformanceResult);
             }
-	    }
+        }
 
         addObjectDataQualityTable(objRow, dqDataQuality);
 
@@ -1052,9 +1053,9 @@ for (i=0; i<objRows.size(); i++) {
         rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [objId]);
         for (i=0; i<rows.size(); i++) {
             var dqConformanceResult = getDqConformanceResultElement(rows.get(i));
-    		// only write report if evaluated, see https://dev.wemove.com/jira/browse/INGRID23-165
+            // only write report if evaluated, see https://dev.wemove.com/jira/browse/INGRID23-165
             if (hasValue(dqConformanceResult)) {
-            	if (!dqDataQuality) {
+                if (!dqDataQuality) {
                     dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
                 }
                 dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result")
@@ -1086,27 +1087,27 @@ for (i=0; i<objRows.size(); i++) {
     } else if (objClass.equals("5")) {
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
         var rs = SQL.first("SELECT base FROM t011_obj_data WHERE obj_id=?", [objId]);
-    	if (hasValue(rs)) {
-    		value = rs.get("base");
+        if (hasValue(rs)) {
+            value = rs.get("base");
             if (hasValue(value)) {
                 dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
                 liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
                 liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(value);
             }
-    	}
+        }
 
 // DOKUMENT/BERICHT/LITERATUR(2)
     } else if (objClass.equals("2")) {
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
         var rs = SQL.first("SELECT base FROM t011_obj_literature WHERE obj_id=?", [objId]);
-    	if (hasValue(rs)) {
-    		value = rs.get("base");
-	        if (hasValue(value)) {
-	            dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-	            liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
-	            liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(value);
-	        }
-    	}
+        if (hasValue(rs)) {
+            value = rs.get("base");
+            if (hasValue(value)) {
+                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
+                liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
+                liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(value);
+            }
+        }
     }
 
     // ---------- <idf:idfMdMetadata/idf:superiorReference> ----------
@@ -1122,14 +1123,14 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // ---------- <idf:idfMdMetadata/idf:crossReference> ----------
-    rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_from_id=? AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=?", [objId, 'V']);
+    rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_from_id=? AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=?" + publicationConditionFilter, [objId, 'V']);
     for (i=0; i<rows.size(); i++) {
         mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:crossReference"));
     }
     
     // add cross references coming from Service to Data to simulate bidirectionality
     if (objClass.equals("1")) {
-        var serviceObjects = SQL.all("SELECT * FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=? AND oRef.obj_from_id=t01.id AND t01.obj_class=3", [objUuid]);
+        var serviceObjects = SQL.all("SELECT * FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=? AND oRef.obj_from_id=t01.id AND t01.obj_class=3" + publicationConditionFilter, [objUuid]);
         for (i=0; i<serviceObjects.size(); i++) {
             var row = serviceObjects.get(i);
             // due to the sql query the link direction is already reversed (see obj_uuid!)
@@ -1140,7 +1141,7 @@ for (i=0; i<objRows.size(); i++) {
 
 // GEODATENDIENST(3)
     if (objClass.equals("3")) {
-	    // ---------- <idf:idfMdMetadata/idf:hasAccessConstraint> ----------
+        // ---------- <idf:idfMdMetadata/idf:hasAccessConstraint> ----------
         var hasConstraint = false; 
         if (hasValue(objServRow.get("has_access_constraint"))) {
             hasConstraint = objServRow.get("has_access_constraint").equals("Y");
@@ -1184,41 +1185,41 @@ function getDateOrDateTime(dateValue) {
 
 // "nicht evaluiert"(3) leads to nilReason "unknown"
 function getDqConformanceResultElement(conformityRow) {
-	if (!hasValue(conformityRow.get("degree_key")) || conformityRow.get("degree_key").equals("3")) {
+    if (!hasValue(conformityRow.get("degree_key")) || conformityRow.get("degree_key").equals("3")) {
         // "not evaluated", we retuen null element indicating no "gmd:report" should be written
-		// see https://dev.wemove.com/jira/browse/INGRID23-165
-		if (log.isDebugEnabled()) {
-			log.debug("Object_conformity degree_key = " + conformityRow.get("degree_key") + " (3=not evaluated), we skip this one, no gmd:report !");
-		}
-		return null;
+        // see https://dev.wemove.com/jira/browse/INGRID23-165
+        if (log.isDebugEnabled()) {
+            log.debug("Object_conformity degree_key = " + conformityRow.get("degree_key") + " (3=not evaluated), we skip this one, no gmd:report !");
+        }
+        return null;
     }
 
-	var dqConformanceResult = DOM.createElement("gmd:DQ_ConformanceResult");
+    var dqConformanceResult = DOM.createElement("gmd:DQ_ConformanceResult");
     var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
 
     var specification = TRANSF.getIGCSyslistEntryName(6005, conformityRow.get("specification_key"));
     var specificationDate;
     if (!hasValue(specification)) {
-    	specification = conformityRow.get("specification_value");
+        specification = conformityRow.get("specification_value");
     } else {
-    	// date of specification encoded in syslist value ! Parse and extract !
-    	var stringsParsed = TRANSF.parseIGCSyslistEntryName(specification, 6005);
-    	if (hasValue(stringsParsed[1])) {
-    		specificationDate = stringsParsed[1];
-    		specification = stringsParsed[0];
-    	}
+        // date of specification encoded in syslist value ! Parse and extract !
+        var stringsParsed = TRANSF.parseIGCSyslistEntryName(specification, 6005);
+        if (hasValue(stringsParsed[1])) {
+            specificationDate = stringsParsed[1];
+            specification = stringsParsed[0];
+        }
     }
-	if (hasValue(specification)) {
-		ciCitation.addElement("gmd:title/gco:CharacterString").addText(specification);
-	} else {
-		ciCitation.addElement("gmd:title").addAttribute("gco:nilReason", "missing");
-	}
+    if (hasValue(specification)) {
+        ciCitation.addElement("gmd:title/gco:CharacterString").addText(specification);
+    } else {
+        ciCitation.addElement("gmd:title").addAttribute("gco:nilReason", "missing");
+    }
 
     var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
     if (hasValue(specificationDate)) {
-	    ciDate.addElement("gmd:date").addElement(getDateOrDateTime(specificationDate));
+        ciDate.addElement("gmd:date").addElement(getDateOrDateTime(specificationDate));
     } else {
-    	ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "unknown");
+        ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "unknown");
     }
     ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
         .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
@@ -1244,11 +1245,11 @@ function getDqDataQualityElement(objClass) {
  * @return
  */
 function getFileIdentifier(objRow) {
-	var fileIdentifier = objRow.get("org_obj_id");
-	if (!hasValue(fileIdentifier)) {
-		fileIdentifier = objRow.get("obj_uuid");
-	}
-	return fileIdentifier;
+    var fileIdentifier = objRow.get("org_obj_id");
+    if (!hasValue(fileIdentifier)) {
+        fileIdentifier = objRow.get("obj_uuid");
+    }
+    return fileIdentifier;
 }
 
 /**
@@ -1260,23 +1261,23 @@ function getFileIdentifier(objRow) {
  * @return
  */
 function getCitationIdentifier(objRow, otherObjId) {
-	var id;
-	var usedObjId = objId; // global variable!
-	// get identifier from other object providing a uuid or id
-	if (otherObjId) {
-	    usedObjId = otherObjId;
-	}
-	
-	var objGeoRow = SQL.first("SELECT datasource_uuid FROM t011_obj_geo WHERE obj_id=?", [usedObjId]);
-	
-	log.debug("ID Resource:");
-	log.debug(objGeoRow);	
-	if (hasValue(objGeoRow)) {
-		id = objGeoRow.get("datasource_uuid");
-	}
+    var id;
+    var usedObjId = objId; // global variable!
+    // get identifier from other object providing a uuid or id
+    if (otherObjId) {
+        usedObjId = otherObjId;
+    }
+    
+    var objGeoRow = SQL.first("SELECT datasource_uuid FROM t011_obj_geo WHERE obj_id=?", [usedObjId]);
+    
+    log.debug("ID Resource:");
+    log.debug(objGeoRow);   
+    if (hasValue(objGeoRow)) {
+        id = objGeoRow.get("datasource_uuid");
+    }
     if (!hasValue(id)) {
-    	id = getFileIdentifier(objRow);
-    	id = java.util.UUID.nameUUIDFromBytes(id.getBytes()).toString();
+        id = getFileIdentifier(objRow);
+        id = java.util.UUID.nameUUIDFromBytes(id.getBytes()).toString();
     }
     
     // analyze namespace, add default if not set
@@ -1288,7 +1289,7 @@ function getCitationIdentifier(objRow, otherObjId) {
 
     // namespace already part of id, ok ! 
     if (hasValue(myNamespace)) {
-    	return id;
+        return id;
     }
     
     // no namespace
@@ -1298,22 +1299,22 @@ function getCitationIdentifier(objRow, otherObjId) {
 
     var myNamespaceLength = 0;
     if (!hasValue(myNamespace)) {
-    	// not set in catalog, we use default namespace (database catalog name!)
-    	// extract catalog from connection
-    	var dbCatalog = SQL.getConnection().getCatalog();
-    	if (!hasValue(dbCatalog)) {
-    		dbCatalog = catRow.get("cat_name");
-    	}
+        // not set in catalog, we use default namespace (database catalog name!)
+        // extract catalog from connection
+        var dbCatalog = SQL.getConnection().getCatalog();
+        if (!hasValue(dbCatalog)) {
+            dbCatalog = catRow.get("cat_name");
+        }
         myNamespace = "http://portalu.de/" + dbCatalog;
-    	// JS String !
-    	myNamespaceLength = myNamespace.length;
+        // JS String !
+        myNamespaceLength = myNamespace.length;
     } else {
-    	// Java String !
-    	myNamespaceLength = myNamespace.length();
+        // Java String !
+        myNamespaceLength = myNamespace.length();
     }
     
     if (myNamespaceLength > 0 && myNamespace.substring(myNamespaceLength-1) != "#") {
-    	myNamespace = myNamespace + "#";
+        myNamespace = myNamespace + "#";
     }
 
     id = myNamespace + id;
@@ -1324,18 +1325,18 @@ function getCitationIdentifier(objRow, otherObjId) {
 // Get published (or working version if flag passed) address with given uuid.
 // If address is hidden then first visible parent in hierarchy is returned.
 function getFirstVisibleAddress(addrUuid, useWorkingVersion) {
-	var resultAddrRow;
+    var resultAddrRow;
 
     // ---------- address_node ----------
-	var sqlQuery = "SELECT * FROM address_node WHERE addr_uuid=? AND ";
-	var addrIdToFetch = "addr_id_published";
-	if (useWorkingVersion) {
+    var sqlQuery = "SELECT * FROM address_node WHERE addr_uuid=? AND ";
+    var addrIdToFetch = "addr_id_published";
+    if (useWorkingVersion) {
         if (log.isDebugEnabled()) {
             log.debug("Fetch working version of address !!! USER ADDRESS(?) uuid=" + addrUuid);
         }
-        addrIdToFetch = "addr_id";		
-	}
-	sqlQuery = sqlQuery + addrIdToFetch + " IS NOT NULL"
+        addrIdToFetch = "addr_id";      
+    }
+    sqlQuery = sqlQuery + addrIdToFetch + " IS NOT NULL"
     var addrNodeRows = SQL.all(sqlQuery, [addrUuid]);
     for (k=0; k<addrNodeRows.size(); k++) {
         var parentAddrUuid = addrNodeRows.get(k).get("fk_addr_uuid");
@@ -1370,9 +1371,9 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
         mapOnlyEmails = true;
     }
 
-	var parentAddressRowPathArray = getAddressRowPathArray(addressRow);
-	var myElementName = "idf:idfResponsibleParty";
-	var idfResponsibleParty = DOM.createElement(myElementName)
+    var parentAddressRowPathArray = getAddressRowPathArray(addressRow);
+    var myElementName = "idf:idfResponsibleParty";
+    var idfResponsibleParty = DOM.createElement(myElementName)
         .addAttribute("uuid", addressRow.get("adr_uuid"))
         .addAttribute("type", addressRow.get("adr_type"));
     if (hasValue(addressRow.get("org_adr_id"))) {
@@ -1415,13 +1416,13 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
     // map all if no email addresses ???
 /*
     if (emailAddresses.length == 0) {
-    	mapOnlyEmails = false;
+        mapOnlyEmails = false;
     }
 */
     if (!mapOnlyEmails) {
         var individualName = getIndividualNameFromAddressRow(addressRow);
         if (hasValue(individualName)) {
-        	individualName = filterUserPostfix(individualName);
+            individualName = filterUserPostfix(individualName);
             idfResponsibleParty.addElement("gmd:individualName").addElement("gco:CharacterString").addText(individualName);
         }
         var institution = getInstitution(parentAddressRowPathArray);
@@ -1436,10 +1437,10 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
 
     var ciContact = idfResponsibleParty.addElement("gmd:contactInfo").addElement("gmd:CI_Contact");
 
-	var ciAddress;
+    var ciAddress;
 
     if (!mapOnlyEmails) {
-    	if (phones.length > 1 || faxes.length > 1) {
+        if (phones.length > 1 || faxes.length > 1) {
             var ciTelephone = ciContact.addElement("gmd:phone").addElement("gmd:CI_Telephone");
             for (var j=0; j<phones.length; j++) {
                 ciTelephone.addElement("gmd:voice/gco:CharacterString").addText(phones[j]);
@@ -1447,7 +1448,7 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
             for (var j=0; j<faxes.length; j++) {
                 ciTelephone.addElement("gmd:facsimile/gco:CharacterString").addText(faxes[j]);
             }
-    	}
+        }
 
         if (hasValue(addressRow.get("postbox")) || hasValue(addressRow.get("postbox_pc")) ||
                 hasValue(addressRow.get("city")) || hasValue(addressRow.get("street"))) {
@@ -1472,8 +1473,8 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
     }
 
     for (var j=0; j<emailAddresses.length; j++) {
-    	if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
-    	ciAddress.addElement("gmd:electronicMailAddress/gco:CharacterString").addText(emailAddresses[j]);
+        if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
+        ciAddress.addElement("gmd:electronicMailAddress/gco:CharacterString").addText(emailAddresses[j]);
     }
 
     if (!mapOnlyEmails) {
@@ -1484,9 +1485,9 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
     }
 
     if (hasValue(role)) {
-	    idfResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
-	        .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
-	        .addAttribute("codeListValue", role);   
+        idfResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
+            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+            .addAttribute("codeListValue", role);   
     } else {
         idfResponsibleParty.addElement("gmd:role").addAttribute("gco:nilReason", "inapplicable");
     }
@@ -1517,17 +1518,17 @@ function filterUserPostfix(name) {
     var filteredName = name;
 
     if (hasValue(name)) {
-    	// first make JS String out of name, so we call JS replace method !!!
-    	filteredName = ("" + name).replace(/ \[.*\]/g,"");
-    	// just for sure
-    	if (!hasValue(filteredName)) {
-    		filteredName = name;
-    	}
+        // first make JS String out of name, so we call JS replace method !!!
+        filteredName = ("" + name).replace(/ \[.*\]/g,"");
+        // just for sure
+        if (!hasValue(filteredName)) {
+            filteredName = name;
+        }
 
         if (log.isDebugEnabled()) {
-        	if (name.length != filteredName.length) {
+            if (name.length != filteredName.length) {
                 log.debug("Filtered name '" + name + "' to '" + filteredName + "' !");
-        	}
+            }
         }
     }
 
@@ -1541,18 +1542,18 @@ function filterUserPostfix(name) {
  * @return
  */
 function getInstitution(parentAdressRowPathArray) {
-	var institution = "";
-	for(var i=0; i<parentAdressRowPathArray.length; i++) {
-	    var newInstitution = getOrganisationNameFromAddressRow(parentAdressRowPathArray[i]);
-		if (hasValue(newInstitution)) {
-			if (hasValue(institution)) {
-				institution = ", " + institution;
-			}
-			institution = newInstitution + institution;
-		}
-	}
+    var institution = "";
+    for(var i=0; i<parentAdressRowPathArray.length; i++) {
+        var newInstitution = getOrganisationNameFromAddressRow(parentAdressRowPathArray[i]);
+        if (hasValue(newInstitution)) {
+            if (hasValue(institution)) {
+                institution = ", " + institution;
+            }
+            institution = newInstitution + institution;
+        }
+    }
     if (log.isDebugEnabled()) {
-    	log.debug("Got institution '" + institution + "' from address path array:" + parentAdressRowPathArray);
+        log.debug("Got institution '" + institution + "' from address path array:" + parentAdressRowPathArray);
     }
     return institution;
 }
@@ -1571,23 +1572,23 @@ function getIndividualNameFromAddressRow(addressRow) {
     var lastName = addressRow.get("lastname");
 
     if (hasValue(lastName)) {
-    	individualName = lastName;
+        individualName = lastName;
     }
     
     if (hasValue(firstName)) {
-    	individualName = hasValue(individualName) ? individualName += ", " + firstName : firstName;
+        individualName = hasValue(individualName) ? individualName += ", " + firstName : firstName;
     }
     
     if (hasValue(title) && !hasValue(addressing)) {
-    	individualName = hasValue(individualName) ? individualName += ", " + title : title;
+        individualName = hasValue(individualName) ? individualName += ", " + title : title;
     } else if (!hasValue(title) && hasValue(addressing)) {
-    	individualName = hasValue(individualName) ? individualName += ", " + addressing : addressing;
+        individualName = hasValue(individualName) ? individualName += ", " + addressing : addressing;
     } else if (hasValue(title) && hasValue(addressing)) {
-    	individualName = hasValue(individualName) ? individualName += ", " + addressing + " " + title : addressing + " " + title;
+        individualName = hasValue(individualName) ? individualName += ", " + addressing + " " + title : addressing + " " + title;
     }
     
     if (log.isDebugEnabled()) {
-    	log.debug("Got individualName '" + individualName + "' from address record:" + addressRow);
+        log.debug("Got individualName '" + individualName + "' from address record:" + addressRow);
     }
     
     return individualName;
@@ -1612,20 +1613,20 @@ function getOrganisationNameFromAddressRow(addressRow) {
  * @return The array with all parent address rows.
  */
 function getAddressRowPathArray(addressRow) {
-	var results = new Array();
+    var results = new Array();
     if (log.isDebugEnabled()) {
-    	log.debug("Add address with uuid '" + addressRow.get("adr_uuid") + "' to address path:" + parentAdressRow);
+        log.debug("Add address with uuid '" + addressRow.get("adr_uuid") + "' to address path:" + parentAdressRow);
     }
     results.push(addressRow);
     var addrId = addressRow.get("id");
     var parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
     while (hasValue(parentAdressRow)) {
         if (log.isDebugEnabled()) {
-        	log.debug("Add address with uuid '"+parentAdressRow.get("adr_uuid")+"' to address path:" + parentAdressRow);
+            log.debug("Add address with uuid '"+parentAdressRow.get("adr_uuid")+"' to address path:" + parentAdressRow);
         }
-    	results.push(parentAdressRow);
-    	addrId = parentAdressRow.get("id");
-    	parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
+        results.push(parentAdressRow);
+        addrId = parentAdressRow.get("id");
+        parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
     }
     return results;
 }
@@ -1652,7 +1653,7 @@ function getHierarchLevel(objClass) {
         hierarchyLevel = "application";
     } else {
         log.error("Unsupported UDK class '" + objClass
-	            + "'. Only class 0 to 6 are supported by the CSW interface.");
+                + "'. Only class 0 to 6 are supported by the CSW interface.");
     }
     
     return hierarchyLevel;
@@ -1660,9 +1661,9 @@ function getHierarchLevel(objClass) {
 
 function map(needle, haystack) {
     for( var key in haystack ) {
-    	if (key == needle) {
-    		return haystack[key];
-    	}
+        if (key == needle) {
+            return haystack[key];
+        }
     }
     log.error("Could not find needle '" + needle + "' in haystack: " + haystack);
     
@@ -1728,22 +1729,22 @@ function getMdKeywords(rows) {
     
     // "searchterm_value" table
     if (rows.get(0).get("type")) {
-	    var type = rows.get(0).get("type");
-	    if (type.equals("F")) {
-	        return mdKeywords;
+        var type = rows.get(0).get("type");
+        if (type.equals("F")) {
+            return mdKeywords;
 
-	    } else if (type.equals("2") || type.equals("T")) {
-	        keywTitle = "UMTHES Thesaurus";
-	        keywDate = "2009-01-15";
-	    } else if (type.equals("1") || type.equals("G")) {
-	        keywTitle = "GEMET - Concepts, version 2.1";
-	        keywDate = "2008-06-13";
-	    } else if (type.equals("I")) {
-	        keywTitle = "GEMET - INSPIRE themes, version 1.0";
-	        keywDate = "2008-06-01";
-	    } else {
-	        return null;
-	    }
+        } else if (type.equals("2") || type.equals("T")) {
+            keywTitle = "UMTHES Thesaurus";
+            keywDate = "2009-01-15";
+        } else if (type.equals("1") || type.equals("G")) {
+            keywTitle = "GEMET - Concepts, version 2.1";
+            keywDate = "2008-06-13";
+        } else if (type.equals("I")) {
+            keywTitle = "GEMET - INSPIRE themes, version 1.0";
+            keywDate = "2008-06-01";
+        } else {
+            return null;
+        }
 
     // "t011_obj_serv_type" table
     } else if (rows.get(0).get("serv_type_key")) {
@@ -1796,7 +1797,7 @@ function addResourceConstraints(identificationInfo, objId) {
         // IGC syslist entry or free entry ?
         var termsOfUse = TRANSF.getIGCSyslistEntryName(6020, row.get("terms_of_use_key"));
         if (!hasValue(termsOfUse)) {
-        	termsOfUse = row.get("terms_of_use_value");
+            termsOfUse = row.get("terms_of_use_value");
         }            
 
         if (hasValue(termsOfUse)) {
@@ -1825,21 +1826,21 @@ function addResourceConstraints(identificationInfo, objId) {
                     // we have entry from ISO restriction code list, map as gmd:accessConstraints
                     accessConstraints.push(value);
                 } else if (hasValue(value)) {
-	                // no entry from ISO codelist, map as gmd:otherConstraints
-	                otherConstraints.push(value);
+                    // no entry from ISO codelist, map as gmd:otherConstraints
+                    otherConstraints.push(value);
                 }
             }            
         }
 
         // ---------- <gmd:MD_LegalConstraints/gmd:accessConstraints> ----------
         // first map gmd:accessConstraints
-		for (var i=0; i<accessConstraints.length; i++) {
+        for (var i=0; i<accessConstraints.length; i++) {
             // we do NOT check whether we have "otherRestrictions" as access constraint (entered as free entry) !
             identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:accessConstraints/gmd:MD_RestrictionCode")
                     .addAttribute("codeListValue", accessConstraints[i])
                     .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode")
                     .addText(accessConstraints[i]);
-		}
+        }
 
         // ---------- <gmd:MD_LegalConstraints/gmd:otherConstraints> ----------
         // then map gmd:otherConstraints
@@ -1861,7 +1862,7 @@ function addResourceConstraints(identificationInfo, objId) {
             .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode")
             .addText("otherRestrictions");
         mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(rows.get(i).get("legist_value"));
-    }	
+    }   
 }
 
 
@@ -2010,12 +2011,12 @@ function getTimeRange(objRow) {
 
 
 function addDistributionInfo(mdMetadata, objId) {
-	// GEO-INFORMATION/KARTE(1)
+    // GEO-INFORMATION/KARTE(1)
     var mdDistribution;
     var formatWritten = false;
     var distributorWritten = false;
     if (objClass.equals("1")) {
-    	rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [objId]);
+        rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [objId]);
         for (i=0; i<rows.size(); i++) {
             if (!mdDistribution) {
                 mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
@@ -2084,13 +2085,13 @@ function addDistributionInfo(mdMetadata, objId) {
     if (distributorContact) {
         // select only adresses associated with syslist 505 entry 5 ("Vertrieb") 
         var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, '5', '505']);
-	    if (hasValue(addressRow)) {
-	        // address may be hidden ! then get first visible parent in hierarchy !
-	        addressRow = getFirstVisibleAddress(addressRow.get("adr_uuid"));
-	    }
+        if (hasValue(addressRow)) {
+            // address may be hidden ! then get first visible parent in hierarchy !
+            addressRow = getFirstVisibleAddress(addressRow.get("adr_uuid"));
+        }
         if (hasValue(addressRow)) {
             distributorContact.addElement(getIdfResponsibleParty(addressRow, "distributor"));
-	    } else {
+        } else {
             // add dummy distributor role, because no distributor was found
             distributorContact.addElement("gmd:CI_ResponsibleParty/gmd:role/gmd:CI_RoleCode")
                 .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
@@ -2201,7 +2202,7 @@ function addDistributionInfo(mdMetadata, objId) {
             }
             mdMedium.addElement("gmd:mediumNote/gco:CharacterString").addText(rows.get(i).get("medium_note"));
         }
-    }	
+    }   
 }
 
 function addServiceOperations(identificationInfo, objServId, serviceTypeISOName) {
@@ -2228,7 +2229,7 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                         .addAttribute("codeListValue", platfRows.get(j).get("platform_value"));
                 }
                 if (platfRows.size() == 0) {
-                	// mandatory !
+                    // mandatory !
                     svOperationMetadata.addElement("srv:DCP").addAttribute("gco:nilReason", "unknown");
                 }
 
@@ -2276,10 +2277,10 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
         // ---------- <srv:SV_OperationMetadata/srv:connectPoint> ----------
                 var connRows = SQL.all("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
                 for (j=0; j<connRows.size(); j++) {
-                	var connUrl = connRows.get(j).get("connect_point");
+                    var connUrl = connRows.get(j).get("connect_point");
                     if (hasValue(connUrl)) {
-                    	// always add some parameters to "getcapabilities" url when VIEW-Service, see INGRID-2107
-                    	connUrl = prepareGetCapabilitiesUrl(connUrl, opName);
+                        // always add some parameters to "getcapabilities" url when VIEW-Service, see INGRID-2107
+                        connUrl = prepareGetCapabilitiesUrl(connUrl, opName);
                         svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(connUrl);
                     }
                 }
@@ -2449,12 +2450,12 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             }
             var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
             if (igcNameOfMeasureKey.equals("1")) {
-	            var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
-	                .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
-	            unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
-	            unitDefinition.addElement("gml:name").addText("percent");
-	            unitDefinition.addElement("gml:quantityType").addText("completeness commission");
-	            unitDefinition.addElement("gml:catalogSymbol").addText("%");
+                var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
+                    .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
+                unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
+                unitDefinition.addElement("gml:name").addText("percent");
+                unitDefinition.addElement("gml:quantityType").addText("completeness commission");
+                unitDefinition.addElement("gml:catalogSymbol").addText("%");
             } else if (igcNameOfMeasureKey.equals("2")) {
                 dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "inapplicable");
             } else {
@@ -2727,7 +2728,7 @@ function getIdfObjectReference(objRow, elementName) {
     addAttachedToField(objRow, idfObjectReference);
 
     if (hasValue(objRow.get("descr"))) {
-        idfObjectReference.addElement("idf:description").addText(objRow.get("descr"));    	
+        idfObjectReference.addElement("idf:description").addText(objRow.get("descr"));      
     }
 
     return idfObjectReference;
@@ -2743,30 +2744,30 @@ function addAttachedToField(row, parentElement, addAsISO) {
         var textContent;
         if (attachedToFieldKey.equals("-1")) {
             // free entry, only add if ISO
-        	if (addAsISO) {
-        	   textContent = attachedToFieldValue;
-        	}
-        } else if (!attachedToFieldKey.equals("9999")) {
-        	// syslist entry, NOT "Keine Kopplung"
-        	if (addAsISO) {
-        	   // ISO: translate to english !
-        	   textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "en");
-        	} else {
-        		// IDF: use catalog language like it was entered
+            if (addAsISO) {
                textContent = attachedToFieldValue;
-        	}
+            }
+        } else if (!attachedToFieldKey.equals("9999")) {
+            // syslist entry, NOT "Keine Kopplung"
+            if (addAsISO) {
+               // ISO: translate to english !
+               textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "en");
+            } else {
+                // IDF: use catalog language like it was entered
+               textContent = attachedToFieldValue;
+            }
         }
 
         if (hasValue(textContent)) {
-        	if (addAsISO) {
-        	   parentElement.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
-        	       .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_OnLineFunctionCode")
-        	       .addAttribute("codeListValue", textContent);
-        	} else {
-        	   parentElement.addElement("idf:attachedToField").addText(textContent)
-        	       .addAttribute("list-id", "2000")
-        	       .addAttribute("entry-id", attachedToFieldKey);
-        	}
+            if (addAsISO) {
+               parentElement.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
+                   .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_OnLineFunctionCode")
+                   .addAttribute("codeListValue", textContent);
+            } else {
+               parentElement.addElement("idf:attachedToField").addText(textContent)
+                   .addAttribute("list-id", "2000")
+                   .addAttribute("entry-id", attachedToFieldKey);
+            }
         }
     }
 }
@@ -2788,6 +2789,16 @@ function getIdfAddressReference(addrRow, elementName) {
     idfAddressReference.addElement("idf:addressType").addText(addrRow.get("adr_type"));
 
     return idfAddressReference;
+}
+
+function determinePublicationConditionQueryExt(publishId) {
+    if (publishId == "1") { // Internet
+        return " AND publish_id=1";
+    } else if (publishId == "2") { // Intranet
+        return " AND (publish_id=1 OR publish_id=2)";
+    } else { // allow all for 'amtsintern'
+        return "";
+    }
 }
 
 function hasValue(val) {
