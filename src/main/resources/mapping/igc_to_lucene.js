@@ -216,7 +216,7 @@ for (i=0; i<objRows.size(); i++) {
     var rows = SQL.all("SELECT * FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [objId]);
     for (j=0; j<rows.size(); j++) {
         // add complete styling information, so we don't have to make any changes in the portal
-        var previewImageHtmlTag = "<img src='" + rows.get(j).get("url_link") + "' height='100' style='float:left; margin: 0 5px 0 0;' />";
+        var previewImageHtmlTag = "<img src='" + rows.get(j).get("url_link") + "' height='100' class='preview_image' />";
         IDX.add("additional_html_1", previewImageHtmlTag);
     }
     
