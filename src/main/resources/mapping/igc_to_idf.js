@@ -2762,7 +2762,7 @@ function addAttachedToField(row, parentElement, addAsISO) {
             if (addAsISO) {
                parentElement.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_OnLineFunctionCode")
-                   .addAttribute("codeListValue", textContent);
+                   .addAttribute("codeListValue", textContent).addText(textContent);
             } else {
                parentElement.addElement("idf:attachedToField").addText(textContent)
                    .addAttribute("list-id", "2000")
