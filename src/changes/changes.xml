@@ -15,6 +15,9 @@
       <action type="add" dev="wemove" issue="INGRID-2150">
         Add java parameter "-Dfile.encoding=UTF8" to start script.
       </action>
+      <action type="add" dev="wemove" issue="INGRID-2194">
+        Add codeListValue also as text element in CI_OnLineFunctionCode.
+      </action>
       <action type="update" dev="wemove" issue="INGRID-2156">
         Connect to iBus even if the iBus was started after the iPlug.
       </action>
