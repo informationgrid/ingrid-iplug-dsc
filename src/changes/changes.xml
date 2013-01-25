@@ -27,11 +27,17 @@
       <action type="update" dev="wemove" issue="GEOPORTALWSV-13">
         Updated GeoPortal.WSV presets (mapping).
       </action>
+      <action type="update" dev="wemove" issue="INGRID-2180">
+        The tag operatesOn uses the ORIG_UUID first, if not available it uses the IGC_UUID.
+      </action>
       <action type="update" dev="wemove" issue="INGRID33-10">
         Note field of addresses removed from indexing. 
       </action>
       <action type="fix" dev="wemove" issue="INGRID-2178">
           Fix mapping script: remove reference to missing helper class in individual name extraction.
+      </action>
+      <action type="fix" dev="wemove" issue="INGRID33-31">
+          Only include references in IDF generation that are compatible with the publication condition.
       </action>
       <action type="fix" dev="wemove">
          Fix mapping to ISO key in IDF mapping if ISO value has multiple words and may contain "'".
