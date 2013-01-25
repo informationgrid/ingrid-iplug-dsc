@@ -1815,7 +1815,7 @@ function addResourceConstraints(identificationInfo, objId) {
             row = rows.get(i);
 
             // IGC syslist entry or free entry ?
-            value = TRANSF.getIGCSyslistEntryName(6010, row.get("restriction_key"), "en");
+            value = TRANSF.getIGCSyslistEntryName(6010, row.get("restriction_key"));
             if (hasValue(value)) {
                 // value from IGC syslist, map as gmd:otherConstraints
                 otherConstraints.push(value);
