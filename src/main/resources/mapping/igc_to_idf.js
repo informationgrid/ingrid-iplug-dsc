@@ -384,9 +384,6 @@ for (i=0; i<objRows.size(); i++) {
     var abstr = objRow.get("obj_descr");
     var objServRow;
     
-    // add only the abstract (without extra information) to a special idf-field (INGRID-2200)
-    identificationInfo.addElement("idf:abstract/gco:CharacterString").addText(abstr);
-    
     if (objClass.equals("3")) {
         // More data of the service that cannot be mapped within ISO19119, but must be 
         // supplied by INSPIRE. Add mapping in abstract
@@ -1161,6 +1158,10 @@ for (i=0; i<objRows.size(); i++) {
             mdMetadata.addElement("idf:exportCriteria").addText(value);
         }
     }
+    
+    // add only the abstract (without extra information) to a special idf-field (INGRID-2200)
+    var abstr = objRow.get("obj_descr");
+    mdMetadata.addElement("idf:abstract/gco:CharacterString").addText(abstr);
 }
 
 
