@@ -6,6 +6,9 @@
   </properties>
   <body>
     <release version="3.3.0-SNAPSHOT" date="??" description="Release InGrid 3.3">
+      <action type="add" dev="wemove" issue="INGRID-2202">
+        Added UFORDAT mapping presets.
+      </action>
       <action type="add" dev="wemove" issue="INGRID33-20">
         Map url of preview image of an object to Lucene and IDF (graphicOverview).
       </action>
