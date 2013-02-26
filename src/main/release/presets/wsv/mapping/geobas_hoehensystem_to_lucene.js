@@ -42,7 +42,7 @@ for (i=0; i<hoehensystemRows.size(); i++) {
     IDX.add("hoehensystem.hoehensystemnummer", row.get("hoehensystemnummer"));
     IDX.add("hoehensystem.original", row.get("original"));
 
-	title = title + row.get("bundesland") + ", " + row.get("hoehensystemdef") + ", " + row.get("hoehensystemnummer");
+	title = title + row.get("hoehensystemnummer");
 	geobasUrl = geobasUrl + row.get("id") + "&table=hoehensystem";
 
     // ---------- bundesland ----------

@@ -32,10 +32,10 @@ var hoehensystemRows = SQL.all("SELECT * FROM hoehensystem WHERE id=?", [hoehens
 for (i=0; i<hoehensystemRows.size(); i++) {
     var hoehensystemRow = hoehensystemRows.get(i);
     var row = hoehensystemRow;
-    DOM.addElement(idfBody, "h1").addText("Stammdaten HOEHENSYSTEM: " + row.get("bundesland") + ", " + row.get("hoehensystemdef") + ", " + row.get("hoehensystemnummer"));
+    DOM.addElement(idfBody, "h1").addText("Stammdaten HOEHENSYSTEM: " + row.get("hoehensystemnummer"));
     DOM.addElement(idfBody, "p");
 
-    DOM.addElement(idfBody, "p").addText("Id: " + row.get("id"));
+//    DOM.addElement(idfBody, "p").addText("Id: " + row.get("id"));
 
     // ---------- bundesland ----------
     var rows = SQL.all("SELECT * FROM bundesland WHERE id=?", [hoehensystemRow.get("bundesland")]);

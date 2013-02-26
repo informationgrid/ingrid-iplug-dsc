@@ -33,26 +33,35 @@ for (i=0; i<punktkennzeichenRows.size(); i++) {
     var punktkennzeichenRow = punktkennzeichenRows.get(i);
     var title = "Punktkennzeichen: ";
 
-    // ---------- punktart ----------
-    var rows = SQL.all("SELECT * FROM punktart WHERE id=?", [punktkennzeichenRow.get("punktart")]);
-    for (j=0; j<rows.size(); j++) {
-    	title = title + rows.get(j).get("name");
+    // ---------- punktart for title ----------
+    var rowsPunktart = SQL.all("SELECT * FROM punktart WHERE id=?", [punktkennzeichenRow.get("punktart")]);
+    for (j=0; j<rowsPunktart.size(); j++) {
+        var row = rowsPunktart.get(j);
+    	title = title + row.get("name") + " (" + row.get("kurzbezeichnung") + ")";
     }
-	title = title + ", " + punktkennzeichenRow.get("station");
-	title = title + ", " + punktkennzeichenRow.get("punktnummer");
 
-	DOM.addElement(idfBody, "h1").addText(title);
+    // ---------- bundeswasserstr for title ----------
+    var rowsBundeswasserstr = SQL.all("SELECT * FROM bundeswasserstr WHERE id=?", [punktkennzeichenRow.get("bundeswasserstr")]);
+    for (j=0; j<rowsBundeswasserstr.size(); j++) {
+    	var row = rowsBundeswasserstr.get(j);
+        title = title + ", " + row.get("kurzbezeichnung");
+    }
+
+    title = title + ", " + punktkennzeichenRow.get("station");
+    title = title + ", " + punktkennzeichenRow.get("punktnummer");
+
+    DOM.addElement(idfBody, "h1").addText(title);
     DOM.addElement(idfBody, "p");
 
-    for (j=0; j<rows.size(); j++) {
-    	var row = rows.get(j);
+    // ---------- punktart ----------
+    for (j=0; j<rowsPunktart.size(); j++) {
+        var row = rowsPunktart.get(j);
         DOM.addElement(idfBody, "p").addText("Punktart: " + row.get("name") + ", " + row.get("kurzbezeichnung"));
     }
 
     // ---------- bundeswasserstr ----------
-    var rows = SQL.all("SELECT * FROM bundeswasserstr WHERE id=?", [punktkennzeichenRow.get("bundeswasserstr")]);
-    for (j=0; j<rows.size(); j++) {
-    	var row = rows.get(j);
+    for (j=0; j<rowsBundeswasserstr.size(); j++) {
+        var row = rowsBundeswasserstr.get(j);
         DOM.addElement(idfBody, "p").addText("Bundeswasserstr: " + row.get("name") + ", " + row.get("kurzbezeichnung"));
     }
 

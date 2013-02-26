@@ -39,7 +39,7 @@ for (i=0; i<punktkennzeichenRows.size(); i++) {
         for (j=0; j<rows.size(); j++) {
         	addPunktart(rows.get(j));
 
-        	title = title + rows.get(j).get("name");
+        	title = title + rows.get(j).get("name") + " (" + rows.get(j).get("kurzbezeichnung") + ")";
         	summary = summary + rows.get(j).get("name");
         }    	
     } else {
@@ -52,7 +52,8 @@ for (i=0; i<punktkennzeichenRows.size(); i++) {
         var rows = SQL.all("SELECT * FROM bundeswasserstr WHERE id=?", [punktkennzeichenRow.get("bundeswasserstr")]);
         for (j=0; j<rows.size(); j++) {
         	addBundeswasserstr(rows.get(j));
-        	summary = summary + ", " + rows.get(j).get("name");
+        	summary = summary + ", " + rows.get(j).get("name") + " (" + rows.get(j).get("kurzbezeichnung") + ")";
+        	title = title + ", " + rows.get(j).get("kurzbezeichnung");
         }    	
     } else {
     	summary = summary + ", " + punktkennzeichenRow.get("bundeswasserstr");
