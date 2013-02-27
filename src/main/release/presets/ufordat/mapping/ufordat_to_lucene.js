@@ -15,11 +15,6 @@ importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 importPackage(Packages.de.ingrid.geo.utils.transformation);
 
-// constant to punish the rank of a service/data object, which has no coupled resource
-var BOOST_NO_COUPLED_RESOURCE  = 0.9;
-//constant to boost the rank of a service/data object, which has at least one coupled resource
-var BOOST_HAS_COUPLED_RESOURCE = 1.0;
-
 if (log.isDebugEnabled()) {
     log.debug("Mapping source record to lucene document: " + sourceRecord.toString());
 }
