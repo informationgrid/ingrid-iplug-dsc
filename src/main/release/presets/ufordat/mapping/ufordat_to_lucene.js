@@ -21,7 +21,7 @@ var BOOST_NO_COUPLED_RESOURCE  = 0.9;
 var BOOST_HAS_COUPLED_RESOURCE = 1.0;
 
 if (log.isDebugEnabled()) {
-	log.debug("Mapping source record to lucene document: " + sourceRecord.toString());
+    log.debug("Mapping source record to lucene document: " + sourceRecord.toString());
 }
 
 if (!(sourceRecord instanceof DatabaseSourceRecord)) {
@@ -31,137 +31,144 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 // ---------- VHPRPD "id" ----------
 var myVHKEY = sourceRecord.get(DatabaseSourceRecord.ID);
 
+// ---------- VHPRPD ----------
+
 // filter according to former mapping !
-// BUT filter columns removed from schema ???
-//var topRows = SQL.all("SELECT * FROM VHPRPD WHERE (STATUS='G' OR STATUS='X') AND (VERSTA='x' OR VERSTA='f') AND VHKEY=?", [myVHKEY]);
+var topRows = SQL.all("SELECT * FROM VHPRPD WHERE (STATUS='G' OR STATUS='X') AND (VERSTA='x' OR VERSTA='f') AND VHKEY=?", [myVHKEY]);
 
-var topRows = SQL.all("SELECT * FROM VHPRPD WHERE VHKEY=?", [myVHKEY]);
 for (i=0; i<topRows.size(); i++) {
-    var topRow = topRows.get(i);
-
-    // ---------- VHPRPD ----------
-    var myVHINS = topRow.get("VHINS");
-
-	// transform vhkey to 8 digits length with leading 0
-	// make JS String out of Java String for processing.
-	var missingDigits = 8 - ("" + topRow.get("vhkey")).length;
-	var vhkey8Digits = "";
-	for (h=0; h<missingDigits; h++) {
-		vhkey8Digits = vhkey8Digits + "0";
-	}
-	vhkey8Digits = vhkey8Digits + topRow.get("vhkey");
+    // transform vhkey to 8 digits length with leading 0
+    // make JS String out of Java String for processing.
+    var missingDigits = 8 - ("" + topRows.get(i).get("vhkey")).length;
+    var vhkey8Digits = "";
+    for (h=0; h<missingDigits; h++) {
+        vhkey8Digits = vhkey8Digits + "0";
+    }
+    vhkey8Digits = vhkey8Digits + topRows.get(i).get("vhkey");
 
     IDX.add("t011_obj_data.obj_id", vhkey8Digits);
-    IDX.add("fs_runtime_from", topRow.get("vhbeg"));
-    IDX.add("fs_runtime_to", topRow.get("vhend"));
-    IDX.add("title", topRow.get("ta"));
-    IDX.add("title", topRow.get("vbthem"));
+    IDX.add("status_des_datensatzes", topRows.get(i).get("status"));
+    IDX.add("fs_runtime_from", topRows.get(i).get("vhbeg"));
+    IDX.add("fs_runtime_to", topRows.get(i).get("vhend"));
+    IDX.add("fs_projectleader", topRows.get(i).get("prolnm"));
+    IDX.add("title", topRows.get(i).get("ta"));
+    IDX.add("title", topRows.get(i).get("vbthem"));
+    IDX.add("title", topRows.get(i).get("tc"));
+    IDX.add("bearbeitungsstatus", topRows.get(i).get("versta"));
 
     // deliver url
     // changes display in result list !
     // with URL the url is displayed below summary and title links to URL
     // without url title links to detail view !
-	var ufordatUrl = "http://doku.uba.de/aDISWeb/app?service=direct/0/Home/$DirectLink&sp=Swww-gates.uba.de%3A4111&sp=SVH";
+    var ufordatUrl = "http://doku.uba.de/aDISWeb/app?service=direct/0/Home/$DirectLink&sp=Swww-gates.uba.de%3A4111&sp=SVH";
     IDX.add("url", ufordatUrl + vhkey8Digits);
 
-	// removed from schema ?
-//    IDX.add("status_des_datensatzes", topRow.get("status"));
-//    IDX.add("fs_projectleader", topRow.get("prolnm"));
-//    IDX.add("title", topRow.get("tc"));
-//    IDX.add("bearbeitungsstatus", topRow.get("versta"));
-
     // ---------- VHTXPD ----------
-    var rows = SQL.all("SELECT * FROM VHTXPD WHERE FELD='KURZBS' AND PR_ISN=?", [myVHKEY]);
-    for (j=0; j<rows.size(); j++) {
-		var row = rows.get(j);
-		IDX.add("summary", row.get("text"));
+    // Aus mail "AW: Erste Version UFORDAT als DSC Scripted" 26.02.2013 17:11
+    // Die alte Selektion muss angepasst werden:
+    // => Wenn das FELD KURZFG='N', darf die Kurzbeschreibungen (KURZBS) nicht ins Internet
+    if (topRows.get(i).get("kurzfg") != 'N') {
+        var rows = SQL.all("SELECT text FROM VHTXPD WHERE FELD='KURZBS' AND PR_ISN=?", [myVHKEY]);
+        for (j=0; j<rows.size(); j++) {
+            IDX.add("summary", rows.get(j).get("text"));
+        }
     }
 
     // ---------- KSPRPD ----------
-	if (hasValue(myVHINS)) {
-		var rows = SQL.all("SELECT * FROM KSPRPD WHERE K0001=?", [myVHINS]);
-		for (j=0; j<rows.size(); j++) {
-			var row = rows.get(j);
-			IDX.add("fs_institution", row.get("hs"));
-		}
-	}
+    var myVHINS = topRows.get(i).get("vhins");
+    if (hasValue(myVHINS)) {
+        var rows = SQL.all("SELECT hs FROM KSPRPD WHERE K0001=?", [myVHINS]);
+        for (j=0; j<rows.size(); j++) {
+            IDX.add("fs_institution", rows.get(j).get("hs"));
+        }
+    }
 
     // ---------- VHS0PD ----------
-    var rows = SQL.all("SELECT * FROM VHS0PD WHERE PR_ISN=?", [myVHKEY]);
+    var rows = SQL.all("SELECT fkz, betper, autdd, fikey, zukey, thkey, gtkey FROM VHS0PD WHERE PR_ISN=?", [myVHKEY]);
     for (j=0; j<rows.size(); j++) {
-		var row = rows.get(j);
-		var myFIKEY = row.get("FIKEY");
-		var myZUKEY = row.get("ZUKEY");
-//		var myTHKEY = row.get("THKEY");
+        IDX.add("foerderkennzeichen", rows.get(j).get("fkz"));
+        IDX.add("fs_participants", rows.get(j).get("betper"));
+        IDX.add("freie_deskriptoren", rows.get(j).get("autdd"));
 
-		// removed from schema ?
-//		var myGTKEY = row.get("GTKEY");
-//		IDX.add("foerderkennzeichen", row.get("fkz"));
-//		IDX.add("fs_participants", row.get("betper"));
-//		IDX.add("freie_deskriptoren", row.get("autdd"));
+        // ---------- KSPRPD ----------
+        var myFIKEY = rows.get(j).get("fikey");
+        if (hasValue(myFIKEY)) {
+            var subRows = SQL.all("SELECT hs FROM KSPRPD WHERE K0001=?", [myFIKEY]);
+            for (k=0; k<subRows.size(); k++) {
+                IDX.add("fs_project_executing_organisation", subRows.get(k).get("hs"));
+            }
+        }
 
-		// ---------- KSPRPD ----------
-		if (hasValue(myFIKEY)) {
-			var subRows = SQL.all("SELECT * FROM KSPRPD WHERE K0001=?", [myFIKEY]);
-			for (k=0; k<subRows.size(); k++) {
-				var subRow = subRows.get(k);
-				IDX.add("fs_project_executing_organisation", subRow.get("hs"));
-			}
-		}
+        // ---------- KSPRPD ----------
+        var myZUKEY = rows.get(j).get("zukey");
+        if (hasValue(myZUKEY)) {
+            var subRows = SQL.all("SELECT hs FROM KSPRPD WHERE K0001=?", [myZUKEY]);
+            for (k=0; k<subRows.size(); k++) {
+                IDX.add("fs_participants", subRows.get(k).get("hs"));
+            }
+        }
 
-		// ---------- KSPRPD ----------
-		if (hasValue(myZUKEY)) {
-			var subRows = SQL.all("SELECT * FROM KSPRPD WHERE K0001=?", [myZUKEY]);
-			for (k=0; k<subRows.size(); k++) {
-				var subRow = subRows.get(k);
-				IDX.add("fs_participants", subRow.get("hs"));
-			}
-		}
-/*
-		// ---------- THPR01 ----------
-		var subRows = SQL.all("SELECT * FROM THPR01 WHERE THSISN=?", [myTHKEY]);
-		for (k=0; k<subRows.size(); k++) {
-			var subRow = subRows.get(k);
-			// SWVF removed from schema ?
-//			IDX.add("fs_keywords", subRow.get("swvf"));
-		}
+        // ---------- THPR01 ----------
+        var myTHKEY = rows.get(j).get("thkey");
+        if (hasValue(myTHKEY)) {
+            var subRows = SQL.all("SELECT swvf FROM THPR01 WHERE THSISN=?", [myTHKEY]);
+            for (k=0; k<subRows.size(); k++) {
+                IDX.add("fs_keywords", subRows.get(k).get("swvf"));
+            }
+        }
 
-		// ---------- THPR01 ----------
-		// GTKEY removed from schema ?
-		var subRows = SQL.all("SELECT * FROM THPR01 WHERE THSISN=?", [myGTKEY]);
-		for (k=0; k<subRows.size(); k++) {
-			var subRow = subRows.get(k);
-			// SWVF removed from schema ?
-//			IDX.add("fs_geo_reference", subRow.get("swvf"));
-		}
-*/
-/*
-		// KSS0PD removed from schema ?
-		// ---------- KSS0PD ----------
-		var subRows = SQL.all("SELECT * FROM KSS0PD WHERE PR_ISN=?", [myFIKEY]);
-		for (k=0; k<subRows.size(); k++) {
-			var subRow = subRows.get(k);
-			var myKA850 = row.get("KA850");
-			var myKC850 = row.get("KC850");
+        // ---------- THPR01 ----------
+        var myGTKEY = rows.get(j).get("gtkey");
+        if (hasValue(myGTKEY)) {
+            var subRows = SQL.all("SELECT swvf FROM THPR01 WHERE THSISN=?", [myGTKEY]);
+            for (k=0; k<subRows.size(); k++) {
+                IDX.add("fs_geo_reference", subRows.get(k).get("swvf"));
+            }
+        }
 
-			IDX.add("fs_project_executing_organisation", subRow.get("k0810"));
+        // ---------- KSS0PD ----------
+        if (hasValue(myFIKEY)) {
+            var subRows = SQL.all("SELECT k0810, ka850 FROM KSS0PD WHERE PR_ISN=?", [myFIKEY]);
+            for (k=0; k<subRows.size(); k++) {
+                IDX.add("fs_project_executing_organisation", subRows.get(k).get("k0810"));
 
-			// ---------- KSPRPD ----------
-			var subSubRows = SQL.all("SELECT * FROM KSPRPD WHERE K0001=?", [myKA850]);
-			for (l=0; l<subSubRows.size(); l++) {
-				var subSubRow = subSubRows.get(l);
-				IDX.add("fs_project_executing_organisation", subSubRow.get("hs"));
-			}
+                // ---------- KSPRPD ----------
+                var myKA850 = subRows.get(k).get("ka850");
+                if (hasValue(myKA850)) {
+                    var subSubRows = SQL.all("SELECT hs FROM KSPRPD WHERE K0001=?", [myKA850]);
+                    for (l=0; l<subSubRows.size(); l++) {
+                        IDX.add("fs_project_executing_organisation", subSubRows.get(l).get("hs"));
+                    }
+                }
 
-			// ---------- KSPRPD ----------
-			// ??? just joined via HS ???
-			var subSubRows = SQL.all("SELECT * FROM KSPRPD WHERE HS=?", [myKC850]);
-			for (l=0; l<subSubRows.size(); l++) {
-				var subSubRow = subSubRows.get(l);
-			}
-		}
-*/
-// ...
+                // ??? was just joined in old mapping WITHOUT ANY MAPPING !!! ???
+                // ---------- KSPRPD ----------
+//                var myKC850 = subRow.get("kc850");
+//                if (hasValue(myKC850)) {
+//                    var subSubRows = SQL.all("SELECT * FROM KSPRPD WHERE HS=?", [myKC850]);
+//                    for (l=0; l<subSubRows.size(); l++) {
+//                        var subSubRow = subSubRows.get(l);
+//                    }
+//                }
+            }
+        }
+    }
+
+    // ---------- KSS0PD ----------
+    if (hasValue(myVHINS)) {
+        var rows = SQL.all("SELECT k0810, ka850 FROM KSS0PD WHERE PR_ISN=?", [myVHINS]);
+        for (j=0; j<rows.size(); j++) {
+            IDX.add("fs_institution", rows.get(j).get("k0810"));
+
+            // ---------- KSPRPD ----------
+            var myKA850 = rows.get(j).get("ka850");
+            if (hasValue(myKA850)) {
+                var subRows = SQL.all("SELECT hs FROM KSPRPD WHERE K0001=?", [myKA850]);
+                for (k=0; k<subRows.size(); k++) {
+                    IDX.add("fs_institution", subRows.get(k).get("hs"));
+                }
+            }
+        }
     }
 }
 
