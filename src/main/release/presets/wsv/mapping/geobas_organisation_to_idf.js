@@ -35,7 +35,7 @@ for (i=0; i<objRows.size(); i++) {
     DOM.addElement(idfBody, "h1").addText("Stammdaten ORGANISATION: " + row.get("name") + ", " + row.get("dienststellenid"));
     DOM.addElement(idfBody, "p");
 
-    DOM.addElement(idfBody, "p").addText("Id: " + row.get("id"));
+//    DOM.addElement(idfBody, "p").addText("Id: " + row.get("id"));
     DOM.addElement(idfBody, "p").addText("Name: " + row.get("name"));
     DOM.addElement(idfBody, "p").addText("Dienststellenid: " + row.get("dienststellenid"));
     DOM.addElement(idfBody, "p").addText("Strasse: " + row.get("strasse"));
