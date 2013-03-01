@@ -1445,7 +1445,7 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
     var ciAddress;
 
     if (!mapOnlyEmails) {
-        if (phones.length > 1 || faxes.length > 1) {
+        if (phones.length > 0 || faxes.length > 0) {
             var ciTelephone = ciContact.addElement("gmd:phone").addElement("gmd:CI_Telephone");
             for (var j=0; j<phones.length; j++) {
                 ciTelephone.addElement("gmd:voice/gco:CharacterString").addText(phones[j]);

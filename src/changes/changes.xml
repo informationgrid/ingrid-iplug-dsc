@@ -36,6 +36,9 @@
       <action type="update" dev="wemove" issue="INGRID33-10">
         Note field of addresses removed from indexing. 
       </action>
+      <action type="fix" dev="wemove" issue="INGRID-2224">
+          Fix mapping script: phone and fax entries were added only if more than one entry was supplied.
+      </action>
       <action type="fix" dev="wemove" issue="INGRID-2178">
           Fix mapping script: remove reference to missing helper class in individual name extraction.
       </action>
