@@ -5,9 +5,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
-    <release version="3.3.0-SNAPSHOT" date="??" description="Release InGrid 3.3">
+    <release version="3.3.0" date="2013-03-04" description="Release InGrid 3.3">
       <action type="add" dev="wemove" issue="INGRID-2202">
         Added UFORDAT mapping presets.
+      </action>
+      <action type="add" dev="wemove" issue="INGRID-2200">
+        Add optional idf:abstract element which only contains the object's description.
       </action>
       <action type="add" dev="wemove" issue="INGRID33-20">
         Map url of preview image of an object to Lucene and IDF (graphicOverview).
@@ -24,6 +27,9 @@
       <action type="update" dev="wemove" issue="INGRID-2156">
         Connect to iBus even if the iBus was started after the iPlug.
       </action>
+      <action type="update" dev="wemove" issue="INGRID32-190">
+        Changed relation type for coupled data (to 3600).
+      </action>
       <action type="update" dev="wemove">
         No version specific mapping scripts anymore, older versions not needed (mapping to IDF/index).
       </action>
@@ -38,6 +44,15 @@
       </action>
       <action type="fix" dev="wemove" issue="INGRID-2224">
           Fix mapping script: phone and fax entries were added only if more than one entry was supplied.
+      </action>
+      <action type="fix" dev="wemove" issue="INGRID-2199">
+          IDF: Use catalogue language for codelists of object access.
+      </action>
+      <action type="fix" dev="wemove">
+          Mapping to lucene: Using class-attribute for styles of preview image, this class is defined in the portal then.
+      </action>
+      <action type="fix" dev="wemove">
+          Better checks so we do not try to transform a code list entry which is a free entry.
       </action>
       <action type="fix" dev="wemove" issue="INGRID-2178">
           Fix mapping script: remove reference to missing helper class in individual name extraction.

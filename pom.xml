@@ -4,12 +4,12 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>3.3.0-SNAPSHOT</version>
+    <version>3.3.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid</groupId>
   <artifactId>ingrid-iplug-dsc-scripted</artifactId>
-  <version>3.3.0-SNAPSHOT</version>
+  <version>3.3.0-RELEASE-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>ingrid-iplug-dsc-scripted</name>
   <scm>
@@ -34,18 +34,6 @@
         <artifactId>commons-lang3</artifactId>
 		<version>3.0.1</version>
       </dependency>
-      <dependency>
-			<groupId>de.ingrid</groupId>
-			<artifactId>ingrid-base-webapp</artifactId>
-            <version>3.2.1</version>
-        </dependency>
-        <dependency>
-			<groupId>de.ingrid</groupId>
-			<artifactId>ingrid-base-webapp</artifactId>
-            <version>3.2.1</version>
-			<classifier>res</classifier>
-			<type>zip</type>
-	    </dependency>
     </dependencies>
   </dependencyManagement>
   <!-- ==================== DEPENDENCIES ==================== -->
