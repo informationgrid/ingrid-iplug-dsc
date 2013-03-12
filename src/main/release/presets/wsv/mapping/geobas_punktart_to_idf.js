@@ -26,40 +26,25 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 // ---------- <idf:body> ----------
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
 
-// ========== lagesystem ==========
-var lagesystemId = sourceRecord.get(DatabaseSourceRecord.ID);
-var lagesystemRows = SQL.all("SELECT * FROM lagesystem WHERE id=?", [lagesystemId]);
-for (i=0; i<lagesystemRows.size(); i++) {
-    var lagesystemRow = lagesystemRows.get(i);
-    var title = "Stammdaten LAGESYSTEM: ";
-
-    // ---------- bundesland ----------
-    var rows = SQL.all("SELECT * FROM bundesland WHERE id=?", [lagesystemRow.get("bundesland")]);
-    for (j=0; j<rows.size(); j++) {
-    	var bundeslandRow = rows.get(j);
-    }
-
-    // ---------- lagesystemdef ----------
-    var rows = SQL.all("SELECT * FROM lagesystemdef WHERE id=?", [lagesystemRow.get("lagesystemdef")]);
-    for (j=0; j<rows.size(); j++) {
-    	var lagesystemdefRow = rows.get(j);
-    }
-
-
-    title = title + lagesystemRow.get("lagesystemnummer") + ", " + bundeslandRow.get("kurzbezeichnung") + ", " + lagesystemdefRow.get("id");
+// ========== punktart ==========
+var punktartId = sourceRecord.get(DatabaseSourceRecord.ID);
+var punktartRows = SQL.all("SELECT * FROM punktart WHERE id=?", [punktartId]);
+for (i=0; i<punktartRows.size(); i++) {
+    var punktartRow = punktartRows.get(i);
+    var title = "Stammdaten PUNKTART: ";
+    title = title + punktartRow.get("kurzbezeichnung") + ", " + punktartRow.get("name");
 
     DOM.addElement(idfBody, "h1").addText(title);
     DOM.addElement(idfBody, "p");
 
-    DOM.addElement(idfBody, "p").addText("Bundesland Kurzbezeichnung: " + bundeslandRow.get("kurzbezeichnung"));
-    DOM.addElement(idfBody, "p").addText("Bundesland: " + bundeslandRow.get("name"));
-    DOM.addElement(idfBody, "p").addText("Bezeichnung des Lagesystems: " + lagesystemdefRow.get("name"));
-    DOM.addElement(idfBody, "p").addText("Lagestatus: " + lagesystemRow.get("lagesystemnummer"));
+    // ---------- punktart ----------
+    DOM.addElement(idfBody, "p").addText("Punktart (WPA): " + punktartRow.get("kurzbezeichnung"));
+    DOM.addElement(idfBody, "p").addText("Name: " + punktartRow.get("name"));
 
     // ---------- link to GEOBAS ----------
     DOM.addElement(idfBody, "p");
     DOM.addElement(idfBody, "p/a")
-        .addAttribute("href", "http://geobas.wsv.bvbs.bund.de/geobas_p1/main?cmd=view_details&id=" + lagesystemRow.get("id") + "&table=lagesystem")
+        .addAttribute("href", "http://geobas.wsv.bvbs.bund.de/geobas_p1/main?cmd=view_details&id=" + punktartRow.get("id") + "&table=punktart")
         .addAttribute("target", "_blank")
         .addText("GEOBAS")
 }

@@ -5,6 +5,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.3.1-SNAPSHOT" date="??" description="??">
+      <action type="add" dev="wemove" issue="GEOPORTALWSV-13">
+        Added missing WSV GeoBas mapping presets.
+      </action>
+    </release>
+    
     <release version="3.3.0" date="2013-03-04" description="Release InGrid 3.3">
       <action type="add" dev="wemove" issue="INGRID-2202">
         Added UFORDAT mapping presets.
