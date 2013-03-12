@@ -31,7 +31,7 @@ var punkthoeheId = sourceRecord.get(DatabaseSourceRecord.ID);
 var punkthoeheRows = SQL.all("SELECT * FROM punkthoehe WHERE id=?", [punkthoeheId]);
 for (i=0; i<punkthoeheRows.size(); i++) {
     var punkthoeheRow = punkthoeheRows.get(i);
-    var title = "Punkthöhe: ";
+    var title = "Punkthoehe: ";
 
     // ---------- hoehensystem ----------
     var rows = SQL.all("SELECT * FROM hoehensystem WHERE id=?", [punkthoeheRow.get("hoehensystem")]);
@@ -79,7 +79,7 @@ for (i=0; i<punkthoeheRows.size(); i++) {
     DOM.addElement(idfBody, "p").addText("H\u00F6henstatus: " + hoehensystemRow.get("hoehensystemnummer"));
     DOM.addElement(idfBody, "p").addText("H\u00F6he: " + punkthoeheRow.get("hoehe"));
     DOM.addElement(idfBody, "p").addText("Datum der H\u00F6henmessung: " + punkthoeheRow.get("datum"));
-    DOM.addElement(idfBody, "p").addText("H\u00F6henzuverl\u00E6ssigkeit: " + punkthoeheRow.get("hzk"));
+    DOM.addElement(idfBody, "p").addText("H\u00F6henzuverl\u00E4ssigkeit: " + punkthoeheRow.get("hzk"));
     DOM.addElement(idfBody, "p").addText("Bemerkung zur H\u00F6he: " + punkthoeheRow.get("bemerkung"));
     DOM.addElement(idfBody, "p").addText("Name der Wasserstra\u00DFe: " + bundeswasserstrRow.get("name"));
     DOM.addElement(idfBody, "p").addText("Punktart Name: " + punktartRow.get("name"));
