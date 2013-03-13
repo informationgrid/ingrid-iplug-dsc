@@ -81,7 +81,7 @@ for (i=0; i<punktlageRows.size(); i++) {
     DOM.addElement(idfBody, "p").addText("X/Hochwert/North: " + punktlageRow.get("x_koordinate"));
     DOM.addElement(idfBody, "p").addText("Z-Koordinate: " + punktlageRow.get("z_koordinate"));
     DOM.addElement(idfBody, "p").addText("Datum der Lagemessung: " + punktlageRow.get("datum"));
-    DOM.addElement(idfBody, "p").addText("Lagezuverl\u00E6ssigkeit: " + punktlageRow.get("lzk"));
+    DOM.addElement(idfBody, "p").addText("Lagezuverl\u00E4ssigkeit: " + punktlageRow.get("lzk"));
     DOM.addElement(idfBody, "p").addText("Bemerkung zur Lage: " + punktlageRow.get("bemerkung"));
     DOM.addElement(idfBody, "p").addText("Name der Wasserstra\u00DFe: " + bundeswasserstrRow.get("name"));
     DOM.addElement(idfBody, "p").addText("Punktart Name: " + punktartRow.get("name"));
