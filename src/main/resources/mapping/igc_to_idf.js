@@ -1118,7 +1118,7 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // ---------- <idf:idfMdMetadata/idf:subordinatedReference> ----------
-    rows = SQL.all("SELECT t01_object.* FROM object_node, t01_object WHERE object_node.fk_obj_uuid=? AND object_node.obj_id_published=t01_object.id", [objUuid]);
+    rows = SQL.all("SELECT t01_object.* FROM object_node, t01_object WHERE object_node.fk_obj_uuid=? AND object_node.obj_id_published=t01_object.id" + publicationConditionFilter, [objUuid]);
     for (i=0; i<rows.size(); i++) {
         mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:subordinatedReference"));
     }

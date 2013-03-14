@@ -7,7 +7,10 @@
   <body>
     <release version="3.3.1-SNAPSHOT" date="??" description="??">
       <action type="add" dev="wemove" issue="GEOPORTALWSV-13">
-        Added missing WSV GeoBas mapping presets.
+          Added missing WSV GeoBas mapping presets.
+      </action>
+      <action type="fix" dev="wemove" issue="INGRID-2237">
+          IDF: Also check publication condition of subordinated objects and filter.
       </action>
     </release>
     
