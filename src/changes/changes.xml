@@ -6,6 +6,9 @@
   </properties>
   <body>
     <release version="3.3.1-SNAPSHOT" date="??" description="??">
+      <action type="add" dev="wemove">
+          Now possible to add arbitrary datatype to iPlug via spring.xml
+      </action>
       <action type="add" dev="wemove" issue="GEOPORTALWSV-13">
           Added missing WSV GeoBas mapping presets.
       </action>
