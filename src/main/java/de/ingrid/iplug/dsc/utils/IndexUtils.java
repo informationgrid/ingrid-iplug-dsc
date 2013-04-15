@@ -8,12 +8,11 @@ import java.io.StringReader;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.de.GermanAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.NumericField;
-import org.apache.lucene.util.Version;
 
 /**
  * Helper class encapsulating functionality on Lucene Index (e.g. used in
@@ -31,12 +30,12 @@ public class IndexUtils {
     private Document luceneDoc = null;
 
     /**
-     * analyzer for stemming ! always german one ??? NO WE USE STANDARD ANALYZER
-     * due to different languages !
+     * analyzer for stemming ! HARDCODED :(
+     * we use german one again ! see INGRID-2246
+     * GS-Soil: USED STANDARD ANALYZER due to different languages !
      */
-    // private static GermanAnalyzer fAnalyzer = new GermanAnalyzer(new
-    // String[0]);
-    private static StandardAnalyzer fAnalyzer = new StandardAnalyzer(Version.LUCENE_CURRENT);
+    private static GermanAnalyzer fAnalyzer = new GermanAnalyzer(new String[0]);
+    // private static StandardAnalyzer fAnalyzer = new StandardAnalyzer(Version.LUCENE_CURRENT);
 
     public IndexUtils(Document luceneDoc) {
         this.luceneDoc = luceneDoc;
