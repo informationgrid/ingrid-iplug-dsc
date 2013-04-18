@@ -50,7 +50,10 @@
             </list>
         </property>
     </bean>
-    
+
+    <!-- STEMMER: Create stemmer explicitly via xml ! Will be autowired to parsers, index writer ... ! -->
+    <bean id="stemmerGERMAN" class="de.ingrid.admin.search.GermanStemmer"/>
+
     <!--
         Wraps one ore more lucene index reader. The wrapper is injected via
         XMLconfiguredIndexWrapper into IngridIndexSearcher constructor, so it

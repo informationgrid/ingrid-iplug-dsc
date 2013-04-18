@@ -8,11 +8,12 @@ import java.io.StringReader;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.de.GermanAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.NumericField;
+
+import de.ingrid.admin.search.Stemmer;
 
 /**
  * Helper class encapsulating functionality on Lucene Index (e.g. used in
@@ -29,13 +30,7 @@ public class IndexUtils {
     /** the Lucene Document where the fields are added ! */
     private Document luceneDoc = null;
 
-    /**
-     * analyzer for stemming ! HARDCODED :(
-     * we use german one again ! see INGRID-2246
-     * GS-Soil: USED STANDARD ANALYZER due to different languages !
-     */
-    private static GermanAnalyzer fAnalyzer = new GermanAnalyzer(new String[0]);
-    // private static StandardAnalyzer fAnalyzer = new StandardAnalyzer(Version.LUCENE_CURRENT);
+    private static Stemmer _defaultStemmer;
 
     public IndexUtils(Document luceneDoc) {
         this.luceneDoc = luceneDoc;
@@ -139,7 +134,7 @@ public class IndexUtils {
     private static String filterTerm(String term) {
         String result = "";
 
-        TokenStream stream = fAnalyzer.tokenStream(null, new StringReader(term));
+        TokenStream stream = _defaultStemmer.getAnalyzer().tokenStream(null, new StringReader(term));
         // get the TermAttribute from the TokenStream
         TermAttribute termAtt = (TermAttribute) stream.addAttribute(TermAttribute.class);
 
@@ -168,4 +163,8 @@ public class IndexUtils {
     public void addDocumentBoost(float boost) {
         luceneDoc.setBoost(boost);
     }
+
+    public void setDefaultStemmer(Stemmer defaultStemmer) {
+    	_defaultStemmer = defaultStemmer;
+	}
 }

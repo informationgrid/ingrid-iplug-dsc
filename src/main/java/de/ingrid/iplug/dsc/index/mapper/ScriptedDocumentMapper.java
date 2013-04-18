@@ -14,8 +14,10 @@ import javax.script.ScriptEngineManager;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 
+import de.ingrid.admin.search.Stemmer;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.utils.IndexUtils;
@@ -42,6 +44,11 @@ public class ScriptedDocumentMapper implements IRecordMapper {
 
     private ScriptEngine engine;
     private CompiledScript compiledScript;
+
+    /** The default stemmer used in IndexUtils Tool !
+     * Is AUTOWIRED in spring environment via {@link #setDefaultStemmer(Stemmer)}
+     */
+    private static Stemmer _defaultStemmer;
 
     private static final Logger log = Logger.getLogger(ScriptedDocumentMapper.class);
 
@@ -72,6 +79,7 @@ public class ScriptedDocumentMapper implements IRecordMapper {
             Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
             SQLUtils sqlUtils = new SQLUtils(connection);
             IndexUtils idxUtils = new IndexUtils(doc);
+            idxUtils.setDefaultStemmer(_defaultStemmer);
             TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
             
             Bindings bindings = engine.createBindings();
@@ -110,4 +118,11 @@ public class ScriptedDocumentMapper implements IRecordMapper {
         this.compile = compile;
     }
 
+    /** Injects default stemmer via autowiring !
+     * @param defaultStemmer
+     */
+    @Autowired
+    public void setDefaultStemmer(Stemmer defaultStemmer) {
+    	_defaultStemmer = defaultStemmer;
+	}
 }
