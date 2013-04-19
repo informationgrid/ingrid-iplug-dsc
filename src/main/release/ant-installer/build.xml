@@ -1,14 +1,24 @@
-<project name="PortalU Installation">
+<project name="PortalU Installation" basedir=".">
     <description>
         InGrid iPlug-DSC Installation Script
     </description>
-	<!-- set global properties for this build -->
-	<property name="componentName" 		value="${project.build.finalName}"/>
-	<property name="xml-communication" 	value="${installDir}/conf/communication.xml"/>
+    <!-- set global properties for this build -->
+    <property name="componentName"      value="${project.build.finalName}"/>
+    <property name="xml-communication"  value="${installDir}/conf/communication.xml"/>
     <property name="start-script"       value="${installDir}/start.sh"/>
-	
+
+    <!-- THIS PORPERTIES ARE NECESSARY FOR UPDATES -->
+    <property name="libraryDir"         value="lib" />
+    <property name="libraryIdent"       value="ingrid-iplug-dsc-scripted-" />
+    <property name="versionsWithConfigurations"  value="" />
+    <property name="minSupportedVersion" value="3.3.0" />
+
+
+    <import file="build-installer-utils.xml"  as="utils" />
+    <import file="build-patch.xml"            as="patch" />
+
     
-    <target name="setUpdateProperty" depends="extractUpdate">
+    <target name="setUpdateProperty" depends="checkPreconditionsForUpdate, extractUpdate">
         <property name="installType" value="update" />
         <property name="updateProcedure" value="true" />
     </target>
@@ -17,42 +27,44 @@
         <property name="installProcedure" value="true" />
     </target>
     
-	<target name="extract" description="Extract all files to the installation directory.">
-		<unzip src="${antinstaller.jar}" dest="${installDir}">
-			<patternset>
-				<include name="${componentName}/**/*.*"/>
-			</patternset>
-		</unzip>
-		
-		<move toDir="${installDir}">
-			<fileset dir="${installDir}/${componentName}"/>
-		</move>
-		
-		<mkdir dir="${installDir}/logs"/>
-		<mkdir dir="${installDir}/webapp/WEB-INF/work"/>
+    <target name="extract" description="Extract all files to the installation directory.">
+        <unzip src="${antinstaller.jar}" dest="${installDir}">
+            <patternset>
+                <include name="${componentName}/**/*.*"/>
+            </patternset>
+        </unzip>
+        
+        <move toDir="${installDir}">
+            <fileset dir="${installDir}/${componentName}"/>
+        </move>
+        
+        <mkdir dir="${installDir}/logs"/>
+        <mkdir dir="${installDir}/webapp/WEB-INF/work"/>
         
         <replace file="${start-script}" token="@SERVER_PORT@" value="${localServerPort}"/>
-	</target>
+    </target>
     
     <target name="extractUpdate" depends="findSpringConfig">
-		<unzip src="${antinstaller.jar}" dest="${installDir}">
-			<patternset>
-				<include name="${componentName}/**/*.*"/>
-                <!--<exclude name="${componentName}/webapp/WEB-INF/spring.xml" />-->
-			</patternset>
-		</unzip>
+        <unzip src="${antinstaller.jar}" dest=".">
+            <patternset>
+                <include name="**/*.*"/>
+                <exclude name="${componentName}/webapp/WEB-INF/spring.xml" />
+            </patternset>
+        </unzip>
         
-        <delete dir="${installDir}/lib"/>
-		
-		<move toDir="${installDir}">
-			<fileset dir="${installDir}/${componentName}"/>
-		</move>
-    	
-    	<mkdir dir="${installDir}/webapp/WEB-INF/work"/>
-    	
+        <delete>
+            <fileset dir="${installDir}/lib" includes="**/*"/>
+        </delete>
+        
+        <move toDir="${installDir}">
+            <fileset dir="./${componentName}"/>
+        </move>
+        
+        <!-- <mkdir dir="${installDir}/webapp/WEB-INF/work"/> -->
+        
         <!-- update spring file with newest mapping version -->
-        <copy file="${installDir}/udk_presets/${springConfig}" toFile="${installDir}/webapp/WEB-INF/spring.xml" overwrite="true"/>
-	</target>
+        <!-- <copy file="${installDir}/udk_presets/${springConfig}" toFile="${installDir}/webapp/WEB-INF/spring.xml" overwrite="true"/> -->
+    </target>
     
     <target name="findSpringConfig">
         <property name="xml" value="${installDir}/webapp/WEB-INF/spring.xml"/>
@@ -77,14 +89,14 @@
     <copy file="${installDir}/udk_presets/${springConfig}" toFile="${installDir}/webapp/WEB-INF/spring.xml" overwrite="true"/>
   </target>
     
-	<target name="startComponent">
-		<echo>
+    <target name="startComponent">
+        <echo>
 =================
 Weiteres Vorgehen
 =================
 
-		</echo>
-		<echo>
+        </echo>
+        <echo>
 Gehen Sie ins Verzeichnis:
 ${installDir}
 und rufen sie von der Kommandozeile folgendes auf
@@ -101,7 +113,9 @@ Administration (im Portal) eingeschaltet werden.
 Weitere Informationen entnehmen Sie bitte dem
 Online-Handbuch unter 
 http://www.kst.portalu.de/wiki/index.php/InGrid_Installation.
-		</echo>
-	</target>
-	
+        </echo>
+
+        <runtarget target="showPatchErrors" />
+    </target>
+    
 </project>

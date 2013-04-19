@@ -1,0 +1,19 @@
+<project name="iplug-dsc-scripted Patches">
+
+	<target name="patchFromVersion3.3.0">
+        <compareVersion value1="${oldVersion}" value2="3.3.0" prop="compResult"/>
+        <if>
+            <not>
+                <equals arg1="${compResult}" arg2="1" />
+            </not>
+            <then>
+                <echo>Patching spring.xml file in basedir: </echo>
+                <patchFile patchFile="patches/3.4.0/spring.xml.patch" originalFile="${installDir}/webapp/WEB-INF/spring.xml" />
+            </then>
+        </if>
+    </target>
+
+	<target name="patchFiles" depends="patchFromVersion3.3.0">
+		<!-- patch order determined through depends-order -->
+	</target>
+</project>

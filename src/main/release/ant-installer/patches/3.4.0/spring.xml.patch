@@ -1,0 +1,23 @@
+--- C:/temp/AppData/spring.xml-rev22040.svn002.tmp.xml	Wed Oct 10 13:57:14 2012
++++ C:/temp/AppData/spring.xml-rev22041.svn002.tmp.xml	Tue Mar 26 16:21:52 2013
+@@ -54,4 +54,20 @@
+         <property name="sql" value="SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" />
+     </bean>
+ 
++    <!--
++        Example: ADD USER DEFINED DATATYPE TO IPLUG !
++        Constructor parameters:
++            0 = name of new datatype (String)
++            1 = is hidden in admin GUI ? (Boolean)
++        Properties:
++            forceActive = datatype always set ? (Boolean)
++    -->
++<!--
++    <bean id="myNewDatatype" class="de.ingrid.admin.object.UserDefinedDataType">
++        <constructor-arg index="0" value="name_of_new_datatype" />
++        <constructor-arg index="1" value="true" />
++        <property name="forceActive" value="true" />
++    </bean>
++-->
++
+ </beans>
