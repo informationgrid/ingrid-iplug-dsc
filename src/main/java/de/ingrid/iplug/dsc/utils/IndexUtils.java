@@ -32,8 +32,9 @@ public class IndexUtils {
 
     private static Stemmer _defaultStemmer;
 
-    public IndexUtils(Document luceneDoc) {
+    public IndexUtils(Document luceneDoc, Stemmer defaultStemmer) {
         this.luceneDoc = luceneDoc;
+        this._defaultStemmer = defaultStemmer;
     }
 
     /**
@@ -163,8 +164,4 @@ public class IndexUtils {
     public void addDocumentBoost(float boost) {
         luceneDoc.setBoost(boost);
     }
-
-    public void setDefaultStemmer(Stemmer defaultStemmer) {
-    	_defaultStemmer = defaultStemmer;
-	}
 }

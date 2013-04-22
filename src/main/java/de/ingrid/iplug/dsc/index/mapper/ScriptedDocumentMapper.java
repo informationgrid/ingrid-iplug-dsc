@@ -78,8 +78,7 @@ public class ScriptedDocumentMapper implements IRecordMapper {
             // create utils for script
             Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
             SQLUtils sqlUtils = new SQLUtils(connection);
-            IndexUtils idxUtils = new IndexUtils(doc);
-            idxUtils.setDefaultStemmer(_defaultStemmer);
+            IndexUtils idxUtils = new IndexUtils(doc, _defaultStemmer);
             TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
             
             Bindings bindings = engine.createBindings();

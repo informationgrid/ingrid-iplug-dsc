@@ -13,7 +13,8 @@
           Added missing WSV GeoBas mapping presets.
       </action>
       <action type="update" dev="wemove" issue="INGRID-2246">
-          Use german analyzer when creating/searching lucene index (not standard analyzer for multiple languages).
+          Use german analyzer when creating/searching lucene index, now configured via XML.
+          Also fix encoding of umlaute in request parameters (test search with umlaute works now in admin-gui).
       </action>
       <action type="fix" dev="wemove" issue="INGRID-2237">
           IDF: Also check publication condition of subordinated objects and filter.
