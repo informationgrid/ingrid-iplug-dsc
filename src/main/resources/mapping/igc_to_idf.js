@@ -209,8 +209,12 @@ for (i=0; i<objRows.size(); i++) {
     }
     // ---------- <gmd:identificationInfo> ----------
     var identificationInfo;
-    if (objClass.equals("3") || objClass.equals("6")) {
+    if (objClass.equals("3")) {
         identificationInfo = mdMetadata.addElement("gmd:identificationInfo/srv:SV_ServiceIdentification");
+// INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+// is now <gmd:MD_ServiceIdentification> NOT <srv:SV_ServiceIdentification>, see INGRID-2257
+    } else if (objClass.equals("6")) {
+        identificationInfo = mdMetadata.addElement("gmd:identificationInfo/gmd:MD_ServiceIdentification");
     } else {
         identificationInfo = mdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
     }
@@ -617,8 +621,8 @@ for (i=0; i<objRows.size(); i++) {
     addResourceConstraints(identificationInfo, objId);
     
     
-// GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-    if (objClass.equals("3") || objClass.equals("6")) {
+// GEODATENDIENST(3)
+    if (objClass.equals("3")) {
         var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
         var objServId = objServRow.get("id");
         
@@ -638,6 +642,14 @@ for (i=0; i<objRows.size(); i++) {
         for (i=0; i<rows.size(); i++) {
             identificationInfo.addElement("srv:serviceTypeVersion/gco:CharacterString").addText(rows.get(i).get("serv_version"));
         }
+
+// INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+// is now <gmd:MD_ServiceIdentification>, see INGRID-2257
+// -> No mapping of "Art des Dienstes" -> <srv:serviceType>
+// -> No mapping of "Version"  -> <srv:serviceTypeVersion>
+    } else if (objClass.equals("6")) {
+        var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
+        var objServId = objServRow.get("id");
 
 // NICHT GEODATENDIENST(3) + NICHT INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     } else {
@@ -705,9 +717,16 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
 
-// ALLE KLASSEN
-    addExtent(identificationInfo, objRow);
+    // ---------- <gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent> ----------
+    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent> ----------
+
+// ALLE KLASSEN AUßER INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+// There extent is mapped to new <gmd:MD_DataIdentification> in FIXED order, see below
+    if (!objClass.equals("6")) {
+        addExtent(identificationInfo, objRow);
+    }
     
+// GEODATENDIENST(3)
     if (objClass.equals("3")) {
         // ---------- <gmd:identificationInfo/srv:coupledResource/srv:SV_CoupledResource/srv:identifier/gco:CharacterString> ----------
         var rows = SQL.all("SELECT t01_object.* FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?" + publicationConditionFilter, [objId, '3600', "V"]);
@@ -723,10 +742,7 @@ for (i=0; i<objRows.size(); i++) {
             resourceIdentifiers.push([getCitationIdentifier(rows.get(i), refObjId), refObjUuid]);
             coupledResource.addElement("srv:identifier/gco:CharacterString").addText(resourceIdentifiers[resourceIdentifiers.length-1][0]);
         }
-    }
 
-    // GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-    if (objClass.equals("3") || objClass.equals("6")) {
         // ---------- <gmd:identificationInfo/srv:couplingType/srv:SV_CouplingType> ----------
         // also check whether referenced object is published !
         row = SQL.first("SELECT * FROM object_reference, t01_object, t011_obj_serv WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=t011_obj_serv.obj_id AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3210', "V"]);
@@ -751,7 +767,18 @@ for (i=0; i<objRows.size(); i++) {
         }
         
         // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
-        // add second identification info for all information that cannot be mapped into a SV_ServiceIdentification element
+        // add data identification info for all information that cannot be mapped into a SV_ServiceIdentification element
+        addServiceAdditionalIdentification(mdMetadata, objServRow, objServId);
+
+// INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+// is now <gmd:MD_ServiceIdentification>, see INGRID-2257
+// -> No mapping of <srv:couplingType>
+// -> No mapping of <srv:containsOperations>
+// -> instead mapping to distributionInfo/CI_OnlineResource, see below addDistributionInfo
+    } else if (objClass.equals("6")) {
+
+        // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
+        // add data identification info for all information that cannot be mapped into a MD_ServiceIdentification element
         addServiceAdditionalIdentification(mdMetadata, objServRow, objServId);
 
 // NICHT GEODATENDIENST(3) + NICHT INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
@@ -1872,11 +1899,13 @@ function addResourceConstraints(identificationInfo, objId) {
 
 
 function addExtent(identificationInfo, objRow) {
-// ---------- <gmd:identificationInfo/srv:extent/gmd:EX_Extent> ----------
-// ---------- <gmd:identificationInfo/gmd:extent/gmd:EX_Extent> ----------
+    // ---------- <gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent> ----------
+    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent> ----------
 
     var extentElemName = "gmd:extent"; 
-    if (objClass.equals("3") || objClass.equals("6")) {
+// INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+// is now <gmd:MD_ServiceIdentification> and mapped to <gmd:extent>, see INGRID-2257
+    if (objClass.equals("3")) {
         extentElemName = "srv:extent";
     }
 
@@ -2020,6 +2049,7 @@ function addDistributionInfo(mdMetadata, objId) {
     var mdDistribution;
     var formatWritten = false;
     var distributorWritten = false;
+
     if (objClass.equals("1")) {
         rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [objId]);
         for (i=0; i<rows.size(); i++) {
@@ -2036,13 +2066,9 @@ function addDistributionInfo(mdMetadata, objId) {
         }
     }
     
-    
 // ALLE KLASSEN
 
-    // distributionInfo
-
     // ---------- <idf:idfMdMetadata/gmd:distributionInfo/gmd:MD_Distribution> ----------
-    var mdDistribution;
     rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [objId]);
     for (i=0; i<rows.size(); i++) {
         if (!mdDistribution) {
@@ -2136,6 +2162,44 @@ function addDistributionInfo(mdMetadata, objId) {
         }
     }
     
+// INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+// is now <gmd:MD_ServiceIdentification>, see INGRID-2257
+// -> map Service URLs to distributionInfo/CI_OnlineResource 
+    // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource> ----------
+    if (objClass.equals("6")) {
+        rows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [objServId]);
+        for (i=0; i<rows.size(); i++) {
+            row = rows.get(i);
+            if (!mdDistribution) {
+                mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+            }
+            if (!formatWritten && !distributorWritten) {
+                // always write format, here with nilReason children, see INGRID32-146
+                var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
+                mdFormat.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
+                mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
+                formatWritten = true;
+            }
+            var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
+            var idfOnlineResource = digitalTransferOptions.addElement("gmd:onLine/idf:idfOnlineResource");
+            idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(row.get("url"));
+            if (hasValue(row.get("name"))) {
+                idfOnlineResource.addElement("gmd:name/gco:CharacterString").addText(row.get("name"));
+            }
+            if (hasValue(row.get("description"))) {
+                idfOnlineResource.addElement("gmd:description/gco:CharacterString").addText(row.get("description"));
+            }
+            
+            // HACK: Simulate URL row to add correct function code ... !!!
+            row.put("special_ref", "5066");
+            row.put("special_name", "Link to Service");
+            // first ISO (gmd:function)
+            addAttachedToField(row, idfOnlineResource, true);
+            // then IDF (idf:attachedToField) for detail representation !
+            addAttachedToField(row, idfOnlineResource);
+        }
+    }
+
     // add connection to the service(s) for class 1
     if (objClass.equals("1") || objClass.equals("3")) {
         // ---------- <gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:online/gmd:CI_OnlineResource ----------
@@ -2207,7 +2271,7 @@ function addDistributionInfo(mdMetadata, objId) {
             }
             mdMedium.addElement("gmd:mediumNote/gco:CharacterString").addText(rows.get(i).get("medium_note"));
         }
-    }   
+    }
 }
 
 function addServiceOperations(identificationInfo, objServId, serviceTypeISOName) {
@@ -2291,38 +2355,11 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                 }
             }
 
-// INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-    // ---------- <srv:containsOperations/srv:SV_OperationMetadata> ----------
-        } else if (objClass.equals("6")) {
-            rows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [objServId]);
-            for (i=0; i<rows.size(); i++) {
-                row = rows.get(i);
-                // add srv:containsOperations WITH EVERY OPERATION (strange schema !)
-                svContainsOperations = identificationInfo.addElement("srv:containsOperations");
-                var svOperationMetadata = svContainsOperations.addElement("srv:SV_OperationMetadata");
-
-        // ---------- <srv:SV_OperationMetadata/srv:operationName> ----------
-                svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText(row.get("name"));
-
-        // ---------- <srv:SV_OperationMetadata/srv:DCP/srv:DCPList> ----------
-                svOperationMetadata.addElement("srv:DCP/srv:DCPList")
-                    .addAttribute("codeList", "http://opengis.org/codelistRegistry?CSW_DCPCodeType")
-                    .addAttribute("codeListValue", "WebService");
-
-        // ---------- <srv:SV_OperationMetadata/srv:operationDescription> ----------
-                if (hasValue(row.get("description"))) {
-                    svOperationMetadata.addElement("srv:operationDescription/gco:CharacterString").addText(row.get("description"));
-                }
-                
-        // ---------- <srv:SV_OperationMetadata/srv:connectPoint> ----------
-                svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(row.get("url"));
+            // operations needed, add dummy if no operations !
+            if (!svContainsOperations) {
+                identificationInfo.addElement("srv:containsOperations").addAttribute("gco:nilReason", "missing");
             }
         }
-
-    // operations needed, add dummy if no operations !
-    if (!svContainsOperations) {
-        identificationInfo.addElement("srv:containsOperations").addAttribute("gco:nilReason", "missing");
-    }
 }
 
 function prepareGetCapabilitiesUrl(connUrl, opName) {
@@ -2344,13 +2381,13 @@ function prepareGetCapabilitiesUrl(connUrl, opName) {
     return connUrl;
 }
 
-// add second identification info for all information that cannot be mapped into a SV_ServiceIdentification element
+// add data identification info for all information that cannot be mapped into a SV_ServiceIdentification/MD_ServiceIdentification element
 function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
         var svScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServId]);
         if (svScaleRows.size() > 0 || hasValue(objServRow.get("environment")) || hasValue(objServRow.get("description"))) {
-    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
+		    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
             var mdDataIdentification = mdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
-            mdDataIdentification.addAttribute("uuid", getFileIdentifier(objRow));
+                mdDataIdentification.addAttribute("uuid", getFileIdentifier(objRow));        		
     
             // add necessary elements for schema validation
             // ---------- <gmd:citation> ----------
@@ -2415,6 +2452,15 @@ function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
                 mdDataIdentification.addElement("gmd:environmentDescription/gco:CharacterString").addText(objServRow.get("environment"));
             }
     
+		    // ---------- <gmd:extent/gmd:EX_Extent> ----------
+
+// INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+// is now <gmd:MD_ServiceIdentification>, see INGRID-2257
+// -> map extent to additional <gmd:MD_DataIdentification>
+		    if (objClass.equals("6")) {
+        		addExtent(mdDataIdentification, objRow);
+	        }
+
             // ---------- <gmd:supplementalInformation> ----------
             if (hasValue(objServRow.get("description"))) {
                 mdDataIdentification.addElement("gmd:supplementalInformation/gco:CharacterString").addText(objServRow.get("description"));

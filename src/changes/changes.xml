@@ -16,6 +16,9 @@
           Use german analyzer when creating/searching lucene index, now configured via XML.
           Also fix encoding of umlaute in request parameters (test search with umlaute works now in admin-gui).
       </action>
+      <action type="fix" dev="wemove" issue="INGRID-2257">
+          IDF: Map objects of class 6 ("Dienst/Anwendung/Informationssystem") to MD_ServiceIdentification and not SV_ServiceIdentification. 
+      </action>
       <action type="fix" dev="wemove" issue="INGRID-2237">
           IDF: Also check publication condition of subordinated objects and filter.
       </action>
