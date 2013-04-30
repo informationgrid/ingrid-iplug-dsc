@@ -123,7 +123,8 @@ for (i=0; i<objRows.size(); i++) {
         if (addressRow) {
             // map only email address (pass true as third parameter), see INGRID32-36
             // NO, ISO needs more data, see INGRID32-146
-            mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", false));
+        	// do not export all values ... only organisation name and email(s) (INGRID-2256)
+            mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
         }
     }
     // ---------- <gmd:dateStamp> ----------
@@ -478,8 +479,7 @@ for (i=0; i<objRows.size(); i++) {
             // address may be hidden ! then get first visible parent in hierarchy !
             var addressRow = getFirstVisibleAddress(addressRows.get(i).get("adr_uuid"));
             if (addressRow) {
-            	// do not export all values ... only organisation name and email(s) (INGRID-2256)
-                identificationInfo.addElement("gmd:pointOfContact").addElement(getIdfResponsibleParty(addressRow, role, true));
+                identificationInfo.addElement("gmd:pointOfContact").addElement(getIdfResponsibleParty(addressRow, role));
             }
         }
     }
