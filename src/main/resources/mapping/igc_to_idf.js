@@ -478,7 +478,8 @@ for (i=0; i<objRows.size(); i++) {
             // address may be hidden ! then get first visible parent in hierarchy !
             var addressRow = getFirstVisibleAddress(addressRows.get(i).get("adr_uuid"));
             if (addressRow) {
-                identificationInfo.addElement("gmd:pointOfContact").addElement(getIdfResponsibleParty(addressRow, role));
+            	// do not export all values ... only organisation name and email(s) (INGRID-2256)
+                identificationInfo.addElement("gmd:pointOfContact").addElement(getIdfResponsibleParty(addressRow, role, true));
             }
         }
     }
@@ -520,6 +521,8 @@ for (i=0; i<objRows.size(); i++) {
     if (hasValue(objRow.get("time_descr"))) {
         if (!mdMaintenanceInformation) {
             mdMaintenanceInformation = identificationInfo.addElement("gmd:resourceMaintenance/gmd:MD_MaintenanceInformation");
+            mdMaintenanceInformation.addElement("gmd:maintenanceAndUpdateFrequency")
+            .addAttribute("gco:nilReason", "missing");
             mdMaintenanceInformation.addElement("gmd:updateScope/gmd:MD_ScopeCode")
             .addAttribute("codeListValue", getHierarchLevel(objClass))
             .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode");
@@ -1457,11 +1460,13 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
             individualName = filterUserPostfix(individualName);
             idfResponsibleParty.addElement("gmd:individualName").addElement("gco:CharacterString").addText(individualName);
         }
-        var institution = getInstitution(parentAddressRowPathArray);
-        if (hasValue(institution)) {
-            institution = filterUserPostfix(institution);
-            idfResponsibleParty.addElement("gmd:organisationName").addElement("gco:CharacterString").addText(institution);
-        }
+    }
+    var institution = getInstitution(parentAddressRowPathArray);
+    if (hasValue(institution)) {
+        institution = filterUserPostfix(institution);
+        idfResponsibleParty.addElement("gmd:organisationName").addElement("gco:CharacterString").addText(institution);
+    }
+    if (!mapOnlyEmails) {
         if (hasValue(addressRow.get("job"))) {
             idfResponsibleParty.addElement("gmd:positionName").addElement("gco:CharacterString").addText(addressRow.get("job"));
         }
@@ -1514,14 +1519,14 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
         if (urls.length > 0) {
             ciContact.addElement("gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(urls[0]);
         }
-    }
 
-    if (hasValue(role)) {
-        idfResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
-            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
-            .addAttribute("codeListValue", role);   
-    } else {
-        idfResponsibleParty.addElement("gmd:role").addAttribute("gco:nilReason", "inapplicable");
+	    if (hasValue(role)) {
+	        idfResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
+	            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+	            .addAttribute("codeListValue", role);   
+	    } else {
+	        idfResponsibleParty.addElement("gmd:role").addAttribute("gco:nilReason", "inapplicable");
+	    }
     }
 
     // -------------- IDF ----------------------
