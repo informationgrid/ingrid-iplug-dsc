@@ -1519,14 +1519,13 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
         if (urls.length > 0) {
             ciContact.addElement("gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(urls[0]);
         }
-
-	    if (hasValue(role)) {
-	        idfResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
-	            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
-	            .addAttribute("codeListValue", role);   
-	    } else {
-	        idfResponsibleParty.addElement("gmd:role").addAttribute("gco:nilReason", "inapplicable");
-	    }
+    }
+    if (hasValue(role)) {
+        idfResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
+            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+            .addAttribute("codeListValue", role);   
+    } else {
+        idfResponsibleParty.addElement("gmd:role").addAttribute("gco:nilReason", "inapplicable");
     }
 
     // -------------- IDF ----------------------
