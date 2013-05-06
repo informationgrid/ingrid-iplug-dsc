@@ -2233,8 +2233,10 @@ function addDistributionInfo(mdMetadata, objId) {
                 }
                 var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
                 var idfOnlineResource = digitalTransferOptions.addElement("gmd:onLine/idf:idfOnlineResource");
-                var connUrl = prepareGetCapabilitiesUrl(rows.get(i).get("connect_point"), rows.get(i).get("name_value"));
-                idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(connUrl);
+                // Preparing getCapabilitiesUrl deprecated, see INGRID-2259
+                // var connUrl = prepareGetCapabilitiesUrl(rows.get(i).get("connect_point"), rows.get(i).get("name_value"));
+                // idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(connUrl);
+                idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("connect_point"));
             }
         }
     }
@@ -2353,7 +2355,8 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                     var connUrl = connRows.get(j).get("connect_point");
                     if (hasValue(connUrl)) {
                         // always add some parameters to "getcapabilities" url when VIEW-Service, see INGRID-2107
-                        connUrl = prepareGetCapabilitiesUrl(connUrl, opName);
+                    	// Preparing getCapabilitiesUrl deprecated, see INGRID-2259
+                        // connUrl = prepareGetCapabilitiesUrl(connUrl, opName);
                         svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(connUrl);
                     }
                 }
@@ -2366,6 +2369,10 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
         }
 }
 
+/*
+ * Preparing getCapabilitiesUrl deprecated, see INGRID-2259
+ * 
+ *
 function prepareGetCapabilitiesUrl(connUrl, opName) {
     log.debug("prepareGetCapabilitiesUrl: " + connUrl + " : " + opName);
     if (hasValue(serviceTypeISOName) && serviceTypeISOName.equals("view") &&
@@ -2384,6 +2391,7 @@ function prepareGetCapabilitiesUrl(connUrl, opName) {
     log.debug("result connUrl: " + connUrl);
     return connUrl;
 }
+*/
 
 // add data identification info for all information that cannot be mapped into a SV_ServiceIdentification/MD_ServiceIdentification element
 function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
