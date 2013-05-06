@@ -2388,7 +2388,13 @@ function prepareGetCapabilitiesUrl(connUrl, opName) {
 // add data identification info for all information that cannot be mapped into a SV_ServiceIdentification/MD_ServiceIdentification element
 function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
         var svScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServId]);
-        if (svScaleRows.size() > 0 || hasValue(objServRow.get("environment")) || hasValue(objServRow.get("description"))) {
+        if (svScaleRows.size() > 0 ||
+            hasValue(objServRow.get("environment")) ||
+            hasValue(objServRow.get("description")) ||
+            // INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+            objClass.equals("6") // add <gmd:MD_DataIdentification/.../gmd:extent>, see INGRID-2257
+
+            ) {
 		    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
             var mdDataIdentification = mdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
                 mdDataIdentification.addAttribute("uuid", getFileIdentifier(objRow));        		
