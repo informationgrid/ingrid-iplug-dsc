@@ -342,6 +342,25 @@ public class TransformationUtils {
 
 		return retValue;
 	}
+	
+	
+	public String getISOCodeListEntryData(Long codeListId, String entryValue ) {
+		if (entryValue == null) {
+			return null;
+		}
+
+		String retValue = null;
+		try {
+			retValue = SQL.first("SELECT data FROM sys_list WHERE lst_id="+codeListId+" AND name=?", new Object[] { entryValue }).get("data");
+		} catch (Exception ex) {
+            log.error("Problems checking entryValue '" + entryValue + "' on ISO Code List '" + codeListId + "'.");
+		}
+        if (log.isDebugEnabled()) {
+            log.debug("Checking entryValue '" + entryValue + "' on ISO Code List '" + codeListId + "' delivers data '" + retValue + "'.");
+        }
+
+		return retValue;
+	}
 
 	/**
 	 * Returns a ISO3166-1 Alpha-3 code based on a given numeric id.

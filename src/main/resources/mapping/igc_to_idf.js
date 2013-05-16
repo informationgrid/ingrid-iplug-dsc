@@ -2047,7 +2047,6 @@ function getTimeRange(objRow) {
     return retValue;
 }
 
-
 function addDistributionInfo(mdMetadata, objId) {
     // GEO-INFORMATION/KARTE(1)
     var mdDistribution;
@@ -2063,10 +2062,22 @@ function addDistributionInfo(mdMetadata, objId) {
             // ---------- <gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format> ----------
             var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
             formatWritten = true;
+            var formatValue = rows.get(i).get("format_value");
             // ---------- <gmd:MD_Format/gmd:name> ----------
-            mdFormat.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("format_value"));
-         // ---------- <gmd:MD_Format/gmd:version> ----------
-            mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
+            mdFormat.addElement("gmd:name/gco:CharacterString").addText(formatValue);
+            // ---------- <gmd:MD_Format/gmd:version> ----------
+            var data = TRANSF.getISOCodeListEntryData(6300, formatValue);
+            var version = getParameterWithin(data, '"', 1);
+            if (version.trim() === "")
+            	mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
+            else
+            	mdFormat.addElement("gmd:version/gco:CharacterString").addText(version);
+            // ---------- <gmd:MD_Format/gmd:specification> ----------
+            var specification = getParameterWithin(data, '"', 2);
+            if (specification.trim() === "")
+            	mdFormat.addElement("gmd:specification").addAttribute("gco:nilReason", "unknown");
+            else
+            	mdFormat.addElement("gmd:specification/gco:CharacterString").addText(specification);
         }
     }
     
@@ -2882,4 +2893,25 @@ function hasValue(val) {
     } else {
       return true;
     }
+}
+
+/**
+ * Extracts a parameter from a string which is between a specified character.
+ * For a string like -> "parameter1","parameter2"
+ * the call to get the first parameter would be like -> getParameterWithin(string, '"', 1)
+ * @param data, the string to look for parameters
+ * @param searchChar, the character a parameter is in between
+ * @param paramNum, the parameter number
+ * @returns the 'paramNum' extracted parameter
+ */
+function getParameterWithin(data, searchChar, paramNum) {
+	if (!data) return "";
+	var pos = 0, next = -1;
+	for (var i=0; i<paramNum; i++) {
+		pos = data.indexOf(searchChar, next+1);
+		next = data.indexOf(searchChar, pos+1);
+	}
+	// invalid or empty structure returns empty string
+	if (pos === -1 || next === -1) return "";
+	return data.substring(pos+1, next);
 }
