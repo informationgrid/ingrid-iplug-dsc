@@ -33,7 +33,7 @@ DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
 // ---------- <idf:html> ----------
 var idfHtml = XPATH.getNode(idfDoc, "/idf:html")
-DOM.addAttribute(idfHtml, "idf-version", "3.2.0");
+DOM.addAttribute(idfHtml, "idf-version", "3.3.0");
 
 // ---------- <idf:body> ----------
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
@@ -1267,9 +1267,18 @@ function getDqConformanceResultElement(conformityRow) {
 
 function getDqDataQualityElement(objClass) {
     var dqDataQuality = DOM.createElement("gmd:DQ_DataQuality");
-    dqDataQuality.addElement("gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode")
+
+    var dqScope = dqDataQuality.addElement("gmd:scope/gmd:DQ_Scope");
+    
+    dqScope.addElement("gmd:level/gmd:MD_ScopeCode")
         .addAttribute("codeListValue", getHierarchLevel(objClass))
         .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode");
+
+    // "levelDescription" is mandatory if "level" notEqual 'dataset' or 'series', see INGRID-2263
+    if (objClass != "1") {
+        dqScope.addElement("gmd:levelDescription/gmd:MD_ScopeDescription/gmd:other/gco:CharacterString").addText(objClass);
+    }
+
     return dqDataQuality;
 }
 
