@@ -1238,10 +1238,15 @@ function getDqConformanceResultElement(conformityRow) {
         specification = conformityRow.get("specification_value");
     } else {
         // date of specification encoded in syslist value ! Parse and extract !
+    	// INGRID-2270: get date from data field
+    	var dateFromDataField = TRANSF.getISOCodeListEntryData(6005, specification);
+    	// Fallback if old codelist is still used
         var stringsParsed = TRANSF.parseIGCSyslistEntryName(specification, 6005);
         if (hasValue(stringsParsed[1])) {
             specificationDate = stringsParsed[1];
             specification = stringsParsed[0];
+        } else if (hasValue(dateFromDataField)) {
+        	specificationDate = dateFromDataField;
         }
     }
     if (hasValue(specification)) {

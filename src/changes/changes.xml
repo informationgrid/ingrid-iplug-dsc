@@ -19,6 +19,9 @@
       <action type="update" dev="wemove" issue="INGRID-2256">
           Only export organisation and emails of point of contact.
       </action>
+      <action type="update" dev="wemove" issue="INGRID-2270">
+          IDF: Get date from data field instead from label of codelist 6005.
+      </action>
       <action type="fix" dev="wemove" issue="INGRID-2263">
           IDF: Also set "levelDescription" in "DQ_Scope" if object is not class 1 (Geoinformation/Karte) cause is mandatory if "level" notEqual 'dataset' or 'series'.
       </action>
