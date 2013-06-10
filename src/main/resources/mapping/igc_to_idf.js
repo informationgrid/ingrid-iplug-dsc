@@ -2103,7 +2103,7 @@ function addDistributionInfo(mdMetadata, objId) {
         if (!mdDistribution) {
             mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
         }
-        // ---------- <gmd:MD_Distributiongmd:distributionFormat/gmd:MD_Format> ----------
+        // ---------- <gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format> ----------
         var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
         formatWritten = true;
         // ---------- <gmd:MD_Format/gmd:name> ----------
@@ -2132,6 +2132,14 @@ function addDistributionInfo(mdMetadata, objId) {
     if (hasValue(objRow.get("ordering_instructions"))) {
         if (!mdDistribution) {
             mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+        }
+        if (!formatWritten) {
+            // always write format, here with nilReason children, see INGRID32-146
+        	// NOW ALSO when distributor exists (was missing) !, see INGRID-2277
+            var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
+            mdFormat.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
+            mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
+            formatWritten = true;
         }
         var mdDistributor = mdDistribution.addElement("gmd:distributor/gmd:MD_Distributor");
         var distributorWritten = true;
