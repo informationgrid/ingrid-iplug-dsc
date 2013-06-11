@@ -139,7 +139,7 @@ for (i=0; i<objRows.size(); i++) {
     var mdStandardName;
     if (hasValue(objRow.get("metadata_standard_name"))) {
         mdStandardName=objRow.get("metadata_standard_name");
-    } else if (objClass.equals("3") || objClass.equals("6")) {
+    } else if (objClass.equals("3")) {
         mdStandardName="ISO19119";
     } else {
         mdStandardName="ISO19115";
@@ -150,7 +150,7 @@ for (i=0; i<objRows.size(); i++) {
     var mdStandardName;
     if (hasValue(objRow.get("metadata_standard_version"))) {
         mdStandardName=objRow.get("metadata_standard_version");
-    } else if (objClass.equals("3") || objClass.equals("6")) {
+    } else if (objClass.equals("3")) {
         mdStandardName="2005/PDAM 1";
     } else {
         mdStandardName="2003/Cor.1:2006";
