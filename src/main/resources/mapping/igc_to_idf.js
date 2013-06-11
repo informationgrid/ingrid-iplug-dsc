@@ -212,10 +212,6 @@ for (i=0; i<objRows.size(); i++) {
     var identificationInfo;
     if (objClass.equals("3")) {
         identificationInfo = mdMetadata.addElement("gmd:identificationInfo/srv:SV_ServiceIdentification");
-// INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-// is now <gmd:MD_ServiceIdentification> NOT <srv:SV_ServiceIdentification>, see INGRID-2257
-    } else if (objClass.equals("6")) {
-        identificationInfo = mdMetadata.addElement("gmd:identificationInfo/gmd:MD_ServiceIdentification");
     } else {
         identificationInfo = mdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
     }
@@ -628,7 +624,7 @@ for (i=0; i<objRows.size(); i++) {
     if (objClass.equals("3")) {
         var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
         var objServId = objServRow.get("id");
-        
+
         // ---------- <gmd:identificationInfo/srv:serviceType> ----------
         var serviceTypeISOName = getServiceType(objClass, objServRow);
         if (hasValue(serviceTypeISOName)) {
@@ -646,13 +642,54 @@ for (i=0; i<objRows.size(); i++) {
             identificationInfo.addElement("srv:serviceTypeVersion/gco:CharacterString").addText(rows.get(i).get("serv_version"));
         }
 
+
 // INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-// is now <gmd:MD_ServiceIdentification>, see INGRID-2257
-// -> No mapping of "Art des Dienstes" -> <srv:serviceType>
-// -> No mapping of "Version"  -> <srv:serviceTypeVersion>
     } else if (objClass.equals("6")) {
         var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
         var objServId = objServRow.get("id");
+
+        var svScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServId]);
+        if (svScaleRows.size() > 0) {
+            // ---------- <gmd:identificationInfo/gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale> ----------
+            for (i=0; i<svScaleRows.size(); i++) {
+                if (hasValue(svScaleRows.get(i).get("scale"))) {
+                    identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer")
+                    .addText(TRANSF.getISOIntegerFromIGCNumber(svScaleRows.get(i).get("scale")));
+                }
+            }
+    
+            // ---------- <gmd:identificationInfo/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance> ----------
+            for (i=0; i<svScaleRows.size(); i++) {
+                if (hasValue(svScaleRows.get(i).get("resolution_ground"))) {
+                    identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance")
+                        .addAttribute("uom", "meter")
+                        .addText(svScaleRows.get(i).get("resolution_ground"));
+                }
+            }
+    
+            // ---------- <gmd:identificationInfo/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance> ----------
+            for (i=0; i<svScaleRows.size(); i++) {
+                if (hasValue(svScaleRows.get(i).get("resolution_scan"))) {
+                    identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance")
+                        .addAttribute("uom", "dpi")
+                        .addText(svScaleRows.get(i).get("resolution_scan"));
+                }
+            }
+        }
+
+        // ---------- <gmd:identificationInfo/gmd:language> ----------
+        value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
+        if (hasValue(value)) {
+            identificationInfo.addElement("gmd:language/gmd:LanguageCode")
+                .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode")
+                .addAttribute("codeListValue", value);
+        }
+
+        // ---------- <gmd:identificationInfo/gmd:environmentDescription> ----------
+        if (hasValue(objServRow.get("environment"))) {
+            identificationInfo.addElement("gmd:environmentDescription/gco:CharacterString").addText(objServRow.get("environment"));
+        }
+
 
 // NICHT GEODATENDIENST(3) + NICHT INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     } else {
@@ -723,11 +760,7 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- <gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent> ----------
     // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent> ----------
 
-// ALLE KLASSEN AUßER INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-// There extent is mapped to new <gmd:MD_DataIdentification> in FIXED order, see below
-    if (!objClass.equals("6")) {
-        addExtent(identificationInfo, objRow);
-    }
+    addExtent(identificationInfo, objRow);
     
 // GEODATENDIENST(3)
     if (objClass.equals("3")) {
@@ -773,18 +806,8 @@ for (i=0; i<objRows.size(); i++) {
         // add data identification info for all information that cannot be mapped into a SV_ServiceIdentification element
         addServiceAdditionalIdentification(mdMetadata, objServRow, objServId);
 
-// INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-// is now <gmd:MD_ServiceIdentification>, see INGRID-2257
-// -> No mapping of <srv:couplingType>
-// -> No mapping of <srv:containsOperations>
-// -> instead mapping to distributionInfo/CI_OnlineResource, see below addDistributionInfo
-    } else if (objClass.equals("6")) {
 
-        // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
-        // add data identification info for all information that cannot be mapped into a MD_ServiceIdentification element
-        addServiceAdditionalIdentification(mdMetadata, objServRow, objServId);
-
-// NICHT GEODATENDIENST(3) + NICHT INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+// NICHT GEODATENDIENST(3)
     } else {
         // ---------- <gmd:identificationInfo/gmd:supplementalInformation> ----------
         value = null;
@@ -795,7 +818,12 @@ for (i=0; i<objRows.size(); i++) {
             rs = SQL.first("SELECT description FROM t011_obj_literature WHERE obj_id=?", [objId]);
         } else if (objClass.equals("4")) {
             rs = SQL.first("SELECT description FROM t011_obj_project WHERE obj_id=?", [objId]);
+
+        // INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+        } else if (objClass.equals("6")) {
+            rs = objServRow;
         }
+
         if (hasValue(rs)) {
             value = rs.get("description");
             if (hasValue(value)) {
@@ -1921,8 +1949,6 @@ function addExtent(identificationInfo, objRow) {
     // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent> ----------
 
     var extentElemName = "gmd:extent"; 
-// INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-// is now <gmd:MD_ServiceIdentification> and mapped to <gmd:extent>, see INGRID-2257
     if (objClass.equals("3")) {
         extentElemName = "srv:extent";
     }
@@ -2200,8 +2226,7 @@ function addDistributionInfo(mdMetadata, objId) {
     }
     
 // INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-// is now <gmd:MD_ServiceIdentification>, see INGRID-2257
-// -> map Service URLs to distributionInfo/CI_OnlineResource 
+// Map Service URLs to distributionInfo/CI_OnlineResource, see INGRID-2257
     // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource> ----------
     if (objClass.equals("6")) {
         rows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [objServId]);
@@ -2426,15 +2451,12 @@ function prepareGetCapabilitiesUrl(connUrl, opName) {
 }
 */
 
-// add data identification info for all information that cannot be mapped into a SV_ServiceIdentification/MD_ServiceIdentification element
+// add data identification info for all information that cannot be mapped into a SV_ServiceIdentification element
 function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
         var svScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServId]);
         if (svScaleRows.size() > 0 ||
             hasValue(objServRow.get("environment")) ||
-            hasValue(objServRow.get("description")) ||
-            // INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-            objClass.equals("6") // add <gmd:MD_DataIdentification/.../gmd:extent>, see INGRID-2257
-
+            hasValue(objServRow.get("description"))
             ) {
 		    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
             var mdDataIdentification = mdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
@@ -2503,15 +2525,6 @@ function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
                 mdDataIdentification.addElement("gmd:environmentDescription/gco:CharacterString").addText(objServRow.get("environment"));
             }
     
-		    // ---------- <gmd:extent/gmd:EX_Extent> ----------
-
-// INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-// is now <gmd:MD_ServiceIdentification>, see INGRID-2257
-// -> map extent to additional <gmd:MD_DataIdentification>
-		    if (objClass.equals("6")) {
-        		addExtent(mdDataIdentification, objRow);
-	        }
-
             // ---------- <gmd:supplementalInformation> ----------
             if (hasValue(objServRow.get("description"))) {
                 mdDataIdentification.addElement("gmd:supplementalInformation/gco:CharacterString").addText(objServRow.get("description"));

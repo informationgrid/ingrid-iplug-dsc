@@ -28,8 +28,8 @@
       <action type="fix" dev="wemove" issue="INGRID-2263">
           IDF: Also set "levelDescription" in "DQ_Scope" if object is not class 1 (Geoinformation/Karte) cause is mandatory if "level" notEqual 'dataset' or 'series'.
       </action>
-      <action type="fix" dev="wemove" issue="INGRID-2257">
-          IDF: Map objects of class 6 ("Dienst/Anwendung/Informationssystem") to MD_ServiceIdentification and not SV_ServiceIdentification. 
+      <action type="fix" dev="wemove" issue="INGRID-2257, INGRID-2280">
+          IDF: Map objects of class 6 ("Dienst/Anwendung/Informationssystem") now to MD_DataIdentification and not SV_ServiceIdentification. 
       </action>
       <action type="fix" dev="wemove" issue="INGRID-2237">
           IDF: Also check publication condition of subordinated objects and filter.
