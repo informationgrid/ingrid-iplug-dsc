@@ -2108,13 +2108,13 @@ function addDistributionInfo(mdMetadata, objId) {
             // ---------- <gmd:MD_Format/gmd:version> ----------
             var data = TRANSF.getISOCodeListEntryData(6300, formatValue);
             var version = getParameterWithin(data, '"', 1);
-            if (version.trim() === "")
+            if (!version || version.trim() === "")
             	mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
             else
             	mdFormat.addElement("gmd:version/gco:CharacterString").addText(version);
             // ---------- <gmd:MD_Format/gmd:specification> ----------
             var specification = getParameterWithin(data, '"', 2);
-            if (specification.trim() === "")
+            if (!specification || specification.trim() === "")
             	mdFormat.addElement("gmd:specification").addAttribute("gco:nilReason", "unknown");
             else
             	mdFormat.addElement("gmd:specification/gco:CharacterString").addText(specification);
