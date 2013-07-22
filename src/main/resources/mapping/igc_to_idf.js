@@ -1188,8 +1188,9 @@ for (i=0; i<objRows.size(); i++) {
     }
     
     // add cross references coming from Service to Data to simulate bidirectionality
+    // NOTICE: This is the coupled service (class 3) and is "Darstellender Dienst" in "Detaildarstellung/Verweise", see INGRID-2290
     if (objClass.equals("1")) {
-        var serviceObjects = SQL.all("SELECT * FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=? AND oRef.obj_from_id=t01.id AND t01.obj_class=3" + publicationConditionFilter, [objUuid]);
+        var serviceObjects = SQL.all("SELECT * FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=? AND oRef.obj_from_id=t01.id AND t01.obj_class=3 AND t01.work_state=?" + publicationConditionFilter, [objUuid, 'V']);
         for (i=0; i<serviceObjects.size(); i++) {
             var row = serviceObjects.get(i);
             // due to the sql query the link direction is already reversed (see obj_uuid!)
