@@ -22,8 +22,11 @@
       <action type="update" dev="wemove" issue="INGRID-2270">
           IDF: Get date from data field instead from label of codelist 6005.
       </action>
+      <action type="fix" dev="wemove" issue="INGRID-2288">
+          IDF: Fix mapping of couplingType.
+      </action>
       <action type="fix" dev="wemove" issue="INGRID-2290">
-          IDF: map coupled service only once (only published version).
+          IDF: Map coupled service only once (only published version).
       </action>
       <action type="fix" dev="wemove" issue="INGRID-2277">
           IDF: distributionFormat now also added if distributor present.

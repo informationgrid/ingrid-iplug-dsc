@@ -780,10 +780,9 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:identificationInfo/srv:couplingType/srv:SV_CouplingType> ----------
-        // also check whether referenced object is published !
-        row = SQL.first("SELECT * FROM object_reference, t01_object, t011_obj_serv WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=t011_obj_serv.obj_id AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3210', "V"]);
+        row = SQL.first("SELECT coupling_type FROM t011_obj_serv WHERE obj_id=?", [objId]);
         var typeValue = "loose";
-        if (hasValue(row) && row.get("coupling_type") != null ) {
+        if (hasValue(row) && hasValue(row.get("coupling_type"))) {
             typeValue = row.get("coupling_type");
         }
         identificationInfo.addElement("srv:couplingType/srv:SV_CouplingType")
