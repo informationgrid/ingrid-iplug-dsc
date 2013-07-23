@@ -765,7 +765,9 @@ for (i=0; i<objRows.size(); i++) {
 // GEODATENDIENST(3)
     if (objClass.equals("3")) {
         // ---------- <gmd:identificationInfo/srv:coupledResource/srv:SV_CoupledResource/srv:identifier/gco:CharacterString> ----------
-        var rows = SQL.all("SELECT t01_object.* FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?" + publicationConditionFilter, [objId, '3600', "V"]);
+        // Map all operations ! So we also query operations of service, see INGRID-2291
+    	// We query operations as OUTER JOIN, so service is not lost, if NO operations exist ! 
+    	var rows = SQL.all("SELECT t01_object.*, t011_obj_serv_operation.name_value FROM object_reference, t01_object, t011_obj_serv LEFT OUTER JOIN t011_obj_serv_operation ON (t011_obj_serv.id = t011_obj_serv_operation.obj_serv_id) WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND t011_obj_serv.obj_id=obj_from_id AND obj_from_id=? AND special_ref=? AND t01_object.work_state=? ORDER BY object_reference.line, t011_obj_serv_operation.line" + publicationConditionFilter, [objId, '3600', "V"]);
         var resourceIdentifiers = [];
         for (i=0; i<rows.size(); i++) {
             var refObjId        = rows.get(i).get("id");
@@ -773,9 +775,22 @@ for (i=0; i<objRows.size(); i++) {
             var refObjUuid      = getFileIdentifier(rows.get(i));
             var coupledResource = identificationInfo.addElement("srv:coupledResource/srv:SV_CoupledResource");
             
-            coupledResource.addElement("srv:operationName/gco:CharacterString").addText("GetMap");
-            // remember datasourceId AND referenced object Uuid for later use (see below)
-            resourceIdentifiers.push([getCitationIdentifier(rows.get(i), refObjId), refObjUuid]);
+            // For every coupled resource all operations of service, see INGRID-2291
+            // if no operation, then set "missing"
+            var opName = rows.get(i).get("name_value");
+            if (hasValue(opName)) {
+                coupledResource.addElement("srv:operationName/gco:CharacterString").addText(opName);
+            } else {
+                coupledResource.addElement("srv:operationName").addAttribute("gco:nilReason", "missing");
+            }
+
+            // remember resourceIdentifiers for later use (see below).
+            // BUT ONLY ONCE ! Every operation causes new row with same referenced UUID ! We add identifier only once !
+            if (resourceIdentifiers.length == 0 ||
+                refObjUuid != resourceIdentifiers[resourceIdentifiers.length-1][1])
+            {
+                resourceIdentifiers.push([getCitationIdentifier(rows.get(i), refObjId), refObjUuid]);
+            }
             coupledResource.addElement("srv:identifier/gco:CharacterString").addText(resourceIdentifiers[resourceIdentifiers.length-1][0]);
         }
 

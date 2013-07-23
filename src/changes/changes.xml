@@ -19,6 +19,9 @@
       <action type="update" dev="wemove" issue="INGRID-2256">
           Only export organisation and emails of point of contact.
       </action>
+      <action type="update" dev="wemove" issue="INGRID-2291">
+          IDF: Also map operationName of coupledResource.
+      </action>
       <action type="update" dev="wemove" issue="INGRID-2270">
           IDF: Get date from data field instead from label of codelist 6005.
       </action>
