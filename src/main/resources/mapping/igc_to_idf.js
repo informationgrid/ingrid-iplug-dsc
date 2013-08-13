@@ -2301,9 +2301,6 @@ function addDistributionInfo(mdMetadata, objId) {
 
         for (i=0; i<rows.size(); i++) {
             if (hasValue(rows.get(i).get("connect_point"))) {
-                // determine if type of connected service is of type "view", which is needed for
-                // modifications of the getCapabilities Url!
-                serviceTypeISOName = getServiceType("3", rows.get(i));
                 if (!mdDistribution) {
                     mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
                 }
@@ -2317,6 +2314,9 @@ function addDistributionInfo(mdMetadata, objId) {
                 var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
                 var idfOnlineResource = digitalTransferOptions.addElement("gmd:onLine/idf:idfOnlineResource");
                 // Preparing getCapabilitiesUrl deprecated, see INGRID-2259
+                // determine if type of connected service is of type "view", which is needed for
+                // modifications of the getCapabilities Url!
+                // serviceTypeISOName = getServiceType("3", rows.get(i));
                 // var connUrl = prepareGetCapabilitiesUrl(rows.get(i).get("connect_point"), rows.get(i).get("name_value"));
                 // idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(connUrl);
                 idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("connect_point"));
