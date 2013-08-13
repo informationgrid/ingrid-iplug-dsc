@@ -1196,11 +1196,13 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // ---------- <idf:idfMdMetadata/idf:crossReference> ----------
+    // OUTGOING references
     rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_from_id=? AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=?" + publicationConditionFilter, [objId, 'V']);
     for (i=0; i<rows.size(); i++) {
-        mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:crossReference"));
+        mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:crossReference", "OUT"));
     }
-    
+    // from cross references now always mapped, see below and https://redmine.wemove.com/issues/121
+/*
     // add cross references coming from Service to Data to simulate bidirectionality
     // NOTICE: This is the coupled service (class 3) and is "Darstellender Dienst" in "Detaildarstellung/Verweise", see INGRID-2290
     if (objClass.equals("1")) {
@@ -1208,8 +1210,16 @@ for (i=0; i<objRows.size(); i++) {
         for (i=0; i<serviceObjects.size(); i++) {
             var row = serviceObjects.get(i);
             // due to the sql query the link direction is already reversed (see obj_uuid!)
-            mdMetadata.addElement(getIdfObjectReference(serviceObjects.get(i), "idf:crossReference"));
+            mdMetadata.addElement(getIdfObjectReference(serviceObjects.get(i), "idf:crossReference", "IN"));
         }
+    }
+*/
+    // ---------- <idf:idfMdMetadata/idf:crossReference> ----------
+    // INCOMING references
+    // NOTE: This also includes coupled services (class 3) pointing to data object (class 1)
+    rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=? AND object_reference.obj_from_id=t01_object.id AND t01_object.work_state=?" + publicationConditionFilter, [objUuid, 'V']);
+    for (i=0; i<rows.size(); i++) {
+        mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:crossReference", "IN"));
     }
     
 
@@ -2846,11 +2856,14 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
     }
 }
 
-function getIdfObjectReference(objRow, elementName) {
+function getIdfObjectReference(objRow, elementName, direction) {
     var idfObjectReference = DOM.createElement(elementName);
     idfObjectReference.addAttribute("uuid", objRow.get("obj_uuid"));
     if (hasValue(objRow.get("org_obj_id"))) {
         idfObjectReference.addAttribute("orig-uuid", objRow.get("org_obj_id"));
+    }
+    if (hasValue(direction)) {
+        idfObjectReference.addAttribute("direction", direction);
     }
     idfObjectReference.addElement("idf:objectName").addText(objRow.get("obj_name"));
     idfObjectReference.addElement("idf:objectType").addText(objRow.get("obj_class"));
