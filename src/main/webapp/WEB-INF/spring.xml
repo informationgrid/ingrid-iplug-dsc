@@ -10,6 +10,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
         <property name="recordMapperList">
             <list>
                 <ref bean="recordMapper"/>
+                <ref bean="recordProfileMapper"/>
             </list>
         </property>
     </bean>
@@ -21,6 +22,9 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
     <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
         <property name="mappingScript" value="classpath:mapping/igc_to_lucene.js" />
         <property name="compile" value="true" />
+    </bean>
+    <bean id="recordProfileMapper" class="de.ingrid.iplug.dsc.index.mapper.IgcProfileDocumentMapper">
+        <property name="sql" value="SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" />
     </bean>
 
 
