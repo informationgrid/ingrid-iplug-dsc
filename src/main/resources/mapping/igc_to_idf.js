@@ -603,6 +603,23 @@ for (i=0; i<objRows.size(); i++) {
         mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText("inspireidentifiziert");
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
+    
+    // IS_OPEN_DATA leads to specific keyword, default behavior unless changes (REDMINE-128)
+    value = objRow.get("is_open_data");
+    if (hasValue(value) && value.equals('Y')) {
+        mdKeywords = DOM.createElement("gmd:MD_Keywords");
+        mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText("opendata");
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+        
+        // if open data is checked then also add categories to thesaurus
+        rows = SQL.all("SELECT category_key, category_value FROM object_open_data_category WHERE obj_id=?", [objId])
+        for (i=0; i<rows.size(); i++) {
+            identificationInfo.addElement("srv:serviceTypeVersion/gco:CharacterString").addText(rows.get(i).get("serv_version"));
+            mdKeywords = DOM.createElement("gmd:MD_Keywords");
+            mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText(rows.get(i).get("category_value"));
+            identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+        }
+    }
 
     // ---------- <gmd:identificationInfo/gmd:resourceSpecificUsage> ----------
     value = objRow.get("dataset_usage");

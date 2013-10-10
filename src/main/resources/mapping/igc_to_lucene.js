@@ -424,6 +424,10 @@ function addT01Object(row) {
         IDX.add("t04_search.searchterm", "inspireidentifiziert");
         IDX.add("searchterm_value.alternate_term", "");        
     }
+    // add open data to index for facette if needed, added as default unless changes (REDMINE-128)
+    if (hasValue(row.get("is_open_data")) && row.get("is_open_data")=='Y') {
+        IDX.add("t04_search.searchterm", "opendata");
+    }
 }
 function addT0110AvailFormat(row) {
     IDX.add("t0110_avail_format.line", row.get("line"));
