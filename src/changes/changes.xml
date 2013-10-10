@@ -6,6 +6,9 @@
   </properties>
   <body>
     <release version="3.3.1-SNAPSHOT" date="??" description="??">
+      <action type="add" dev="wemove" issues="REDMINE-117,REDMINE-128">
+          IDF+Index: Added mapping of "Open Data" and "Categories" to IDF and Index.
+      </action>
       <action type="add" dev="wemove" issue="REDMINE-118">
           IDF: Added mapping of "Download of data" datatype to gmd:CI_OnlineResource/gmd:applicationProfile.
       </action>
