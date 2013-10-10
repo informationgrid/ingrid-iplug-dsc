@@ -33,7 +33,7 @@ DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
 // ---------- <idf:html> ----------
 var idfHtml = XPATH.getNode(idfDoc, "/idf:html")
-DOM.addAttribute(idfHtml, "idf-version", "3.3.0");
+DOM.addAttribute(idfHtml, "idf-version", "3.3.1");
 
 // ---------- <idf:body> ----------
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
@@ -2235,6 +2235,9 @@ function addDistributionInfo(mdMetadata, objId) {
             var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
             var idfOnlineResource = digitalTransferOptions.addElement("gmd:onLine/idf:idfOnlineResource");
             idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("url_link"));
+            if (hasValue(rows.get(i).get("datatype_value"))) {
+                idfOnlineResource.addElement("gmd:applicationProfile/gco:CharacterString").addText(rows.get(i).get("datatype_value"));
+            }
             if (hasValue(rows.get(i).get("content"))) {
                 idfOnlineResource.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("content"));
             }

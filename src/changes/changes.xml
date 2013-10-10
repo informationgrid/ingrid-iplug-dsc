@@ -6,6 +6,9 @@
   </properties>
   <body>
     <release version="3.3.1-SNAPSHOT" date="??" description="??">
+      <action type="add" dev="wemove" issue="REDMINE-118">
+          IDF: Added mapping of "Download of data" datatype to gmd:CI_OnlineResource/gmd:applicationProfile.
+      </action>
       <action type="add" dev="wemove" issue="REDMINE-121">
           IDF: Also map incoming links to IDF (new "direction" attribute to crossReference element).
       </action>

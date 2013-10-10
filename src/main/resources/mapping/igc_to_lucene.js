@@ -621,9 +621,6 @@ function addT017UrlRef(row) {
     IDX.add("t017_url_ref.content", row.get("content"));
     IDX.add("t017_url_ref.datatype_key", row.get("datatype_key"));
     IDX.add("t017_url_ref.datatype", row.get("datatype_value"));
-    IDX.add("t017_url_ref.volume", row.get("volume"));
-    IDX.add("t017_url_ref.icon", row.get("icon"));
-    IDX.add("t017_url_ref.icon_text", row.get("icon_text"));
     IDX.add("t017_url_ref.descr", row.get("descr"));
     IDX.add("t017_url_ref.url_type", row.get("url_type"));
 }
