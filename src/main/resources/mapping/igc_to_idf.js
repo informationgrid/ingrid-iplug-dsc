@@ -614,7 +614,6 @@ for (i=0; i<objRows.size(); i++) {
         // if open data is checked then also add categories to thesaurus
         rows = SQL.all("SELECT category_key, category_value FROM object_open_data_category WHERE obj_id=?", [objId])
         for (i=0; i<rows.size(); i++) {
-            identificationInfo.addElement("srv:serviceTypeVersion/gco:CharacterString").addText(rows.get(i).get("serv_version"));
             mdKeywords = DOM.createElement("gmd:MD_Keywords");
             mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText(rows.get(i).get("category_value"));
             identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
