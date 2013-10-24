@@ -229,7 +229,8 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- searchterm_value ----------
         var subRows = SQL.all("SELECT * FROM searchterm_value WHERE id=?", [searchtermId]);
         for (k=0; k<subRows.size(); k++) {
-            addSearchtermValue(subRows.get(k));
+        	var searchtermRow = subRows.get(k);
+            addSearchtermValue(searchtermRow.get("type"), searchtermRow.get("term"), searchtermRow.get("alternate_term"));
             var searchtermSnsId = subRows.get(k).get("searchterm_sns_id");           
             if (hasValue(searchtermSnsId)) {
 	            // ---------- searchterm_sns ----------
@@ -239,6 +240,12 @@ for (i=0; i<objRows.size(); i++) {
 	            }
             }
         }
+    }
+    // ---------- object_open_data_category ----------
+    var rows = SQL.all("SELECT * FROM object_open_data_category WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+    	// add as FREIER term, no alternate value
+        addSearchtermValue("F", rows.get(j).get("category_value"), "");
     }
     // ---------- t012_obj_adr ----------
     var rows = SQL.all("SELECT * FROM t012_obj_adr WHERE obj_id=?", [objId]);
@@ -419,14 +426,13 @@ function addT01Object(row) {
     IDX.add("t01_object.mod_uuid", row.get("mod_uuid"));
     IDX.add("t01_object.responsible_uuid", row.get("responsible_uuid"));
     if (hasValue(row.get("is_inspire_relevant")) && row.get("is_inspire_relevant")=='Y') {
-        // add all three fields here to equalize the multiplicity of the fields content in index
-    	IDX.add("t04_search.type", "F");
-        IDX.add("t04_search.searchterm", "inspireidentifiziert");
-        IDX.add("searchterm_value.alternate_term", "");        
+        // add as FREIER term, no alternate value
+        addSearchtermValue("F", "inspireidentifiziert", "");
     }
     // add open data to index for facette if needed, added as default unless changes (REDMINE-128)
     if (hasValue(row.get("is_open_data")) && row.get("is_open_data")=='Y') {
-        IDX.add("t04_search.searchterm", "opendata");
+        // add as FREIER term, no alternate value
+        addSearchtermValue("F", "opendata", "");
     }
 }
 function addT0110AvailFormat(row) {
@@ -631,10 +637,10 @@ function addT017UrlRef(row) {
 function addSearchtermObj(row) {
     IDX.add("t04_search.line", row.get("line"));
 }
-function addSearchtermValue(row) {
-    IDX.add("t04_search.type", row.get("type"));
-    IDX.add("t04_search.searchterm", row.get("term"));
-    IDX.add("searchterm_value.alternate_term", row.get("alternate_term"));
+function addSearchtermValue(type, value, alternate_value) {
+    IDX.add("t04_search.type", type);
+    IDX.add("t04_search.searchterm", value);
+    IDX.add("searchterm_value.alternate_term", alternate_value);
 }
 function addSearchtermSns(row) {
     IDX.add("searchterm_sns.sns_id", row.get("sns_id"));

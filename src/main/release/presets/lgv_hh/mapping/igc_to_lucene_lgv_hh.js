@@ -36,8 +36,15 @@ function addT01Object(row) {
         if (log.isInfoEnabled()) {
             log.info("LGV HH: Adding index Field \"t04_search.searchterm:#opendata_hh#\"");
         }
-        IDX.add("t04_search.searchterm", "#opendata_hh#");
+        // add as FREIER term, no alternate value
+        addSearchtermValue("F", "#opendata_hh#", "");
     }
+}
+
+function addSearchtermValue(type, value, alternate_value) {
+    IDX.add("t04_search.type", type);
+    IDX.add("t04_search.searchterm", value);
+    IDX.add("searchterm_value.alternate_term", alternate_value);
 }
 
 function hasValue(val) {
