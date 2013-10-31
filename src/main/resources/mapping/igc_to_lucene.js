@@ -244,8 +244,7 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- object_open_data_category ----------
     var rows = SQL.all("SELECT * FROM object_open_data_category WHERE obj_id=?", [objId]);
     for (j=0; j<rows.size(); j++) {
-    	// add as FREIER term, no alternate value
-        addSearchtermValue("F", rows.get(j).get("category_value"), "");
+        addObjectOpenDataCategory(rows.get(j));
     }
     // ---------- t012_obj_adr ----------
     var rows = SQL.all("SELECT * FROM t012_obj_adr WHERE obj_id=?", [objId]);
@@ -430,6 +429,7 @@ function addT01Object(row) {
         addSearchtermValue("F", "inspireidentifiziert", "");
     }
     // add open data to index for facette if needed, added as default unless changes (REDMINE-128)
+    IDX.add("t01_object.is_open_data", row.get("is_open_data"));
     if (hasValue(row.get("is_open_data")) && row.get("is_open_data")=='Y') {
         // add as FREIER term, no alternate value
         addSearchtermValue("F", "opendata", "");
@@ -898,7 +898,13 @@ function addObjectFormatInspire(row) {
     IDX.add("object_format_inspire.format_key", row.get("format_key"));
     IDX.add("object_format_inspire.format_value", row.get("format_value"));
 }
-
+function addObjectOpenDataCategory(row) {
+    // add as FREIER term, no alternate value
+//    addSearchtermValue("F", row.get("category_value"), "");
+    IDX.add("object_open_data_category.line", row.get("line"));
+    IDX.add("object_open_data_category.category_key", row.get("category_key"));
+    IDX.add("object_open_data_category.category_value", row.get("category_value"));
+}
 
 function hasValue(val) {
     if (typeof val == "undefined") {
