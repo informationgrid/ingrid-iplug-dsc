@@ -8,7 +8,7 @@
             </not>
             <then>
                 <echo>Patching spring.xml file in basedir: </echo>
-                <patchFile patchFile="patches/3.4.0/spring.xml.patch" originalFile="${installDir}/webapp/WEB-INF/spring.xml" />
+                <patchFile patchFile="patches/3.3.1/spring.xml.patch" originalFile="${installDir}/webapp/WEB-INF/spring.xml" />
             </then>
         </if>
     </target>
