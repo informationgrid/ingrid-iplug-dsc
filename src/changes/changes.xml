@@ -34,6 +34,9 @@
       <action type="update" dev="wemove" issue="INGRID-2270">
           IDF: Get date from data field instead from label of codelist 6005.
       </action>
+      <action type="fix" dev="wemove">
+          Profile index mapping was missing, added (also added commented example for adding user defined datatype of iPlug).
+      </action>
       <action type="fix" dev="wemove" issue="INGRID-2288">
           IDF: Fix mapping of couplingType.
       </action>
