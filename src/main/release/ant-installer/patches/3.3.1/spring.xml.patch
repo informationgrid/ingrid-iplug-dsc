@@ -1,6 +1,24 @@
---- C:/temp/AppData/spring.xml-rev22040.svn002.tmp.xml	Wed Oct 10 13:57:14 2012
-+++ C:/temp/AppData/spring.xml-rev22041.svn002.tmp.xml	Tue Mar 26 16:21:52 2013
-@@ -54,4 +54,20 @@
+--- C:/wemove/ingrid/dev/svn/ingrid-iplug-dsc-scripted/trunk/src/main/webapp/WEB-INF/spring.xml	(revision 20969)
++++ C:/wemove/ingrid/dev/svn/ingrid-iplug-dsc-scripted/trunk/src/main/webapp/WEB-INF/spring.xml	(revision 22625)
+@@ -10,6 +10,7 @@
+         <property name="recordMapperList">
+             <list>
+                 <ref bean="recordMapper"/>
++                <ref bean="recordProfileMapper"/>
+             </list>
+         </property>
+     </bean>
+@@ -22,6 +23,9 @@
+         <property name="mappingScript" value="classpath:mapping/igc_to_lucene.js" />
+         <property name="compile" value="true" />
+     </bean>
++    <bean id="recordProfileMapper" class="de.ingrid.iplug.dsc.index.mapper.IgcProfileDocumentMapper">
++        <property name="sql" value="SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" />
++    </bean>
+ 
+ 
+     <bean id="dscSearchPlug" class="de.ingrid.iplug.dsc.DscSearchPlug">
+@@ -54,4 +58,20 @@
          <property name="sql" value="SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" />
      </bean>
  
