@@ -5,6 +5,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.4.0-SNAPSHOT" date="????-??-??" description="Release InGrid 3.4.0-SNAPSHOT">
+      <action type="fix" dev="wemove" issue="INGRID-2306">
+          IDF: Fix URL of codeList attribute when mapping to IDF.
+      </action>
+    </release>
+
     <release version="3.3.1" date="2013-10-31" description="Release InGrid 3.3.1">
       <action type="add" dev="wemove" issues="REDMINE-117,REDMINE-128">
           IDF+Index: Added mapping of "Open Data" and "Categories" to IDF and Index.
