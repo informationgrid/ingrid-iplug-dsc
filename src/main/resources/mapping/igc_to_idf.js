@@ -31,6 +31,8 @@ DOM.addNS("gml", "http://www.opengis.net/gml");
 DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
+var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml";
+
 // ---------- <idf:html> ----------
 var idfHtml = XPATH.getNode(idfDoc, "/idf:html")
 DOM.addAttribute(idfHtml, "idf-version", "3.3.1");
@@ -85,14 +87,14 @@ for (i=0; i<objRows.size(); i++) {
     value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
     if (hasValue(value)) {
         mdMetadata.addElement("gmd:language/gmd:LanguageCode")
-            .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode")
+            .addAttribute("codeList", globalCodeListAttrURL + "#LanguageCode")
             .addAttribute("codeListValue", value).addText(value);
     }
 // ---------- <gmd:characterSet> ----------
     value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("metadata_character_set"));
     if (hasValue(value)) {
         mdMetadata.addElement("gmd:characterSet/gmd:MD_CharacterSetCode")
-            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_CharacterSetCode")
+            .addAttribute("codeList", globalCodeListAttrURL + "#MD_CharacterSetCode")
             .addAttribute("codeListValue", value);
     }
 // ---------- <gmd:parentIdentifier> ----------
@@ -109,7 +111,7 @@ for (i=0; i<objRows.size(); i++) {
     var hierarchyLevelName = map(objClass, {"0":"job", "1":"", "2":"document", "3":"service", "4":"project", "5":"database", "6":"application"});
     if (hasValue(hierarchyLevel)) {
         mdMetadata.addElement("gmd:hierarchyLevel/gmd:MD_ScopeCode")
-            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_ScopeCode")
+            .addAttribute("codeList", globalCodeListAttrURL + "#MD_ScopeCode")
             .addAttribute("codeListValue", hierarchyLevel).addText(hierarchyLevel);
     }
     if (hasValue(hierarchyLevelName)) {
@@ -167,7 +169,7 @@ for (i=0; i<objRows.size(); i++) {
         if (hasValue(vectorTopologyLevel)) {
             if (!mdVectorSpatialRepresentation) mdVectorSpatialRepresentation = mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation");
             mdVectorSpatialRepresentation.addElement("gmd:topologyLevel/gmd:MD_TopologyLevelCode")
-                .addAttribute("codeList","http://www.tc211.org/ISO19139/resources/codeList.xml#MD_TopologyLevelCode")
+                .addAttribute("codeList", globalCodeListAttrURL + "#MD_TopologyLevelCode")
                 .addAttribute("codeListValue", vectorTopologyLevel);
         }
         
@@ -184,7 +186,7 @@ for (i=0; i<objRows.size(); i++) {
                 var mdGeometricObjects = mdVectorSpatialRepresentation.addElement("gmd:geometricObjects/gmd:MD_GeometricObjects");
                 var geometricObjectTypeCode = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(515, geoObjType); 
                 mdGeometricObjects.addElement("gmd:geometricObjectType/gmd:MD_GeometricObjectTypeCode")
-                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_GeometricObjectTypeCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
                     .addAttribute("codeListValue", geometricObjectTypeCode);
                 if (hasValue(geoObjCount)) {
                     mdGeometricObjects.addElement("gmd:geometricObjectCount/gco:Integer").addText(geoObjCount);
@@ -233,7 +235,7 @@ for (i=0; i<objRows.size(); i++) {
         ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(referenceDateRow.get("reference_date"))));
         var dateType = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(502, referenceDateRow.get("type"));
         ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-            .addAttribute("codeList","http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
+            .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
             .addAttribute("codeListValue", dateType);
     }
     // date needed, we add dummy if no date !
@@ -275,7 +277,7 @@ for (i=0; i<objRows.size(); i++) {
                 var responsiblePartyOriginator = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
                 responsiblePartyOriginator.addElement("gmd:individualName/gco:CharacterString").addText(literatureRow.get("author"));
                 responsiblePartyOriginator.addElement("gmd:role/gmd:CI_RoleCode")
-                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
                     .addAttribute("codeListValue", "originator");
             }
             // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=resourceProvider> ----------
@@ -285,7 +287,7 @@ for (i=0; i<objRows.size(); i++) {
                 responsiblePartyResourceProvider.addElement("gmd:contactInfo/gmd:CI_Contact/gmd:contactInstructions/gco:CharacterString")
                     .addText(literatureRow.get("loc"));
                 responsiblePartyResourceProvider.addElement("gmd:role/gmd:CI_RoleCode")
-                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
                     .addAttribute("codeListValue", "resourceProvider");
             }
             var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3360']);
@@ -309,7 +311,7 @@ for (i=0; i<objRows.size(); i++) {
                         .addText(literatureRow.get("publish_loc"));
                 }
                 responsiblePartyPublisher.addElement("gmd:role/gmd:CI_RoleCode")
-                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
                     .addAttribute("codeListValue", "publisher");
             }
             // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=distribute> ----------
@@ -317,7 +319,7 @@ for (i=0; i<objRows.size(); i++) {
                 var responsiblePartyDistributor = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
                 responsiblePartyDistributor.addElement("gmd:organisationName/gco:CharacterString").addText(literatureRow.get("publishing"));
                 responsiblePartyDistributor.addElement("gmd:role/gmd:CI_RoleCode")
-                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
                     .addAttribute("codeListValue", "distribute");
             }
             // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:series> ----------
@@ -350,7 +352,7 @@ for (i=0; i<objRows.size(); i++) {
                 var responsiblePartyOriginator = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
                 responsiblePartyOriginator.addElement("gmd:individualName/gco:CharacterString").addText(projectRow.get("leader"));
                 responsiblePartyOriginator.addElement("gmd:role/gmd:CI_RoleCode")
-                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
                     .addAttribute("codeListValue", "projectManager");
             }
             var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3400']);
@@ -366,7 +368,7 @@ for (i=0; i<objRows.size(); i++) {
                 var responsiblePartyOriginator = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
                 responsiblePartyOriginator.addElement("gmd:individualName/gco:CharacterString").addText(projectRow.get("member"));
                 responsiblePartyOriginator.addElement("gmd:role/gmd:CI_RoleCode")
-                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
                     .addAttribute("codeListValue", "projectParticipant");
             }
             var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3410']);
@@ -456,7 +458,7 @@ for (i=0; i<objRows.size(); i++) {
     value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(523, objRow.get("time_status"));
     if (hasValue(value)) {
         identificationInfo.addElement("gmd:status/gmd:MD_ProgressCode")
-            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_ProgressCode")
+            .addAttribute("codeList", globalCodeListAttrURL + "#MD_ProgressCode")
             .addAttribute("codeListValue", value);
     }
 
@@ -486,7 +488,7 @@ for (i=0; i<objRows.size(); i++) {
     if (hasValue(value)) {
         mdMaintenanceInformation = identificationInfo.addElement("gmd:resourceMaintenance/gmd:MD_MaintenanceInformation");
         mdMaintenanceInformation.addElement("gmd:maintenanceAndUpdateFrequency/gmd:MD_MaintenanceFrequencyCode")
-            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_MaintenanceFrequencyCode")
+            .addAttribute("codeList", globalCodeListAttrURL + "#MD_MaintenanceFrequencyCode")
             .addAttribute("codeListValue", value);
         var timeInterval = objRow.get("time_interval");
         var timeAlle = objRow.get("time_alle");
@@ -512,7 +514,7 @@ for (i=0; i<objRows.size(); i++) {
     if (mdMaintenanceInformation) {
         mdMaintenanceInformation.addElement("gmd:updateScope/gmd:MD_ScopeCode")
         .addAttribute("codeListValue", getHierarchLevel(objClass))
-        .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode");
+        .addAttribute("codeList", globalCodeListAttrURL + "#MD_ScopeCode");
     }
     if (hasValue(objRow.get("time_descr"))) {
         if (!mdMaintenanceInformation) {
@@ -521,7 +523,7 @@ for (i=0; i<objRows.size(); i++) {
             .addAttribute("gco:nilReason", "missing");
             mdMaintenanceInformation.addElement("gmd:updateScope/gmd:MD_ScopeCode")
             .addAttribute("codeListValue", getHierarchLevel(objClass))
-            .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode");
+            .addAttribute("codeList", globalCodeListAttrURL + "#MD_ScopeCode");
         }
         mdMaintenanceInformation.addElement("gmd:maintenanceNote/gco:CharacterString").addText(objRow.get("time_descr"));
     }
@@ -627,7 +629,7 @@ for (i=0; i<objRows.size(); i++) {
         mdUsage.addElement("gmd:specificUsage/gco:CharacterString").addText(value);
         mdUsage.addElement("gmd:userContactInfo").addElement("gmd:CI_ResponsibleParty")
             .addElement("gmd:role").addElement("gmd:CI_RoleCode")
-            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+            .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
             .addAttribute("codeListValue", "pointOfContact");
     }
 
@@ -697,7 +699,7 @@ for (i=0; i<objRows.size(); i++) {
         value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
         if (hasValue(value)) {
             identificationInfo.addElement("gmd:language/gmd:LanguageCode")
-                .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode")
+                .addAttribute("codeList", globalCodeListAttrURL + "#LanguageCode")
                 .addAttribute("codeListValue", value);
         }
 
@@ -716,7 +718,7 @@ for (i=0; i<objRows.size(); i++) {
                 value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(526, rows.get(i).get("type"));
                 if (hasValue(value)) {
                     identificationInfo.addElement("gmd:spatialRepresentationType/gmd:MD_SpatialRepresentationTypeCode")
-                        .addAttribute("codeList", "http://www.tc211.org/ISO19115/resources/codeList.xml#MD_SpatialRepresentationTypeCode")
+                        .addAttribute("codeList", globalCodeListAttrURL + "#MD_SpatialRepresentationTypeCode")
                         .addAttribute("codeListValue", value);
                 }
             }
@@ -751,7 +753,7 @@ for (i=0; i<objRows.size(); i++) {
         value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
         if (hasValue(value)) {
             identificationInfo.addElement("gmd:language/gmd:LanguageCode")
-                .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode")
+                .addAttribute("codeList", globalCodeListAttrURL + "#LanguageCode")
                 .addAttribute("codeListValue", value);
         }
 
@@ -759,7 +761,7 @@ for (i=0; i<objRows.size(); i++) {
         value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("dataset_character_set"));
         if (hasValue(value)) {
             identificationInfo.addElement("gmd:characterSet/gmd:MD_CharacterSetCode")
-                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_CharacterSetCode")
+                .addAttribute("codeList", globalCodeListAttrURL + "#MD_CharacterSetCode")
                 .addAttribute("codeListValue", value);
         }
 
@@ -817,7 +819,7 @@ for (i=0; i<objRows.size(); i++) {
             typeValue = row.get("coupling_type");
         }
         identificationInfo.addElement("srv:couplingType/srv:SV_CouplingType")
-            .addAttribute("codeList", "http://opengis.org/codelistRegistry?SV_CouplingType")
+            .addAttribute("codeList", globalCodeListAttrURL + "#SV_CouplingType")
             .addAttribute("codeListValue", typeValue);
 
         // ---------- <gmd:identificationInfo/srv:containsOperations/srv:SV_OperationMetadata> ----------
@@ -902,7 +904,7 @@ for (i=0; i<objRows.size(); i++) {
                         // .addElement("gco:Date");
                 }
                 ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
                     .addAttribute("codeListValue", "creation");
                     // ---------- <gmd:CI_Citation/gmd:edition> ----------
                 if (hasValue(objKeycRows.get(i).get("type_version"))) {
@@ -959,7 +961,7 @@ for (i=0; i<objRows.size(); i++) {
                         // .addElement("gco:Date");
                 }
                 ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
                     .addAttribute("codeListValue", "creation");
                     // ---------- <gmd:CI_Citation/gmd:edition> ----------
                 if (hasValue(objKeycRows.get(i).get("type_version"))) {
@@ -975,7 +977,7 @@ for (i=0; i<objRows.size(); i++) {
                 var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
                 ciDate.addElement("gmd:date/gco:Date").addText("2006-05-01");
                 ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
                     .addAttribute("codeListValue", "publication");
             }
         }
@@ -1119,7 +1121,7 @@ for (i=0; i<objRows.size(); i++) {
                     // .addElement("gco:Date");
             }
             ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode")
+                .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
                 .addAttribute("codeListValue", "creation");
 
             // ---------- <gmd:CI_Citation/gmd:edition> ----------
@@ -1331,7 +1333,7 @@ function getDqConformanceResultElement(conformityRow) {
         ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "unknown");
     }
     ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-        .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
+        .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
         .addAttribute("codeListValue", "publication")
         .addText("publication");
     dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("");
@@ -1346,7 +1348,7 @@ function getDqDataQualityElement(objClass) {
     
     dqScope.addElement("gmd:level/gmd:MD_ScopeCode")
         .addAttribute("codeListValue", getHierarchLevel(objClass))
-        .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode");
+        .addAttribute("codeList", globalCodeListAttrURL + "#MD_ScopeCode");
 
     // "levelDescription" is mandatory if "level" notEqual 'dataset' or 'series', see INGRID-2263
     if (objClass != "1") {
@@ -1605,7 +1607,7 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
     }
     if (hasValue(role)) {
         idfResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
-            .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+            .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
             .addAttribute("codeListValue", role);   
     } else {
         idfResponsibleParty.addElement("gmd:role").addAttribute("gco:nilReason", "inapplicable");
@@ -1877,7 +1879,7 @@ function getMdKeywords(rows) {
     }
 
     mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
-        .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_KeywordTypeCode")
+        .addAttribute("codeList", globalCodeListAttrURL + "#MD_KeywordTypeCode")
         .addAttribute("codeListValue", "theme");
     var thesCit = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
     thesCit.addElement("gmd:title/gco:CharacterString").addText(keywTitle);
@@ -1885,7 +1887,7 @@ function getMdKeywords(rows) {
     thesCitDate.addElement("gmd:date/gco:Date").addText(keywDate);
     thesCitDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
         .addAttribute("codeListValue", "publication")
-        .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode");
+        .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode");
 
     return mdKeywords;
 }
@@ -1957,7 +1959,7 @@ function addResourceConstraints(identificationInfo, objId) {
             // we do NOT check whether we have "otherRestrictions" as access constraint (entered as free entry) !
             identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:accessConstraints/gmd:MD_RestrictionCode")
                     .addAttribute("codeListValue", accessConstraints[i])
-                    .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
                     .addText(accessConstraints[i]);
         }
 
@@ -1967,7 +1969,7 @@ function addResourceConstraints(identificationInfo, objId) {
             var mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
             mdLegalConstraints.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
                 .addAttribute("codeListValue", "otherRestrictions")
-                .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode")
+                .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
                 .addText("otherRestrictions");
             mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(otherConstraints[i]);
         }
@@ -1978,7 +1980,7 @@ function addResourceConstraints(identificationInfo, objId) {
         var mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/idf:idfLegalBasisConstraints");
         mdLegalConstraints.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
             .addAttribute("codeListValue", "otherRestrictions")
-            .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode")
+            .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
             .addText("otherRestrictions");
         mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(rows.get(i).get("legist_value"));
     }   
@@ -2229,7 +2231,7 @@ function addDistributionInfo(mdMetadata, objId) {
         } else {
             // add dummy distributor role, because no distributor was found
             distributorContact.addElement("gmd:CI_ResponsibleParty/gmd:role/gmd:CI_RoleCode")
-                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode")
+                .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
                 .addAttribute("codeListValue", "distributor");
         }
     }
@@ -2369,7 +2371,7 @@ function addDistributionInfo(mdMetadata, objId) {
         if (hasValue(mediumName)) {
             mdMedium = mdDigitalTransferOptions.addElement("gmd:offLine/gmd:MD_Medium");
             mdMedium.addElement("gmd:name/gmd:MD_MediumNameCode")
-                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_MediumNameCode")
+                .addAttribute("codeList", globalCodeListAttrURL + "#MD_MediumNameCode")
                 .addAttribute("codeListValue", mediumName);
         }
         // ---------- <gmd:MD_Medium/gmd:mediumNote> ----------
@@ -2402,7 +2404,7 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                 var platfRows = SQL.all("SELECT * FROM t011_obj_serv_op_platform WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
                 for (j=0; j<platfRows.size(); j++) {
                     svOperationMetadata.addElement("srv:DCP/srv:DCPList")
-                        .addAttribute("codeList", "http://opengis.org/codelistRegistry?CSW_DCPCodeType")
+                        .addAttribute("codeList", globalCodeListAttrURL + "#CSW_DCPCodeType")
                         .addAttribute("codeListValue", platfRows.get(j).get("platform_value"));
                 }
                 if (platfRows.size() == 0) {
@@ -2923,7 +2925,7 @@ function addAttachedToField(row, parentElement, addAsISO) {
         if (hasValue(textContent)) {
             if (addAsISO) {
                parentElement.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
-                   .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#CI_OnLineFunctionCode")
+                   .addAttribute("codeList", globalCodeListAttrURL + "#CI_OnLineFunctionCode")
                    .addAttribute("codeListValue", textContent).addText(textContent);
             } else {
                parentElement.addElement("idf:attachedToField").addText(textContent)
