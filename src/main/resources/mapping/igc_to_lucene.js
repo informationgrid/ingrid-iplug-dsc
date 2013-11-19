@@ -497,6 +497,11 @@ function addT011ObjServ(row) {
     IDX.add("t011_obj_serv.base", row.get("base"));
     IDX.add("t011_obj_serv.description", row.get("description"));
     IDX.add("t011_obj_serv.has_access_constraint", row.get("has_access_constraint"));
+    IDX.add("t011_obj_serv.has_atom_download", row.get("has_atom_download"));
+    if (hasValue(row.get("has_atom_download")) && row.get("has_atom_download")=='Y') {
+        // see https://redmine.wemove.com/issues/230
+        IDX.add("download_service", "atom");
+    }
 }
 function addT011ObjServOperation(row) {
     IDX.add("t011_obj_serv_operation.line", row.get("line"));

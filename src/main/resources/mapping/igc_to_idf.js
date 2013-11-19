@@ -53,6 +53,9 @@ mdMetadata.addAttribute("xmlns:xlink", DOM.getNS("xlink"));
 mdMetadata.addAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
 mdMetadata.addAttribute("xsi:schemaLocation", DOM.getNS("gmd") + " http://schemas.opengis.net/csw/2.0.2/profiles/apiso/1.0.0/apiso.xsd");
 
+// ========== t03_catalogue ==========
+var catRow = SQL.first("SELECT * FROM t03_catalogue");
+
 // ========== t01_object ==========
 var objId = sourceRecord.get(DatabaseSourceRecord.ID);
 var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
@@ -1414,7 +1417,6 @@ function getCitationIdentifier(objRow, otherObjId) {
     
     // no namespace
     // namespace set in catalog ?
-    var catRow = SQL.first("SELECT * FROM t03_catalogue");
     myNamespace = catRow.get("cat_namespace");
 
     var myNamespaceLength = 0;
@@ -2133,8 +2135,11 @@ function getTimeRange(objRow) {
 function addDistributionInfo(mdMetadata, objId) {
     // GEO-INFORMATION/KARTE(1)
     var mdDistribution;
-    var formatWritten = false;
     var distributorWritten = false;
+    var formatWritten = false;
+    var nilMdFormatElement = DOM.createElement("gmd:MD_Format");
+    nilMdFormatElement.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
+    nilMdFormatElement.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
 
     if (objClass.equals("1")) {
         rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [objId]);
@@ -2205,9 +2210,7 @@ function addDistributionInfo(mdMetadata, objId) {
         if (!formatWritten) {
             // always write format, here with nilReason children, see INGRID32-146
         	// NOW ALSO when distributor exists (was missing) !, see INGRID-2277
-            var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
-            mdFormat.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
-            mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
+            mdDistribution.addElement("gmd:distributionFormat").addElement(nilMdFormatElement);
             formatWritten = true;
         }
         var mdDistributor = mdDistribution.addElement("gmd:distributor/gmd:MD_Distributor");
@@ -2245,13 +2248,10 @@ function addDistributionInfo(mdMetadata, objId) {
             }
             if (!formatWritten && !distributorWritten) {
                 // always write format, here with nilReason children, see INGRID32-146
-                var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
-                mdFormat.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
-                mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
+                mdDistribution.addElement("gmd:distributionFormat").addElement(nilMdFormatElement);
                 formatWritten = true;
             }
-            var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
-            var idfOnlineResource = digitalTransferOptions.addElement("gmd:onLine/idf:idfOnlineResource");
+            var idfOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/idf:idfOnlineResource");
             idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("url_link"));
             if (hasValue(rows.get(i).get("datatype_value"))) {
                 idfOnlineResource.addElement("gmd:applicationProfile/gco:CharacterString").addText(rows.get(i).get("datatype_value"));
@@ -2283,13 +2283,10 @@ function addDistributionInfo(mdMetadata, objId) {
             }
             if (!formatWritten && !distributorWritten) {
                 // always write format, here with nilReason children, see INGRID32-146
-                var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
-                mdFormat.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
-                mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
+                mdDistribution.addElement("gmd:distributionFormat").addElement(nilMdFormatElement);
                 formatWritten = true;
             }
-            var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
-            var idfOnlineResource = digitalTransferOptions.addElement("gmd:onLine/idf:idfOnlineResource");
+            var idfOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/idf:idfOnlineResource");
             idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(row.get("url"));
             if (hasValue(row.get("name"))) {
                 idfOnlineResource.addElement("gmd:name/gco:CharacterString").addText(row.get("name"));
@@ -2308,9 +2305,26 @@ function addDistributionInfo(mdMetadata, objId) {
         }
     }
 
-    // add connection to the service(s) for class 1
+    // add connection to the service(s) for class 1 (Map) and 3 (Service)
     if (objClass.equals("1") || objClass.equals("3")) {
         // ---------- <gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:online/gmd:CI_OnlineResource ----------
+
+    	// Service: ATOM download connection, see REDMINE-231
+        if (objClass.equals("3") &&
+            hasValue(objServRow.get("has_atom_download")) && objServRow.get("has_atom_download").equals('Y') &&
+            hasValue(catRow.get("atom_download_url"))) {
+            if (!mdDistribution) {
+                mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+            }
+            if (!formatWritten && !distributorWritten) {
+                // always write format, here with nilReason children, see INGRID32-146
+                mdDistribution.addElement("gmd:distributionFormat").addElement(nilMdFormatElement);
+                formatWritten = true;
+            }
+            // we use "gmd:CI_OnlineResource" cause NO "idf:attachedToField" !
+            mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(catRow.get("atom_download_url"));
+        }
+    	
         // all from links
         //rows = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_to_uuid=t01obj.obj_uuid AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_from_id=? and special_ref=?", [objId, "5066"]);
         // the links should all come from service objects (class=3)
@@ -2327,13 +2341,11 @@ function addDistributionInfo(mdMetadata, objId) {
                 }
                 if (!formatWritten && !distributorWritten) {
                     // always write format, here with nilReason children, see INGRID32-146
-                    var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
-                    mdFormat.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
-                    mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
+                    mdDistribution.addElement("gmd:distributionFormat").addElement(nilMdFormatElement);
                     formatWritten = true;
                 }
-                var digitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
-                var idfOnlineResource = digitalTransferOptions.addElement("gmd:onLine/idf:idfOnlineResource");
+                // we use "gmd:CI_OnlineResource" cause NO "idf:attachedToField" !
+                var idfOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource");
                 // Preparing getCapabilitiesUrl deprecated, see INGRID-2259
                 // determine if type of connected service is of type "view", which is needed for
                 // modifications of the getCapabilities Url!
@@ -2353,9 +2365,7 @@ function addDistributionInfo(mdMetadata, objId) {
         }
         if (!formatWritten && !distributorWritten) {
             // always write format, here with nilReason children, see INGRID32-146
-            var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
-            mdFormat.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
-            mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
+            mdDistribution.addElement("gmd:distributionFormat").addElement(nilMdFormatElement);
             formatWritten = true;
         }
         var mdDigitalTransferOptions = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions");
@@ -2389,6 +2399,19 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
 // GEODATENDIENST(3)
     // ---------- <srv:containsOperations/srv:SV_OperationMetadata> ----------
         if (objClass.equals("3")) {
+
+            // Service: ATOM download connection, see REDMINE-231
+            if (hasValue(objServRow.get("has_atom_download")) && objServRow.get("has_atom_download").equals('Y') &&
+                hasValue(catRow.get("atom_download_url"))) {
+                svContainsOperations = identificationInfo.addElement("srv:containsOperations");
+                var svOperationMetadata = svContainsOperations.addElement("srv:SV_OperationMetadata");
+                svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText("Get Download Service Metadata");
+                // mandatory !
+                svOperationMetadata.addElement("srv:DCP").addAttribute("gco:nilReason", "unknown");
+                svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(catRow.get("atom_download_url"));
+            }
+
+            // "normal" operations
             svOpRows = SQL.all("SELECT * FROM t011_obj_serv_operation WHERE obj_serv_id=?", [objServId]);
             for (i=0; i<svOpRows.size(); i++) {
                 var svOpRow = svOpRows.get(i);

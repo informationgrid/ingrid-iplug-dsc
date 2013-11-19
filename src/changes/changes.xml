@@ -6,6 +6,10 @@
   </properties>
   <body>
     <release version="3.3.2-SNAPSHOT" date="????-??-??" description="Release InGrid 3.3.2-SNAPSHOT">
+      <action type="add" dev="wemove" issue="REDMINE-231">
+          IDF: Added ATOM Downloadservice URL.
+          Also mark in search index as "download_service:atom".
+      </action>
       <action type="fix" dev="wemove" issue="INGRID-2306">
           IDF: Fix URL of codeList attribute when mapping to IDF.
       </action>
