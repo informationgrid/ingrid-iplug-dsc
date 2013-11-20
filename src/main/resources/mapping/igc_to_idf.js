@@ -2322,7 +2322,7 @@ function addDistributionInfo(mdMetadata, objId) {
                 formatWritten = true;
             }
             // we use "gmd:CI_OnlineResource" cause NO "idf:attachedToField" !
-            mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(catRow.get("atom_download_url"));
+            mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(catRow.get("atom_download_url") + objUuid);
         }
     	
         // all from links
@@ -2408,7 +2408,7 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                 svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText("Get Download Service Metadata");
                 // mandatory !
                 svOperationMetadata.addElement("srv:DCP").addAttribute("gco:nilReason", "unknown");
-                svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(catRow.get("atom_download_url"));
+                svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(catRow.get("atom_download_url") + objUuid);
             }
 
             // "normal" operations
