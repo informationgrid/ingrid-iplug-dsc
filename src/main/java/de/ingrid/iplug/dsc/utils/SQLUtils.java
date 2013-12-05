@@ -123,7 +123,7 @@ public class SQLUtils {
             return result;
 
         } catch (SQLException ex) {
-            log.error("Error fetching all records from SQL. Sql: " + sqlStr + ", sqlParams: " + sqlParams
+            log.error("Error fetching all records from SQL. Sql: " + sqlStr + ", sqlParams: " + Arrays.toString(sqlParams)
                     + ", Exception: " + ex);
             throw ex;
         } finally {
