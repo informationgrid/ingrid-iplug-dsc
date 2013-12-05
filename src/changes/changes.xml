@@ -10,7 +10,8 @@
 
     <release version="3.3.3-SNAPSHOT" date="????-??-??" description="Release InGrid ???">
       <action type="fix" dev="wemove">
-          Fix Bug on Oracle: Indexing of profile caused error (IgcProfileDocumentMapper).
+          Oracle Fixes: Fixed indexing of profile, caused error (IgcProfileDocumentMapper).
+          Fixed mapping to IDF of objects class 3.
       </action>
     </release>
     
