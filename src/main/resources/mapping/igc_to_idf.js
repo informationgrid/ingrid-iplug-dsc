@@ -35,7 +35,7 @@ var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStan
 
 // ---------- <idf:html> ----------
 var idfHtml = XPATH.getNode(idfDoc, "/idf:html")
-DOM.addAttribute(idfHtml, "idf-version", "3.3.1");
+DOM.addAttribute(idfHtml, "idf-version", "3.3.4");
 
 // ---------- <idf:body> ----------
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
@@ -1240,7 +1240,13 @@ for (i=0; i<objRows.size(); i++) {
     // NOTE: This also includes coupled services (class 3) pointing to data object (class 1)
     rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=? AND object_reference.obj_from_id=t01_object.id AND t01_object.work_state=?" + publicationConditionFilter, [objUuid, 'V']);
     for (i=0; i<rows.size(); i++) {
-        mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:crossReference", "IN"));
+        // extract service information if present ! (GetCap from WMS ! serv.type_key=2=WMS, servOp.name_key=1=GetCap) !
+        var srvRow = SQL.first("SELECT * FROM t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE serv.obj_id=? AND serv.type_key=2 AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [rows.get(i).get("id")]);
+        if (log.isDebugEnabled()) {
+            log.debug("Service object id: " + rows.get(i).get("id"));
+            log.debug("Extracted Service Info: " + srvRow);
+        }
+        mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:crossReference", "IN", srvRow));
     }
     
 
@@ -2900,15 +2906,18 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
     }
 }
 
-function getIdfObjectReference(objRow, elementName, direction) {
+function getIdfObjectReference(objRow, elementName, direction, srvRow) {
     var idfObjectReference = DOM.createElement(elementName);
     idfObjectReference.addAttribute("uuid", objRow.get("obj_uuid"));
     if (hasValue(objRow.get("org_obj_id"))) {
         idfObjectReference.addAttribute("orig-uuid", objRow.get("org_obj_id"));
     }
+    
+    // map direction of cross reference if present !
     if (hasValue(direction)) {
         idfObjectReference.addAttribute("direction", direction);
     }
+
     idfObjectReference.addElement("idf:objectName").addText(objRow.get("obj_name"));
     idfObjectReference.addElement("idf:objectType").addText(objRow.get("obj_class"));
 
@@ -2916,6 +2925,14 @@ function getIdfObjectReference(objRow, elementName, direction) {
 
     if (hasValue(objRow.get("descr"))) {
         idfObjectReference.addElement("idf:description").addText(objRow.get("descr"));      
+    }
+
+    // map service data if present !
+    if (hasValue(srvRow)) {
+        var myValue = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, srvRow.get("type_key"));
+        idfObjectReference.addElement("idf:serviceType").addText(myValue);
+        idfObjectReference.addElement("idf:serviceOperation").addText(srvRow.get("name_value"));
+        idfObjectReference.addElement("idf:serviceUrl").addText(srvRow.get("connect_point"));
     }
 
     return idfObjectReference;

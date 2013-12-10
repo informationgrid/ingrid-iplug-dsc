@@ -6,6 +6,9 @@
   </properties>
   <body>
     <release version="3.4.0-SNAPSHOT" date="????-??-??" description="Release InGrid 3.4.0-SNAPSHOT">
+      <action type="add" dev="wemove" issue="REDMINE-134">
+          IDF: Added additional service information to IDF for calling service from detail view.
+      </action>
     </release>
 
     <release version="3.3.3-SNAPSHOT" date="????-??-??" description="Release InGrid ???">
