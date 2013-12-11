@@ -9,6 +9,7 @@ import junit.framework.TestCase;
 import org.apache.lucene.document.Document;
 import org.springframework.core.io.FileSystemResource;
 
+import de.ingrid.admin.search.GermanStemmer;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper;
 import de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer;
@@ -39,8 +40,13 @@ public class IgcDocumentProducerTestLocal extends TestCase {
         p.configure(pd);
 
         ScriptedDocumentMapper m = new ScriptedDocumentMapper();
-        m.setMappingScript(new FileSystemResource("src/main/resources/mapping/igc_to_lucene.js"));
+        FileSystemResource[] mappingScripts = {
+                new FileSystemResource("src/main/resources/mapping/global.js"),
+        		new FileSystemResource("src/main/resources/mapping/igc_to_lucene.js")
+        };
+        m.setMappingScripts(mappingScripts);
         m.setCompile(true);
+        m.setDefaultStemmer(new GermanStemmer());
 
         List<IRecordMapper> mList = new ArrayList<IRecordMapper>();
         mList.add(m);

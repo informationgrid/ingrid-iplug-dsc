@@ -128,7 +128,7 @@ for (i=0; i<objRows.size(); i++) {
         if (addressRow) {
             // map only email address (pass true as third parameter), see INGRID32-36
             // NO, ISO needs more data, see INGRID32-146
-        	// do not export all values ... only organisation name and email(s) (INGRID-2256)
+            // do not export all values ... only organisation name and email(s) (INGRID-2256)
             mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
         }
     }
@@ -787,8 +787,8 @@ for (i=0; i<objRows.size(); i++) {
     if (objClass.equals("3")) {
         // ---------- <gmd:identificationInfo/srv:coupledResource/srv:SV_CoupledResource/srv:identifier/gco:CharacterString> ----------
         // Map all operations ! So we also query operations of service, see INGRID-2291
-    	// We query operations as OUTER JOIN, so service is not lost, if NO operations exist ! 
-    	var rows = SQL.all("SELECT t01_object.*, t011_obj_serv_operation.name_value FROM object_reference, t01_object, t011_obj_serv LEFT OUTER JOIN t011_obj_serv_operation ON (t011_obj_serv.id = t011_obj_serv_operation.obj_serv_id) WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND t011_obj_serv.obj_id=obj_from_id AND obj_from_id=? AND special_ref=? AND t01_object.work_state=? " + publicationConditionFilter + " ORDER BY object_reference.line, t011_obj_serv_operation.line", [objId, '3600', "V"]);
+        // We query operations as OUTER JOIN, so service is not lost, if NO operations exist ! 
+        var rows = SQL.all("SELECT t01_object.*, t011_obj_serv_operation.name_value FROM object_reference, t01_object, t011_obj_serv LEFT OUTER JOIN t011_obj_serv_operation ON (t011_obj_serv.id = t011_obj_serv_operation.obj_serv_id) WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND t011_obj_serv.obj_id=obj_from_id AND obj_from_id=? AND special_ref=? AND t01_object.work_state=? " + publicationConditionFilter + " ORDER BY object_reference.line, t011_obj_serv_operation.line", [objId, '3600', "V"]);
         var resourceIdentifiers = [];
         for (i=0; i<rows.size(); i++) {
             var refObjId        = rows.get(i).get("id");
@@ -994,118 +994,8 @@ for (i=0; i<objRows.size(); i++) {
 
     addDistributionInfo(mdMetadata, objId);
 
-    // ---------- <idf:idfMdMetadata/gmd:dataQualityInfo/gmd:DQ_DataQuality> ----------
-    // ---------- <gmd:DQ_DataQuality/gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode> ----------
-    var dqDataQuality;
-    var liLineage;
-
 // GEO-INFORMATION/KARTE(1)
     if (objClass.equals("1")) {
-        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_CompletenessOmission> ----------
-        if (hasValue(objGeoRow.get("rec_grade"))) {
-            dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            var completenessOmission = dqDataQuality.addElement("gmd:report/gmd:DQ_CompletenessOmission");
-            // map now INSPIRE conform !
-            completenessOmission.addElement("gmd:nameOfMeasure/gco:CharacterString").addText("Rate of missing items");
-            completenessOmission.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("7");
-            // ATTENTION: ! measureDescription "completeness omission (rec_grade)" is used in portal to differ from display as DataQuality Table !
-            completenessOmission.addElement("gmd:measureDescription/gco:CharacterString").addText("completeness omission (rec_grade)");
-            var dqQuantitativeResult = completenessOmission.addElement("gmd:result/gmd:DQ_QuantitativeResult");
-            var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
-                .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
-            unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
-            unitDefinition.addElement("gml:name").addText("percent");
-            unitDefinition.addElement("gml:quantityType").addText("completeness omission");
-            unitDefinition.addElement("gml:catalogSymbol").addText("%");
-            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("rec_grade"));
-        }
-
-        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy> ----------
-        if (hasValue(objGeoRow.get("pos_accuracy_vertical"))) {
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText("Mean value of positional uncertainties (1D)");
-            // mean value of positional uncertainties (1D, 2D and 3D)
-            dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("28");
-            dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText("vertical");
-            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
-            var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
-                .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
-            unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
-            unitDefinition.addElement("gml:name").addText("meter");
-            unitDefinition.addElement("gml:quantityType").addText("absolute external positional accuracy, vertical accuracy");
-            unitDefinition.addElement("gml:catalogSymbol").addText("m");
-            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("pos_accuracy_vertical"));
-        }
-
-        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy> ----------
-        if (hasValue(objGeoRow.get("rec_exact"))) {
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText("Mean value of positional uncertainties (2D)");
-            // mean value of positional uncertainties (1D, 2D and 3D)
-            dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("28");
-            dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText("geographic");
-            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
-            var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
-                .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
-            unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
-            unitDefinition.addElement("gml:name").addText("meter");
-            unitDefinition.addElement("gml:quantityType").addText("absolute external positional accuracy, geographic accuracy");
-            unitDefinition.addElement("gml:catalogSymbol").addText("m");
-            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("rec_exact"));
-        }
-
-        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult> ----------
-        rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [objId]);
-        for (i=0; i<rows.size(); i++) {
-            var dqConformanceResult = getDqConformanceResultElement(rows.get(i));
-            // only write report if evaluated, see https://dev.wemove.com/jira/browse/INGRID23-165
-            if (hasValue(dqConformanceResult)) {
-                if (!dqDataQuality) {
-                    dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-                }
-                dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result")
-                    .addElement(dqConformanceResult);
-            }
-        }
-
-        addObjectDataQualityTable(objRow, dqDataQuality);
-
-        // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:statement> ----------
-        if (hasValue(objGeoRow.get("special_base"))) {
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
-            liLineage.addElement("gmd:statement/gco:CharacterString").addText(objGeoRow.get("special_base"));
-        }
-
-        // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description> ----------
-        if (hasValue(objGeoRow.get("method"))) {
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            if (!liLineage) {
-                liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
-            }
-            liLineage.addElement("gmd:processStep/gmd:LI_ProcessStep/gmd:description/gco:CharacterString").addText(objGeoRow.get("method"));
-        }
-
-        // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
-        if (hasValue(objGeoRow.get("data_base"))) {
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            if (!liLineage) {
-                liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
-            }
-            liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(objGeoRow.get("data_base"));
-        }
 
         // ---------- <idf:idfMdMetadata/gmd:portrayalCatalogueInfo/gmd:MD_PortrayalCatalogueReference/gmd:portrayalCatalogueCitation/gmd:CI_Citation> ----------
         rows = SQL.all("SELECT * FROM t011_obj_geo_symc WHERE obj_geo_id=?", [objGeoId]);
@@ -1136,71 +1026,6 @@ for (i=0; i<objRows.size(); i++) {
         rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3555', "V"]);
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:portrayalCatalogueInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
-        }
-
-// GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-    } else if (objClass.equals("3") || objClass.equals("6")) {
-
-        // "object_conformity" ONLY CLASS 3, but we do not distinguish, class 6 should have no rows here !
-
-        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult> ----------
-        rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [objId]);
-        for (i=0; i<rows.size(); i++) {
-            var dqConformanceResult = getDqConformanceResultElement(rows.get(i));
-            // only write report if evaluated, see https://dev.wemove.com/jira/browse/INGRID23-165
-            if (hasValue(dqConformanceResult)) {
-                if (!dqDataQuality) {
-                    dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-                }
-                dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency/gmd:result")
-                    .addElement(dqConformanceResult);
-            }
-        }
-
-        // class 3 and class 6
-
-        // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description> ----------
-        if (hasValue(objServRow.get("history"))) {
-            dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
-            liLineage.addElement("gmd:processStep/gmd:LI_ProcessStep/gmd:description/gco:CharacterString").addText(objServRow.get("history"));
-        }
-
-        // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
-        if (hasValue(objServRow.get("base"))) {
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            if (!liLineage) {
-                liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
-            }
-            liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(objServRow.get("base"));
-        }
-
-// DATENSAMMLUNG/DATENBANK(5)
-    } else if (objClass.equals("5")) {
-        // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
-        var rs = SQL.first("SELECT base FROM t011_obj_data WHERE obj_id=?", [objId]);
-        if (hasValue(rs)) {
-            value = rs.get("base");
-            if (hasValue(value)) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-                liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
-                liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(value);
-            }
-        }
-
-// DOKUMENT/BERICHT/LITERATUR(2)
-    } else if (objClass.equals("2")) {
-        // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
-        var rs = SQL.first("SELECT base FROM t011_obj_literature WHERE obj_id=?", [objId]);
-        if (hasValue(rs)) {
-            value = rs.get("base");
-            if (hasValue(value)) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-                liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
-                liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(value);
-            }
         }
     }
 
@@ -1283,88 +1108,6 @@ function getDate(dateValue) {
     }
     gcoElement.addText(dateValue);
     return gcoElement;
-}
-
-// Return gco:Date OR gco:DateTime element dependent from passed date format.
-function getDateOrDateTime(dateValue) {
-    var gcoElement;
-    if (dateValue.indexOf("T") > -1) {
-        gcoElement = DOM.createElement("gco:DateTime");
-    } else {
-        gcoElement = DOM.createElement("gco:Date");
-    }
-    gcoElement.addText(dateValue);
-    return gcoElement;
-}
-
-
-// "nicht evaluiert"(3) leads to nilReason "unknown"
-function getDqConformanceResultElement(conformityRow) {
-    if (!hasValue(conformityRow.get("degree_key")) || conformityRow.get("degree_key").equals("3")) {
-        // "not evaluated", we retuen null element indicating no "gmd:report" should be written
-        // see https://dev.wemove.com/jira/browse/INGRID23-165
-        if (log.isDebugEnabled()) {
-            log.debug("Object_conformity degree_key = " + conformityRow.get("degree_key") + " (3=not evaluated), we skip this one, no gmd:report !");
-        }
-        return null;
-    }
-
-    var dqConformanceResult = DOM.createElement("gmd:DQ_ConformanceResult");
-    var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
-
-    var specification = TRANSF.getIGCSyslistEntryName(6005, conformityRow.get("specification_key"));
-    var specificationDate;
-    if (!hasValue(specification)) {
-        specification = conformityRow.get("specification_value");
-    } else {
-        // date of specification encoded in syslist value ! Parse and extract !
-    	// INGRID-2270: get date from data field
-    	var dateFromDataField = TRANSF.getISOCodeListEntryData(6005, specification);
-    	// Fallback if old codelist is still used
-        var stringsParsed = TRANSF.parseIGCSyslistEntryName(specification, 6005);
-        if (hasValue(stringsParsed[1])) {
-            specificationDate = stringsParsed[1];
-            specification = stringsParsed[0];
-        } else if (hasValue(dateFromDataField)) {
-        	specificationDate = dateFromDataField;
-        }
-    }
-    if (hasValue(specification)) {
-        ciCitation.addElement("gmd:title/gco:CharacterString").addText(specification);
-    } else {
-        ciCitation.addElement("gmd:title").addAttribute("gco:nilReason", "missing");
-    }
-
-    var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
-    if (hasValue(specificationDate)) {
-        ciDate.addElement("gmd:date").addElement(getDateOrDateTime(specificationDate));
-    } else {
-        ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "unknown");
-    }
-    ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-        .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
-        .addAttribute("codeListValue", "publication")
-        .addText("publication");
-    dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("");
-    dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(conformityRow.get("degree_key").equals("1"));
-    return dqConformanceResult;
-}
-
-function getDqDataQualityElement(objClass) {
-    var dqDataQuality = DOM.createElement("gmd:DQ_DataQuality");
-
-    var dqScope = dqDataQuality.addElement("gmd:scope/gmd:DQ_Scope");
-    
-    dqScope.addElement("gmd:level/gmd:MD_ScopeCode")
-        .addAttribute("codeListValue", getHierarchLevel(objClass))
-        .addAttribute("codeList", globalCodeListAttrURL + "#MD_ScopeCode");
-
-    // "levelDescription" is mandatory if "level" notEqual 'dataset' or 'series', see INGRID-2263
-    if (objClass != "1") {
-        dqScope.addElement("gmd:levelDescription/gmd:MD_ScopeDescription/gmd:other/gco:CharacterString").addText(objClass);
-    }
-
-    return dqDataQuality;
 }
 
 /**
@@ -1760,34 +1503,6 @@ function getAddressRowPathArray(addressRow) {
     return results;
 }
 
-function getHierarchLevel(objClass) {
-    var hierarchyLevel = null;
-    if (objClass == "0") {
-        hierarchyLevel = "nonGeographicDataset";
-    } else if (objClass == "1") {
-        var rows = SQL.all("SELECT hierarchy_level FROM t011_obj_geo WHERE obj_id=?", [objId]);
-        // Should be only one row !
-        for (j=0; j<rows.size(); j++) {
-            hierarchyLevel = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(525, rows.get(j).get("hierarchy_level"));
-        }
-    } else if (objClass == "2") {
-        hierarchyLevel = "nonGeographicDataset";
-    } else if (objClass == "3") {
-        hierarchyLevel = "service";
-    } else if (objClass == "4") {
-        hierarchyLevel = "nonGeographicDataset";
-    } else if (objClass == "5") {
-        hierarchyLevel = "nonGeographicDataset";
-    } else if (objClass == "6") {
-        hierarchyLevel = "application";
-    } else {
-        log.error("Unsupported UDK class '" + objClass
-                + "'. Only class 0 to 6 are supported by the CSW interface.");
-    }
-    
-    return hierarchyLevel;
-}
-
 function map(needle, haystack) {
     for( var key in haystack ) {
         if (key == needle) {
@@ -2163,15 +1878,15 @@ function addDistributionInfo(mdMetadata, objId) {
             var data = TRANSF.getISOCodeListEntryData(6300, formatValue);
             var version = getParameterWithin(data, '"', 1);
             if (!version || version.trim() === "")
-            	mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
+                mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
             else
-            	mdFormat.addElement("gmd:version/gco:CharacterString").addText(version);
+                mdFormat.addElement("gmd:version/gco:CharacterString").addText(version);
             // ---------- <gmd:MD_Format/gmd:specification> ----------
             var specification = getParameterWithin(data, '"', 2);
             if (!specification || specification.trim() === "")
-            	mdFormat.addElement("gmd:specification").addAttribute("gco:nilReason", "unknown");
+                mdFormat.addElement("gmd:specification").addAttribute("gco:nilReason", "unknown");
             else
-            	mdFormat.addElement("gmd:specification/gco:CharacterString").addText(specification);
+                mdFormat.addElement("gmd:specification/gco:CharacterString").addText(specification);
         }
     }
     
@@ -2215,7 +1930,7 @@ function addDistributionInfo(mdMetadata, objId) {
         }
         if (!formatWritten) {
             // always write format, here with nilReason children, see INGRID32-146
-        	// NOW ALSO when distributor exists (was missing) !, see INGRID-2277
+            // NOW ALSO when distributor exists (was missing) !, see INGRID-2277
             mdDistribution.addElement("gmd:distributionFormat").addElement(nilMdFormatElement);
             formatWritten = true;
         }
@@ -2315,7 +2030,7 @@ function addDistributionInfo(mdMetadata, objId) {
     if (objClass.equals("1") || objClass.equals("3")) {
         // ---------- <gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:online/gmd:CI_OnlineResource ----------
 
-    	// Service: ATOM download connection, see REDMINE-231
+        // Service: ATOM download connection, see REDMINE-231
         if (objClass.equals("3") &&
             hasValue(objServRow.get("has_atom_download")) && objServRow.get("has_atom_download").equals('Y') &&
             hasValue(catRow.get("atom_download_url"))) {
@@ -2330,7 +2045,7 @@ function addDistributionInfo(mdMetadata, objId) {
             // we use "gmd:CI_OnlineResource" cause NO "idf:attachedToField" !
             mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(catRow.get("atom_download_url") + objUuid);
         }
-    	
+        
         // all from links
         //rows = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_to_uuid=t01obj.obj_uuid AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_from_id=? and special_ref=?", [objId, "5066"]);
         // the links should all come from service objects (class=3)
@@ -2488,7 +2203,7 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                     var connUrl = connRows.get(j).get("connect_point");
                     if (hasValue(connUrl)) {
                         // always add some parameters to "getcapabilities" url when VIEW-Service, see INGRID-2107
-                    	// Preparing getCapabilitiesUrl deprecated, see INGRID-2259
+                        // Preparing getCapabilitiesUrl deprecated, see INGRID-2259
                         // connUrl = prepareGetCapabilitiesUrl(connUrl, opName);
                         svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(connUrl);
                     }
@@ -2533,9 +2248,9 @@ function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
             hasValue(objServRow.get("environment")) ||
             hasValue(objServRow.get("description"))
             ) {
-		    // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
+            // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
             var mdDataIdentification = mdMetadata.addElement("gmd:identificationInfo/gmd:MD_DataIdentification");
-                mdDataIdentification.addAttribute("uuid", getFileIdentifier(objRow));        		
+                mdDataIdentification.addAttribute("uuid", getFileIdentifier(objRow));               
     
             // add necessary elements for schema validation
             // ---------- <gmd:citation> ----------
@@ -2605,305 +2320,6 @@ function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
                 mdDataIdentification.addElement("gmd:supplementalInformation/gco:CharacterString").addText(objServRow.get("description"));
             }
         }
-}
-
-function addObjectDataQualityTable(objRow, dqDataQuality) {
-    var objId = objRow.get("id");
-    var objClass = objRow.get("obj_class");
-
-    var rows = SQL.all("SELECT * FROM object_data_quality WHERE obj_id=?", [objId]);
-    for (i=0; i<rows.size(); i++) {
-        var igcRow = rows.get(i);
-        var igcDqElementId = igcRow.get("dq_element_id");
-        var igcNameOfMeasureKey = igcRow.get("name_of_measure_key");
-        var igcNameOfMeasureValue = igcRow.get("name_of_measure_value");
-        var igcMeasureDescription = igcRow.get("measure_description");
-        var igcResultValue = igcRow.get("result_value");
-        
-        if (igcDqElementId.equals("109")) {
-            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_CompletenessCommission> ----------
-
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_CompletenessCommission");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
-            if (igcNameOfMeasureKey.equals("1")) {
-                // Rate of excess items
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("3");
-            } else if (igcNameOfMeasureKey.equals("2")) {
-                // Number of duplicate feature instances
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("4");
-            }
-            if (hasValue(igcMeasureDescription)) {
-                dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
-            }
-            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
-            if (igcNameOfMeasureKey.equals("1")) {
-                var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
-                    .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
-                unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
-                unitDefinition.addElement("gml:name").addText("percent");
-                unitDefinition.addElement("gml:quantityType").addText("completeness commission");
-                unitDefinition.addElement("gml:catalogSymbol").addText("%");
-            } else if (igcNameOfMeasureKey.equals("2")) {
-                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "inapplicable");
-            } else {
-                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
-            }
-            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
-
-        } else if (igcDqElementId.equals("112")) {
-            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_ConceptualConsistency> ----------
-
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_ConceptualConsistency");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
-            if (igcNameOfMeasureKey.equals("1")) {
-                // Number of invalid overlaps of surfaces
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("11");
-            } else if (igcNameOfMeasureKey.equals("2")) {
-                // Conceptual Schema compliance = (Compliance rate with the rules of the conceptual schema)
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("13");
-            }
-            if (hasValue(igcMeasureDescription)) {
-                dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
-            }
-            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
-            if (igcNameOfMeasureKey.equals("1")) {
-                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "inapplicable");
-            } else if (igcNameOfMeasureKey.equals("2")) {
-                var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
-                    .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
-                unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
-                unitDefinition.addElement("gml:name").addText("percent");
-                unitDefinition.addElement("gml:quantityType").addText("conceptual consistency");
-                unitDefinition.addElement("gml:catalogSymbol").addText("%");
-            } else {
-                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
-            }
-            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
-
-        } else if (igcDqElementId.equals("113")) {
-            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency> ----------
-
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
-            if (igcNameOfMeasureKey.equals("1")) {
-                // Value domain conformance rate
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("17");
-            }
-            if (hasValue(igcMeasureDescription)) {
-                dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
-            }
-            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
-            if (igcNameOfMeasureKey.equals("1")) {
-                var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
-                    .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
-                unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
-                unitDefinition.addElement("gml:name").addText("percent");
-                unitDefinition.addElement("gml:quantityType").addText("domain consistency");
-                unitDefinition.addElement("gml:catalogSymbol").addText("%");
-            } else {
-                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
-            }
-            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
-
-        } else if (igcDqElementId.equals("114")) {
-            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_FormatConsistency> ----------
-
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_FormatConsistency");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
-            if (igcNameOfMeasureKey.equals("1")) {
-                // Physical structure conflict rate
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("20");
-            }
-            if (hasValue(igcMeasureDescription)) {
-                dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
-            }
-            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
-            if (igcNameOfMeasureKey.equals("1")) {
-                var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
-                    .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
-                unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
-                unitDefinition.addElement("gml:name").addText("percent");
-                unitDefinition.addElement("gml:quantityType").addText("format consistency");
-                unitDefinition.addElement("gml:catalogSymbol").addText("%");
-            } else {
-                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
-            }
-            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
-
-        } else if (igcDqElementId.equals("115")) {
-            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_TopologicalConsistency> ----------
-
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_TopologicalConsistency");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
-            if (igcNameOfMeasureKey.equals("1")) {
-                // Number of invalid overlaps of surfaces
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("11");
-            } else if (igcNameOfMeasureKey.equals("2")) {
-                // Number of missing connections due to undershoots
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("23");
-            } else if (igcNameOfMeasureKey.equals("3")) {
-                // Number of missing connections due to overshoots
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("24");
-            } else if (igcNameOfMeasureKey.equals("4")) {
-                // Number of invalid slivers
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("25");
-            } else if (igcNameOfMeasureKey.equals("5")) {
-                // Number of invalid self-intersect errors
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("26");
-            } else if (igcNameOfMeasureKey.equals("6")) {
-                // Number of invalid self-overlap errors
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("27");
-            } else if (igcNameOfMeasureKey.equals("7")) {
-                // Number of faulty point-curve connections
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("21");
-            } else if (igcNameOfMeasureKey.equals("8")) {
-                // Number of missing connections due to crossing of bridge/road
-                dqElem.addElement("gmd:measureIdentification").addAttribute("gco:nilReason", "missing");
-            } else if (igcNameOfMeasureKey.equals("9")) {
-                // Number of watercourse links below threshold length
-                dqElem.addElement("gmd:measureIdentification").addAttribute("gco:nilReason", "missing");
-            } else if (igcNameOfMeasureKey.equals("10")) {
-                // Number of closed watercourse links
-                dqElem.addElement("gmd:measureIdentification").addAttribute("gco:nilReason", "missing");
-            } else if (igcNameOfMeasureKey.equals("11")) {
-                // Number of multi-part watercourse links
-                dqElem.addElement("gmd:measureIdentification").addAttribute("gco:nilReason", "missing");
-            }
-            if (hasValue(igcMeasureDescription)) {
-                dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
-            }
-            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
-            if (igcNameOfMeasureKey.equals("-1")) {
-                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
-            } else {
-                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "inapplicable");
-            }
-            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
-
-        } else if (igcDqElementId.equals("120")) {
-            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_TemporalConsistency> ----------
-
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_TemporalConsistency");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
-            if (igcNameOfMeasureKey.equals("1")) {
-                // Percentage of items that are correctly events ordered
-                // -> INSPIRE: Measure identifier: There is no measure for temporal accuracy in ISO 19138
-                dqElem.addElement("gmd:measureIdentification").addAttribute("gco:nilReason", "missing");
-            }
-            if (hasValue(igcMeasureDescription)) {
-                dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
-            }
-            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
-            if (igcNameOfMeasureKey.equals("1")) {
-                var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
-                    .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
-                unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
-                unitDefinition.addElement("gml:name").addText("percent");
-                unitDefinition.addElement("gml:quantityType").addText("temporal consistency");
-                unitDefinition.addElement("gml:catalogSymbol").addText("%");
-            } else {
-                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
-            }
-            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
-
-        } else if (igcDqElementId.equals("125")) {
-            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_ThematicClassificationCorrectness> ----------
-
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_ThematicClassificationCorrectness");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
-            if (igcNameOfMeasureKey.equals("1")) {
-                // Misclassification rate
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("61");
-            }
-            if (hasValue(igcMeasureDescription)) {
-                dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
-            }
-            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
-            if (igcNameOfMeasureKey.equals("1")) {
-                var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
-                    .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
-                unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
-                unitDefinition.addElement("gml:name").addText("percent");
-                unitDefinition.addElement("gml:quantityType").addText("thematic classification correctness");
-                unitDefinition.addElement("gml:catalogSymbol").addText("%");
-            } else {
-                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
-            }
-            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
-
-        } else if (igcDqElementId.equals("126")) {
-            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_NonQuantitativeAttributeAccuracy> ----------
-
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_NonQuantitativeAttributeAccuracy");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
-            if (igcNameOfMeasureKey.equals("1")) {
-                // Rate of incorrect attributes names values
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("67");
-            }
-            if (hasValue(igcMeasureDescription)) {
-                dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
-            }
-            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
-            if (igcNameOfMeasureKey.equals("1")) {
-                var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
-                    .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
-                unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
-                unitDefinition.addElement("gml:name").addText("percent");
-                unitDefinition.addElement("gml:quantityType").addText("non quantitative attribute accuracy");
-                unitDefinition.addElement("gml:catalogSymbol").addText("%");
-            } else {
-                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
-            }
-            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
-
-        } else if (igcDqElementId.equals("127")) {
-            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_QuantitativeAttributeAccuracy> ----------
-
-            if (!dqDataQuality) {
-                dqDataQuality = mdMetadata.addElement("gmd:dataQualityInfo").addElement(getDqDataQualityElement(objClass));
-            }
-            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_QuantitativeAttributeAccuracy");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
-            if (igcNameOfMeasureKey.equals("1")) {
-                // Attribute value uncertainty at 95 % significance level
-                dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("71");
-            }
-            if (hasValue(igcMeasureDescription)) {
-                dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
-            }
-            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
-            if (igcNameOfMeasureKey.equals("1")) {
-                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "inapplicable");
-            } else {
-                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
-            }
-            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
-        }
-    }
 }
 
 function getIdfObjectReference(objRow, elementName, direction, srvRow) {
@@ -3005,20 +2421,6 @@ function determinePublicationConditionQueryExt(publishId) {
     }
 }
 
-function hasValue(val) {
-    if (typeof val == "undefined") {
-        return false; 
-    } else if (val == null) {
-        return false; 
-    } else if (typeof val == "string" && val == "") {
-        return false;
-    } else if (typeof val == "object" && val.toString().equals("")) {
-        return false;
-    } else {
-      return true;
-    }
-}
-
 /**
  * Extracts a parameter from a string which is between a specified character.
  * For a string like -> "parameter1","parameter2"
@@ -3029,13 +2431,13 @@ function hasValue(val) {
  * @returns the 'paramNum' extracted parameter
  */
 function getParameterWithin(data, searchChar, paramNum) {
-	if (!data) return "";
-	var pos = 0, next = -1;
-	for (var i=0; i<paramNum; i++) {
-		pos = data.indexOf(searchChar, next+1);
-		next = data.indexOf(searchChar, pos+1);
-	}
-	// invalid or empty structure returns empty string
-	if (pos === -1 || next === -1) return "";
-	return data.substring(pos+1, next);
+    if (!data) return "";
+    var pos = 0, next = -1;
+    for (var i=0; i<paramNum; i++) {
+        pos = data.indexOf(searchChar, next+1);
+        next = data.indexOf(searchChar, pos+1);
+    }
+    // invalid or empty structure returns empty string
+    if (pos === -1 || next === -1) return "";
+    return data.substring(pos+1, next);
 }

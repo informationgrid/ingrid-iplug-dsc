@@ -3,14 +3,9 @@
  */
 package de.ingrid.iplug.dsc.index.mapper;
 
-import java.io.InputStreamReader;
 import java.sql.Connection;
-
-import javax.script.Bindings;
-import javax.script.Compilable;
-import javax.script.CompiledScript;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
+import java.util.Hashtable;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
@@ -22,6 +17,7 @@ import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.utils.IndexUtils;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
+import de.ingrid.iplug.dsc.utils.ScriptEngine;
 import de.ingrid.iplug.dsc.utils.TransformationUtils;
 
 /**
@@ -38,12 +34,8 @@ import de.ingrid.iplug.dsc.utils.TransformationUtils;
  */
 public class ScriptedDocumentMapper implements IRecordMapper {
 
-    private Resource mappingScript;
-
+    private Resource[] mappingScripts;
     private boolean compile = false;
-
-    private ScriptEngine engine;
-    private CompiledScript compiledScript;
 
     /** The default stemmer used in IndexUtils Tool !
      * Is AUTOWIRED in spring environment via {@link #setDefaultStemmer(Stemmer)}
@@ -54,60 +46,40 @@ public class ScriptedDocumentMapper implements IRecordMapper {
 
     @Override
     public void map(SourceRecord record, Document doc) throws Exception {
-        if (mappingScript == null) {
-            log.error("Mapping script is not set!");
-            throw new IllegalArgumentException("Mapping script is not set!");
+        if (mappingScripts == null) {
+            log.error("Mapping script(s) not set!");
+            throw new IllegalArgumentException("Mapping script(s) not set!");
         }
         try {
-            if (engine == null) {
-                String scriptName = mappingScript.getFilename();
-                String extension = scriptName.substring(scriptName
-                        .lastIndexOf('.') + 1, scriptName.length());
-                ScriptEngineManager mgr = new ScriptEngineManager();
-                engine = mgr.getEngineByExtension(extension);
-                if (compile) {
-                    if (engine instanceof Compilable) {
-                        Compilable compilable = (Compilable) engine;
-                        compiledScript = compilable
-                                .compile(new InputStreamReader(mappingScript
-                                        .getInputStream()));
-                    }
-                }
-            }
-            
             // create utils for script
             Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
             SQLUtils sqlUtils = new SQLUtils(connection);
             IndexUtils idxUtils = new IndexUtils(doc, _defaultStemmer);
             TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
             
-            Bindings bindings = engine.createBindings();
-            bindings.put("sourceRecord", record);
-            bindings.put("luceneDoc", doc);
-            bindings.put("log", log);
-            bindings.put("SQL", sqlUtils);
-            bindings.put("IDX", idxUtils);
-            bindings.put("TRANSF", trafoUtils);
+			Map<String, Object> parameters = new Hashtable<String, Object>();
+			parameters.put("sourceRecord", record);
+			parameters.put("luceneDoc", doc);
+			parameters.put("log", log);
+			parameters.put("SQL", sqlUtils);
+			parameters.put("IDX", idxUtils);
+			parameters.put("TRANSF", trafoUtils);
 
-            if (compiledScript != null) {
-                compiledScript.eval(bindings);
-            } else {
-                engine.eval(new InputStreamReader(mappingScript
-                        .getInputStream()), bindings);
-            }
+			ScriptEngine.execute(this.mappingScripts, parameters, compile);
         } catch (Exception e) {
             log.error("Error mapping source record to lucene document.", e);
             throw e;
         }
     }
 
-    public Resource getMappingScript() {
-        return mappingScript;
+    public Resource[] getMappingScripts() {
+        return mappingScripts;
     }
 
-    public void setMappingScript(Resource mappingScript) {
-        this.mappingScript = mappingScript;
-    }
+	public void setMappingScripts(Resource[] mappingScripts) {
+		this.mappingScripts = mappingScripts;
+	}
+
 
     public boolean isCompile() {
         return compile;

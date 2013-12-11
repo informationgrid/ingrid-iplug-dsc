@@ -34,7 +34,10 @@ public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCa
         p.configure(pd);
 
         ScriptedDocumentMapper m = new ScriptedDocumentMapper();
-        m.setMappingScript(new ClassPathResource("scripts/record2index_database_test.js"));
+        ClassPathResource[] mappingScripts = {
+        	new ClassPathResource("scripts/record2index_database_test.js")
+        };
+        m.setMappingScripts(mappingScripts);
         m.setCompile(false);
 
         List<IRecordMapper> mList = new ArrayList<IRecordMapper>();
