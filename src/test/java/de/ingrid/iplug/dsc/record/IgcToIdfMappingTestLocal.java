@@ -12,7 +12,6 @@ import org.springframework.core.io.FileSystemResource;
 
 import de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
-import de.ingrid.iplug.dsc.record.mapper.IgcProfileIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper;
 import de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer;
 import de.ingrid.utils.PlugDescription;
@@ -37,7 +36,12 @@ public class IgcToIdfMappingTestLocal extends TestCase {
 
         CreateIdfMapper m1 = new CreateIdfMapper();
         ScriptedIdfMapper m2 = new ScriptedIdfMapper();
-        m2.setMappingScript(new FileSystemResource("src/main/resources/mapping/igc_to_idf.js"));
+        FileSystemResource[] mappingScripts = {
+            new FileSystemResource("src/main/resources/mapping/global.js"),
+            new FileSystemResource("src/main/resources/mapping/idf_utils.js"),
+        	new FileSystemResource("src/main/resources/mapping/igc_to_idf.js")
+        };
+        m2.setMappingScripts(mappingScripts);
         m2.setCompile(true);
 
         List<IIdfMapper> mList = new ArrayList<IIdfMapper>();

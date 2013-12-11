@@ -22,7 +22,7 @@ import de.ingrid.utils.xml.PlugdescriptionSerializer;
 public class IgcToIdfRecordCreatorTestLocal extends TestCase {
 
 	// set num threads here !!!
-	int numThreads = 10;
+	int numThreads = 1;
 	
 	DscRecordCreator recordCreator;
 
@@ -36,15 +36,32 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
         p.configure(pd);
 
         CreateIdfMapper m1 = new CreateIdfMapper();
+
         ScriptedIdfMapper m2 = new ScriptedIdfMapper();
-        m2.setMappingScript(new FileSystemResource("src/main/resources/mapping/igc_to_idf.js"));
+        FileSystemResource[] mappingScripts = {
+            new FileSystemResource("src/main/resources/mapping/global.js"),
+            new FileSystemResource("src/main/resources/mapping/idf_utils.js"),
+            new FileSystemResource("src/main/resources/mapping/igc_to_idf.js")
+        };
+        m2.setMappingScripts(mappingScripts);
         m2.setCompile(true);
+
+        ScriptedIdfMapper mDQ = new ScriptedIdfMapper();
+        FileSystemResource[] mappingScriptsDQ = {
+            new FileSystemResource("src/main/resources/mapping/global.js"),
+            new FileSystemResource("src/main/resources/mapping/idf_utils.js"),
+        	new FileSystemResource("src/main/resources/mapping/igc_to_idf_obj_dq.js")
+        };
+        mDQ.setMappingScripts(mappingScriptsDQ);
+        mDQ.setCompile(true);
+
         IgcProfileIdfMapper m3 = new IgcProfileIdfMapper();
         m3.setSql("SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'");
 
         List<IIdfMapper> mList = new ArrayList<IIdfMapper>();
         mList.add(m1);
         mList.add(m2);
+        mList.add(mDQ);
         mList.add(m3);
 
         recordCreator = new DscRecordCreator();
@@ -83,13 +100,13 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
     private void doTestDscRecordCreator() throws Exception {
         String[] t01ObjectIds = new String[] {
         		"6667",		// class 0 = Organisationseinheit/Fachaufgabe
-        		"3778",		// class 1 = Geo-Information/Karte -> t0114_env_category, t0114_env_topic -> gmd:descriptiveKeywords + object_data_quality
+        		"3778",		// class 1 = Geo-Information/Karte -> t0114_env_category, t0114_env_topic -> gmd:descriptiveKeywords + object_data_quality DQ !!!
         		"6672",		// class 1 = Geo-Information/Karte, mit t011_obj_geo_symc + object_reference.special_ref 3555
-        		"6146",		// class 1 = Geo-Information/Karte, mit t011_obj_geo.keyc_incl_w_dataset + t011_obj_geo_supplinfo
-        		"5388",		// class 1 = Geo-Information/Karte, mit t011_obj_geo.keyc_incl_w_dataset + object_reference.special_ref 3535
-        		"5933",		// class 1 = Geo-Information/Karte, mit multiple t012_obj_adr associations
-        		"3787",		// class 1 = Geo-Information/Karte, t012_obj_adr.type = 5 -> gmd:distributorContact
-        		"3919",		// class 2 = Dokument/Bericht/Literatur
+        		"6146",		// class 1 = Geo-Information/Karte, mit t011_obj_geo.keyc_incl_w_dataset + t011_obj_geo_supplinfo + DQ
+        		"5388",		// class 1 = Geo-Information/Karte, mit t011_obj_geo.keyc_incl_w_dataset + object_reference.special_ref 3535 + DQ
+        		"5933",		// class 1 = Geo-Information/Karte, mit multiple t012_obj_adr associations + DQ
+        		"3787",		// class 1 = Geo-Information/Karte, t012_obj_adr.type = 5 -> gmd:distributorContact + DQ
+        		"3919",		// class 2 = Dokument/Bericht/Literatur + DQ
         		"3918",		// class 2 = Dokument/Bericht/Literatur, object_reference.special_ref -> srv:SV_CouplingType "loose"
         		"7897096",	// class 3 = Geodatendienst, t011_obj_serv gefuellt
         		"8781824",	// class 3 = Geodatendienst, object_reference.special_ref -> srv:SV_CouplingType "tight"

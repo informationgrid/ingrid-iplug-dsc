@@ -43,7 +43,10 @@ public class ThreadedScriptedDatabaseDscRecordCreatorTest extends IgcDbUnitEnabl
 
         CreateIdfMapper m1 = new CreateIdfMapper();
         ScriptedIdfMapper m2 = new ScriptedIdfMapper();
-        m2.setMappingScript(new ClassPathResource("scripts/record2idf_database_test.js"));
+        ClassPathResource[] mappingScripts = {
+        	new ClassPathResource("scripts/record2idf_database_test.js")
+        };
+        m2.setMappingScripts(mappingScripts);
 
         List<IIdfMapper> mList = new ArrayList<IIdfMapper>();
         mList.add(m1);

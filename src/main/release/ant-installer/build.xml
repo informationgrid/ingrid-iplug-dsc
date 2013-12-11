@@ -59,22 +59,15 @@
         <move toDir="${installDir}">
             <fileset dir="./${componentName}"/>
         </move>
-        
-        <!-- <mkdir dir="${installDir}/webapp/WEB-INF/work"/> -->
-        
-        <!-- update spring file with newest mapping version -->
-        <!-- <copy file="${installDir}/udk_presets/${springConfig}" toFile="${installDir}/webapp/WEB-INF/spring.xml" overwrite="true"/> -->
     </target>
-    
+
+    <!-- determine which kind of patches to use for spring.xml -->    
     <target name="findSpringConfig">
         <property name="xml" value="${installDir}/webapp/WEB-INF/spring.xml"/>
-        <condition property="springConfig" value="spring_addresses.xml">
+        <condition property="springConfig" value="addresses">
             <resourcecontains resource="${xml}" substring="_address.js"/>
         </condition>
-        <condition property="springConfig" value="spring_objects_intranet.xml">
-            <resourcecontains resource="${xml}" substring="publish_id=1 OR publish_id=2"/>
-        </condition>
-        <condition property="springConfig" value="spring_objects_internet.xml">
+        <condition property="springConfig" value="objects">
             <not>
                 <isset property="springConfig"/> 
             </not>

@@ -32,7 +32,11 @@ public class IgcToIdfRecordCreatorAddressTestLocal extends TestCase {
 
         CreateIdfMapper m1 = new CreateIdfMapper();
         ScriptedIdfMapper m2 = new ScriptedIdfMapper();
-        m2.setMappingScript(new FileSystemResource("src/main/resources/mapping/igc_to_idf_address.js"));
+        FileSystemResource[] mappingScripts = {
+            new FileSystemResource("src/main/resources/mapping/global.js"),
+        	new FileSystemResource("src/main/resources/mapping/igc_to_idf_address.js")
+        };
+        m2.setMappingScripts(mappingScripts);
         m2.setCompile(true);
 
         List<IIdfMapper> mList = new ArrayList<IIdfMapper>();
