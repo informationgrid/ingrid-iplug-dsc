@@ -911,20 +911,6 @@ function addObjectOpenDataCategory(row) {
     IDX.add("object_open_data_category.category_value", row.get("category_value"));
 }
 
-function hasValue(val) {
-    if (typeof val == "undefined") {
-        return false; 
-    } else if (val == null) {
-        return false; 
-    } else if (typeof val == "string" && val == "") {
-        return false;
-    } else if (typeof val == "object" && val.toString().equals("")) {
-        return false;
-    } else {
-      return true;
-    }
-}
-
 function boostDocumentsByReferences(num) {
     // punish score of document if no coupled resource has been found
     if (num == 0) {

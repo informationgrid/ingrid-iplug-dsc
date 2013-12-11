@@ -21,11 +21,20 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
     </bean>
 
     <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
-        <property name="mappingScript" value="classpath:mapping/igc_to_lucene.js" />
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/igc_to_lucene.js</value>
+            </list>
+        </property> 
         <property name="compile" value="true" />
     </bean>
     <bean id="recordMapperLgvHh" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
-        <property name="mappingScript" value="classpath:mapping/igc_to_lucene_lgv_hh.js" />
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/igc_to_lucene_lgv_hh.js</value>
+            </list>
+        </property> 
         <property name="compile" value="true" />
     </bean>
     <bean id="recordProfileMapper" class="de.ingrid.iplug.dsc.index.mapper.IgcProfileDocumentMapper">
@@ -43,6 +52,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
             <list>
                 <ref bean="createIdfMapper"/>
                 <ref bean="scriptedIdfMapper"/>
+                <ref bean="scriptedIdfMapperDQ"/>
                 <ref bean="igcProfileIdfMapper"/>
             </list>
         </property>
@@ -55,7 +65,24 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
     <bean id="createIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper"/>
 
     <bean id="scriptedIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
-        <property name="mappingScript" value="classpath:mapping/igc_to_idf.js" />
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/idf_utils.js</value>
+                <value>classpath:mapping/igc_to_idf.js</value>
+            </list>
+        </property> 
+        <property name="compile" value="true" />
+    </bean>
+
+    <bean id="scriptedIdfMapperDQ" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/idf_utils.js</value>
+                <value>classpath:mapping/igc_to_idf_obj_dq.js</value>
+            </list>
+        </property> 
         <property name="compile" value="true" />
     </bean>
 

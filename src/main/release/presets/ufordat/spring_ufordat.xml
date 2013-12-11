@@ -19,7 +19,11 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
     </bean>
 
     <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
-        <property name="mappingScript" value="classpath:mapping/ufordat_to_lucene.js" />
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/ufordat_to_lucene.js</value>
+            </list>
+        </property> 
         <property name="compile" value="true" />
     </bean>
 

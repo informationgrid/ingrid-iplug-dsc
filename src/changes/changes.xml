@@ -5,10 +5,18 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
-    <release version="3.3.2" date="2013-11-28" description="Release InGrid 3.3.2">
+    <release version="3.3.2" date="2013-12-11" description="Release InGrid 3.3.2">
       <action type="add" dev="wemove" issue="REDMINE-231">
           IDF: Added ATOM Downloadservice URL.
           Also mark in search index as "download_service:atom".
+      </action>
+      <action type="update" dev="wemove" issue="INGRID-2326">
+          IDF: Split mapping to IDF into multiple scripts executed sequentially in different mapper (engines) to avoid "script to big" errors.
+          Further added possibility to pass multiple scripts to ONE mapper.
+      </action>
+      <action type="fix" dev="wemove">
+          Oracle Fixes: Fixed indexing of profile, caused error (IgcProfileDocumentMapper).
+          Fixed mapping to IDF of objects class 3.
       </action>
       <action type="fix" dev="wemove" issue="INGRID-2306">
           IDF: Fix URL of codeList attribute when mapping to IDF.

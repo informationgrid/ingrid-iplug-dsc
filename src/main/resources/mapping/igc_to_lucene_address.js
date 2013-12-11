@@ -132,17 +132,3 @@ function addSearchtermValue(row) {
 function addSearchtermSns(row) {
     IDX.add("searchterm_sns.sns_id", row.get("sns_id"));
 }
-
-function hasValue(val) {
-    if (typeof val == "undefined") {
-        return false; 
-    } else if (val == null) {
-        return false; 
-    } else if (typeof val == "string" && val == "") {
-        return false;
-    } else if (typeof val == "object" && val.toString().equals("")) {
-        return false;
-    } else {
-      return true;
-    }
-}

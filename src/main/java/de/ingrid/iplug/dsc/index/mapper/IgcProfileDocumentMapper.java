@@ -95,7 +95,10 @@ public class IgcProfileDocumentMapper implements IRecordMapper {
             log.error("Error mapping IGC profile.", e);
             throw e;
         } finally {
-            if (ps != null && !ps.isClosed()) {
+        	// isClosed() CAUSES EXCEPTION ON ORACLE !!!
+        	// Exception in thread "Thread-8" java.lang.AbstractMethodError: oracle.jdbc.driver.T4CPreparedStatement.isClosed()Z
+            // if (ps != null && !ps.isClosed()) {
+            if (ps != null) {
                 ps.close();
             }
         }

@@ -8,12 +8,25 @@
             </not>
             <then>
                 <echo>Patching spring.xml file in basedir: </echo>
-                <patchFile patchFile="patches/3.3.1/spring.xml.patch" originalFile="${installDir}/webapp/WEB-INF/spring.xml" />
+                <patchFile patchFile="patches/3.3.1/spring_${springConfig}.xml.patch" originalFile="${installDir}/webapp/WEB-INF/spring.xml" />
             </then>
         </if>
     </target>
 
-	<target name="patchFiles" depends="patchFromVersion3.3.0">
+    <target name="patchFromVersion3.3.1">
+        <compareVersion value1="${oldVersion}" value2="3.3.1" prop="compResult"/>
+        <if>
+            <not>
+                <equals arg1="${compResult}" arg2="1" />
+            </not>
+            <then>
+                <echo>Patching spring.xml file in basedir: </echo>
+                <patchFile patchFile="patches/3.3.2/spring_${springConfig}.xml.patch" originalFile="${installDir}/webapp/WEB-INF/spring.xml" />
+            </then>
+        </if>
+    </target>
+
+	<target name="patchFiles" depends="patchFromVersion3.3.0,patchFromVersion3.3.1">
 		<!-- patch order determined through depends-order -->
 	</target>
 </project>

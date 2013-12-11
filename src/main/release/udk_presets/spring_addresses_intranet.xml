@@ -19,7 +19,12 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
     </bean>
 
     <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
-        <property name="mappingScript" value="classpath:mapping/igc_to_lucene_address.js" />
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/igc_to_lucene_address.js</value>
+            </list>
+        </property> 
         <property name="compile" value="true" />
     </bean>
 
@@ -45,7 +50,12 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
     <bean id="createIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper"/>
 
     <bean id="scriptedIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
-        <property name="mappingScript" value="classpath:mapping/igc_to_idf_address.js" />
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/igc_to_idf_address.js</value>
+            </list>
+        </property> 
         <property name="compile" value="true" />
     </bean>
 

@@ -1,0 +1,53 @@
+--- spring.xml	(revision 23221)
++++ spring.xml	(revision 23240)
+@@ -20,7 +20,12 @@
+     </bean>
+ 
+     <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
+-        <property name="mappingScript" value="classpath:mapping/igc_to_lucene.js" />
++        <property name="mappingScripts">
++            <list>
++                <value>classpath:mapping/global.js</value>
++                <value>classpath:mapping/igc_to_lucene.js</value>
++            </list>
++        </property> 
+         <property name="compile" value="true" />
+     </bean>
+     <bean id="recordProfileMapper" class="de.ingrid.iplug.dsc.index.mapper.IgcProfileDocumentMapper">
+@@ -38,6 +43,7 @@
+             <list>
+                 <ref bean="createIdfMapper"/>
+                 <ref bean="scriptedIdfMapper"/>
++                <ref bean="scriptedIdfMapperDQ"/>
+                 <ref bean="igcProfileIdfMapper"/>
+             </list>
+         </property>
+@@ -50,10 +56,27 @@
+     <bean id="createIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper"/>
+ 
+     <bean id="scriptedIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
+-        <property name="mappingScript" value="classpath:mapping/igc_to_idf.js" />
++        <property name="mappingScripts">
++            <list>
++                <value>classpath:mapping/global.js</value>
++                <value>classpath:mapping/idf_utils.js</value>
++                <value>classpath:mapping/igc_to_idf.js</value>
++            </list>
++        </property> 
+         <property name="compile" value="true" />
+     </bean>
+ 
++    <bean id="scriptedIdfMapperDQ" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
++        <property name="mappingScripts">
++            <list>
++                <value>classpath:mapping/global.js</value>
++                <value>classpath:mapping/idf_utils.js</value>
++                <value>classpath:mapping/igc_to_idf_obj_dq.js</value>
++            </list>
++        </property> 
++        <property name="compile" value="true" />
++    </bean>
++
+     <bean id="igcProfileIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.IgcProfileIdfMapper">
+         <property name="sql" value="SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" />
+     </bean>
