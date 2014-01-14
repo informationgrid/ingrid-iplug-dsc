@@ -11,6 +11,12 @@
       </action>
     </release>
 
+    <release version="3.3.3-SNAPSHOT" date="??" description="Release InGrid ??">
+      <action type="fix" dev="wemove" issues="REDMINE-128">
+          IDF: Fix mapping of "Nutzungsbedingungen" when "Open Data" record, then different syslist is used.
+      </action>
+    </release>
+
     <release version="3.3.2" date="2013-12-11" description="Release InGrid 3.3.2">
       <action type="add" dev="wemove" issue="REDMINE-231">
           IDF: Added ATOM Downloadservice URL.

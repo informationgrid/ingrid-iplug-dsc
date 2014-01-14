@@ -638,7 +638,7 @@ for (i=0; i<objRows.size(); i++) {
 
     // ---------- <gmd:identificationInfo/gmd:resourceConstraints> ----------
     // ---------- <gmd:MD_LegalConstraints> ----------
-    addResourceConstraints(identificationInfo, objId);
+    addResourceConstraints(identificationInfo, objRow);
     
     
 // GEODATENDIENST(3)
@@ -1633,13 +1633,22 @@ function getServiceType(objClass, objServRow) {
 }
 
 
-function addResourceConstraints(identificationInfo, objId) {
+function addResourceConstraints(identificationInfo, objRow) {
+    var objId = objRow.get("id");
+    var isOpenData = objRow.get("is_open_data");
+    isOpenData = hasValue(isOpenData) && isOpenData.equals('Y');
+
     rows = SQL.all("SELECT * FROM object_use WHERE obj_id=?", [objId]);
     for (var i=0; i<rows.size(); i++) {
         row = rows.get(i);
 
         // IGC syslist entry or free entry ?
-        var termsOfUse = TRANSF.getIGCSyslistEntryName(6020, row.get("terms_of_use_key"));
+        // NOTICE: Syslist depends from OpenData option !
+        var sysListId = 6020;
+        if (isOpenData) {
+            sysListId = 6500;
+        }
+        var termsOfUse = TRANSF.getIGCSyslistEntryName(sysListId, row.get("terms_of_use_key"));
         if (!hasValue(termsOfUse)) {
             termsOfUse = row.get("terms_of_use_value");
         }            
