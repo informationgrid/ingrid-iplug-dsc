@@ -2377,12 +2377,16 @@ function addAttachedToField(row, parentElement, addAsISO) {
                textContent = attachedToFieldValue;
             }
         } else if (!attachedToFieldKey.equals("9999")) {
-            // syslist entry, NOT "Keine Kopplung"
+            // syslist entry, NOT "unspezifischer Verweis"
             if (addAsISO) {
-               // ISO: translate to english !
-               textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "en");
+                // ISO: first iso value, see INGRID-2317
+            	textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "iso");
+            	// if no iso then english !
+            	if (!hasValue(textContent)) {
+            	   textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "en");
+            	}
             } else {
-                // IDF: use catalog language like it was entered
+               // IDF: use catalog language like it was entered
                textContent = attachedToFieldValue;
             }
         }

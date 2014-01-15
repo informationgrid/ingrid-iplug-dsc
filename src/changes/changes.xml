@@ -9,6 +9,9 @@
       <action type="add" dev="wemove" issue="REDMINE-134">
           IDF: Added additional service information to IDF for calling service from detail view.
       </action>
+      <action type="update" dev="wemove" issue="INGRID-2317">
+          IDF: Use ISO value before english value for mapping of "Verweistyp".
+      </action>
     </release>
 
     <release version="3.3.3-SNAPSHOT" date="??" description="Release InGrid ??">
