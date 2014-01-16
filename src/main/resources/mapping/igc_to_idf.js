@@ -630,10 +630,8 @@ for (i=0; i<objRows.size(); i++) {
     if (hasValue(value)) {
         var mdUsage = identificationInfo.addElement("gmd:resourceSpecificUsage").addElement("gmd:MD_Usage");
         mdUsage.addElement("gmd:specificUsage/gco:CharacterString").addText(value);
-        mdUsage.addElement("gmd:userContactInfo").addElement("gmd:CI_ResponsibleParty")
-            .addElement("gmd:role").addElement("gmd:CI_RoleCode")
-            .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
-            .addAttribute("codeListValue", "pointOfContact");
+        // unknown contact info, see INGRID-2331
+        mdUsage.addElement("gmd:userContactInfo").addAttribute("gco:nilReason", "unknown");
     }
 
     // ---------- <gmd:identificationInfo/gmd:resourceConstraints> ----------

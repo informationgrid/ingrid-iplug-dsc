@@ -12,6 +12,9 @@
       <action type="update" dev="wemove" issue="INGRID-2317">
           IDF: Use ISO value before english value for mapping of "Verweistyp".
       </action>
+      <action type="fix" dev="wemove" issue="INGRID-2331">
+          IDF: Map "Eignung/Nutzung" with "unknown" userContactInfo (in MD_Usage).
+      </action>
     </release>
 
     <release version="3.3.3-SNAPSHOT" date="??" description="Release InGrid ??">
