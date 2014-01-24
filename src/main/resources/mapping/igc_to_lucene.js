@@ -303,7 +303,6 @@ for (i=0; i<objRows.size(); i++) {
         for (j=0; j<rows.size(); j++) {
             // only add references from coupled resources ( service <-> data )
             if (rows.get(j).get("special_ref") == "3600") {
-                addCoupledResource(rows.get(j));
                 numCoupledResources++;
             }
         }
@@ -813,9 +812,6 @@ function addObjectReferenceFrom(row) {
     IDX.add("refering.object_reference.special_ref", row.get("special_ref"));
     IDX.add("refering.object_reference.special_name", row.get("special_name"));
     IDX.add("refering.object_reference.descr", row.get("descr"));
-}
-function addCoupledResource(row) {
-    IDX.add("coupled_resource", row.get("obj_to_uuid") + "#" + row.get("obj_name")); // + "#" + row.get("datasource_uuid"));
 }
 function addServiceLinkInfo(row, capabilitiyUrl, dsIdentifier, catalog) {
     // add class from refering object, which is used to determine in-links from services (INGRID32-81)
