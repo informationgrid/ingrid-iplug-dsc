@@ -1878,8 +1878,13 @@ function addDistributionInfo(mdMetadata, objId) {
             // ---------- <gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format> ----------
             var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
             formatWritten = true;
-            var formatValue = rows.get(i).get("format_value");
             // ---------- <gmd:MD_Format/gmd:name> ----------
+            // ISO: first iso value, see INGRID-2337
+            var formatValue = TRANSF.getCodeListEntryFromIGCSyslistEntry(6300, rows.get(i).get("format_key"), "iso");
+            // if no iso then as usual
+            if (!hasValue(formatValue)) {
+                formatValue = rows.get(i).get("format_value");
+            }
             mdFormat.addElement("gmd:name/gco:CharacterString").addText(formatValue);
             // ---------- <gmd:MD_Format/gmd:version> ----------
             var data = TRANSF.getISOCodeListEntryData(6300, formatValue);

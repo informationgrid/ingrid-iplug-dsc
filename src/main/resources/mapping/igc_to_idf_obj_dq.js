@@ -258,7 +258,12 @@ function getDqConformanceResultElement(conformityRow) {
     var dqConformanceResult = DOM.createElement("gmd:DQ_ConformanceResult");
     var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
 
-    var specification = TRANSF.getIGCSyslistEntryName(6005, conformityRow.get("specification_key"));
+    // ISO: first iso value, see INGRID-2337
+    var specification = TRANSF.getCodeListEntryFromIGCSyslistEntry(6005, conformityRow.get("specification_key"), "iso");
+    // if no iso then as usual
+    if (!hasValue(specification)) {
+        specification = TRANSF.getIGCSyslistEntryName(6005, conformityRow.get("specification_key"));
+    }
     var specificationDate;
     if (!hasValue(specification)) {
         specification = conformityRow.get("specification_value");

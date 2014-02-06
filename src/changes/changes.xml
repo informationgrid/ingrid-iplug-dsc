@@ -9,8 +9,8 @@
       <action type="add" dev="wemove" issue="REDMINE-134">
           IDF: Added additional service information to IDF for calling service from detail view.
       </action>
-      <action type="update" dev="wemove" issue="INGRID-2317">
-          IDF: Use ISO value before english value for mapping of "Verweistyp".
+      <action type="update" dev="wemove" issue="INGRID-2317, INGRID-2337">
+          IDF: Use ISO value as default for mapping of "Verweistyp", "Konformität", "INSPIRE-Datenformat".
       </action>
       <action type="fix" dev="wemove" issue="INGRID-2331">
           IDF: Map "Eignung/Nutzung" with "unknown" userContactInfo (in MD_Usage).
