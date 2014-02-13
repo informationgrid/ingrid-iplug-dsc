@@ -116,7 +116,7 @@ for (i=0; i<objRows.size(); i++) {
             .addAttribute("codeList", globalCodeListAttrURL + "#MD_ScopeCode")
             .addAttribute("codeListValue", hierarchyLevel).addText(hierarchyLevel);
         
-        // write a hierarchyLevelName unless object is of type "dataset" 
+        // write a hierarchyLevelName unless object is of type "dataset" (INGRID-2341)
         if (hierarchyLevel != "dataset") {
             mdMetadata.addElement("gmd:hierarchyLevelName/gco:CharacterString").addText(hierarchyLevelName);
         }
@@ -1025,6 +1025,27 @@ for (i=0; i<objRows.size(); i++) {
         rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3555', "V"]);
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:portrayalCatalogueInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
+        }
+        
+        // ---------- <idf:idfMdMetadata/gmd:applicationSchemaInfo> ----------
+        rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [objId]);
+        for (i=0; i<rows.size(); i++) {
+            var formatKey = rows.get(i).get("format_key");
+            // if "Protected Sites - Simple GML Application Schema" or "Protected Sites - Full GML Application Schema"
+            if (formatKey == 13 || formatKey == 14) {
+                var appSchemaNode = mdMetadata.addElement("gmd:applicationSchemaInfo/gmd:MD_ApplicationSchemaInformation");
+                appSchemaNode.addElement("gmd:name/gmd:CI_Citation/gmd:title/gco:CharacterString").addText(rows.get(i).get("format_value"))
+                             .getParent(2)
+                             .addElement("gmd:date/gmd:CI_Date/gmd:date/gco:DateTime").addText("2010-04-26T00:00:00")
+                             .getParent(2)
+                             .addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                                 .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
+                                 .addAttribute("codeListValue", "publication")
+                             .getParent(6)
+                             .addElement("gmd:schemaLanguage/gco:CharacterString").addText("GML")
+                             .getParent(2)
+                             .addElement("gmd:constraintLanguage/gco:CharacterString").addText("OCL");
+            }
         }
     }
 

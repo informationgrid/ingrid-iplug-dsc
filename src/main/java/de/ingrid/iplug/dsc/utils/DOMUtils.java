@@ -155,6 +155,24 @@ public class DOMUtils {
         public Element getElement() {
             return e;
         }
+        
+        public IdfElement getParent() {
+            return getParent( 1 );
+        }
+        
+        public IdfElement getParent( int pos ) {
+            Node parent = e.getParentNode();
+            for (int i = 0; i < pos-1; i++) {
+                if (parent == null) break;
+                parent = parent.getParentNode();                
+            }
+            
+            if (parent == null)
+                return null;
+            else
+                return new IdfElement( (Element) parent );
+        }
+        
     }
 
     public IdfElement convertToIdfElement(Element element) {
