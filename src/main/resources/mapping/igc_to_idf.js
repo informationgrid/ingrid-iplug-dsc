@@ -110,14 +110,16 @@ for (i=0; i<objRows.size(); i++) {
 // ---------- <gmd:hierarchyLevel> ----------
 // ---------- <gmd:hierarchyLevelName> ----------
     var hierarchyLevel = getHierarchLevel(objClass);
-    var hierarchyLevelName = map(objClass, {"0":"job", "1":"", "2":"document", "3":"service", "4":"project", "5":"database", "6":"application"});
+    var hierarchyLevelName = map(objClass, {"0":"job", "1":"series", "2":"document", "3":"service", "4":"project", "5":"database", "6":"application"});
     if (hasValue(hierarchyLevel)) {
         mdMetadata.addElement("gmd:hierarchyLevel/gmd:MD_ScopeCode")
             .addAttribute("codeList", globalCodeListAttrURL + "#MD_ScopeCode")
             .addAttribute("codeListValue", hierarchyLevel).addText(hierarchyLevel);
-    }
-    if (hasValue(hierarchyLevelName)) {
-        mdMetadata.addElement("gmd:hierarchyLevelName/gco:CharacterString").addText(hierarchyLevelName);
+        
+        // write a hierarchyLevelName unless object is of type "dataset" 
+        if (hierarchyLevel != "dataset") {
+            mdMetadata.addElement("gmd:hierarchyLevelName/gco:CharacterString").addText(hierarchyLevelName);
+        }
     }
     // ---------- <gmd:contact> ----------
     // contact for metadata is now responsible user, see INGRID32-46
