@@ -94,12 +94,11 @@ for (i=0; i<objRows.size(); i++) {
             .addAttribute("codeListValue", value).addText(value);
     }
 // ---------- <gmd:characterSet> ----------
-    value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("metadata_character_set"));
-    if (hasValue(value)) {
-        mdMetadata.addElement("gmd:characterSet/gmd:MD_CharacterSetCode")
-            .addAttribute("codeList", globalCodeListAttrURL + "#MD_CharacterSetCode")
-            .addAttribute("codeListValue", value);
-    }
+    // Always use UTF-8 (see INGRID-2340)
+    value = "utf8";
+    mdMetadata.addElement("gmd:characterSet/gmd:MD_CharacterSetCode")
+        .addAttribute("codeList", globalCodeListAttrURL + "#MD_CharacterSetCode")
+        .addAttribute("codeListValue", value);
 // ---------- <gmd:parentIdentifier> ----------
     // NOTICE: Has to be published ! Guaranteed by select of passed sourceRecord ! 
     rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
