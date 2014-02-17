@@ -17,6 +17,7 @@ import de.ingrid.iplug.dsc.utils.DOMUtils;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
 import de.ingrid.iplug.dsc.utils.ScriptEngine;
 import de.ingrid.iplug.dsc.utils.TransformationUtils;
+import de.ingrid.utils.capabilities.CapabilitiesUtils;
 import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xpath.XPathUtils;
 
@@ -68,6 +69,7 @@ public class ScriptedIdfMapper implements IIdfMapper {
 			parameters.put("XPATH", xpathUtils);
 			parameters.put("TRANSF", trafoUtils);
 			parameters.put("DOM", domUtils);
+			parameters.put("CAPABILITIES", new CapabilitiesUtils());
 
 			ScriptEngine.execute(this.mappingScripts, parameters, compile);
         } catch (Exception e) {

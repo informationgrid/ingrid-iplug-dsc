@@ -2102,12 +2102,11 @@ function addDistributionInfo(mdMetadata, objId) {
                 // we use "gmd:CI_OnlineResource" cause NO "idf:attachedToField" !
                 var idfOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource");
                 // Preparing getCapabilitiesUrl deprecated, see INGRID-2259
-                // determine if type of connected service is of type "view", which is needed for
-                // modifications of the getCapabilities Url!
-                // serviceTypeISOName = getServiceType("3", rows.get(i));
-                // var connUrl = prepareGetCapabilitiesUrl(rows.get(i).get("connect_point"), rows.get(i).get("name_value"));
-                // idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(connUrl);
-                idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(rows.get(i).get("connect_point"));
+				// NOT deprecated here! See INGRID-2344
+                var connUrl = rows.get(i).get("connect_point");
+                var type = parseInt( rows.get(i).get("type_key") );
+                connUrl += CAPABILITIES.getMissingCapabilitiesParameter(connUrl, type);
+                idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(connUrl);
             }
         }
     }
