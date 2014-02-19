@@ -416,7 +416,8 @@ function addT01Object(row) {
     IDX.add("t01_object.vertical_extent_minimum", row.get("vertical_extent_minimum"));
     IDX.add("t01_object.vertical_extent_maximum", row.get("vertical_extent_maximum"));
     IDX.add("t01_object.vertical_extent_unit", row.get("vertical_extent_unit"));
-    IDX.add("t01_object.vertical_extent_vdatum", row.get("vertical_extent_vdatum"));
+    IDX.add("t01_object.vertical_extent_vdatum_key", row.get("vertical_extent_vdatum_key"));
+    IDX.add("t01_object.vertical_extent_vdatum_value", row.get("vertical_extent_vdatum_value"));
     IDX.add("t01_object.ordering_instructions", row.get("ordering_instructions"));
     IDX.add("t01_object.is_catalog_data", row.get("is_catalog_data"));
     IDX.add("t01_object.create_time", row.get("create_time"));
@@ -496,6 +497,7 @@ function addT011ObjServ(row) {
     IDX.add("t011_obj_serv.base", row.get("base"));
     IDX.add("t011_obj_serv.description", row.get("description"));
     IDX.add("t011_obj_serv.has_access_constraint", row.get("has_access_constraint"));
+    IDX.add("t011_obj_serv.coupling_type", row.get("coupling_type"));
     IDX.add("t011_obj_serv.has_atom_download", row.get("has_atom_download"));
     if (hasValue(row.get("has_atom_download")) && row.get("has_atom_download")=='Y') {
         // see https://redmine.wemove.com/issues/230
