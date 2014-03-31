@@ -5,6 +5,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.4.1-SNAPSHOT" date="????-??-??" description="Release InGrid 3.4.1">
+      <action type="update" dev="wemove" issue="REDMINE-339">
+          IDF: Add thesaurus to opendata categories (keywords).
+      </action>
+    </release>
+    
     <release version="3.4.0" date="2014-02-25" description="Release InGrid 3.4.0">
       <action type="add" dev="wemove" issue="REDMINE-134">
           IDF: Added additional service information to IDF for calling service from detail view.
