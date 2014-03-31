@@ -6,6 +6,9 @@
   </properties>
   <body>
     <release version="3.4.1-SNAPSHOT" date="????-??-??" description="Release InGrid 3.4.1">
+      <action type="update" dev="wemove" issue="REDMINE-340">
+          IDF: Add name of referencing service to operation url to avoid blank URL in detail view.
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-339">
           IDF: Add thesaurus to opendata categories (keywords).
       </action>
