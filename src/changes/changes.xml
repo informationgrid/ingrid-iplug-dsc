@@ -5,12 +5,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
-    <release version="3.4.1-SNAPSHOT" date="????-??-??" description="Release InGrid 3.4.1">
+    <release version="3.4.1" date="2014-04-24" description="Release InGrid 3.4.1">
       <action type="update" dev="wemove" issue="REDMINE-340">
           IDF: Add name of referencing service to operation url to avoid blank URL in detail view.
       </action>
       <action type="update" dev="wemove" issue="REDMINE-339">
-          IDF: Add thesaurus to opendata categories (keywords).
+          IDF: Add thesaurus section to opendata categories (keywords).
       </action>
     </release>
     
