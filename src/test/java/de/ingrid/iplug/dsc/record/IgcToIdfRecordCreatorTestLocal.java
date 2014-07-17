@@ -100,6 +100,7 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
     private void doTestDscRecordCreator() throws Exception {
         String[] t01ObjectIds = new String[] {
         		"6667",		// class 0 = Organisationseinheit/Fachaufgabe
+        		"3776",		// class 1 = Geo-Information/Karte -> coupled mit Dienst ID 7897096
         		"3778",		// class 1 = Geo-Information/Karte -> t0114_env_category, t0114_env_topic -> gmd:descriptiveKeywords + object_data_quality DQ !!!
         		"6672",		// class 1 = Geo-Information/Karte, mit t011_obj_geo_symc + object_reference.special_ref 3555
         		"6146",		// class 1 = Geo-Information/Karte, mit t011_obj_geo.keyc_incl_w_dataset + t011_obj_geo_supplinfo + DQ
