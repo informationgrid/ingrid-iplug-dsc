@@ -24,6 +24,9 @@
       <action type="update" dev="wemove" issue="INGRID-2317, INGRID-2337">
           IDF: Use ISO value as default for mapping of "Verweistyp", "Konformität", "INSPIRE-Datenformat".
       </action>
+      <action type="update" dev="wemove">
+          IDF: Extract IDF data from record to prevent display of compressed data in Admin GUI search detail.
+      </action>
       <action type="fix" dev="wemove" issue="INGRID-2331">
           IDF: Map "Eignung/Nutzung" with "unknown" userContactInfo (in MD_Usage).
       </action>

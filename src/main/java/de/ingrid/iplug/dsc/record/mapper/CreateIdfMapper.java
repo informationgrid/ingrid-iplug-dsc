@@ -4,6 +4,7 @@
 package de.ingrid.iplug.dsc.record.mapper;
 
 import org.apache.log4j.Logger;
+import org.springframework.core.annotation.Order;
 import org.w3c.dom.Document;
 
 import de.ingrid.iplug.dsc.om.SourceRecord;
@@ -18,6 +19,7 @@ import de.ingrid.utils.xpath.XPathUtils;
  * @author joachim@wemove.com
  * 
  */
+@Order(1)
 public class CreateIdfMapper implements IIdfMapper {
 
     protected static final Logger log = Logger.getLogger(CreateIdfMapper.class);

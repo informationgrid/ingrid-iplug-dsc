@@ -55,7 +55,9 @@
                     <tr>
                         <td class="leftCol">database driver</td>
                         <td>
-                            <form:input path="dataBaseDriver" />
+                            <div class="input full">
+                                <form:input path="dataBaseDriver" />
+                            </div>
                             <form:errors path="dataBaseDriver" cssClass="error" element="div" />
                             <br />
                             Please supply the database driver. Valid entries are:
@@ -70,7 +72,9 @@
                     <tr>
                         <td class="leftCol">connection url</td>
                         <td>
-                            <form:input path="connectionURL" />
+                            <div class="input full">
+                                <form:input path="connectionURL" />
+                            </div>
                             <form:errors path="connectionURL" cssClass="error" element="div" />
                             <br />
                             Please supply the jdbc connection url.
@@ -80,7 +84,9 @@
                     <tr>
                         <td class="leftCol">user</td>
                         <td>
-                            <form:input path="user" />
+                            <div class="input full">
+                                <form:input path="user" />
+                            </div>
                             <form:errors path="user" cssClass="error" element="div" />
                             <br />
                             Please supply the database user .
@@ -90,7 +96,9 @@
                     <tr>
                         <td class="leftCol">password</td>
                         <td>
-                            <form:input path="password" />
+                            <div class="input full">
+                                <form:input path="password" />
+                            </div>
                             <form:errors path="password" cssClass="error" element="div" />
                             <br />
                             Please supply the password for the database user.
@@ -100,7 +108,9 @@
                     <tr>
                         <td class="leftCol">database schema</td>
                         <td>
-                            <form:input path="schema" />
+                            <div class="input full">
+                                <form:input path="schema" />
+                            </div>
                             <form:errors path="schema" cssClass="error" element="div" />
                             <br />
                             Optional: Supply database schema if needed.

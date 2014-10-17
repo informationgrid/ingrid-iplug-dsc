@@ -17,6 +17,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.springframework.core.annotation.Order;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -41,6 +42,7 @@ import de.ingrid.utils.xpath.XPathUtils;
  * @author joachim@wemove.com
  * 
  */
+@Order(2)
 public class IgcProfileDocumentMapper implements IRecordMapper {
 
     private String sql;

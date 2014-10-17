@@ -13,6 +13,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import de.ingrid.iplug.dsc.om.IClosableDataSource;
 import de.ingrid.iplug.dsc.om.SourceRecord;
@@ -35,12 +37,15 @@ import de.ingrid.utils.xml.XMLUtils;
  * @author joachim@wemove.com
  * 
  */
+@Service
 public class DscRecordCreator {
 
     protected static final Logger log = Logger.getLogger(DscRecordCreator.class);
 
+    @Autowired
     private IRecordProducer recordProducer = null;
 
+    @Autowired
     private List<IIdfMapper> record2IdfMapperList = null;
 
     private boolean compressed = false;

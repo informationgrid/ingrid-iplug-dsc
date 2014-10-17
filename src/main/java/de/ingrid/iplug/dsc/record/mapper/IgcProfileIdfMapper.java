@@ -16,6 +16,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
+import org.springframework.core.annotation.Order;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -44,6 +45,7 @@ import de.ingrid.utils.xpath.XPathUtils;
  * @author joachim@wemove.com
  * 
  */
+@Order(3)
 public class IgcProfileIdfMapper implements IIdfMapper {
 
     protected static final Logger log = Logger.getLogger(IgcProfileIdfMapper.class);

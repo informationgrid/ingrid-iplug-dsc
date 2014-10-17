@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 
 import de.ingrid.admin.search.Stemmer;
@@ -32,6 +33,7 @@ import de.ingrid.iplug.dsc.utils.TransformationUtils;
  * @author joachim@wemove.com
  * 
  */
+@Order(1)
 public class ScriptedDocumentMapper implements IRecordMapper {
 
     private Resource[] mappingScripts;

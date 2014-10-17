@@ -8,6 +8,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 import org.w3c.dom.Document;
 
@@ -37,6 +38,7 @@ import de.ingrid.utils.xpath.XPathUtils;
  * @author joachim@wemove.com
  * 
  */
+@Order(2)
 public class ScriptedIdfMapper implements IIdfMapper {
 
     private Resource[] mappingScripts;

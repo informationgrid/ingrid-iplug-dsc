@@ -7,7 +7,7 @@
                         http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
     <!-- import spring beans for the iPlug -->
-    <import resource="spring.xml"/>    
+    <!-- <import resource="spring.xml"/>  -->   
     
     <!-- the application context definition for the springapp DispatcherServlet -->
     <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
