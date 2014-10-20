@@ -6,6 +6,7 @@
     <property name="componentName"      value="${project.build.finalName}"/>
     <property name="xml-communication"  value="${installDir}/conf/communication.xml"/>
     <property name="start-script"       value="${installDir}/start.sh"/>
+    <property name="config"             value="${installDir}/conf/config.override.properties"/>
 
     <!-- THIS PORPERTIES ARE NECESSARY FOR UPDATES -->
     <property name="libraryDir"         value="lib" />
@@ -40,15 +41,12 @@
         
         <mkdir dir="${installDir}/logs"/>
         <mkdir dir="${installDir}/webapp/WEB-INF/work"/>
-        
-        <replace file="${start-script}" token="@SERVER_PORT@" value="${localServerPort}"/>
     </target>
     
-    <target name="extractUpdate" depends="findSpringConfig">
+    <target name="extractUpdate">
         <unzip src="${antinstaller.jar}" dest=".">
             <patternset>
                 <include name="**/*.*"/>
-                <exclude name="${componentName}/webapp/WEB-INF/spring.xml" />
             </patternset>
         </unzip>
         
@@ -61,26 +59,16 @@
         </move>
     </target>
 
-    <!-- determine which kind of patches to use for spring.xml -->    
-    <target name="findSpringConfig">
-        <property name="xml" value="${installDir}/webapp/WEB-INF/spring.xml"/>
-        <condition property="springConfig" value="addresses">
-            <resourcecontains resource="${xml}" substring="_address.js"/>
-        </condition>
-        <condition property="springConfig" value="objects">
-            <not>
-                <isset property="springConfig"/> 
-            </not>
-        </condition>
-    </target>
+    
   
-  <target name="udkPreset" description="Set spring config.">
-    <echo>Verwende UDK-Konfiguration: ${springConfig}</echo>
-<!--
-    <echo>Copy ${installDir}/udk_presets/${springConfig} to ${installDir}/webapp/WEB-INF/spring.xml</echo>
--->
-    <copy file="${installDir}/udk_presets/${springConfig}" toFile="${installDir}/webapp/WEB-INF/spring.xml" overwrite="true"/>
-  </target>
+    <target name="udkPreset" description="Set spring config.">
+        <echo>Verwende UDK-Konfiguration: ${springConfig}</echo>
+    	<touch file="${config}"/>
+  	    <propertyfile file="${config}">
+  	      <entry key="spring.profile" value="${springConfig}" />
+  	      <entry key="jetty.port" value="${localServerPort}" />
+  	    </propertyfile>
+    </target>
     
     <target name="startComponent">
         <echo>
