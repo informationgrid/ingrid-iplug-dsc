@@ -34,11 +34,11 @@
         <artifactId>commons-lang3</artifactId>
 		<version>3.0.1</version>
       </dependency>
-      <dependency>
+      <!-- <dependency>
       	<groupId>de.ingrid</groupId>
       	<artifactId>ingrid-iplug</artifactId>
       	<version>3.4.0-SNAPSHOT</version>
-      </dependency>
+      </dependency> -->
       <!-- <dependency>
       	<groupId>org.springframework</groupId>
       	<artifactId>spring-core</artifactId>

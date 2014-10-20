@@ -9,7 +9,7 @@
 #
 #   INGRID_OPTS      addtional java runtime options
 #
-#	INGRID_USER 	 starting user, default ist "ingrid"
+# INGRID_USER    starting user, default ist "ingrid"
 #
 
 THIS="$0"
@@ -47,81 +47,81 @@ stopIplug()
 {
   echo "Try stopping ingrid component ($INGRID_HOME)..."
   if [ -f $PID ]; then
-		procid=`cat $PID`
-		idcount=`ps -p $procid | wc -l`
-		if [ $idcount -eq 2 ]; then
-			echo stopping $command, wait 3 sec to exit.
-			kill `cat $PID`
-			sleep 3
-			idcount=`ps -p $procid | wc -l`
-			if [ $idcount -eq 1 ]; then
-				echo "process ($procid) has been terminated."
-				unlink $PID
-				exit 0
-			else
-				COUNTER=1
-				SECS=0
-				while [  $COUNTER -lt 10 ]; 
-				do
-					COUNTER=$(($COUNTER + 1))
-					echo "process is still running. wait 1 more sec."
-					sleep 1
-					idcount=`ps -p $procid | wc -l`
-					if [ $idcount -eq 1 ]; then
-						SECS=$(($COUNTER + $SECS))
-					    echo "process ($procid) has been terminated after $SECS sec."
-					    unlink $PID
-					    exit 0
-					fi					
-				done
-				echo "process is still running. force kill -9."
-				kill -9 `cat $PID`
-				exit 0
-			fi 
-		else
-			echo "process is not running. Exit."
-			unlink $PID 
-		fi
-	else
-		echo "process is not running. Exit."
-	fi
+    procid=`cat $PID`
+    idcount=`ps -p $procid | wc -l`
+    if [ $idcount -eq 2 ]; then
+      echo stopping $command, wait 3 sec to exit.
+      kill `cat $PID`
+      sleep 3
+      idcount=`ps -p $procid | wc -l`
+      if [ $idcount -eq 1 ]; then
+        echo "process ($procid) has been terminated."
+        unlink $PID
+        exit 0
+      else
+        COUNTER=1
+        SECS=0
+        while [  $COUNTER -lt 10 ];
+        do
+          COUNTER=$(($COUNTER + 1))
+          echo "process is still running. wait 1 more sec."
+          sleep 1
+          idcount=`ps -p $procid | wc -l`
+          if [ $idcount -eq 1 ]; then
+            SECS=$(($COUNTER + $SECS))
+              echo "process ($procid) has been terminated after $SECS sec."
+              unlink $PID
+              exit 0
+          fi
+        done
+        echo "process is still running. force kill -9."
+        kill -9 `cat $PID`
+        exit 0
+      fi
+    else
+      echo "process is not running. Exit."
+      unlink $PID
+    fi
+  else
+    echo "process is not running. Exit."
+  fi
 }
 
 stopNoExitIplug()
 {
   echo "Try stopping jetty ($INGRID_HOME)..."
   if [ -f $PID ]; then
-		procid=`cat $PID`
-		idcount=`ps -p $procid | wc -l`
-		if [ $idcount -eq 2 ]; then
-			echo stopping $command, wait 3 sec to exit.
-			kill `cat $PID`
-			sleep 3
-			idcount=`ps -p $procid | wc -l`
-			if [ $idcount -eq 1 ]; then
-				echo "process ($procid) has been terminated."
-				unlink $PID
-			else
-				COUNTER=1
-				SECS=0
-				while [  $COUNTER -lt 10 ]; 
-				do
-					COUNTER=$(($COUNTER + 1))
-					echo "process is still running. wait 1 more sec."
-					sleep 1
-					idcount=`ps -p $procid | wc -l`
-					if [ $idcount -eq 1 ]; then
-						SECS=$(($COUNTER + $SECS))
-					    echo "process ($procid) has been terminated after $SECS sec."
-					    unlink $PID
-					fi					
-				done
-				echo "process is still running. force kill -9."
-				kill -9 `cat $PID`
-			fi
-		else
-			echo "process is not running. Exit."			
-		fi
+    procid=`cat $PID`
+    idcount=`ps -p $procid | wc -l`
+    if [ $idcount -eq 2 ]; then
+      echo stopping $command, wait 3 sec to exit.
+      kill `cat $PID`
+      sleep 3
+      idcount=`ps -p $procid | wc -l`
+      if [ $idcount -eq 1 ]; then
+        echo "process ($procid) has been terminated."
+        unlink $PID
+      else
+        COUNTER=1
+        SECS=0
+        while [  $COUNTER -lt 10 ];
+        do
+          COUNTER=$(($COUNTER + 1))
+          echo "process is still running. wait 1 more sec."
+          sleep 1
+          idcount=`ps -p $procid | wc -l`
+          if [ $idcount -eq 1 ]; then
+            SECS=$(($COUNTER + $SECS))
+              echo "process ($procid) has been terminated after $SECS sec."
+              unlink $PID
+          fi
+        done
+        echo "process is still running. force kill -9."
+        kill -9 `cat $PID`
+      fi
+    else
+      echo "process is not running. Exit."
+    fi
     else
       echo "process is not running. Exit."
     fi
@@ -139,21 +139,21 @@ startIplug()
         exit 1
       fi
   fi
-  
+
   # some Java parameters
   if [ "$INGRID_JAVA_HOME" != "" ]; then
     #echo "run java in $INGRID_JAVA_HOME"
     JAVA_HOME=$INGRID_JAVA_HOME
   fi
-  
+
   if [ "$JAVA_HOME" = "" ]; then
     echo "Error: JAVA_HOME is not set."
     exit 1
   fi
-  
+
   JAVA=$JAVA_HOME/bin/java
   JAVA_HEAP_MAX=-Xmx128m
-  
+
   # check envvars which might override default args
   if [ "$INGRID_HEAPSIZE" != "" ]; then
     JAVA_HEAP_MAX="-Xmx""$INGRID_HEAPSIZE""m"
@@ -169,7 +169,7 @@ startIplug()
   done
   # restore ordinary behaviour
   unset IFS
-  
+
   # cygwin path translation
   if expr `uname` : 'CYGWIN*' > /dev/null; then
     CLASSPATH=`cygpath -p -w "$CLASSPATH"`
@@ -178,10 +178,10 @@ startIplug()
   # run it
   export CLASSPATH="$CLASSPATH"
   INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME -Dfile.encoding=UTF8"
-  CLASS=de.ingrid.admin.JettyStarter
-	
-  exec nohup "$JAVA" $JAVA_HEAP_MAX $INGRID_OPTS $CLASS > console.log & 
-  
+  CLASS=de.ingrid.iplug.dsc.DscSearchPlug
+
+  exec nohup "$JAVA" $JAVA_HEAP_MAX $INGRID_OPTS $CLASS > console.log &
+
   echo "jetty ($INGRID_HOME) started."
   echo $! > $PID
 }
@@ -195,10 +195,15 @@ STARTING_USER=`whoami`
 if [ "$STARTING_USER" != "$INGRID_USER" ]; then
   echo "You must be user '$INGRID_USER' to start that script! Set INGRID_USER in environment to overwrite this."
   exit 1
-fi 
+fi
 
 case "$1" in
   start)
+    startIplug
+    ;;
+  debug)
+    INGRID_OPTS="$INGRID_OPTS -agentlib:jdwp=transport=dt_socket,address=7925,server=y,suspend=y"
+    echo "Startup is delayed until remote connected to port 7925 ..."
     startIplug
     ;;
   stop)
