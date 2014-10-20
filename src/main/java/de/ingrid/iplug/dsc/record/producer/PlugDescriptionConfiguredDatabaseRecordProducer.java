@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.springframework.stereotype.Service;
 
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.om.ClosableDatabaseConnection;
@@ -29,6 +30,7 @@ import de.ingrid.utils.PlugDescription;
  * @author joachim@wemove.com
  * 
  */
+@Service
 public class PlugDescriptionConfiguredDatabaseRecordProducer implements IRecordProducer, IConfigurable {
 
     private String indexFieldID;
