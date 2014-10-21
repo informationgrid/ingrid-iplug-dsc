@@ -11,7 +11,10 @@
  * @param IDX Lucene index helper class encapsulating utility methods for output
  * @param TRANSF Helper class for transforming, processing values/fields.
  */
-load("nashorn:mozilla_compat.js");
+if (javaVersion.indexOf( "1.8" ) === 0) {
+	load("nashorn:mozilla_compat.js");
+}
+
 importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 importPackage(Packages.de.ingrid.geo.utils.transformation);

@@ -12,7 +12,9 @@
  * @param TRANSF Helper class for transforming, processing values
  * @param DOM Helper class encapsulating processing DOM
  */
-load("nashorn:mozilla_compat.js");
+if (javaVersion.indexOf( "1.8" ) === 0) {
+	load("nashorn:mozilla_compat.js");
+}
 
 importPackage(Packages.org.w3c.dom);
 importPackage(Packages.de.ingrid.iplug.dsc.om);

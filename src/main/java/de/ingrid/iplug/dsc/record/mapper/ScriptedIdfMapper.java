@@ -72,6 +72,7 @@ public class ScriptedIdfMapper implements IIdfMapper {
 			parameters.put("TRANSF", trafoUtils);
 			parameters.put("DOM", domUtils);
 			parameters.put("CAPABILITIES", new CapabilitiesUtils());
+			parameters.put("javaVersion", System.getProperty( "java.version" ));
 
 			ScriptEngine.execute(this.mappingScripts, parameters, compile);
         } catch (Exception e) {

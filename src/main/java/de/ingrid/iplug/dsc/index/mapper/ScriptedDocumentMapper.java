@@ -66,6 +66,7 @@ public class ScriptedDocumentMapper implements IRecordMapper {
 			parameters.put("SQL", sqlUtils);
 			parameters.put("IDX", idxUtils);
 			parameters.put("TRANSF", trafoUtils);
+			parameters.put("javaVersion", System.getProperty( "java.version" ));
 
 			ScriptEngine.execute(this.mappingScripts, parameters, compile);
         } catch (Exception e) {

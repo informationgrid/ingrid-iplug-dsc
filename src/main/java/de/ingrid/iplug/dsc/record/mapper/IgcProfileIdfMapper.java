@@ -122,9 +122,11 @@ public class IgcProfileIdfMapper implements IIdfMapper {
                             bindings.put("IDF", idfUtils);
     
                             // backwards compatibility
-                            igcProfileCswMapping = "load('nashorn:mozilla_compat.js');" + igcProfileCswMapping;
-                            // somehow the contant cannot be accessed!?
-                            igcProfileCswMapping = igcProfileCswMapping.replaceAll( "DatabaseSourceRecord.ID", "'id'" );
+                            if (System.getProperty( "java.version" ).startsWith( "1.8" )) {
+                                igcProfileCswMapping = "load('nashorn:mozilla_compat.js');" + igcProfileCswMapping;
+                                // somehow the contant cannot be accessed!?
+                                igcProfileCswMapping = igcProfileCswMapping.replaceAll( "DatabaseSourceRecord.ID", "'" + DatabaseSourceRecord.ID + "'" );
+                            }
                             engine.eval(new StringReader(igcProfileCswMapping), bindings);
                         } catch (Exception e) {
                             log.error("Error mapping source record to idf document.", e);
