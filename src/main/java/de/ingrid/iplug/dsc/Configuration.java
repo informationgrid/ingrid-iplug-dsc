@@ -1,9 +1,15 @@
 package de.ingrid.iplug.dsc;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.io.ClassPathResource;
 
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertiesFiles;
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertyLocations;
@@ -40,6 +46,9 @@ public class Configuration implements IConfig {
     
     @PropertyValue("spring.profile")
     public String springProfile;
+    
+    @PropertyValue("plugdescription.CORRESPONDENT_PROXY_SERVICE_URL")
+    public String correspondentIPlug;
 
     @Override
     public void initialize() {
@@ -56,13 +65,34 @@ public class Configuration implements IConfig {
     @Override
     public void addPlugdescriptionValues( PlugdescriptionCommandObject pdObject ) {
         pdObject.put( "iPlugClass", "de.ingrid.iplug.dsc.DscSearchPlug" );
-        
-        pdObject.addField("incl_meta");
-        pdObject.addField("t01_object.obj_class");
-        pdObject.addField("metaclass");
+
+        List<String> fields = getFieldsFromFile( "fields.data" );
+
+        for (String field : fields) {
+            pdObject.addField( field );
+        }
         
         DatabaseConnection dbc = new DatabaseConnection( databaseDriver, databaseUrl, databaseUsername, databasePassword, databaseSchema );
         pdObject.setConnection( dbc );
+        
+        pdObject.setCorrespondentProxyServiceURL( correspondentIPlug );
+    }
+
+    private List<String> getFieldsFromFile(String string) {
+        List<String> fieldsAsLine = new ArrayList<String>();
+        ClassPathResource fieldsFile = new ClassPathResource( "fields.data" );
+        BufferedReader br;
+        try {
+            br = new BufferedReader(new InputStreamReader(fieldsFile.getInputStream()));
+            String line;
+            while ((line = br.readLine()) != null) {
+                 fieldsAsLine.add( line );
+            }
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return fieldsAsLine;
     }
 
     @Override
