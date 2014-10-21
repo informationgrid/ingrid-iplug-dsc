@@ -44,13 +44,6 @@ public class SpringConfiguration {
         }
         
         @Bean
-        public PlugDescriptionConfiguredDatabaseRecordProducer recordProducer() {
-            PlugDescriptionConfiguredDatabaseRecordProducer producer = new PlugDescriptionConfiguredDatabaseRecordProducer();
-            producer.setIndexFieldID( "t01_object.id" );
-            return producer;
-        }
-        
-        @Bean
         public ScriptedIdfMapper scriptedIdfMapper() {
             Log.debug( DscSearchPlug.conf.databaseUrl );
             ScriptedIdfMapper mapper = new ScriptedIdfMapper();
@@ -176,5 +169,11 @@ public class SpringConfiguration {
         return new CreateIdfMapper();
     }
     
+    @Bean
+    public PlugDescriptionConfiguredDatabaseRecordProducer recordProducer() {
+        PlugDescriptionConfiguredDatabaseRecordProducer producer = new PlugDescriptionConfiguredDatabaseRecordProducer();
+        producer.setIndexFieldID( "t01_object.id" );
+        return producer;
+    }
     
 }
