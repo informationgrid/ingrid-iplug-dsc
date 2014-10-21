@@ -31,6 +31,8 @@ import de.ingrid.utils.PlugDescription;
  * @author joachim@wemove.com
  * 
  */
+// Bean created depending on SpringConfiguration
+//@Service
 public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         IRecordSetProducer, IConfigurable {
 

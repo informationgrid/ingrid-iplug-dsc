@@ -12,6 +12,7 @@
  * @param TRANSF Helper class for transforming, processing values
  * @param DOM Helper class encapsulating processing DOM
  */
+load("nashorn:mozilla_compat.js");
 importPackage(Packages.org.w3c.dom);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 
@@ -40,7 +41,7 @@ DOM.addAttribute(idfHtml, "idf-version", "3.0.0");
 var idfBody = DOM.convertToIdfElement(XPATH.getNode(idfDoc, "/idf:html/idf:body"));
 
 // ========== t02_address ==========
-var addrId = sourceRecord.get(DatabaseSourceRecord.ID);
+var addrId = sourceRecord.get("id");
 // only addresses where hide_address is not set !
 var addrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [addrId]);
 if (hasValue(addrRow)) {

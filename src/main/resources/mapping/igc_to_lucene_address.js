@@ -11,6 +11,7 @@
  * @param IDX Lucene index helper class encapsulating utility methods for output
  * @param TRANSF Helper class for transforming, processing values/fields.
  */
+load("nashorn:mozilla_compat.js");
 importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 importPackage(Packages.de.ingrid.geo.utils.transformation);
@@ -24,7 +25,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 }
 
 // ---------- t02_address ----------
-var addrId = sourceRecord.get(DatabaseSourceRecord.ID);
+var addrId = sourceRecord.get("id");
 // only index addresses where hide_address is not set !
 var addrRows = SQL.all("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [addrId]);
 for (i=0; i<addrRows.size(); i++) {

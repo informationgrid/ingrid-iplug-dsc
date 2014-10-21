@@ -12,6 +12,8 @@
  * @param TRANSF Helper class for transforming, processing values
  * @param DOM Helper class encapsulating processing DOM
  */
+load("nashorn:mozilla_compat.js");
+
 importPackage(Packages.org.w3c.dom);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 
@@ -57,7 +59,7 @@ mdMetadata.addAttribute("xsi:schemaLocation", DOM.getNS("gmd") + " http://schema
 var catRow = SQL.first("SELECT * FROM t03_catalogue");
 
 // ========== t01_object ==========
-var objId = sourceRecord.get(DatabaseSourceRecord.ID);
+var objId = sourceRecord.get("id");
 var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
 for (i=0; i<objRows.size(); i++) {
     var objRow = objRows.get(i);

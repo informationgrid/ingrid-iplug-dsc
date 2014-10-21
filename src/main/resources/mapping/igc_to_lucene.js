@@ -11,6 +11,9 @@
  * @param IDX Lucene index helper class encapsulating utility methods for output
  * @param TRANSF Helper class for transforming, processing values/fields.
  */
+
+load("nashorn:mozilla_compat.js");
+
 importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 importPackage(Packages.de.ingrid.geo.utils.transformation);
@@ -29,7 +32,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 }
 
 // ---------- t01_object ----------
-var objId = sourceRecord.get(DatabaseSourceRecord.ID);
+var objId = sourceRecord.get("id");
 var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
 for (i=0; i<objRows.size(); i++) {
 /*
