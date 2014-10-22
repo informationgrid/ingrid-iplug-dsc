@@ -9,6 +9,10 @@
  * @param log A Log instance
  *
  */
+if (javaVersion.indexOf( "1.8" ) === 0) {
+	load("nashorn:mozilla_compat.js");
+}
+
 importPackage(Packages.java.sql);
 importPackage(Packages.org.w3c.dom);
 importPackage(Packages.de.ingrid.utils.xml);
