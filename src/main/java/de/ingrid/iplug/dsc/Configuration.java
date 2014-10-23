@@ -66,7 +66,11 @@ public class Configuration implements IConfig {
     public void addPlugdescriptionValues( PlugdescriptionCommandObject pdObject ) {
         pdObject.put( "iPlugClass", "de.ingrid.iplug.dsc.DscSearchPlug" );
 
-        List<String> fields = getFieldsFromFile( "fields.data" );
+        String fieldFile = "fields_object.data";
+        if (springProfile.startsWith( "address" )) {
+            fieldFile = "fields_address.data";
+        }
+        List<String> fields = getFieldsFromFile( fieldFile );
 
         for (String field : fields) {
             pdObject.addField( field );
