@@ -82,9 +82,9 @@ public class Configuration implements IConfig {
         pdObject.setCorrespondentProxyServiceURL( correspondentIPlug );
     }
 
-    private List<String> getFieldsFromFile(String string) {
+    private List<String> getFieldsFromFile(String fieldsFileName) {
         List<String> fieldsAsLine = new ArrayList<String>();
-        ClassPathResource fieldsFile = new ClassPathResource( "fields.data" );
+        ClassPathResource fieldsFile = new ClassPathResource( fieldsFileName );
         BufferedReader br;
         try {
             br = new BufferedReader(new InputStreamReader(fieldsFile.getInputStream()));
