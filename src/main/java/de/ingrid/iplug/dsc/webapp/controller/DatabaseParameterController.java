@@ -73,15 +73,6 @@ public class DatabaseParameterController extends AbstractController {
 
         pdCommandObject.setRankinTypes(true, false, false);
 
-        // add necessary fields so iBus actually will query us
-        // remove field first to prevent multiple equal entries
-        pdCommandObject.removeFromList(PlugDescription.FIELDS, "incl_meta");
-        pdCommandObject.addField("incl_meta");
-        pdCommandObject.removeFromList(PlugDescription.FIELDS, "t01_object.obj_class");
-        pdCommandObject.addField("t01_object.obj_class");
-        pdCommandObject.removeFromList(PlugDescription.FIELDS, "metaclass");
-        pdCommandObject.addField("metaclass");
-
         // add required datatypes to PD
         //pdCommandObject.addDataType("IDF_1.0");
     }

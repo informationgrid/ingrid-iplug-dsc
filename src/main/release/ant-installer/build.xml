@@ -5,7 +5,6 @@
     <!-- set global properties for this build -->
     <property name="componentName"      value="${project.build.finalName}"/>
     <property name="xml-communication"  value="${installDir}/conf/communication.xml"/>
-    <property name="start-script"       value="${installDir}/start.sh"/>
     <property name="config"             value="${installDir}/conf/config.override.properties"/>
 
     <!-- THIS PORPERTIES ARE NECESSARY FOR UPDATES -->
