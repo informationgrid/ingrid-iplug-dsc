@@ -32,7 +32,7 @@
     <c:import url="../base/subNavi.jsp"></c:import>
 
     <div id="contentBox" class="contentMiddle">
-        <h1 id="head">Database Parameter</h1>
+        <h1 id="head">Datenbank Einstellung</h1>
         <div class="controls">
             <a href="../base/extras.html">Zur&uuml;ck</a>
             <a href="../base/welcome.html">Abbrechen</a>
@@ -50,70 +50,70 @@
                 <table id="konfigForm">
                     <br />
                     <tr>
-                        <td colspan="2"><h3>Choose the database config parameters:</h3></td>
+                        <td colspan="2"><h3>Auswahl des Datenbanktreibers:</h3></td>
                     </tr>
                     <tr>
-                        <td class="leftCol">database driver</td>
+                        <td class="leftCol">Datenbanktreiber</td>
                         <td>
                             <div class="input full">
                                 <form:input path="dataBaseDriver" />
                             </div>
                             <form:errors path="dataBaseDriver" cssClass="error" element="div" />
                             <br />
-                            Please supply the database driver. Valid entries are:
+                            Geben Sie bitte einen Datenbanktreiber an. Gültige Einträge sind:
                             <ul>
                                 <li>MySql: com.mysql.jdbc.Driver</li>
                                 <li>Oracle: oracle.jdbc.driver.OracleDriver</li>
                             </ul>
-                            If the database is not listed here, the database driver must be present in the lib directory of the iplug.
-                            <p style="color: gray;">(Sample: com.mysql.jdbc.Driver)</p>
+                            Falls die Datenbank nicht aufgeführt ist, dann muss der Treiber im lib-Verzeichnis des iPlugs vorhanden sein.
+                            <p style="color: gray;">(Zum Beispiel: com.mysql.jdbc.Driver)</p>
                         </td>
                     </tr>
                     <tr>
-                        <td class="leftCol">connection url</td>
+                        <td class="leftCol">Verbindungs-URL</td>
                         <td>
                             <div class="input full">
                                 <form:input path="connectionURL" />
                             </div>
                             <form:errors path="connectionURL" cssClass="error" element="div" />
                             <br />
-                            Please supply the jdbc connection url.
-                            <p style="color: gray;">(Sample: jdbc:mysql://localhost:3306/igc)</p>
+                            Geben Sie eine Verbindungs-URL zur JDBC-Datenbank an.
+                            <p style="color: gray;">(Zum Beispiel: jdbc:mysql://localhost:3306/igc)</p>
                         </td>
                     </tr>
                     <tr>
-                        <td class="leftCol">user</td>
+                        <td class="leftCol">Benutzer</td>
                         <td>
                             <div class="input full">
                                 <form:input path="user" />
                             </div>
                             <form:errors path="user" cssClass="error" element="div" />
                             <br />
-                            Please supply the database user .
-                            <p style="color: gray;">(Sample: igc)</p>
+                            Geben Sie einen Datenbank Benutzer an.
+                            <p style="color: gray;">(Zum Beispiel: igc)</p>
                         </td>
                     </tr>
                     <tr>
-                        <td class="leftCol">password</td>
+                        <td class="leftCol">Passwort</td>
                         <td>
                             <div class="input full">
                                 <form:input path="password" />
                             </div>
                             <form:errors path="password" cssClass="error" element="div" />
                             <br />
-                            Please supply the password for the database user.
-                            <p style="color: gray;">(Sample: 5&hftre)</p>
+                            Geben Sie ein Passwort für den Benutzer an.
+                            <p style="color: gray;">(Zum Beispiel: 5&hftre)</p>
                         </td>
                     </tr>
                     <tr>
-                        <td class="leftCol">database schema</td>
+                        <td class="leftCol">Datenbank Schema</td>
                         <td>
                             <div class="input full">
                                 <form:input path="schema" />
                             </div>
                             <form:errors path="schema" cssClass="error" element="div" />
                             <br />
-                            Optional: Supply database schema if needed.
+                            Optional: Geben Sie ein Schema der Datenbank an.
                         </td>
                     </tr>
                 </table>
