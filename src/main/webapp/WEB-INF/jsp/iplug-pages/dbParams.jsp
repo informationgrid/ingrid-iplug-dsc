@@ -32,7 +32,7 @@
     <c:import url="../base/subNavi.jsp"></c:import>
 
     <div id="contentBox" class="contentMiddle">
-        <h1 id="head">Datenbank Einstellung</h1>
+        <h1 id="head">Datenbank Einstellungen</h1>
         <div class="controls">
             <a href="../base/extras.html">Zur&uuml;ck</a>
             <a href="../base/welcome.html">Abbrechen</a>
