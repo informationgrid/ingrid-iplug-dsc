@@ -1,3 +1,25 @@
+<%--
+
+    Copyright (c) 2014 wemove GmbH
+    Licensed under the EUPL V.1.1
+
+    This Software is provided to You under the terms of the European
+    Union Public License (the "EUPL") version 1.1 as published by the
+    European Union. Any use of this Software, other than as authorized
+    under this License is strictly prohibited (to the extent such use
+    is covered by a right of the copyright holder of this Software).
+
+    This Software is provided under the License on an "AS IS" basis and
+    without warranties of any kind concerning the Software, including
+    without limitation merchantability, fitness for a particular purpose,
+    absence of defects or errors, accuracy, and non-infringement of
+    intellectual property rights other than copyright. This disclaimer
+    of warranty is an essential part of the License and a condition for
+    the grant of any rights to this Software.
+
+    For more  details, see <http://joinup.ec.europa.eu/software/page/eupl>
+
+--%>
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %><%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <%@page import="de.ingrid.admin.security.IngridPrincipal"%>
@@ -60,12 +82,12 @@
                             </div>
                             <form:errors path="dataBaseDriver" cssClass="error" element="div" />
                             <br />
-                            Geben Sie bitte einen Datenbanktreiber an. Gültige Einträge sind:
+                            Geben Sie bitte einen Datenbanktreiber an. Gï¿½ltige Eintrï¿½ge sind:
                             <ul>
                                 <li>MySql: com.mysql.jdbc.Driver</li>
                                 <li>Oracle: oracle.jdbc.driver.OracleDriver</li>
                             </ul>
-                            Falls die Datenbank nicht aufgeführt ist, dann muss der Treiber im lib-Verzeichnis des iPlugs vorhanden sein.
+                            Falls die Datenbank nicht aufgefï¿½hrt ist, dann muss der Treiber im lib-Verzeichnis des iPlugs vorhanden sein.
                             <p style="color: gray;">(Zum Beispiel: com.mysql.jdbc.Driver)</p>
                         </td>
                     </tr>
@@ -101,7 +123,7 @@
                             </div>
                             <form:errors path="password" cssClass="error" element="div" />
                             <br />
-                            Geben Sie ein Passwort für den Benutzer an.
+                            Geben Sie ein Passwort fï¿½r den Benutzer an.
                             <p style="color: gray;">(Zum Beispiel: 5&hftre)</p>
                         </td>
                     </tr>

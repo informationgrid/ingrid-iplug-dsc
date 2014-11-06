@@ -1,4 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (c) 2014 wemove GmbH
+    Licensed under the EUPL V.1.1
+
+    This Software is provided to You under the terms of the European
+    Union Public License (the "EUPL") version 1.1 as published by the
+    European Union. Any use of this Software, other than as authorized
+    under this License is strictly prohibited (to the extent such use
+    is covered by a right of the copyright holder of this Software).
+
+    This Software is provided under the License on an "AS IS" basis and
+    without warranties of any kind concerning the Software, including
+    without limitation merchantability, fitness for a particular purpose,
+    absence of defects or errors, accuracy, and non-infringement of
+    intellectual property rights other than copyright. This disclaimer
+    of warranty is an essential part of the License and a condition for
+    the grant of any rights to this Software.
+
+    For more  details, see <http://joinup.ec.europa.eu/software/page/eupl>
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
@@ -262,6 +284,28 @@
                 <directory>target/base-webapp</directory>
             </resource>
           </webResources>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>2.6</version>
+        <configuration>
+          <header>src/docs/license_eupl.txt</header>
+          <properties>
+            <owner>wemove</owner>
+            <email>contact@wemove.com</email>
+          </properties>
+          <!-- <includes>
+            <include>**/*.java</include>
+          </includes> -->
+          <excludes>
+              <exclude>**/*.auth</exclude>
+              <exclude>**/*.patch</exclude>
+              <exclude>**/*.data</exclude>
+              <exclude>**/log4j.properties</exclude>
+              <exclude>index/**</exclude>
+          </excludes>
         </configuration>
       </plugin>
     </plugins>

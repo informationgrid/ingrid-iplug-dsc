@@ -1,15 +1,22 @@
-/**
- * SourceRecord to Lucene Document mapping
- * Copyright (c) 2011 wemove digital solutions. All rights reserved.
+/*
+ * Copyright (c) 2014 wemove GmbH
+ * Licensed under the EUPL V.1.1
  *
- * The following global variable are passed from the application:
+ * This Software is provided to You under the terms of the European
+ * Union Public License (the "EUPL") version 1.1 as published by the
+ * European Union. Any use of this Software, other than as authorized
+ * under this License is strictly prohibited (to the extent such use
+ * is covered by a right of the copyright holder of this Software).
  *
- * @param sourceRecord A SourceRecord instance, that defines the input
- * @param luceneDoc A lucene Document instance, that defines the output
- * @param log A Log instance
- * @param SQL SQL helper class encapsulating utility methods
- * @param IDX Lucene index helper class encapsulating utility methods for output
- * @param TRANSF Helper class for transforming, processing values/fields.
+ * This Software is provided under the License on an "AS IS" basis and
+ * without warranties of any kind concerning the Software, including
+ * without limitation merchantability, fitness for a particular purpose,
+ * absence of defects or errors, accuracy, and non-infringement of
+ * intellectual property rights other than copyright. This disclaimer
+ * of warranty is an essential part of the License and a condition for
+ * the grant of any rights to this Software.
+ *
+ * For more  details, see <http://joinup.ec.europa.eu/software/page/eupl>
  */
 importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
