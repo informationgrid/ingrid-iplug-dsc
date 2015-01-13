@@ -251,3 +251,4 @@ object_format_inspire.format_key
 incl_meta
 t01_object.obj_class
 metaclass
+t011_obj_serv.has_atom_download
