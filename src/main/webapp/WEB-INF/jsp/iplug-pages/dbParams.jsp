@@ -27,7 +27,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
 <title><fmt:message key="DatabaseConfig.main.title"/></title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="description" content="" />
 <meta name="keywords" content="" />
 <meta name="author" content="wemove digital solutions" />
@@ -70,7 +70,6 @@
                 <input type="hidden" name="action" value="submit" />
                 <input type="hidden" name="id" value="" />
                 <table id="konfigForm">
-                    <br />
                     <tr>
                         <td colspan="2"><h3>Auswahl des Datenbanktreibers:</h3></td>
                     </tr>
@@ -124,7 +123,7 @@
                             <form:errors path="password" cssClass="error" element="div" />
                             <br />
                             Geben Sie ein Passwort für den Benutzer an.
-                            <p style="color: gray;">(Zum Beispiel: 5&hftre)</p>
+                            <p style="color: gray;">(Zum Beispiel: 5$hftre)</p>
                         </td>
                     </tr>
                     <tr>
