@@ -38,7 +38,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
     throw new IllegalArgumentException("Record is no DatabaseRecord!");
 }
 
-var id = sourceRecord.get(DatabaseSourceRecord.ID);
+var id = sourceRecord.get("id");
 var connection = sourceRecord.get(DatabaseSourceRecord.CONNECTION);
 try {
     var ps = connection.prepareStatement("SELECT * FROM TEST_TABLE WHERE id=?");
