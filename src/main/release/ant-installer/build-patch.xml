@@ -20,7 +20,7 @@
   limitations under the Licence.
   **************************************************#
   -->
-<project name="iplug-dsc-scripted Patches">
+<project name="iplug-dsc Patches">
 
 	<target name="patchFromVersion3.3.0">
         <compareVersion value1="${oldVersion}" value2="3.3.0" prop="compResult"/>

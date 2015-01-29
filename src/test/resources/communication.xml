@@ -22,7 +22,7 @@
   -->
 <communication xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="communication.xsd">
-        <client name="/torwald-group:ingrid-iplug-dsc-scripted-test">
+        <client name="/torwald-group:ingrid-iplug-dsc-test">
                 <connections>
                         <server name="/ingrid-group:ibus-joachim">
                                 <socket port="9900" timeout="10" ip="127.0.0.1" />

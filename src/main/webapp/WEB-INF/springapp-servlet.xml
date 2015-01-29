@@ -135,7 +135,7 @@
     
     <!--
         Defines a facet definition filter. Will be applied before a facet 
-        definition is analyzed. This construct is used in igc dsc scripted
+        definition is analyzed. This construct is used in igc dsc
         iPlug to map incompatible queries to compatible.
         
         See also de.ingrid.iplug.dscIGCTopicsSearchPreProcessor.

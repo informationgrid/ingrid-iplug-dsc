@@ -31,7 +31,7 @@
 
     <!-- THIS PORPERTIES ARE NECESSARY FOR UPDATES -->
     <property name="libraryDir"         value="lib" />
-    <property name="libraryIdent"       value="ingrid-iplug-dsc-scripted-" />
+    <property name="libraryIdent"       value="ingrid-iplug-dsc-" />
     <property name="versionsWithConfigurations"  value="" />
     <property name="minSupportedVersion" value="3.3.0" />
 

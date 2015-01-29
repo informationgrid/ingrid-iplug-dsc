@@ -8,7 +8,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid</groupId>
-  <artifactId>ingrid-iplug-dsc-scripted</artifactId>
+  <artifactId>ingrid-iplug-dsc</artifactId>
   <version>3.5.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>InGrid-iPlug DSC</name>

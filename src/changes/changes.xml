@@ -24,10 +24,16 @@
 
 <document>
   <properties>
-    <title>History Ingrid DSC (scripted) iPlug</title>
+    <title>History Ingrid DSC iPlug</title>
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.5.0-SNAPSHOT" date="2015-xx-xx" description="Release InGrid 3.5.0">
+      <action type="update" dev="wemove" issue="">
+          Rename component from ingrid-iplug-dsc-scripted to ingrid-iplug-dsc
+      </action>
+    </release>
+
     <release version="3.4.1" date="2014-04-24" description="Release InGrid 3.4.1">
       <action type="update" dev="wemove" issue="REDMINE-340">
           IDF: Add name of referencing service to operation url to avoid blank URL in detail view.

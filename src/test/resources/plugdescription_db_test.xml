@@ -25,7 +25,7 @@
   <string>IPLUG_ADMIN_GUI_URL</string>
   <string>http://localhost/admin-iplug-opensearch/</string>
   <string>workingDirectory</string>
-  <string>/home/joachim/ingrid/eclipse.workspace/ingrid-iplug-dsc-scripted/.</string>
+  <string>/home/joachim/ingrid/eclipse.workspace/ingrid-iplug-dsc/.</string>
   <string>fields</string>
   <list>
     <string>x1</string>
@@ -34,7 +34,7 @@
     <string>y2</string>
   </list>
   <string>proxyServiceUrl</string>
-  <string>/torwald-group:ingrid-iplug-dsc-scripted-test</string>
+  <string>/torwald-group:ingrid-iplug-dsc-test</string>
   <string>organisation</string>
   <string>Landesanstalt für Umwelt, Messungen und Naturschutz Baden-Württemberg</string>
   <string>isRecordLoader</string>

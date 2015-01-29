@@ -1,5 +1,5 @@
---- C:/wemove/ingrid/dev/svn/ingrid-iplug-dsc-scripted/trunk/src/main/webapp/WEB-INF/spring.xml	(revision 20969)
-+++ C:/wemove/ingrid/dev/svn/ingrid-iplug-dsc-scripted/trunk/src/main/webapp/WEB-INF/spring.xml	(revision 22625)
+--- spring.xml	(revision 20969)
++++ spring.xml	(revision 22625)
 @@ -10,6 +10,7 @@
          <property name="recordMapperList">
              <list>
