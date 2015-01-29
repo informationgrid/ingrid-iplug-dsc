@@ -27,6 +27,8 @@ if (javaVersion.indexOf( "1.8" ) === 0) {
 importPackage(Packages.org.w3c.dom);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 
+var CAPABILITIES = Java.type('de.ingrid.utils.capabilities.CapabilitiesUtils');
+
 if (log.isDebugEnabled()) {
     log.debug("Mapping source record to idf document: " + sourceRecord.toString());
 }
