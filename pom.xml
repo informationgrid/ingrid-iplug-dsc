@@ -4,7 +4,7 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>3.5.0-SNAPSHOT-R304</version>
+    <version>3.5.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid</groupId>
@@ -27,36 +27,11 @@
   <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
   <dependencyManagement>
     <dependencies>
-      <!-- <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-		<version>3.0.1</version>
-      </dependency> -->
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>1.7.7</version>
       </dependency>
-      <!-- <dependency>
-      	<groupId>de.ingrid</groupId>
-      	<artifactId>ingrid-iplug</artifactId>
-      	<version>3.4.0-SNAPSHOT</version>
-      </dependency> -->
-      <!-- <dependency>
-      	<groupId>org.springframework</groupId>
-      	<artifactId>spring-core</artifactId>
-      	<version>4.0.0.RELEASE</version>
-      </dependency>
-      <dependency>
-      	<groupId>org.springframework</groupId>
-      	<artifactId>spring-beans</artifactId>
-      	<version>4.0.0.RELEASE</version>
-      </dependency>
-      <dependency>
-      	<groupId>org.springframework</groupId>
-      	<artifactId>spring-context</artifactId>
-      	<version>4.0.0.RELEASE</version>
-      </dependency> -->
     </dependencies>
   </dependencyManagement>
   <!-- ==================== DEPENDENCIES ==================== -->
@@ -94,12 +69,10 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-base-webapp</artifactId>
-      <version>4.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-base-webapp</artifactId>
-      <version>4.0.0-SNAPSHOT</version>
       <classifier>res</classifier>
       <type>zip</type>
     </dependency>
@@ -260,28 +233,6 @@
                 <directory>target/base-webapp</directory>
             </resource>
           </webResources>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>com.mycila</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-        <version>2.6</version>
-        <configuration>
-          <header>src/docs/license_eupl.txt</header>
-          <properties>
-            <owner>wemove</owner>
-            <email>contact@wemove.com</email>
-          </properties>
-          <!-- <includes>
-            <include>**/*.java</include>
-          </includes> -->
-          <excludes>
-              <exclude>**/*.auth</exclude>
-              <exclude>**/*.patch</exclude>
-              <exclude>**/*.data</exclude>
-              <exclude>**/log4j.properties</exclude>
-              <exclude>index/**</exclude>
-          </excludes>
         </configuration>
       </plugin>
     </plugins>

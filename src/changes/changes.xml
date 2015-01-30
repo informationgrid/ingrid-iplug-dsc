@@ -8,12 +8,12 @@
   Licensed under the EUPL, Version 1.1 or – as soon they will be
   approved by the European Commission - subsequent versions of the
   EUPL (the "Licence");
-  
+
   You may not use this work except in compliance with the Licence.
   You may obtain a copy of the Licence at:
-  
+
   http://ec.europa.eu/idabc/eupl5
-  
+
   Unless required by applicable law or agreed to in writing, software
   distributed under the Licence is distributed on an "AS IS" basis,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,9 +28,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
-    <release version="3.5.0-SNAPSHOT" date="2015-xx-xx" description="Release InGrid 3.5.0">
+    <release version="3.5.0" date="2015-01-30" description="Release InGrid 3.5.0">
       <action type="update" dev="wemove" issue="">
           Rename component from ingrid-iplug-dsc-scripted to ingrid-iplug-dsc
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-524">
+          Added license header to all source files for Open Source migration.
       </action>
     </release>
 
@@ -42,7 +45,7 @@
           IDF: Add thesaurus section to opendata categories (keywords).
       </action>
     </release>
-    
+
     <release version="3.4.0" date="2014-02-25" description="Release InGrid 3.4.0">
       <action type="add" dev="wemove" issue="REDMINE-134">
           IDF: Added additional service information to IDF for calling service from detail view.
@@ -142,13 +145,13 @@
           IDF: Also set "levelDescription" in "DQ_Scope" if object is not class 1 (Geoinformation/Karte) cause is mandatory if "level" notEqual 'dataset' or 'series'.
       </action>
       <action type="fix" dev="wemove" issue="INGRID-2257, INGRID-2280">
-          IDF: Map objects of class 6 ("Dienst/Anwendung/Informationssystem") now to MD_DataIdentification and not SV_ServiceIdentification. 
+          IDF: Map objects of class 6 ("Dienst/Anwendung/Informationssystem") now to MD_DataIdentification and not SV_ServiceIdentification.
       </action>
       <action type="fix" dev="wemove" issue="INGRID-2237">
           IDF: Also check publication condition of subordinated objects and filter.
       </action>
     </release>
-    
+
     <release version="3.3.0" date="2013-03-04" description="Release InGrid 3.3">
       <action type="add" dev="wemove" issue="INGRID-2202">
         Added UFORDAT mapping presets.
@@ -184,7 +187,7 @@
         The tag operatesOn uses the ORIG_UUID first, if not available it uses the IGC_UUID.
       </action>
       <action type="update" dev="wemove" issue="INGRID33-10">
-        Note field of addresses removed from indexing. 
+        Note field of addresses removed from indexing.
       </action>
       <action type="fix" dev="wemove" issue="INGRID-2224">
           Fix mapping script: phone and fax entries were added only if more than one entry was supplied.
@@ -211,7 +214,7 @@
          Fix problem where no facet was produced from index field values if a query fragment was defined in the facet definition.
       </action>
 	</release>
-	
+
     <release version="3.2.1" date="2012-09-26" description="Release InGrid 3.2.1">
       <action type="fix" dev="wemove" issue="INGRID32-186">
         Coupled resource was not correctly mapped. The creation of the identifier has been fixed now.
@@ -220,7 +223,7 @@
         Added local working directory, so that temp-dir is not deleted accidentally when cleaning up global temp dir.
       </action>
       <action type="update" dev="wemove" issue="INGRID-2144">
-        Remove postfix [...] from user names when exported to CSW (e.g. [Nutzer] postfix). 
+        Remove postfix [...] from user names when exported to CSW (e.g. [Nutzer] postfix).
       </action>
       <action type="fix" dev="wemove">
         Infobox during indexing now updates correctly and disappears when finished.
@@ -249,7 +252,7 @@
         Add support for generating facets if requested.
       </action>
       <action type="update" dev="wemove" issue="INGRID-2107">
-        GetCapabilities of view services now always mapped to IDF with REQUEST=GetCapabilities and SERVICE=WMS. 
+        GetCapabilities of view services now always mapped to IDF with REQUEST=GetCapabilities and SERVICE=WMS.
       </action>
       <action type="update" dev="wemove">
         Change mapping from useLimitation, the element is now encapsulated in MD_Constraints instead of MD-LegelConstrains.
@@ -258,13 +261,13 @@
         IGC to IDF mapping scripts write now idf-version into IDF top element, removed IDF version from script names.
       </action>
       <action type="update" dev="wemove" issue="INGRID32-26">
-        New mapping of operation platform to index and IDF (now syslist). 
+        New mapping of operation platform to index and IDF (now syslist).
       </action>
       <action type="update" dev="wemove" issue="INGRID32-27">
-        New mapping of references (Verweise) to IDF. 
+        New mapping of references (Verweise) to IDF.
       </action>
       <action type="update" dev="wemove" issue="INGRID32-30">
-        New mapping of "Identifikator der Datenquelle", now includes namespace read from catalog. Now mapped to MD_Identifier/code. 
+        New mapping of "Identifikator der Datenquelle", now includes namespace read from catalog. Now mapped to MD_Identifier/code.
       </action>
       <action type="update" dev="wemove" issue="INGRID32-50">
         Map new field "Datensammlung/Datenbank - Objektartenkatalog" (equals "Geoinformation/Karte - Schlüsselkatalog").
@@ -312,7 +315,7 @@
         XML fix: fixed double escaping of xml files
       </action>
     </release>
-    
+
     <release version="3.1.0" date="2011-09-15" description="Release InGrid 3.1">
       <action type="update" dev="wemove">
         Prevent escaping of UTF-8 characters in IDF response.
@@ -345,7 +348,7 @@
         Allow multiple spatial systems ("Raumbezugssystem"), now 1:n association.
       </action>
       <action type="update" dev="wemove" issue="INGRID-1940">
-        Introduced new field "metainfo" in query for various control info to be handled by iBus / iPlugs. 
+        Introduced new field "metainfo" in query for various control info to be handled by iBus / iPlugs.
       </action>
       <action type="fix" dev="wemove" issue="INGRID-1949">
         IDF: Fix street and post box in address detail view.
