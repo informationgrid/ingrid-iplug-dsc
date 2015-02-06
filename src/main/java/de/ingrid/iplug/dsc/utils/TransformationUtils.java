@@ -135,21 +135,6 @@ public class TransformationUtils {
 	    return retValue;
 	}
 
-	/** Parse given codelist entry and return parsed data in string array.
-	 * @param fullName full name of entry containing additional data
-	 * @param syslistId id of syslist the entry is from, determins how to parse entry
-	 * @return String array, 0=code list entry without additional data (displayed in selection list), 1 ...=additional data dependent from parseType
-	 * if parsing fails the full string is returned at index 0
-	 */
-	public String[] parseIGCSyslistEntryName(String fullName, int syslistId) {
-		String[] result = new String[]{ fullName };
-		if (syslistId == 6005) {
-			result = UtilsUDKCodeLists.parseCodeListEntryName(fullName, UtilsUDKCodeLists.ParseType.DATE_AT_END);
-		}
-		
-		return result;
-	}
-
 	/** Get language of catalog (entry id of language syslist). 
 	 * @return Null if catalog not found !?
 	 * @throws SQLException
