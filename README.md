@@ -34,7 +34,7 @@ java -jar ingrid-iplug-dsc-x.x.x-installer.jar
 
 and follow the install instructions.
 
-Obtain further information at https://dev.informationgrid.eu/
+Obtain further information at http://www.ingrid-oss.eu/ (sorry only in German)
 
 
 Contribute
