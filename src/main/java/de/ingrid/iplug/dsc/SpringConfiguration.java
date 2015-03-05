@@ -95,6 +95,13 @@ public class SpringConfiguration {
             mapper.setSql( "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" );
             return mapper;
         }
+        
+        @Bean
+        public PlugDescriptionConfiguredDatabaseRecordProducer recordProducer() {
+            PlugDescriptionConfiguredDatabaseRecordProducer producer = new PlugDescriptionConfiguredDatabaseRecordProducer();
+            producer.setIndexFieldID( "t01_object.id" );
+            return producer;
+        }
     }
     
     @Profile(value = { "address_internet", "address_intranet" })
@@ -189,13 +196,6 @@ public class SpringConfiguration {
     @Bean
     public static CreateIdfMapper createIdfMapper() {
         return new CreateIdfMapper();
-    }
-    
-    @Bean
-    public PlugDescriptionConfiguredDatabaseRecordProducer recordProducer() {
-        PlugDescriptionConfiguredDatabaseRecordProducer producer = new PlugDescriptionConfiguredDatabaseRecordProducer();
-        producer.setIndexFieldID( "t01_object.id" );
-        return producer;
     }
     
 }

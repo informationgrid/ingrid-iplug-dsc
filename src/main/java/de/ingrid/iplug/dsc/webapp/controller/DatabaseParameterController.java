@@ -93,8 +93,6 @@ public class DatabaseParameterController extends AbstractController {
 
         pdCommandObject.setConnection(commandObject);
 
-        pdCommandObject.setRankinTypes(true, false, false);
-
         // add required datatypes to PD
         //pdCommandObject.addDataType("IDF_1.0");
     }
