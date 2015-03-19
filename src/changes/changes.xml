@@ -24,10 +24,16 @@
 
 <document>
   <properties>
-    <title>History Ingrid DSC iPlug</title>
+    <title>History InGrid DSC iPlug</title>
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.5.1" date="2015-xx-xx" description="Release InGrid 3.5.1">
+      <action type="update" dev="wemove" issue="REDMINE-17">
+          Map coupled resources that are externally linked to an object.
+      </action>
+    </release>
+    
     <release version="3.5.0" date="2015-01-30" description="Release InGrid 3.5.0">
       <action type="update" dev="wemove" issue="">
           Rename component from ingrid-iplug-dsc-scripted to ingrid-iplug-dsc
