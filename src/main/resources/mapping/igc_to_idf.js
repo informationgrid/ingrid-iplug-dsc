@@ -814,6 +814,7 @@ for (i=0; i<objRows.size(); i++) {
         // Map all operations ! So we also query operations of service, see INGRID-2291
         // We query operations as OUTER JOIN, so service is not lost, if NO operations exist ! 
         var rows = SQL.all("SELECT t01_object.*, t011_obj_serv_operation.name_value FROM object_reference, t01_object, t011_obj_serv LEFT OUTER JOIN t011_obj_serv_operation ON (t011_obj_serv.id = t011_obj_serv_operation.obj_serv_id) WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND t011_obj_serv.obj_id=obj_from_id AND obj_from_id=? AND special_ref=? AND t01_object.work_state=? " + publicationConditionFilter + " ORDER BY object_reference.line, t011_obj_serv_operation.line", [objId, '3600', "V"]);
+        var urlRows = SQL.all("SELECT * FROM t01_object, t017_url_ref WHERE t017_url_ref.obj_id=t01_object.id AND t01_object.id=? AND special_ref=? AND t01_object.work_state=? " + publicationConditionFilter, [objId, '3600', "V"]);
         var resourceIdentifiers = [];
         for (i=0; i<rows.size(); i++) {
             var refObjId        = rows.get(i).get("id");
@@ -836,6 +837,31 @@ for (i=0; i<objRows.size(); i++) {
                 refObjUuid != resourceIdentifiers[resourceIdentifiers.length-1][1])
             {
                 resourceIdentifiers.push([getCitationIdentifier(rows.get(i), refObjId), refObjUuid]);
+            }
+            coupledResource.addElement("srv:identifier/gco:CharacterString").addText(resourceIdentifiers[resourceIdentifiers.length-1][0]);
+        }
+        
+        // do the same for external resources (REDMINE-17)
+        for (i=0; i<urlRows.size(); i++) {
+            var refUrl = urlRows.get(i);
+
+            // the info about the uuid and identifier are encoded within the url-description field
+            // identifier#**#uuid
+            var moreInfo = urlRows.get(i).get("descr").split( "#**#" );
+            if (moreInfo.length !== 2) {
+                log.warn( "A coupled resource which was referenced externally has no identifier and/or uuid: " + refUrl.get("url_link") );
+                continue;
+            }
+            
+            var coupledResource = identificationInfo.addElement("srv:coupledResource/srv:SV_CoupledResource");
+            coupledResource.addElement("srv:operationName").addAttribute("gco:nilReason", "missing");
+
+            // remember resourceIdentifiers for later use (see below).
+            // BUT ONLY ONCE ! Every operation causes new row with same referenced UUID ! We add identifier only once !
+            if (resourceIdentifiers.length == 0 ||
+                moreInfo[1] != resourceIdentifiers[resourceIdentifiers.length-1][1])
+            {
+                resourceIdentifiers.push([moreInfo[0], moreInfo[1]]);
             }
             coupledResource.addElement("srv:identifier/gco:CharacterString").addText(resourceIdentifiers[resourceIdentifiers.length-1][0]);
         }
