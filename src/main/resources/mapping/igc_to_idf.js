@@ -633,23 +633,26 @@ for (i=0; i<objRows.size(); i++) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
         
         // if open data is checked then also add categories to thesaurus
+        mdKeywords = DOM.createElement("gmd:MD_Keywords");
         rows = SQL.all("SELECT category_key, category_value FROM object_open_data_category WHERE obj_id=?", [objId])
         for (i=0; i<rows.size(); i++) {
-            mdKeywords = DOM.createElement("gmd:MD_Keywords");
             mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText(rows.get(i).get("category_value"));
-            // Also add thesaurus to opendata keywords, see https://redmine.wemove.com/issues/339
-            mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
-                .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_KeywordTypeCode")
-                .addAttribute("codeListValue", "theme");
-            var thesCit = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
-            thesCit.addElement("gmd:title/gco:CharacterString").addText("OGDD-Kategorien");
-            var thesCitDate = thesCit.addElement("gmd:date/gmd:CI_Date");
-            thesCitDate.addElement("gmd:date/gco:Date").addText("2012-11-27");
-            thesCitDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                .addAttribute("codeListValue", "publication")
-                .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode");
-            identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
         }
+        
+        // Also add thesaurus to opendata keywords, see https://redmine.wemove.com/issues/339
+        mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
+        .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_KeywordTypeCode")
+        .addAttribute("codeListValue", "theme");
+        
+        // and now the name of the thesaurus
+        var thesCit = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
+        thesCit.addElement("gmd:title/gco:CharacterString").addText("OGDD-Kategorien");
+        var thesCitDate = thesCit.addElement("gmd:date/gmd:CI_Date");
+        thesCitDate.addElement("gmd:date/gco:Date").addText("2012-11-27");
+        thesCitDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+        .addAttribute("codeListValue", "publication")
+        .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode");
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
     // ---------- <gmd:identificationInfo/gmd:resourceSpecificUsage> ----------
