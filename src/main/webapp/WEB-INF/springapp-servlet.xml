@@ -60,24 +60,21 @@
 
     <!-- Single parsers are injected explicitly (but created via annotation mechanism) -->
     <!-- Adapt number, type and order of parsers dependent from iPlug -->
-    <bean class="de.ingrid.admin.search.QueryParsers">
+    <bean class="de.ingrid.admin.elasticsearch.converter.QueryConverter">
         <qualifier value="XMLconfigured"/>
         <property name="queryParsers">
             <list>
-                <ref bean="contentQueryParser" />
-                <!-- NO datatype added to lucene query ! -->
-                <!-- ref bean="dataTypeQueryParser" /-->
-                <ref bean="titleQueryParser" />
-                <ref bean="fieldQueryParserIGC" />
-                <ref bean="rangeQueryParser" />
-                <ref bean="wildCardFieldQueryParser" />
-                <ref bean="allResultsOnEmptyQueryParser" />
+                <ref bean="defaultFieldsQueryConverter" />
+                <!-- <ref bean="fieldQueryIGCConverter" /> -->
+                <!-- <ref bean="rangeQueryParser" /> -->
+                <!-- <ref bean="wildcardQueryConverter" />
+                <ref bean="matchAllQueryConverter" /> -->
             </list>
         </property>
     </bean>
 
     <!-- STEMMER: Create stemmer explicitly via xml ! Will be autowired to parsers, index writer ... ! -->
-    <bean id="stemmerGERMAN" class="de.ingrid.admin.search.GermanStemmer"/>
+    <!-- <bean id="stemmerGERMAN" class="de.ingrid.admin.search.GermanStemmer"/> -->
 
     <!--
         Wraps one ore more lucene index reader. The wrapper is injected via
@@ -93,7 +90,7 @@
             <ref bean="indexWrapper" />
         </property>
         <property name="queryParsers">
-            <ref bean="de.ingrid.admin.search.QueryParsers" />
+            <ref bean="de.ingrid.admin.elasticsearch.converter.QueryConverter" />
         </property>
     </bean>
 
@@ -161,7 +158,7 @@
             <ref bean="indexWrapper" />
         </property>
         <property name="queryParsers">
-            <ref bean="de.ingrid.admin.search.QueryParsers" />
+            <ref bean="de.ingrid.admin.elasticsearch.converter.QueryConverter" />
         </property>
         <property name="facetCounters">
             <list>
