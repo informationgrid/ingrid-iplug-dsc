@@ -25,7 +25,7 @@
  */
 package de.ingrid.iplug.dsc.index.mapper;
 
-import org.apache.lucene.document.Document;
+import java.util.Map;
 
 import de.ingrid.iplug.dsc.om.SourceRecord;
 
@@ -50,6 +50,6 @@ public interface IRecordMapper {
      * @param doc
      * @return
      */
-    void map(SourceRecord record, Document doc) throws Exception;
+    void map(SourceRecord record, Map<String, Object> doc) throws Exception;
 
 }

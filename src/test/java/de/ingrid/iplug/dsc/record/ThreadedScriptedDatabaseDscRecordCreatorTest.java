@@ -25,14 +25,14 @@ package de.ingrid.iplug.dsc.record;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.springframework.core.io.ClassPathResource;
 
 import de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper;
@@ -78,9 +78,8 @@ public class ThreadedScriptedDatabaseDscRecordCreatorTest extends IgcDbUnitEnabl
         dc.setRecordProducer(p);
         dc.setRecord2IdfMapperList(mList);
 
-        Document idxDoc = new Document();
-        idxDoc.add(new Field("ID", "1", Field.Store.YES,
-                        Field.Index.ANALYZED));
+        HashMap<String, Object> idxDoc = new HashMap<String, Object>();
+        idxDoc.put("ID", "1");
         
 
         int threadCount = 5;
@@ -103,10 +102,10 @@ public class ThreadedScriptedDatabaseDscRecordCreatorTest extends IgcDbUnitEnabl
     private class CallableRecordCreator implements Callable<Record> {
         
         private DscRecordCreator drc;
-        private Document doc;
+        private Map<String, Object> doc;
         
         
-        public CallableRecordCreator(DscRecordCreator drc, Document doc) {
+        public CallableRecordCreator(DscRecordCreator drc, Map<String, Object> doc) {
             this.drc = drc;
             this.doc = doc;
         }

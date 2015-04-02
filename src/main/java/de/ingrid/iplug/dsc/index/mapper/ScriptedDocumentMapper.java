@@ -30,12 +30,9 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.document.Document;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 
-import de.ingrid.admin.search.Stemmer;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.utils.IndexUtils;
@@ -61,15 +58,10 @@ public class ScriptedDocumentMapper implements IRecordMapper {
     private Resource[] mappingScripts;
     private boolean compile = false;
 
-    /** The default stemmer used in IndexUtils Tool !
-     * Is AUTOWIRED in spring environment via {@link #setDefaultStemmer(Stemmer)}
-     */
-    private static Stemmer _defaultStemmer;
-
     private static final Logger log = Logger.getLogger(ScriptedDocumentMapper.class);
 
     @Override
-    public void map(SourceRecord record, Document doc) throws Exception {
+    public void map(SourceRecord record, Map<String, Object> doc) throws Exception {
         if (mappingScripts == null) {
             log.error("Mapping script(s) not set!");
             throw new IllegalArgumentException("Mapping script(s) not set!");
@@ -78,7 +70,7 @@ public class ScriptedDocumentMapper implements IRecordMapper {
             // create utils for script
             Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
             SQLUtils sqlUtils = new SQLUtils(connection);
-            IndexUtils idxUtils = new IndexUtils(doc, _defaultStemmer);
+            IndexUtils idxUtils = new IndexUtils(doc);
             TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
             
 			Map<String, Object> parameters = new Hashtable<String, Object>();
@@ -114,11 +106,4 @@ public class ScriptedDocumentMapper implements IRecordMapper {
         this.compile = compile;
     }
 
-    /** Injects default stemmer via autowiring !
-     * @param defaultStemmer
-     */
-    @Autowired
-    public void setDefaultStemmer(Stemmer defaultStemmer) {
-    	_defaultStemmer = defaultStemmer;
-	}
 }

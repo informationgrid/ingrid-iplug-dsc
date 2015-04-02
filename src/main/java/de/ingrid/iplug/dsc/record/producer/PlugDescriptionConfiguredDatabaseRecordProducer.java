@@ -25,10 +25,10 @@
  */
 package de.ingrid.iplug.dsc.record.producer;
 
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.om.ClosableDatabaseConnection;
@@ -69,7 +69,7 @@ public class PlugDescriptionConfiguredDatabaseRecordProducer implements IRecordP
      * .document.Document)
      */
     @Override
-    public SourceRecord getRecord(Document doc, IClosableDataSource ds) {
+    public SourceRecord getRecord(Map<String, Object> doc, IClosableDataSource ds) {
         if (indexFieldID == null) {
             log.error("Name of ID-Field in Lucene Doc is not set!");
             throw new IllegalArgumentException("Name of ID-Field in Lucene Doc is not set!");
@@ -79,9 +79,10 @@ public class PlugDescriptionConfiguredDatabaseRecordProducer implements IRecordP
             throw new IllegalArgumentException("Datasource is no database datasource!");
         }
 
-        Field field = doc.getField(indexFieldID);
+        Object field = doc.get(indexFieldID);
 
-        return new DatabaseSourceRecord(field.stringValue(), ((ClosableDatabaseConnection) ds).getConnection());
+        // TODO: what if field is a list?
+        return new DatabaseSourceRecord(field.toString(), ((ClosableDatabaseConnection) ds).getConnection());
     }
 
     /*

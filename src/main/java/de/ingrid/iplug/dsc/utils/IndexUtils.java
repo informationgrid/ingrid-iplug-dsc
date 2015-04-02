@@ -26,16 +26,11 @@
 package de.ingrid.iplug.dsc.utils;
 
 import java.io.IOException;
-import java.io.StringReader;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.TermAttribute;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.NumericField;
 
-import de.ingrid.admin.search.Stemmer;
+import de.ingrid.admin.Utils;
 
 /**
  * Helper class encapsulating functionality on Lucene Index (e.g. used in
@@ -47,16 +42,18 @@ public class IndexUtils {
 
     private static final Logger log = Logger.getLogger(IndexUtils.class);
 
+    private static final String BOOST = "boost";
+
     private static String CONTENT_FIELD_NAME = "content";
 
     /** the Lucene Document where the fields are added ! */
-    private Document luceneDoc = null;
+    private Map<String, Object> luceneDoc = null;
 
-    private static Stemmer _defaultStemmer;
+    //@Deprecated
+    //private static Stemmer _defaultStemmer;
 
-    public IndexUtils(Document luceneDoc, Stemmer defaultStemmer) {
+    public IndexUtils(Map<String, Object> luceneDoc) {
         this.luceneDoc = luceneDoc;
-        this._defaultStemmer = defaultStemmer;
     }
 
     /**
@@ -74,9 +71,10 @@ public class IndexUtils {
         if (value == null) {
             value = "";
         }
-        add(fieldName, value, Field.Store.YES, analyzed ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
-        add(CONTENT_FIELD_NAME, value, Field.Store.NO, analyzed ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
-        add(CONTENT_FIELD_NAME, filterTerm(value), Field.Store.NO, Field.Index.ANALYZED);
+        add(fieldName, value);//, Field.Store.YES, analyzed ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
+        add(CONTENT_FIELD_NAME, value );//, Field.Store.NO, analyzed ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
+        // this is automatically done by elastic search
+        //add(CONTENT_FIELD_NAME, filterTerm(value), Field.Store.NO, Field.Index.ANALYZED);
     }
     
     /**
@@ -94,21 +92,9 @@ public class IndexUtils {
             value = "";
         }
 
-        add(fieldName, value, Field.Store.YES, Field.Index.NOT_ANALYZED);
+        add(fieldName, value);//, Field.Store.YES, Field.Index.NOT_ANALYZED);
     }
-    /**
-     * Add a index field with the value to the index document. The field will be
-     * TOKENIZE and STORE and will be added to a separate "content" field
-     * (ADD_TO_CONTENT_FIELD) by default.
-     * 
-     * @param fieldName
-     *            name of the field in the index
-     * @param value
-     *            content of the field !
-     */
-    public void add(String fieldName, String value) throws IOException {
-        add(fieldName, value, true);
-    }
+
 
     /**
      * Add a numeric index field with the value to the index document. The field
@@ -123,7 +109,7 @@ public class IndexUtils {
         double val = 0;
         try {
             val = Double.parseDouble(value);
-            luceneDoc.add(new NumericField(fieldName, Field.Store.YES, true).setDoubleValue(val));
+            Utils.addToDoc( luceneDoc, fieldName, val);
         } catch (Exception e) {
             if (log.isDebugEnabled()) {
                 log.debug("Value '" + value + "' is not a number. Ignoring field '" + fieldName + "'.");
@@ -131,13 +117,20 @@ public class IndexUtils {
         }
     }
 
-    private void add(String fieldName, String value, Field.Store stored, Field.Index tokenized) {
+    /**
+     * Add a index field with the value to the index document. 
+     * 
+     * @param fieldName
+     *            name of the field in the index
+     * @param value
+     *            content of the field !
+     */
+    public void add(String fieldName, String value) {
         if (log.isDebugEnabled()) {
-            log.debug("Add field '" + fieldName + "' with value '" + value + "' to lucene document " + "(Field.Index="
-                    + tokenized + ", Field.Store=" + stored + ")");
+            log.debug("Add field '" + fieldName + "' with value '" + value + "' to lucene document");
         }
 
-        luceneDoc.add(new Field(fieldName, value, stored, tokenized));
+        Utils.addToDoc( luceneDoc, fieldName, value);
     }
 
     /**
@@ -151,31 +144,31 @@ public class IndexUtils {
             log.debug("Removed ALL fields with name '" + fieldName + "'.");
         }
 
-        luceneDoc.removeFields(fieldName);
+        luceneDoc.remove(fieldName);
     }
 
-    private static String filterTerm(String term) {
-        String result = "";
-
-        TokenStream stream = _defaultStemmer.getAnalyzer().tokenStream(null, new StringReader(term));
-        // get the TermAttribute from the TokenStream
-        TermAttribute termAtt = (TermAttribute) stream.addAttribute(TermAttribute.class);
-
-        try {
-            stream.reset();
-            // add all tokens until stream is exhausted
-            while (stream.incrementToken()) {
-                result = result + " " + termAtt.term();
-            }
-            stream.end();
-            stream.close();
-        } catch (IOException ex) {
-            log.error("Problems tokenizing term " + term + ", we return full term.", ex);
-            result = term;
-        }
-
-        return result.trim();
-    }
+//    private static String filterTerm(String term) {
+//        String result = "";
+//
+//        TokenStream stream = _defaultStemmer.getAnalyzer().tokenStream(null, new StringReader(term));
+//        // get the TermAttribute from the TokenStream
+//        TermAttribute termAtt = (TermAttribute) stream.addAttribute(TermAttribute.class);
+//
+//        try {
+//            stream.reset();
+//            // add all tokens until stream is exhausted
+//            while (stream.incrementToken()) {
+//                result = result + " " + termAtt.term();
+//            }
+//            stream.end();
+//            stream.close();
+//        } catch (IOException ex) {
+//            log.error("Problems tokenizing term " + term + ", we return full term.", ex);
+//            result = term;
+//        }
+//
+//        return result.trim();
+//    }
     
     /**
      * Set a boost for this document in case it has more important information than other
@@ -184,6 +177,6 @@ public class IndexUtils {
      * @param boost
      */
     public void addDocumentBoost(float boost) {
-        luceneDoc.setBoost(boost);
+        luceneDoc.put( BOOST, boost );
     }
 }

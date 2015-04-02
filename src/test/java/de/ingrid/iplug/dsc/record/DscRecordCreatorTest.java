@@ -24,12 +24,10 @@ package de.ingrid.iplug.dsc.record;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-
-import de.ingrid.iplug.dsc.record.DscRecordCreator;
 import de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.SimpleDatabaseIDFMapper;
@@ -70,17 +68,15 @@ public class DscRecordCreatorTest extends IgcDbUnitEnabledTestCase {
         dc.setRecordProducer(p);
         dc.setRecord2IdfMapperList(mList);
 
-        Document idxDoc = new Document();
-        idxDoc.add(new Field("ID", "1", Field.Store.YES,
-                        Field.Index.ANALYZED));
+        Map<String, Object> idxDoc = new HashMap<String, Object>();
+        idxDoc.put("ID", "1");
         Record r = dc.getRecord(idxDoc);
         assertNotNull(r.get("data"));
         assertTrue(r.getString("compressed").equals("false"));
         System.out.println("Size of uncompressed IDF document: " + r.getString("data").length());
         
-        idxDoc = new Document();
-        idxDoc.add(new Field("ID", "1", Field.Store.YES,
-                        Field.Index.ANALYZED));
+        idxDoc = new HashMap<String, Object>();
+        idxDoc.put("ID", "1");
         dc.setCompressed(true);
         Record rCompressed = dc.getRecord(idxDoc);
         assertNotNull(rCompressed.get("data"));

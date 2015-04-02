@@ -25,11 +25,12 @@
  */
 package de.ingrid.iplug.dsc.index;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.document.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -84,8 +85,8 @@ public class DscDocumentProducer implements IDocumentProducer {
      * @see de.ingrid.admin.object.IDocumentProducer#next()
      */
     @Override
-    public Document next() {
-        Document doc = new Document();
+    public Map<String, Object> next() {
+        Map<String, Object> doc = new HashMap<String, Object>();
         try {
             SourceRecord record = recordSetProducer.next();
             for (IRecordMapper mapper : recordMapperList) {

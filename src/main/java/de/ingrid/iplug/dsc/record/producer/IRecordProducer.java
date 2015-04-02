@@ -25,7 +25,7 @@
  */
 package de.ingrid.iplug.dsc.record.producer;
 
-import org.apache.lucene.document.Document;
+import java.util.Map;
 
 import de.ingrid.iplug.dsc.om.IClosableDataSource;
 import de.ingrid.iplug.dsc.om.SourceRecord;
@@ -59,6 +59,6 @@ public interface IRecordProducer {
      * @param ds
      * @return
      */
-    SourceRecord getRecord(Document doc, IClosableDataSource ds);
+    SourceRecord getRecord(Map<String, Object> doc, IClosableDataSource ds);
 
 }

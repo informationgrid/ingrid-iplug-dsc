@@ -48,8 +48,7 @@ try {
     for (var i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
         var colName = rs.getMetaData().getColumnName(i);
         var colValue = rs.getString(i);
-        luceneDoc.add(new Field(colName, colValue, Field.Store.YES,
-                Field.Index.ANALYZED));
+        luceneDoc.put(colName, colValue);
     }
 } catch (e) {
     log.error("Error mapping Record." + e);

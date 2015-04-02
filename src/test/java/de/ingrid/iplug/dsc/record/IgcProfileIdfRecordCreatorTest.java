@@ -28,10 +28,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.dbunit.DBTestCase;
 import org.dbunit.PropertiesBasedJdbcDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
@@ -170,9 +169,8 @@ public class IgcProfileIdfRecordCreatorTest extends DBTestCase {
         dc.setRecordProducer(p);
         dc.setRecord2IdfMapperList(mList);
 
-        Document idxDoc = new Document();
-        idxDoc.add(new Field("ID", "2", Field.Store.YES,
-                        Field.Index.ANALYZED));
+        HashMap<String, Object> idxDoc = new HashMap<String, Object>();;
+        idxDoc.put("ID", "2");
         Record r = dc.getRecord(idxDoc);
         assertNotNull(r.get("data"));
         assertTrue(r.getString("compressed").equals("false"));

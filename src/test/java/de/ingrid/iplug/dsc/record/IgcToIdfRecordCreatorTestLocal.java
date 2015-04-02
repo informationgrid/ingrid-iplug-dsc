@@ -24,12 +24,11 @@ package de.ingrid.iplug.dsc.record;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.springframework.core.io.FileSystemResource;
 
 import de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper;
@@ -143,8 +142,8 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
         };
 
         for (String t01ObjectId : t01ObjectIds) {
-            Document idxDoc = new Document();
-            idxDoc.add(new Field("t01_object.id", t01ObjectId, Field.Store.YES, Field.Index.ANALYZED));
+            HashMap<String, Object> idxDoc = new HashMap<String, Object>();
+            idxDoc.put("t01_object.id", t01ObjectId);
             recordCreator.setCompressed(false);
             Record r = recordCreator.getRecord(idxDoc);
             assertNotNull(r.get("data"));

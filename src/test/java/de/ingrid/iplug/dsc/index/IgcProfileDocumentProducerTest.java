@@ -29,6 +29,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.lucene.document.Document;
 import org.dbunit.DBTestCase;
@@ -166,10 +167,10 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
         dp.setRecordMapperList(mList);
 
         if (dp.hasNext()) {
-            Document doc = dp.next();
+            Map<String, Object> doc = dp.next();
             assertNotNull(doc);
-            assertEquals(doc.getField("indexName0").stringValue(), "test content for field id2");
-            assertEquals(doc.getFields("indexName5").length, 2);
+            assertEquals(doc.get("indexName0"), "test content for field id2");
+            assertEquals(((List)doc.get("indexName5")).size(), 2);
         } else {
             fail("No documnet produced");
         }

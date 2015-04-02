@@ -28,13 +28,13 @@ package de.ingrid.iplug.dsc.record;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.document.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -81,7 +81,7 @@ public class DscRecordCreator {
      * @return
      * @throws Exception
      */
-    public Record getRecord(Document idxDoc) throws Exception {
+    public Record getRecord(Map<String, Object> idxDoc) throws Exception {
         IClosableDataSource datasource = null;
         try {
             datasource = recordProducer.openDatasource();
