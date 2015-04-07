@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.lucene.document.Document;
 import org.dbunit.DBTestCase;
 import org.dbunit.PropertiesBasedJdbcDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
@@ -145,6 +144,7 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
     }
 
 
+    @SuppressWarnings("unchecked")
     public void testDscRecordCreator() throws Exception {
 
         File plugDescriptionFile = new File(
@@ -170,7 +170,7 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
             Map<String, Object> doc = dp.next();
             assertNotNull(doc);
             assertEquals(doc.get("indexName0"), "test content for field id2");
-            assertEquals(((List)doc.get("indexName5")).size(), 2);
+            assertEquals(((List<Object>)doc.get("indexName5")).size(), 2);
         } else {
             fail("No documnet produced");
         }

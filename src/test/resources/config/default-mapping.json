@@ -1,0 +1,28 @@
+{ 
+    "_default_" : { 
+        "_source" : { "enabled" : true }, 
+        "properties": {
+            "fetched": {
+                "format": "dateOptionalTime",
+                "type": "date"
+            },
+            "title": {
+                "analyzer": "german",
+                "type": "string",
+                "boost": 1.1
+            },
+            "content": {
+                "analyzer": "german",
+                "type": "string"
+            },
+            "url": {
+                "type": "string"
+            },
+            "boost": {
+                "type": "float",
+                "store": true,
+                "null_value" : 0.0
+            }
+        }
+    } 
+}
