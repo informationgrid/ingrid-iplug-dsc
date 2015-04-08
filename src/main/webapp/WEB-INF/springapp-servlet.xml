@@ -75,72 +75,18 @@
 
     <!-- STEMMER: Create stemmer explicitly via xml ! Will be autowired to parsers, index writer ... ! -->
     <!-- <bean id="stemmerGERMAN" class="de.ingrid.admin.search.GermanStemmer"/> -->
-
-    <!--
-        Wraps one ore more lucene index reader. The wrapper is injected via
-        XMLconfiguredIndexWrapper into IngridIndexSearcher constructor, so it
-        can be updated in the configure phase.
-    -->
-    <bean id="indexWrapper" class="de.ingrid.search.utils.LuceneIndexReaderWrapper">
-        <qualifier value="XMLconfiguredIndexWrapper" />
-    </bean>
-
-    <bean id="facetClassProducer" class="de.ingrid.search.utils.facet.FacetClassProducer">
-        <property name="indexReaderWrapper">
-            <ref bean="indexWrapper" />
-        </property>
-        <property name="queryParsers">
-            <ref bean="de.ingrid.admin.elasticsearch.converter.QueryConverter" />
-        </property>
-    </bean>
-
-    <bean id="facetClassRegisty" class="de.ingrid.search.utils.facet.FacetClassRegistry">
-        <property name="facetClassProducer">
-            <ref bean="facetClassProducer" />
-        </property>
-    </bean>
-
-    <bean id="indexFacetCounter" class="de.ingrid.search.utils.facet.counter.IndexFacetCounter">
-        <property name="facetClassRegistry">
-            <ref bean="facetClassRegisty" />
-        </property>
-    </bean>
-
-    <!--
-        Wraps a plugdescription object. The wrapper implements IConfigurable
-        and will be updated every time the configure phase takes place (i.e.
-        after changing the iplug configuration).
-    -->
-    <bean id="plugDescriptionWrapper"
-        class="de.ingrid.search.utils.ConfigurablePlugDescriptionWrapper" />
-
-    <bean id="plugDescriptionFacetCounter"
-        class="de.ingrid.search.utils.facet.counter.DscPlugdescriptionFacetCounter">
-        <property name="plugDescriptionWrapper">
-            <ref bean="plugDescriptionWrapper" />
-        </property>
-<!--         
-        <property name="facetClassDefinitions">
-            <list>
-                <value></value>
-            </list>
-        </property>
- -->
-    </bean>
-
-    
     
     <!--
         Defines a facet definition filter. Will be applied before a facet 
         definition is analyzed. This construct is used in igc dsc
         iPlug to map incompatible queries to compatible.
         
-        See also de.ingrid.iplug.dscIGCTopicsSearchPreProcessor.
+        See also de.ingrid.iplug.dsc.IGCTopicsSearchPreProcessor.
 
         This is IGC DB specific. Please comment for other databases.
     -->
     <bean id="configurableFacetDefinitionProcessors"
-        class="de.ingrid.search.utils.facet.ConfigurableFacetClassProcessor" >
+        class="de.ingrid.admin.elasticsearch.facets.ConfigurableFacetClassProcessor" >
         <property name="facetFilterDefinitions">
             <map>
                 <entry key="type:topic" value-ref="topicFilterDef"/>
@@ -151,31 +97,6 @@
     <util:map id="topicFilterDef" key-type="java.lang.String">
         <entry key="datatype:topics" value="t01_object.is_catalog_data:y" />
     </util:map>
-
-    
-    <bean id="facetManager" class="de.ingrid.search.utils.facet.FacetManager">
-        <property name="indexReaderWrapper">
-            <ref bean="indexWrapper" />
-        </property>
-        <property name="queryParsers">
-            <ref bean="de.ingrid.admin.elasticsearch.converter.QueryConverter" />
-        </property>
-        <property name="facetCounters">
-            <list>
-                <ref bean="plugDescriptionFacetCounter" />
-                <ref bean="indexFacetCounter" />
-            </list>
-        </property>
-	    <!--
-            This is IGC DB specific. Please comment for other databases.
-	    -->
-        <property name="facetDefinitionProcessors">
-            <list>
-                <ref bean="configurableFacetDefinitionProcessors" />
-            </list>
-        </property>
-    </bean>
-   
 
     <context:component-scan base-package="de.ingrid">
         <!-- STEMMER: Exclude autocreation of stemmers ! We explicitly create stemmer via xml then used in auto wiring ! -->

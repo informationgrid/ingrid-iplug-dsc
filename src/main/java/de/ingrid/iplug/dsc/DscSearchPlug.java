@@ -100,7 +100,7 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
      */
     @Override
     public Record getRecord(IngridHit hit) throws Exception {
-        Map<String, Object> document = _indexSearcher.getDocById( hit.getDocumentId() );
+        Map<String, Object> document = _indexSearcher.getDocById( hit.getDocumentUId() );
         return dscRecordProducer.getRecord(document);
     }
 

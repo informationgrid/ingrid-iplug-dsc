@@ -82,10 +82,6 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-utils</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>de.ingrid</groupId>
-      <artifactId>ingrid-search-utils</artifactId>
       <version>3.6.0-SNAPSHOT</version>
     </dependency>
     <dependency>
