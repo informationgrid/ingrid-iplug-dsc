@@ -65,10 +65,10 @@
         <property name="queryParsers">
             <list>
                 <ref bean="defaultFieldsQueryConverter" />
-                <!-- <ref bean="fieldQueryIGCConverter" /> -->
+                <ref bean="fieldQueryIGCConverter" />
                 <!-- <ref bean="rangeQueryParser" /> -->
-                <!-- <ref bean="wildcardQueryConverter" />
-                <ref bean="matchAllQueryConverter" /> -->
+                <ref bean="wildcardQueryConverter" />
+                <ref bean="matchAllQueryConverter" />
             </list>
         </property>
     </bean>
