@@ -850,7 +850,7 @@ for (i=0; i<objRows.size(); i++) {
 
             // the info about the uuid and identifier are encoded within the url-description field
             // identifier#**#uuid
-            var moreInfo = urlRows.get(i).get("descr").split( "#**#" );
+            var moreInfo = refUrl.get("descr") ? refUrl.get("descr").split( "#**#" ) : [];
             if (moreInfo.length !== 2) {
                 log.warn( "A coupled resource which was referenced externally has no identifier and/or uuid: " + refUrl.get("url_link") );
                 continue;
