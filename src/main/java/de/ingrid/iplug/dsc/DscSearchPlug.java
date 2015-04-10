@@ -32,8 +32,8 @@ import org.springframework.stereotype.Service;
 
 import com.tngtech.configbuilder.ConfigBuilder;
 
-import de.ingrid.admin.Index;
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.elasticsearch.IndexImpl;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.iplug.IPlugdescriptionFieldFilter;
 import de.ingrid.iplug.PlugDescriptionFieldFilters;
@@ -66,10 +66,10 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
     private DscRecordCreator dscRecordProducer = null;
     
-    private final Index _indexSearcher;    
+    private final IndexImpl _indexSearcher;    
     
     @Autowired
-    public DscSearchPlug(final Index indexSearcher,
+    public DscSearchPlug(final IndexImpl indexSearcher,
             IPlugdescriptionFieldFilter[] fieldFilters,
             IMetadataInjector[] injector, IPreProcessor[] preProcessors,
             IPostProcessor[] postProcessors, DscRecordCreator producer) throws IOException {
@@ -100,7 +100,7 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
      */
     @Override
     public Record getRecord(IngridHit hit) throws Exception {
-        Map<String, Object> document = _indexSearcher.getDocById( hit.getDocumentUId() );
+        Map<String, Object> document = _indexSearcher.getDocById( hit.getDocumentId() );
         return dscRecordProducer.getRecord(document);
     }
 

@@ -73,8 +73,6 @@
         </property>
     </bean>
 
-    <!-- STEMMER: Create stemmer explicitly via xml ! Will be autowired to parsers, index writer ... ! -->
-    <!-- <bean id="stemmerGERMAN" class="de.ingrid.admin.search.GermanStemmer"/> -->
     
     <!--
         Defines a facet definition filter. Will be applied before a facet 
@@ -99,8 +97,6 @@
     </util:map>
 
     <context:component-scan base-package="de.ingrid">
-        <!-- STEMMER: Exclude autocreation of stemmers ! We explicitly create stemmer via xml then used in auto wiring ! -->
-        <context:exclude-filter type="regex" expression="de.ingrid.admin.search.*Stemmer*" />
     </context:component-scan>
     
     <mvc:annotation-driven/>
