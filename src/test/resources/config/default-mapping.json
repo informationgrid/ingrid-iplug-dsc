@@ -2,20 +2,7 @@
     "_default_" : { 
         "_source" : { "enabled" : true }, 
         "properties": {
-            "fetched": {
-                "format": "dateOptionalTime",
-                "type": "date"
-            },
-            "title": {
-                "analyzer": "german",
-                "type": "string",
-                "boost": 1.1
-            },
-            "content": {
-                "analyzer": "german",
-                "type": "string"
-            },
-            "url": {
+            "t01_object.mod_time": {
                 "type": "string"
             },
             "boost": {
