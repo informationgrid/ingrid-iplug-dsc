@@ -71,8 +71,6 @@
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-base-webapp</artifactId>
       <version>3.6.0-elastic-SNAPSHOT</version>
-      <type>zip</type>
-      <classifier>res</classifier>
     </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
