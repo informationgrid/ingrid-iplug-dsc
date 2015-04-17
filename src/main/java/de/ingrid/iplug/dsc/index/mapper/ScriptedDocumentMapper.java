@@ -39,6 +39,7 @@ import de.ingrid.iplug.dsc.utils.IndexUtils;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
 import de.ingrid.iplug.dsc.utils.ScriptEngine;
 import de.ingrid.iplug.dsc.utils.TransformationUtils;
+import de.ingrid.utils.ElasticDocument;
 
 /**
  * Script based source record to lucene document mapping. This class takes a
@@ -61,7 +62,7 @@ public class ScriptedDocumentMapper implements IRecordMapper {
     private static final Logger log = Logger.getLogger(ScriptedDocumentMapper.class);
 
     @Override
-    public void map(SourceRecord record, Map<String, Object> doc) throws Exception {
+    public void map(SourceRecord record, ElasticDocument doc) throws Exception {
         if (mappingScripts == null) {
             log.error("Mapping script(s) not set!");
             throw new IllegalArgumentException("Mapping script(s) not set!");

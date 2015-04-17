@@ -25,9 +25,7 @@
  */
 package de.ingrid.iplug.dsc.index;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,6 +36,7 @@ import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.producer.IRecordSetProducer;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.PlugDescription;
 
 /**
@@ -85,8 +84,8 @@ public class DscDocumentProducer implements IDocumentProducer {
      * @see de.ingrid.admin.object.IDocumentProducer#next()
      */
     @Override
-    public Map<String, Object> next() {
-        Map<String, Object> doc = new HashMap<String, Object>();
+    public ElasticDocument next() {
+        ElasticDocument doc = new ElasticDocument();
         try {
             SourceRecord record = recordSetProducer.next();
             for (IRecordMapper mapper : recordMapperList) {

@@ -26,11 +26,10 @@
 package de.ingrid.iplug.dsc.utils;
 
 import java.io.IOException;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import de.ingrid.admin.Utils;
+import de.ingrid.utils.ElasticDocument;
 
 /**
  * Helper class encapsulating functionality on Lucene Index (e.g. used in
@@ -47,12 +46,12 @@ public class IndexUtils {
     private static String CONTENT_FIELD_NAME = "content";
 
     /** the Lucene Document where the fields are added ! */
-    private Map<String, Object> luceneDoc = null;
+    private ElasticDocument luceneDoc = null;
 
     //@Deprecated
     //private static Stemmer _defaultStemmer;
 
-    public IndexUtils(Map<String, Object> luceneDoc) {
+    public IndexUtils(ElasticDocument luceneDoc) {
         this.luceneDoc = luceneDoc;
     }
 
@@ -109,7 +108,7 @@ public class IndexUtils {
         double val = 0;
         try {
             val = Double.parseDouble(value);
-            Utils.addToDoc( luceneDoc, fieldName, val);
+            luceneDoc.put( fieldName, val );
         } catch (Exception e) {
             if (log.isDebugEnabled()) {
                 log.debug("Value '" + value + "' is not a number. Ignoring field '" + fieldName + "'.");
@@ -130,7 +129,7 @@ public class IndexUtils {
             log.debug("Add field '" + fieldName + "' with value '" + value + "' to lucene document");
         }
 
-        Utils.addToDoc( luceneDoc, fieldName, value);
+        luceneDoc.put( fieldName, value );
     }
 
     /**

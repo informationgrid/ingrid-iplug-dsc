@@ -25,9 +25,8 @@
  */
 package de.ingrid.iplug.dsc.index.mapper;
 
-import java.util.Map;
-
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.utils.ElasticDocument;
 
 /**
  * Interface for all "source record to lucene document mapper" classes.
@@ -50,6 +49,6 @@ public interface IRecordMapper {
      * @param doc
      * @return
      */
-    void map(SourceRecord record, Map<String, Object> doc) throws Exception;
+    void map(SourceRecord record, ElasticDocument doc) throws Exception;
 
 }

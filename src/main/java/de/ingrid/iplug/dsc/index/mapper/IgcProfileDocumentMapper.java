@@ -42,9 +42,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import de.ingrid.admin.Utils;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.xml.ConfigurableNamespaceContext;
 import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xml.IgcProfileNamespaceContext;
@@ -73,7 +73,7 @@ public class IgcProfileDocumentMapper implements IRecordMapper {
     private XPathUtils xPathUtils = null;
 
     @Override
-    public void map(SourceRecord record, Map<String, Object> doc) throws Exception {
+    public void map(SourceRecord record, ElasticDocument doc) throws Exception {
         if (!(record instanceof DatabaseSourceRecord)) {
             throw new IllegalArgumentException("Record is no DatabaseRecord!");
         }
@@ -154,7 +154,7 @@ public class IgcProfileDocumentMapper implements IRecordMapper {
         while (rs.next()) {
             String fieldKey = rs.getString("field_key");
             if (profileInfo.containsKey(fieldKey) && rs.getString("data") != null && rs.getString("data").length() > 0) {
-                Utils.addToDoc( doc, profileInfo.get(fieldKey), rs.getString("data"));
+                doc.put( profileInfo.get(fieldKey), rs.getString("data") );
             }
             String id = rs.getString("id");
             PreparedStatement psNew = connection

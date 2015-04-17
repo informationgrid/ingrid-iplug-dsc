@@ -29,7 +29,6 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -39,9 +38,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import de.ingrid.admin.Utils;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xpath.XPathUtils;
 
@@ -73,7 +72,7 @@ public class DatabaseProfileMapper implements IRecordMapper {
      * dsc.index.IRecord)
      */
     @Override
-    public void map(SourceRecord record, Map<String, Object> doc) {
+    public void map(SourceRecord record, ElasticDocument doc) {
         if (!(record instanceof DatabaseSourceRecord)) {
             throw new IllegalArgumentException("Record is no DatabaseRecord!");
         }
@@ -108,7 +107,7 @@ public class DatabaseProfileMapper implements IRecordMapper {
                 String value = rs.getString(0);
                 rs.close();
                 ps.close();
-                Utils.addToDoc( doc, idxName, value );
+                doc.put( idxName, value );
             }
         } catch (Exception e) {
             log.error("Error mapping profile data.", e);

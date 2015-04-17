@@ -29,13 +29,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import de.ingrid.admin.Utils;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.utils.ElasticDocument;
 
 /**
  * Maps a {@link DatabaseSourceRecord} to a lucene document. The source database
@@ -55,7 +54,7 @@ public class SimpleDatabaseRecord2DocumentMapper implements IRecordMapper {
     private String sql;
 
     @Override
-    public void map(SourceRecord record, Map<String, Object> doc) throws Exception {
+    public void map(SourceRecord record, ElasticDocument doc) throws Exception {
         if (!(record instanceof DatabaseSourceRecord)) {
             throw new IllegalArgumentException( "Record is no DatabaseRecord!" );
         }
@@ -71,7 +70,7 @@ public class SimpleDatabaseRecord2DocumentMapper implements IRecordMapper {
             for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
                 String colName = rs.getMetaData().getColumnName( i );
                 String colValue = rs.getString( i );
-                Utils.addToDoc( doc, colName, colValue );
+                doc.put( colName, colValue );
             }
         } catch (SQLException e) {
             log.error( "Error mapping Record.", e );
