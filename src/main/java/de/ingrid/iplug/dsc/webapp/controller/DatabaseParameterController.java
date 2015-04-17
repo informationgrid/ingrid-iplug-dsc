@@ -35,7 +35,6 @@ import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.controller.AbstractController;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.webapp.validation.DatabaseConnectionValidator;
-import de.ingrid.utils.PlugDescription;
 
 /**
  * Control the database parameter page.

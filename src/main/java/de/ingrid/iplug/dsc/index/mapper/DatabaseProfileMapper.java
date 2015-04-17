@@ -34,14 +34,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xpath.XPathUtils;
 
@@ -73,7 +72,7 @@ public class DatabaseProfileMapper implements IRecordMapper {
      * dsc.index.IRecord)
      */
     @Override
-    public void map(SourceRecord record, Document doc) {
+    public void map(SourceRecord record, ElasticDocument doc) {
         if (!(record instanceof DatabaseSourceRecord)) {
             throw new IllegalArgumentException("Record is no DatabaseRecord!");
         }
@@ -108,8 +107,7 @@ public class DatabaseProfileMapper implements IRecordMapper {
                 String value = rs.getString(0);
                 rs.close();
                 ps.close();
-                doc.add(new Field(idxName, value, Field.Store.YES,
-                        Field.Index.ANALYZED));
+                doc.put( idxName, value );
             }
         } catch (Exception e) {
             log.error("Error mapping profile data.", e);

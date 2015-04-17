@@ -34,7 +34,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.document.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +41,7 @@ import de.ingrid.iplug.dsc.om.IClosableDataSource;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.record.producer.IRecordProducer;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.xml.XMLUtils;
 
@@ -81,7 +81,7 @@ public class DscRecordCreator {
      * @return
      * @throws Exception
      */
-    public Record getRecord(Document idxDoc) throws Exception {
+    public Record getRecord(ElasticDocument idxDoc) throws Exception {
         IClosableDataSource datasource = null;
         try {
             datasource = recordProducer.openDatasource();

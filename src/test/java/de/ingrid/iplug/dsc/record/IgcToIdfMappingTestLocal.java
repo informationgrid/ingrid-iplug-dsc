@@ -28,8 +28,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.springframework.core.io.FileSystemResource;
 
 import de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper;
@@ -37,6 +35,7 @@ import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.IgcProfileIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper;
 import de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
@@ -79,24 +78,24 @@ public class IgcToIdfMappingTestLocal extends TestCase {
         recordCreator.setRecord2IdfMapperList(mList);
         
         
-        Document idxDoc = new Document();
-        idxDoc.add(new Field("t01_object.id", "3874", Field.Store.YES, Field.Index.ANALYZED));
+        ElasticDocument idxDoc = new ElasticDocument();
+        idxDoc.put("t01_object.id", "3874");
         recordCreator.setCompressed(false);
         Record r = recordCreator.getRecord(idxDoc);
         assertEquals(false, r.get("data").toString().contains("<gmd:name gco:nilReason=\"unknown\"/>"));
         assertEquals(false, r.get("data").toString().contains("<gmd:version gco:nilReason=\"unknown\"/>"));
         assertEquals(false, r.get("data").toString().contains("<gmd:specification gco:nilReason=\"unknown\"/>"));
 
-        idxDoc = new Document();
-        idxDoc.add(new Field("t01_object.id", "7307272", Field.Store.YES, Field.Index.ANALYZED));
+        idxDoc = new ElasticDocument();
+        idxDoc.put("t01_object.id", "7307272");
         recordCreator.setCompressed(false);
         r = recordCreator.getRecord(idxDoc);
         assertEquals(false, r.get("data").toString().contains("<gmd:name gco:nilReason=\"unknown\"/>"));
         assertEquals(true, r.get("data").toString().contains("<gmd:version gco:nilReason=\"unknown\"/>"));
         assertEquals(true, r.get("data").toString().contains("<gmd:specification gco:nilReason=\"unknown\"/>"));
         
-        idxDoc = new Document();
-        idxDoc.add(new Field("t01_object.id", "8323073", Field.Store.YES, Field.Index.ANALYZED));
+        idxDoc = new ElasticDocument();
+        idxDoc.put("t01_object.id", "8323073");
         recordCreator.setCompressed(false);
         r = recordCreator.getRecord(idxDoc);
         assertEquals(false, r.get("data").toString().contains("<gmd:name gco:nilReason=\"unknown\"/>"));

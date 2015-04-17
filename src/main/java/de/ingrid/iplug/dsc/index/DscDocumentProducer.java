@@ -29,7 +29,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.document.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +36,7 @@ import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.producer.IRecordSetProducer;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.PlugDescription;
 
 /**
@@ -84,8 +84,8 @@ public class DscDocumentProducer implements IDocumentProducer {
      * @see de.ingrid.admin.object.IDocumentProducer#next()
      */
     @Override
-    public Document next() {
-        Document doc = new Document();
+    public ElasticDocument next() {
+        ElasticDocument doc = new ElasticDocument();
         try {
             SourceRecord record = recordSetProducer.next();
             for (IRecordMapper mapper : recordMapperList) {

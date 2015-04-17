@@ -30,8 +30,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.dbunit.DBTestCase;
 import org.dbunit.PropertiesBasedJdbcDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
@@ -47,6 +45,7 @@ import de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.IgcProfileIdfMapper;
 import de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
@@ -170,9 +169,8 @@ public class IgcProfileIdfRecordCreatorTest extends DBTestCase {
         dc.setRecordProducer(p);
         dc.setRecord2IdfMapperList(mList);
 
-        Document idxDoc = new Document();
-        idxDoc.add(new Field("ID", "2", Field.Store.YES,
-                        Field.Index.ANALYZED));
+        ElasticDocument idxDoc = new ElasticDocument();;
+        idxDoc.put("ID", "2");
         Record r = dc.getRecord(idxDoc);
         assertNotNull(r.get("data"));
         assertTrue(r.getString("compressed").equals("false"));

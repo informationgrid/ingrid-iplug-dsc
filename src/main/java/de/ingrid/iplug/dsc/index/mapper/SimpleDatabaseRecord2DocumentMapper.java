@@ -31,11 +31,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.utils.ElasticDocument;
 
 /**
  * Maps a {@link DatabaseSourceRecord} to a lucene document. The source database
@@ -50,34 +49,31 @@ import de.ingrid.iplug.dsc.om.SourceRecord;
  */
 public class SimpleDatabaseRecord2DocumentMapper implements IRecordMapper {
 
-    protected static final Logger log = Logger
-            .getLogger(SimpleDatabaseRecord2DocumentMapper.class);
+    protected static final Logger log = Logger.getLogger( SimpleDatabaseRecord2DocumentMapper.class );
 
     private String sql;
 
     @Override
-    public void map(SourceRecord record, Document doc) throws Exception {
+    public void map(SourceRecord record, ElasticDocument doc) throws Exception {
         if (!(record instanceof DatabaseSourceRecord)) {
-            throw new IllegalArgumentException("Record is no DatabaseRecord!");
+            throw new IllegalArgumentException( "Record is no DatabaseRecord!" );
         }
 
-        String id = (String) record.get(DatabaseSourceRecord.ID);
-        Connection connection = (Connection) record
-                .get(DatabaseSourceRecord.CONNECTION);
+        String id = (String) record.get( DatabaseSourceRecord.ID );
+        Connection connection = (Connection) record.get( DatabaseSourceRecord.CONNECTION );
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, id);
+            PreparedStatement ps = connection.prepareStatement( sql );
+            ps.setString( 1, id );
             ResultSet rs = ps.executeQuery();
             rs.next();
 
             for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                String colName = rs.getMetaData().getColumnName(i);
-                String colValue = rs.getString(i);
-                doc.add(new Field(colName, colValue, Field.Store.YES,
-                        Field.Index.ANALYZED));
+                String colName = rs.getMetaData().getColumnName( i );
+                String colValue = rs.getString( i );
+                doc.put( colName, colValue );
             }
         } catch (SQLException e) {
-            log.error("Error mapping Record.", e);
+            log.error( "Error mapping Record.", e );
             throw e;
         }
     }

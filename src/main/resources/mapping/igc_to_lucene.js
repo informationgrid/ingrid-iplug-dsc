@@ -41,6 +41,9 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
     throw new IllegalArgumentException("Record is no DatabaseRecord!");
 }
 
+// add default boost value
+IDX.addDocumentBoost(1.0);
+
 // ---------- t01_object ----------
 var objId = sourceRecord.get("id");
 var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);

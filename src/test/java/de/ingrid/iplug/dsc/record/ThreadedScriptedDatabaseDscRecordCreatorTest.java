@@ -31,8 +31,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.springframework.core.io.ClassPathResource;
 
 import de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper;
@@ -40,6 +38,7 @@ import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper;
 import de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer;
 import de.ingrid.iplug.dsc.utils.IgcDbUnitEnabledTestCase;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
@@ -78,9 +77,8 @@ public class ThreadedScriptedDatabaseDscRecordCreatorTest extends IgcDbUnitEnabl
         dc.setRecordProducer(p);
         dc.setRecord2IdfMapperList(mList);
 
-        Document idxDoc = new Document();
-        idxDoc.add(new Field("ID", "1", Field.Store.YES,
-                        Field.Index.ANALYZED));
+        ElasticDocument idxDoc = new ElasticDocument();
+        idxDoc.put("ID", "1");
         
 
         int threadCount = 5;
@@ -103,10 +101,10 @@ public class ThreadedScriptedDatabaseDscRecordCreatorTest extends IgcDbUnitEnabl
     private class CallableRecordCreator implements Callable<Record> {
         
         private DscRecordCreator drc;
-        private Document doc;
+        private ElasticDocument doc;
         
         
-        public CallableRecordCreator(DscRecordCreator drc, Document doc) {
+        public CallableRecordCreator(DscRecordCreator drc, ElasticDocument doc) {
             this.drc = drc;
             this.doc = doc;
         }

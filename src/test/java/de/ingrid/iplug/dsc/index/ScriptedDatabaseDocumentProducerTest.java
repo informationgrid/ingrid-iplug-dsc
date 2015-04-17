@@ -24,9 +24,11 @@ package de.ingrid.iplug.dsc.index;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.lucene.document.Document;
 import org.springframework.core.io.ClassPathResource;
 
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
@@ -71,8 +73,11 @@ public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCa
 
         if (dp.hasNext()) {
             while (dp.hasNext()) {
-                Document doc = dp.next();
+                Map<String, Object> doc = dp.next();
                 assertNotNull(doc);
+                
+                Collection<String> keys = Arrays.asList( "ID", "COL1", "COL2" );
+                assertTrue( doc.keySet().containsAll( keys ) );
             }
         } else {
             fail("No documnet produced");

@@ -37,8 +37,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.springframework.core.annotation.Order;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -46,6 +44,7 @@ import org.xml.sax.InputSource;
 
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.xml.ConfigurableNamespaceContext;
 import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xml.IgcProfileNamespaceContext;
@@ -74,7 +73,7 @@ public class IgcProfileDocumentMapper implements IRecordMapper {
     private XPathUtils xPathUtils = null;
 
     @Override
-    public void map(SourceRecord record, Document doc) throws Exception {
+    public void map(SourceRecord record, ElasticDocument doc) throws Exception {
         if (!(record instanceof DatabaseSourceRecord)) {
             throw new IllegalArgumentException("Record is no DatabaseRecord!");
         }
@@ -149,14 +148,13 @@ public class IgcProfileDocumentMapper implements IRecordMapper {
      * @param profileInfo
      * @throws Exception
      */
-    private void mapAdditionalData(Connection connection, PreparedStatement ps, Document doc,
+    private void mapAdditionalData(Connection connection, PreparedStatement ps, Map<String, Object> doc,
             Map<String, String> profileInfo) throws Exception {
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             String fieldKey = rs.getString("field_key");
             if (profileInfo.containsKey(fieldKey) && rs.getString("data") != null && rs.getString("data").length() > 0) {
-                doc.add(new Field(profileInfo.get(fieldKey), rs.getString("data"), Field.Store.YES,
-                        Field.Index.ANALYZED));
+                doc.put( profileInfo.get(fieldKey), rs.getString("data") );
             }
             String id = rs.getString("id");
             PreparedStatement psNew = connection
@@ -167,5 +165,5 @@ public class IgcProfileDocumentMapper implements IRecordMapper {
         }
 
     }
-
+    
 }

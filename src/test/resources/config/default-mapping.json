@@ -1,0 +1,15 @@
+{ 
+    "_default_" : { 
+        "_source" : { "enabled" : true }, 
+        "properties": {
+            "t01_object.mod_time": {
+                "type": "string"
+            },
+            "boost": {
+                "type": "float",
+                "store": true,
+                "null_value" : 0.0
+            }
+        }
+    } 
+}

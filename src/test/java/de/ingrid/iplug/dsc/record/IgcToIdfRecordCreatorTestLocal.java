@@ -28,8 +28,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.springframework.core.io.FileSystemResource;
 
 import de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper;
@@ -37,6 +35,7 @@ import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.IgcProfileIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper;
 import de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
@@ -143,8 +142,8 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
         };
 
         for (String t01ObjectId : t01ObjectIds) {
-            Document idxDoc = new Document();
-            idxDoc.add(new Field("t01_object.id", t01ObjectId, Field.Store.YES, Field.Index.ANALYZED));
+            ElasticDocument idxDoc = new ElasticDocument();
+            idxDoc.put("t01_object.id", t01ObjectId);
             recordCreator.setCompressed(false);
             Record r = recordCreator.getRecord(idxDoc);
             assertNotNull(r.get("data"));

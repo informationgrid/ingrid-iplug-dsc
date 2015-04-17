@@ -25,10 +25,9 @@
  */
 package de.ingrid.iplug.dsc.record.producer;
 
-import org.apache.lucene.document.Document;
-
 import de.ingrid.iplug.dsc.om.IClosableDataSource;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.utils.ElasticDocument;
 
 /**
  * Defines all aspects a record producer must implement. The record producer is
@@ -59,6 +58,6 @@ public interface IRecordProducer {
      * @param ds
      * @return
      */
-    SourceRecord getRecord(Document doc, IClosableDataSource ds);
+    SourceRecord getRecord(ElasticDocument doc, IClosableDataSource ds);
 
 }

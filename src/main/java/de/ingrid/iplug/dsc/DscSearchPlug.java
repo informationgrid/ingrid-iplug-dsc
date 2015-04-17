@@ -26,18 +26,18 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.document.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tngtech.configbuilder.ConfigBuilder;
 
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.search.IngridIndexSearcher;
+import de.ingrid.admin.elasticsearch.IndexImpl;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.iplug.IPlugdescriptionFieldFilter;
 import de.ingrid.iplug.PlugDescriptionFieldFilters;
 import de.ingrid.iplug.dsc.record.DscRecordCreator;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.IngridHit;
 import de.ingrid.utils.IngridHitDetail;
@@ -66,10 +66,10 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
     private DscRecordCreator dscRecordProducer = null;
     
-    private final IngridIndexSearcher _indexSearcher;    
+    private final IndexImpl _indexSearcher;    
     
     @Autowired
-    public DscSearchPlug(final IngridIndexSearcher indexSearcher,
+    public DscSearchPlug(final IndexImpl indexSearcher,
             IPlugdescriptionFieldFilter[] fieldFilters,
             IMetadataInjector[] injector, IPreProcessor[] preProcessors,
             IPostProcessor[] postProcessors, DscRecordCreator producer) throws IOException {
@@ -100,7 +100,7 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
      */
     @Override
     public Record getRecord(IngridHit hit) throws Exception {
-        Document document = _indexSearcher.doc(hit.getDocumentId());
+        ElasticDocument document = _indexSearcher.getDocById( hit.getDocumentId() );
         return dscRecordProducer.getRecord(document);
     }
 
@@ -127,10 +127,8 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
      * @see de.ingrid.iplug.HeartBeatPlug#close()
      */
     @Override
-    public IngridHitDetail[] getDetails(IngridHit[] hits, IngridQuery query,
-            String[] fields) throws Exception {
-        final IngridHitDetail[] details = _indexSearcher.getDetails(hits,
-                query, fields);
+    public IngridHitDetail[] getDetails(IngridHit[] hits, IngridQuery query, String[] fields) throws Exception {
+        final IngridHitDetail[] details = _indexSearcher.getDetails(hits, query, fields);
         return details;
     }
     

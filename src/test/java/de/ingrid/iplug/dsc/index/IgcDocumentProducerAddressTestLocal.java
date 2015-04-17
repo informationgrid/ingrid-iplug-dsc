@@ -25,13 +25,12 @@ package de.ingrid.iplug.dsc.index;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.document.Document;
 import org.springframework.core.io.FileSystemResource;
 
-import de.ingrid.admin.search.GermanStemmer;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper;
 import de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer;
@@ -64,7 +63,6 @@ public class IgcDocumentProducerAddressTestLocal extends TestCase {
         };
         m.setMappingScripts(mappingScripts);
         m.setCompile(true);
-        m.setDefaultStemmer(new GermanStemmer());
 
         List<IRecordMapper> mList = new ArrayList<IRecordMapper>();
         mList.add(m);
@@ -75,7 +73,7 @@ public class IgcDocumentProducerAddressTestLocal extends TestCase {
 
         if (dp.hasNext()) {
             while (dp.hasNext()) {
-                Document doc = dp.next();
+                Map<String, Object> doc = dp.next();
                 assertNotNull(doc);
             }
         } else {
