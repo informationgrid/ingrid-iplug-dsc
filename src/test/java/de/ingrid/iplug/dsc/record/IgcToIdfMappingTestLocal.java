@@ -24,7 +24,6 @@ package de.ingrid.iplug.dsc.record;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -36,6 +35,7 @@ import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.IgcProfileIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper;
 import de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
@@ -78,7 +78,7 @@ public class IgcToIdfMappingTestLocal extends TestCase {
         recordCreator.setRecord2IdfMapperList(mList);
         
         
-        HashMap<String, Object> idxDoc = new HashMap<String, Object>();
+        ElasticDocument idxDoc = new ElasticDocument();
         idxDoc.put("t01_object.id", "3874");
         recordCreator.setCompressed(false);
         Record r = recordCreator.getRecord(idxDoc);
@@ -86,7 +86,7 @@ public class IgcToIdfMappingTestLocal extends TestCase {
         assertEquals(false, r.get("data").toString().contains("<gmd:version gco:nilReason=\"unknown\"/>"));
         assertEquals(false, r.get("data").toString().contains("<gmd:specification gco:nilReason=\"unknown\"/>"));
 
-        idxDoc = new HashMap<String, Object>();
+        idxDoc = new ElasticDocument();
         idxDoc.put("t01_object.id", "7307272");
         recordCreator.setCompressed(false);
         r = recordCreator.getRecord(idxDoc);
@@ -94,7 +94,7 @@ public class IgcToIdfMappingTestLocal extends TestCase {
         assertEquals(true, r.get("data").toString().contains("<gmd:version gco:nilReason=\"unknown\"/>"));
         assertEquals(true, r.get("data").toString().contains("<gmd:specification gco:nilReason=\"unknown\"/>"));
         
-        idxDoc = new HashMap<String, Object>();
+        idxDoc = new ElasticDocument();
         idxDoc.put("t01_object.id", "8323073");
         recordCreator.setCompressed(false);
         r = recordCreator.getRecord(idxDoc);

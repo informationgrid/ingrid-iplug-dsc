@@ -25,9 +25,7 @@ package de.ingrid.iplug.dsc.record;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,6 +38,7 @@ import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper;
 import de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer;
 import de.ingrid.iplug.dsc.utils.IgcDbUnitEnabledTestCase;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
@@ -78,7 +77,7 @@ public class ThreadedScriptedDatabaseDscRecordCreatorTest extends IgcDbUnitEnabl
         dc.setRecordProducer(p);
         dc.setRecord2IdfMapperList(mList);
 
-        HashMap<String, Object> idxDoc = new HashMap<String, Object>();
+        ElasticDocument idxDoc = new ElasticDocument();
         idxDoc.put("ID", "1");
         
 
@@ -102,10 +101,10 @@ public class ThreadedScriptedDatabaseDscRecordCreatorTest extends IgcDbUnitEnabl
     private class CallableRecordCreator implements Callable<Record> {
         
         private DscRecordCreator drc;
-        private Map<String, Object> doc;
+        private ElasticDocument doc;
         
         
-        public CallableRecordCreator(DscRecordCreator drc, Map<String, Object> doc) {
+        public CallableRecordCreator(DscRecordCreator drc, ElasticDocument doc) {
             this.drc = drc;
             this.doc = doc;
         }

@@ -24,7 +24,6 @@ package de.ingrid.iplug.dsc.record;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.core.io.ClassPathResource;
@@ -34,6 +33,7 @@ import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper;
 import de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer;
 import de.ingrid.iplug.dsc.utils.IgcDbUnitEnabledTestCase;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
@@ -72,14 +72,14 @@ public class ScriptedDatabaseDscRecordCreatorTest extends IgcDbUnitEnabledTestCa
         dc.setRecordProducer(p);
         dc.setRecord2IdfMapperList(mList);
 
-        HashMap<String, Object> idxDoc = new HashMap<String, Object>();
+        ElasticDocument idxDoc = new ElasticDocument();
         idxDoc.put("ID", "1");
         Record r = dc.getRecord(idxDoc);
         assertNotNull(r.get("data"));
         assertTrue(r.getString("compressed").equals("false"));
         System.out.println("Size of uncompressed IDF document: " + r.getString("data").length());
         
-        idxDoc = new HashMap<String, Object>();
+        idxDoc = new ElasticDocument();
         idxDoc.put("ID", "1");
         dc.setCompressed(true);
         r = dc.getRecord(idxDoc);
@@ -88,7 +88,7 @@ public class ScriptedDatabaseDscRecordCreatorTest extends IgcDbUnitEnabledTestCa
         System.out.println("Size of compressed IDF document: " + r.getString("data").length());
 
         m2.setCompile(true);
-        idxDoc = new HashMap<String, Object>();
+        idxDoc = new ElasticDocument();
         idxDoc.put("ID", "1");
         dc.setCompressed(true);
         r = dc.getRecord(idxDoc);

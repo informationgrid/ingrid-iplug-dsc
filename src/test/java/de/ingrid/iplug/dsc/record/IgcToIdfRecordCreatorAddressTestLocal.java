@@ -24,7 +24,6 @@ package de.ingrid.iplug.dsc.record;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -35,6 +34,7 @@ import de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper;
 import de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
@@ -77,7 +77,7 @@ public class IgcToIdfRecordCreatorAddressTestLocal extends TestCase {
         };
 
         for (String t02AddressId : t02AddressIds) {
-            HashMap<String, Object> idxDoc = new HashMap<String, Object>();
+            ElasticDocument idxDoc = new ElasticDocument();
             idxDoc.put("t02_address.id", t02AddressId);
             dc.setCompressed(false);
             Record r = dc.getRecord(idxDoc);

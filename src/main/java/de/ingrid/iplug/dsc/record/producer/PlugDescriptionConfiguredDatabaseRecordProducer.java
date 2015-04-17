@@ -25,8 +25,6 @@
  */
 package de.ingrid.iplug.dsc.record.producer;
 
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -36,6 +34,7 @@ import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.IClosableDataSource;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 
@@ -69,7 +68,7 @@ public class PlugDescriptionConfiguredDatabaseRecordProducer implements IRecordP
      * .document.Document)
      */
     @Override
-    public SourceRecord getRecord(Map<String, Object> doc, IClosableDataSource ds) {
+    public SourceRecord getRecord(ElasticDocument doc, IClosableDataSource ds) {
         if (indexFieldID == null) {
             log.error("Name of ID-Field in Lucene Doc is not set!");
             throw new IllegalArgumentException("Name of ID-Field in Lucene Doc is not set!");

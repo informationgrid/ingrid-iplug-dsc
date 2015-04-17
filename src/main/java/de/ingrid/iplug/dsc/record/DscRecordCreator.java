@@ -28,7 +28,6 @@ package de.ingrid.iplug.dsc.record;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -42,6 +41,7 @@ import de.ingrid.iplug.dsc.om.IClosableDataSource;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.record.producer.IRecordProducer;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.xml.XMLUtils;
 
@@ -81,7 +81,7 @@ public class DscRecordCreator {
      * @return
      * @throws Exception
      */
-    public Record getRecord(Map<String, Object> idxDoc) throws Exception {
+    public Record getRecord(ElasticDocument idxDoc) throws Exception {
         IClosableDataSource datasource = null;
         try {
             datasource = recordProducer.openDatasource();

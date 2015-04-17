@@ -25,10 +25,9 @@
  */
 package de.ingrid.iplug.dsc.record.producer;
 
-import java.util.Map;
-
 import de.ingrid.iplug.dsc.om.IClosableDataSource;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.utils.ElasticDocument;
 
 /**
  * Defines all aspects a record producer must implement. The record producer is
@@ -59,6 +58,6 @@ public interface IRecordProducer {
      * @param ds
      * @return
      */
-    SourceRecord getRecord(Map<String, Object> doc, IClosableDataSource ds);
+    SourceRecord getRecord(ElasticDocument doc, IClosableDataSource ds);
 
 }
