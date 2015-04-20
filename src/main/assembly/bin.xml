@@ -94,7 +94,7 @@
       <scope>runtime</scope>
       <excludes>
         <exclude>de.ingrid:ingrid-installer</exclude>
-        <!-- <exclude>de.ingrid:ingrid-base-webapp-0.1-SNAPSHOT-res</exclude>-->
+        <exclude>de.ingrid:ingrid-base-webapp:zip:res</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>
