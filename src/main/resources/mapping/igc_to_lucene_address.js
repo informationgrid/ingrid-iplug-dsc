@@ -36,6 +36,9 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
     throw new IllegalArgumentException("Record is no DatabaseRecord!");
 }
 
+//add default boost value
+IDX.addDocumentBoost(1.0);
+
 // ---------- t02_address ----------
 var addrId = sourceRecord.get("id");
 // only index addresses where hide_address is not set !
