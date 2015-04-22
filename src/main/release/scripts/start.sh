@@ -29,16 +29,11 @@ THIS_DIR=`dirname "$THIS"`
 INGRID_HOME=`cd "$THIS_DIR" ; pwd`
 PID=$INGRID_HOME/ingrid.pid
 
-# include a debug script, if available, i.e. to specify debug port, etc.
-# caution: the debug script must echo the actual command to be able to work in the current environment
-if [ -f $INGRID_HOME/debug.sh ]; then
-  eval `sh $INGRID_HOME/debug.sh`
-fi
-
-# include a jmx script, if available, i.e. to specify jmx port, etc.
-# caution: the jmx script must echo the actual command to be able to work in the current environment
-if [ -f $INGRID_HOME/jmx.sh ]; then
-  eval `sh $INGRID_HOME/jmx.sh`
+# include default options, i.e. debug, jmx and jvm options
+if [ -f $INGRID_HOME/env.user.sh ]; then
+  eval `sh $INGRID_HOME/env.user.sh`
+elif [ -f $INGRID_HOME/env.sh ]; then
+  eval `sh $INGRID_HOME/env.sh`
 fi
 
 # functions
@@ -169,25 +164,8 @@ startIplug()
 
   # run it
   export CLASSPATH="$CLASSPATH"
-  INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME -Dfile.encoding=UTF8 -XX:+UseG1GC -XX:NewRatio=1"
+  INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME -Dfile.encoding=UTF8 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=40 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90"
   CLASS=de.ingrid.iplug.dsc.DscSearchPlug
-
-  # check java version
-  JAVA_VERSION=`java -version 2>&1 |awk 'NR==1{ gsub(/"/,""); print $3 }'`
-  JAVA_VERSION_PART_0=`echo $JAVA_VERSION | awk '{split($0, array, "-")} END{print array[1]}'`
-  JAVA_VERSION_PART_1=`echo $JAVA_VERSION_PART_0 | awk '{split($0, array, "_")} END{print array[1]}'`
-  JAVA_VERSION_PART_2=`echo $JAVA_VERSION_PART_0 | awk '{split($0, array, "_")} END{print array[2]}'`
-  if [ "$JAVA_VERSION_PART_1" \> "1.7.0" ]; then
-	LENGTH="${#JAVA_VERSION_PART_2}"
-	if [ "$LENGTH" \< "2" ]; then
-		JAVA_VERSION_PART_2="0"$JAVA_VERSION_PART_2
-	fi
-	if [ "$JAVA_VERSION_PART_1" \> "1.8.0" ]; then
-		INGRID_OPTS="$INGRID_OPTS -XX:+UseStringDeduplication"
-	elif [ "$JAVA_VERSION_PART_2" \> "19" ]; then
-		INGRID_OPTS="$INGRID_OPTS -XX:+UseStringDeduplication"
-	fi
-  fi
 
   exec nohup "$JAVA" $INGRID_OPTS $CLASS > console.log &
 
