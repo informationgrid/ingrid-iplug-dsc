@@ -33,6 +33,13 @@
         <artifactId>slf4j-api</artifactId>
         <version>1.7.7</version>
       </dependency>
+      <dependency>
+        <groupId>de.ingrid</groupId>
+        <artifactId>ingrid-version-management-pom</artifactId>
+        <version>3.5.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <!-- ==================== DEPENDENCIES ==================== -->
