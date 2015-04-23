@@ -164,7 +164,7 @@ startIplug()
 
   # run it
   export CLASSPATH="$CLASSPATH"
-  INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME -Dfile.encoding=UTF8 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=40 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90"
+  INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME"
   CLASS=de.ingrid.iplug.dsc.DscSearchPlug
 
   exec nohup "$JAVA" $INGRID_OPTS $CLASS > console.log &
