@@ -47,8 +47,21 @@
             </then>
         </if>
     </target>
+    
+    <target name="patchFromVersion3.5.0">
+        <compareVersion value1="${oldVersion}" value2="3.5.0" prop="compResult"/>
+        <if>
+            <not>
+                <equals arg1="${compResult}" arg2="1" />
+            </not>
+            <then>
+                <echo>Removing old index directory, which is replaced by ElasticSearch </echo>
+                <delete dir="${installDir}/index" />
+            </then>
+        </if>
+    </target>
 
-	<target name="patchFiles" depends="patchFromVersion3.3.0,patchFromVersion3.3.1">
+	<target name="patchFiles" depends="patchFromVersion3.3.0,patchFromVersion3.3.1,patchFromVersion3.5.0">
 		<!-- patch order determined through depends-order -->
 	</target>
 </project>

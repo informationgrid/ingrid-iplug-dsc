@@ -227,6 +227,15 @@
               </manifestEntries>
             </archive>
         </configuration>
+        <executions>
+          <execution>
+            <id>make-installer</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

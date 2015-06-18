@@ -21,6 +21,18 @@
             "content": {
                 "analyzer": "german",
                 "type": "string"
+            },
+            "x1": {
+                "type": "double"
+            },
+            "x2": {
+                "type": "double"
+            },
+            "y1": {
+                "type": "double"
+            },
+            "y2": {
+                "type": "double"
             }
         }
     } 
