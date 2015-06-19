@@ -28,6 +28,18 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.6.0" date="2015-06-19" description="Release 3.6.0">
+      <action type="add" dev="wemove" issue="REDMINE-6">
+        Added elastic search as new indexing method.
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-559">
+        Combine keywords for opendata instead of listing them separately with thesaurus name.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-17">
+        Coupled resources can be referenced externally now.
+      </action>
+    </release>
+    
     <release version="3.5.1" date="2015-xx-xx" description="Release InGrid 3.5.1">
       <action type="update" dev="wemove" issue="REDMINE-17">
           Map coupled resources that are externally linked to an object.
