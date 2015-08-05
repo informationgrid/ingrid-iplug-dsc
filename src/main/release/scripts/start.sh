@@ -31,9 +31,9 @@ PID=$INGRID_HOME/ingrid.pid
 
 # include default options, i.e. debug, jmx and jvm options
 if [ -f $INGRID_HOME/env.user.sh ]; then
-  eval `sh $INGRID_HOME/env.user.sh`
+  eval "`sh $INGRID_HOME/env.user.sh`"
 elif [ -f $INGRID_HOME/env.sh ]; then
-  eval `sh $INGRID_HOME/env.sh`
+  eval "`sh $INGRID_HOME/env.sh`"
 fi
 
 # functions
