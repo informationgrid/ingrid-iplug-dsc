@@ -22,16 +22,10 @@
  */
 package de.ingrid.iplug.dsc;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.io.ClassPathResource;
 
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertiesFiles;
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertyLocations;
@@ -89,16 +83,6 @@ public class Configuration implements IConfig {
     public void addPlugdescriptionValues( PlugdescriptionCommandObject pdObject ) {
         pdObject.put( "iPlugClass", "de.ingrid.iplug.dsc.DscSearchPlug" );
 
-        String fieldFile = "fields_object.data";
-        if (springProfile.startsWith( "address" )) {
-            fieldFile = "fields_address.data";
-        }
-        List<String> fields = getFieldsFromFile( fieldFile );
-
-        for (String field : fields) {
-            pdObject.removeFromList( PlugDescription.FIELDS, field );
-            pdObject.addField( field );
-        }
         // add necessary fields so iBus actually will query us
         // remove field first to prevent multiple equal entries
         pdObject.removeFromList(PlugDescription.FIELDS, "incl_meta");
@@ -112,23 +96,6 @@ public class Configuration implements IConfig {
         pdObject.setConnection( dbc );
         
         pdObject.setCorrespondentProxyServiceURL( correspondentIPlug );
-    }
-
-    private List<String> getFieldsFromFile(String fieldsFileName) {
-        List<String> fieldsAsLine = new ArrayList<String>();
-        ClassPathResource fieldsFile = new ClassPathResource( fieldsFileName );
-        BufferedReader br;
-        try {
-            br = new BufferedReader(new InputStreamReader(fieldsFile.getInputStream()));
-            String line;
-            while ((line = br.readLine()) != null) {
-                 fieldsAsLine.add( line );
-            }
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return fieldsAsLine;
     }
 
     @Override
