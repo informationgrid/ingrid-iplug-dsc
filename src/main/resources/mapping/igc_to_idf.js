@@ -688,7 +688,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:identificationInfo/srv:serviceTypeVersion> ----------
         rows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [objServId]);
         for (i=0; i<rows.size(); i++) {
-            identificationInfo.addElement("srv:serviceTypeVersion/gco:CharacterString").addText(rows.get(i).get("serv_version"));
+            identificationInfo.addElement("srv:serviceTypeVersion/gco:CharacterString").addText(rows.get(i).get("version_value"));
         }
 
 

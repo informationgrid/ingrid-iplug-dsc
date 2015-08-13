@@ -28,6 +28,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.6.1-SNAPSHOT" date="???" description="???">
+      <action type="update" dev="wemove" issue="REDMINE-47">
+        Update mapping of service version to index and IDF (now syslist with key and value).
+      </action>
+    </release>
+
     <release version="3.6.0.2" date="2015-07-15" description="Release 3.6.0.2">
       <action type="fix" dev="wemove" issue="REDMINE-89">
         Handle requestedFields as lower case also when getting a single detail.

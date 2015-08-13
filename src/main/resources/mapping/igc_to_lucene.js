@@ -558,7 +558,8 @@ function addT011ObjServOpPlatform(row) {
 }
 function addT011ObjServVersion(row) {
     IDX.add("t011_obj_serv_version.line", row.get("line"));
-    IDX.add("t011_obj_serv_version.version", row.get("serv_version"));
+    IDX.add("t011_obj_serv_version.version_key", row.get("version_key"));
+    IDX.add("t011_obj_serv_version.version_value", row.get("version_value"));
 }
 function addT011ObjServScale(row) {
     IDX.add("t011_obj_serv_scale.line", row.get("line"));
