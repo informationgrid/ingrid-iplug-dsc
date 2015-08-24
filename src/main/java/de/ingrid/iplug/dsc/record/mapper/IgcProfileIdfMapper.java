@@ -77,7 +77,7 @@ public class IgcProfileIdfMapper implements IIdfMapper {
     private ScriptEngine engine = null;
 
     @Override
-    public void map(SourceRecord record, Document doc) throws Exception {
+    public synchronized void map(SourceRecord record, Document doc) throws Exception {
         if (!(record instanceof DatabaseSourceRecord)) {
             throw new IllegalArgumentException("Record is no DatabaseRecord!");
         }

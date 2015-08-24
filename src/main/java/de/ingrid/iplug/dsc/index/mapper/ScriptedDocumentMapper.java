@@ -62,7 +62,7 @@ public class ScriptedDocumentMapper implements IRecordMapper {
     private static final Logger log = Logger.getLogger(ScriptedDocumentMapper.class);
 
     @Override
-    public void map(SourceRecord record, ElasticDocument doc) throws Exception {
+    public synchronized void map(SourceRecord record, ElasticDocument doc) throws Exception {
         if (mappingScripts == null) {
             log.error("Mapping script(s) not set!");
             throw new IllegalArgumentException("Mapping script(s) not set!");

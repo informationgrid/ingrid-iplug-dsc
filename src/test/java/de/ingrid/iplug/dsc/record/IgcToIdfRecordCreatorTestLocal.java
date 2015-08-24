@@ -43,7 +43,7 @@ import de.ingrid.utils.xml.PlugdescriptionSerializer;
 public class IgcToIdfRecordCreatorTestLocal extends TestCase {
 
 	// set num threads here !!!
-	int numThreads = 3;
+	int numThreads = 10;
 	
 	DscRecordCreator recordCreator;
 
@@ -113,7 +113,9 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
 					threadsFinished = false;
 					Thread.sleep(500);
 					break;
-				}
+                } else if (threads[i].getException() != null) {
+                    throw new RuntimeException( "Thread " + threads[i] + " threw exception: ", threads[i].getException() );
+                }
 			}
 		}
     }
@@ -174,6 +176,8 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
     	private int threadNumber;
     	private boolean isRunning = false;
 
+    	private Exception myException = null;
+
     	public TestDscRecordCreatorThread(int threadNumber) {
     		this.threadNumber = threadNumber;
     	}
@@ -186,7 +190,9 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
         		doTestDscRecordCreator();    			
     		} catch (Exception ex) {
         		System.out.println("!!!!!!!!!! Thread " + threadNumber + " EXCEPTION: " + ex);
-        		throw new RuntimeException(ex);
+                isRunning = false;
+                myException = ex;
+                throw new RuntimeException( ex );
     		}
 
     		long endTime = System.currentTimeMillis();
@@ -205,5 +211,13 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
     	public boolean isRunning() {
     		return isRunning;
     	}
+
+        public Exception getException() {
+            return myException;
+        }
+
+        public String toString() {
+            return "THREAD " + threadNumber;
+        }
     }
 }
