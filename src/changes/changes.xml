@@ -28,6 +28,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.6.0.3" date="2015-09-8" description="Release 3.6.0.3">
+      <action type="fix" dev="wemove" issue="REDMINE-130">
+        Fixed mapping of index to handle UUIDs as whole, otherwise a wrong dataset could be fetched.
+      </action>
+    </release>
+    
     <release version="3.6.0.2" date="2015-07-15" description="Release 3.6.0.2">
       <action type="fix" dev="wemove" issue="REDMINE-89">
         Handle requestedFields as lower case also when getting a single detail.
