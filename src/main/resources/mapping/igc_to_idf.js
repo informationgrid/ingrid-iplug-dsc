@@ -1229,16 +1229,12 @@ function getCitationIdentifier(objRow, otherObjId) {
     
     // analyze namespace, add default if not set
     var myNamespace = "";
-    var idTokens = id.split("#");
-    if (idTokens.length > 1) {
-        myNamespace = idTokens[0];
-    }
-
-    // namespace already part of id, ok ! 
-    if (hasValue(myNamespace)) {
+    var idTokens = id.split("/");
+    if (idTokens.length > 1 && hasValue(idTokens[0])) {
+        // namespace already part of id, ok ! 
         return id;
     }
-    
+
     // no namespace
     // namespace set in catalog ?
     myNamespace = catRow.get("cat_namespace");
@@ -1251,7 +1247,7 @@ function getCitationIdentifier(objRow, otherObjId) {
         if (!hasValue(dbCatalog)) {
             dbCatalog = catRow.get("cat_name");
         }
-        myNamespace = "http://portalu.de/" + dbCatalog;
+        myNamespace = "https://registry.gdi-de.org/id/" + dbCatalog;
         // JS String !
         myNamespaceLength = myNamespace.length;
     } else {
@@ -1259,8 +1255,8 @@ function getCitationIdentifier(objRow, otherObjId) {
         myNamespaceLength = myNamespace.length();
     }
     
-    if (myNamespaceLength > 0 && myNamespace.substring(myNamespaceLength-1) != "#") {
-        myNamespace = myNamespace + "#";
+    if (myNamespaceLength > 0 && myNamespace.substring(myNamespaceLength-1) != "/") {
+        myNamespace = myNamespace + "/";
     }
 
     id = myNamespace + id;
