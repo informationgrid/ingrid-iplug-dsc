@@ -32,6 +32,9 @@
       <action type="update" dev="wemove" issue="REDMINE-47">
         Update mapping of version of service to index and IDF (now syslist with key and value).
       </action>
+      <action type="update" dev="wemove" issue="REDMINE-15">
+        Remove all references to PortalU.
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-119">
         Make mapping with javascript thread safe using java 1.8 and nashorn (now synchronized map method).
       </action>

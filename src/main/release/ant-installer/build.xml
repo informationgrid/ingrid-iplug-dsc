@@ -20,7 +20,7 @@
   limitations under the Licence.
   **************************************************#
   -->
-<project name="PortalU Installation" basedir=".">
+<project name="InGrid-Portal Installation" basedir=".">
     <description>
         InGrid iPlug-DSC Installation Script
     </description>
@@ -107,14 +107,10 @@ der folgenden Adresse "http://localhost:${localServerPort}"
 zu konfigurieren. Anstelle von localhost koennen Sie
 auch die IP-Adresse des Computers eingeben!
 Bitte lesen Sie bzgl. der Administration die Kapitel unter
-"http://www.kst.portalu.de/wiki/index.php/IPlug_DSC".
+"http://www.ingrid-oss.eu".
 
 Bevor das iPlug benutzt werden kann, muss es in der iBus-
 Administration (im Portal) eingeschaltet werden.
-
-Weitere Informationen entnehmen Sie bitte dem
-Online-Handbuch unter 
-http://www.kst.portalu.de/wiki/index.php/InGrid_Installation.
         </echo>
 
         <runtarget target="showPatchErrors" />
