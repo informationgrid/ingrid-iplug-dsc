@@ -847,7 +847,7 @@ function addServiceLinkInfo(row, capabilitiyUrl, dsIdentifier, catalog) {
 function addNamespace(identifier, catalog) {
     var myNamespace = "";
     // check if namespace already exists
-    var idTokens = identifier.split("#");
+    var idTokens = identifier.split("/");
     if (idTokens.length > 1 && hasValue(idTokens[0])) {
         return identifier;
     }
@@ -861,13 +861,13 @@ function addNamespace(identifier, catalog) {
         if (!hasValue(dbCatalog)) {
             dbCatalog = catRow.get("cat_name");
         }
-        myNamespace = "http://portalu.de/" + dbCatalog;
+        myNamespace = "https://registry.gdi-de.org/id/" + dbCatalog;
         // JS String !
         myNamespaceLength = myNamespace.length;
     }
     
-    if (myNamespaceLength > 0 && myNamespace.substring(myNamespaceLength-1) != "#") {
-        myNamespace = myNamespace + "#";
+    if (myNamespaceLength > 0 && myNamespace.substring(myNamespaceLength-1) != "/") {
+        myNamespace = myNamespace + "/";
     }
 
     return myNamespace + identifier;

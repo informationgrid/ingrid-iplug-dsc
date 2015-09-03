@@ -29,6 +29,9 @@
   </properties>
   <body>
     <release version="3.6.1-SNAPSHOT" date="???" description="???">
+      <action type="update" dev="wemove" issue="REDMINE-13">
+        Update mapping of Geo-Dataset/-Service: Separate namespace and resource identifier with "/" instead of "#". 
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-47">
         Update mapping of version of service to index and IDF (now syslist with key and value).
       </action>
