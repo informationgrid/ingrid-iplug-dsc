@@ -44,6 +44,9 @@
       <action type="fix" dev="wemove" issue="REDMINE-130">
         Fixed mapping of index to handle UUIDs as whole, otherwise a wrong dataset could be fetched.
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-142">
+        Fixed query generation.
+      </action>
     </release>
 
     <release version="3.6.0.2" date="2015-07-15" description="Release 3.6.0.2">
