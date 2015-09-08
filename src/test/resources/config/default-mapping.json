@@ -5,6 +5,46 @@
             "t01_object.mod_time": {
                 "type": "string"
             },
+            "t01_object.obj_id": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "t012_obj_adr.adr_id": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "t01_object.mod_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "t01_object.responsible_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "t02_address.adr_id": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "t02_address.mod_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "t02_address.responsible_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "t03_catalogue.cat_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "t03_catalogue.mod_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "parent.object_node.obj_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
             "boost": {
                 "type": "float",
                 "store": true,
@@ -21,6 +61,18 @@
             "content": {
                 "analyzer": "german",
                 "type": "string"
+            },
+            "x1": {
+                "type": "double"
+            },
+            "x2": {
+                "type": "double"
+            },
+            "y1": {
+                "type": "double"
+            },
+            "y2": {
+                "type": "double"
             }
         }
     } 
