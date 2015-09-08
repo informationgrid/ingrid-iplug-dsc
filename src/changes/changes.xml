@@ -41,6 +41,9 @@
       <action type="fix" dev="wemove" issue="REDMINE-119">
         Make mapping with javascript thread safe using java 1.8 and nashorn (now synchronized map method).
       </action>
+    </release>
+    
+    <release version="3.6.0.3" date="2015-09-8" description="Release 3.6.0.3">
       <action type="fix" dev="wemove" issue="REDMINE-130">
         Fixed mapping of index to handle UUIDs as whole, otherwise a wrong dataset could be fetched.
       </action>
