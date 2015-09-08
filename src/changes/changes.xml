@@ -28,6 +28,15 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.6.0.2" date="2015-07-15" description="Release 3.6.0.2">
+      <action type="fix" dev="wemove" issue="REDMINE-89">
+        Handle requestedFields as lower case also when getting a single detail.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-99">
+        Introducing spring override mechanism to easily change configuration, like mapping scripts.
+      </action>
+    </release>
+    
     <release version="3.6.0" date="2015-06-19" description="Release 3.6.0">
       <action type="add" dev="wemove" issue="REDMINE-6">
         Added elastic search as new indexing method.
