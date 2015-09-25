@@ -22,6 +22,7 @@
  */
 package de.ingrid.iplug.dsc;
 
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
@@ -35,6 +36,7 @@ import com.tngtech.configbuilder.annotation.valueextractor.PropertyValue;
 import de.ingrid.admin.IConfig;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
+import de.ingrid.iplug.dsc.migrate.ConfigMigration;
 import de.ingrid.utils.PlugDescription;
 
 @PropertiesFiles( {"config"} )
@@ -61,22 +63,69 @@ public class Configuration implements IConfig {
     public String databaseSchema;
     
     
+    /**
+     * Should be removed in future versions, when version <3.6.0.3 is nowhere being used!
+     */
     @PropertyValue("spring.profile")
+    @Deprecated
     public String springProfile;
     
     @PropertyValue("plugdescription.CORRESPONDENT_PROXY_SERVICE_URL")
     public String correspondentIPlug;
 
+    @PropertyValue("mapper.index.profile.sql")
+    public String indexProfileMapperSql;
+
+    @PropertyValue("mapper.idf.profile.sql")
+    public String idfProfileMapperSql;
+
+    @PropertyValue("mapper.index.default.sql")
+    public String indexMapperSql;
+
+    @PropertyValue("mapper.index.fieldId")
+    public String indexFieldId;
+
+    @PropertyValue("mapper.index.scripts.files")
+    public List<String> indexMappingScripts;
+    @PropertyValue("mapper.index.scripts.compile")
+    @DefaultValue("true")
+    public boolean indexMappingScriptsCompile;
+
+    @PropertyValue("mapper.idf.scripts.files")
+    public List<String> idfMappingScripts;
+    @PropertyValue("mapper.idf.scripts.compile")
+    @DefaultValue("true")
+    public boolean idfMappingScriptsCompile;
+
+    @PropertyValue("mapper.idf.scriptsDQ.files")
+    public List<String> idfMappingScriptsDQ;
+    @PropertyValue("mapper.idf.scriptsDQ.compile")
+    @DefaultValue("true")
+    public boolean idfMappingScriptsDQCompile;
+    
+    
+    @PropertyValue("mapper.idf")
+    public String idfMapper;
+    
+    @PropertyValue("mapper.index")
+    public String indexMapper;
+
     @Override
     public void initialize() {
         
-        // activate the configured spring profile defined in SpringConfiguration.java
-        if ( springProfile != null ) {
-            System.setProperty( "spring.profiles.active", springProfile );
-        } else {
-            log.error( "Spring profile not set! In configuration set 'spring.profile' to one of 'object_internet', 'object_intranet', 'address_internet' or 'address_intranet'" );
-            System.exit( 1 );
+        // since 3.6.0.4 there's no profile for spring used anymore
+        // migrate necessary settings accordingly 
+        if (springProfile != null && (indexMapperSql == null || indexMapperSql.trim().isEmpty())) {
+            ConfigMigration.migrateSpringProfile( springProfile );
         }
+        
+        // activate the configured spring profile defined in SpringConfiguration.java
+//        if ( springProfile != null ) {
+//            System.setProperty( "spring.profiles.active", springProfile );
+//        } else {
+//            log.error( "Spring profile not set! In configuration set 'spring.profile' to one of 'object_internet', 'object_intranet', 'address_internet' or 'address_intranet'" );
+//            System.exit( 1 );
+//        }
     }
 
     @Override

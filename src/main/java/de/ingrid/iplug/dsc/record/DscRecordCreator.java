@@ -35,7 +35,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import de.ingrid.iplug.dsc.om.IClosableDataSource;
 import de.ingrid.iplug.dsc.om.SourceRecord;
@@ -59,7 +58,7 @@ import de.ingrid.utils.xml.XMLUtils;
  * @author joachim@wemove.com
  * 
  */
-@Service
+//@Service
 public class DscRecordCreator {
 
     protected static final Logger log = Logger.getLogger(DscRecordCreator.class);

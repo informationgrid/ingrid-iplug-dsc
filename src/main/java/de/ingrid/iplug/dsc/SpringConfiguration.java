@@ -22,180 +22,150 @@
  */
 package de.ingrid.iplug.dsc;
 
-import org.mortbay.log.Log;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.simple.parser.ParseException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+import de.ingrid.iplug.dsc.index.DscDocumentProducer;
+import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.mapper.IgcProfileDocumentMapper;
 import de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper;
+import de.ingrid.iplug.dsc.index.producer.IRecordSetProducer;
 import de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer;
+import de.ingrid.iplug.dsc.record.DscRecordCreator;
 import de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper;
+import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.IgcProfileIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper;
+import de.ingrid.iplug.dsc.record.producer.IRecordProducer;
 import de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer;
+import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.json.JsonUtil;
 
 @Configuration
-//@ComponentScan( basePackages = {"de.ingrid"} )
-//@EnableAutoConfiguration
+// @EnableAutoConfiguration
 public class SpringConfiguration {
-    
-    public static String OBJECT_INTERNET = "object_internet";
 
-    @Profile(value = { "object_internet", "object_intranet" })
-    public static class ObjectGeneral {
-        
-        @Bean
-        public IgcProfileDocumentMapper recordProfileMapper() {
-            IgcProfileDocumentMapper mapper = new IgcProfileDocumentMapper();
-            mapper.setSql( "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" );
-            return mapper;
-        }
-        
-        @Bean
-        public ScriptedDocumentMapper recordMapper() {
-            ScriptedDocumentMapper mapper = new ScriptedDocumentMapper();
-            Resource[] mappingScripts = new Resource[2];
-            mappingScripts[0] = new ClassPathResource( "mapping/global.js" );
-            mappingScripts[1] = new ClassPathResource( "mapping/igc_to_lucene.js" );
-            mapper.setMappingScripts( mappingScripts );
-            mapper.setCompile( true );
-            return mapper;
-        }
-        
-        @Bean
-        public ScriptedIdfMapper scriptedIdfMapper() {
-            Log.debug( DscSearchPlug.conf.databaseUrl );
-            ScriptedIdfMapper mapper = new ScriptedIdfMapper();
-            Resource[] mappingScripts = new Resource[3];
-            mappingScripts[0] = new ClassPathResource( "mapping/global.js" );
-            mappingScripts[1] = new ClassPathResource( "mapping/idf_utils.js" );
-            mappingScripts[2] = new ClassPathResource( "mapping/igc_to_idf.js" );
-            mapper.setMappingScripts( mappingScripts );
-            mapper.setCompile( true );
-            return mapper;
-        }
-        @Bean
-        public ScriptedIdfMapper scriptedIdfMapperDQ() {
-            ScriptedIdfMapper mapper = new ScriptedIdfMapper();
-            Resource[] mappingScripts = new Resource[3];
-            mappingScripts[0] = new ClassPathResource( "mapping/global.js" );
-            mappingScripts[1] = new ClassPathResource( "mapping/idf_utils.js" );
-            mappingScripts[2] = new ClassPathResource( "mapping/igc_to_idf_obj_dq.js" );
-            mapper.setMappingScripts( mappingScripts );
-            mapper.setCompile( true );
-            return mapper;
-        }
-        
-        @Bean
-        public IgcProfileIdfMapper igcProfileIdfMapper() {
-            IgcProfileIdfMapper mapper = new IgcProfileIdfMapper();
-            mapper.setSql( "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" );
-            return mapper;
-        }
-        
-        @Bean
-        public PlugDescriptionConfiguredDatabaseRecordProducer recordProducer() {
-            PlugDescriptionConfiguredDatabaseRecordProducer producer = new PlugDescriptionConfiguredDatabaseRecordProducer();
-            producer.setIndexFieldID( "t01_object.id" );
-            return producer;
-        }
-    }
-    
-    @Profile(value = { "address_internet", "address_intranet" })
-    public static class AddressGeneral {
-        @Bean
-        public static ScriptedDocumentMapper recordMapper() {
-            ScriptedDocumentMapper mapper = new ScriptedDocumentMapper();
-            Resource[] mappingScripts = new Resource[2];
-            mappingScripts[0] = new ClassPathResource( "mapping/global.js" );
-            mappingScripts[1] = new ClassPathResource( "mapping/igc_to_lucene_address.js" );
-            mapper.setMappingScripts( mappingScripts );
-            mapper.setCompile( true );
-            return mapper;
-        }
-        
-        /*
-        @Bean
-        public DscRecordCreator dscRecordProducer() {
-            DscRecordCreator creator = new DscRecordCreator();
-            creator.setRecordProducer( recordProducer() );
-            List<IIdfMapper> record2IdfMapperList = new ArrayList<IIdfMapper>();
-            record2IdfMapperList.add( createIdfMapper() );
-            record2IdfMapperList.add( scriptedIdfMapper() );
-            creator.setRecord2IdfMapperList( record2IdfMapperList );
-            return creator;
-        }*/
-        
-        @Bean
-        public PlugDescriptionConfiguredDatabaseRecordProducer recordProducer() {
-            PlugDescriptionConfiguredDatabaseRecordProducer producer = new PlugDescriptionConfiguredDatabaseRecordProducer();
-            producer.setIndexFieldID( "t02_address.id" );
-            return producer;
-        }
-        
-        @Bean
-        public ScriptedIdfMapper scriptedIdfMapper() {
-            //Log.debug( DscSearchPlug.conf.databaseUrl );
-            ScriptedIdfMapper mapper = new ScriptedIdfMapper();
-            Resource[] mappingScripts = new Resource[2];
-            mappingScripts[0] = new ClassPathResource( "mapping/global.js" );
-            mappingScripts[1] = new ClassPathResource( "mapping/igc_to_idf_address.js" );
-            mapper.setMappingScripts( mappingScripts );
-            mapper.setCompile( true );
-            return mapper;
-        }
+    @Bean
+    public IgcProfileDocumentMapper indexProfileMapper(IngridDocument doc) {
+        IgcProfileDocumentMapper mapper = new IgcProfileDocumentMapper();
+        mapper.setSql( doc.getString( "sql" ) );
+        return mapper;
     }
 
-    @Profile(value = { "object_internet" })
-    public static class ObjectInternet {
+    @Bean
+    public ScriptedDocumentMapper indexMapper(IngridDocument doc) {
+        ScriptedDocumentMapper mapper = new ScriptedDocumentMapper();
+        List<Object> scripts = doc.getArrayList( "scripts" );
+        Resource[] mappingScripts = convertToMappingScriptResources( scripts );
+        mapper.setMappingScripts( mappingScripts );
+        mapper.setCompile( doc.getBoolean( "compile" ) );
+        return mapper;
+    }
+
+    //@Bean
+    public ScriptedIdfMapper scriptedIdfMapper(IngridDocument doc) {
+        //Log.debug( DscSearchPlug.conf.databaseUrl );
+        ScriptedIdfMapper mapper = new ScriptedIdfMapper();
+        List<Object> scripts = doc.getArrayList( "scripts" );
+        Resource[] mappingScripts = convertToMappingScriptResources( scripts );
+        mapper.setMappingScripts( mappingScripts );
+        mapper.setCompile( doc.getBoolean( "compile" ) );
+        return mapper;
+    }
+
+    
+    @Bean
+    public DscDocumentProducer dscDocumentProducer(IRecordSetProducer recordSetProducer) throws ParseException {
+        DscDocumentProducer producer = new DscDocumentProducer();
         
-        @Bean
-        public PlugDescriptionConfiguredDatabaseRecordSetProducer recordSetProducerObjectInternet() {
-            PlugDescriptionConfiguredDatabaseRecordSetProducer producer = new PlugDescriptionConfiguredDatabaseRecordSetProducer(); 
-            producer.setRecordSql( "SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND publish_id=1" );
-            return producer;
-        }
-    }
-    
-    @Profile(value = { "object_intranet" })
-    public static class ObjectIntranet {
+        producer.setRecordSetProducer( recordSetProducer );
         
-        @Bean
-        public PlugDescriptionConfiguredDatabaseRecordSetProducer recordSetProducerObjectIntranet() {
-            PlugDescriptionConfiguredDatabaseRecordSetProducer producer = new PlugDescriptionConfiguredDatabaseRecordSetProducer(); 
-            producer.setRecordSql( "SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND (publish_id=1 OR publish_id=2)" );
-            return producer;
+        List<IRecordMapper> recordMapperList = new ArrayList<IRecordMapper>();
+        List<IngridDocument> mappers = JsonUtil.parseJsonToListOfIngridDocument( DscSearchPlug.conf.indexMapper );
+        for (IngridDocument mapper : mappers) {
+            IRecordMapper recMap = null;
+            String type = mapper.getString( "type" );
+            if ("indexMapper".equals( type ) ) {
+                recMap = (IRecordMapper) indexMapper(mapper);
+            } else if ("indexProfileMapper".equals( type ) ) {
+                recMap = (IRecordMapper) indexProfileMapper(mapper);
+            }
+            recordMapperList.add( recMap );
         }
-    }
-    
-    @Profile(value = { "address_internet" })
-    public static class AddressInternet {
-       
-        @Bean
-        public PlugDescriptionConfiguredDatabaseRecordSetProducer recordSetProducerAddressInternet() {
-            PlugDescriptionConfiguredDatabaseRecordSetProducer producer = new PlugDescriptionConfiguredDatabaseRecordSetProducer(); 
-            producer.setRecordSql( "SELECT DISTINCT id FROM t02_address WHERE work_state='V' AND publish_id=1" );
-            return producer;
-        }
-    }
-    
-    @Profile(value = { "address_intranet" })
-    public static class AddressIntranet {
         
-        @Bean
-        public PlugDescriptionConfiguredDatabaseRecordSetProducer recordSetProducerAddressIntranet() {
-            PlugDescriptionConfiguredDatabaseRecordSetProducer producer = new PlugDescriptionConfiguredDatabaseRecordSetProducer(); 
-            producer.setRecordSql( "SELECT DISTINCT id FROM t02_address WHERE work_state='V' AND (publish_id=1 OR publish_id=2)" );
-            return producer;
-        }
+        producer.setRecordMapperList( recordMapperList );
+        
+        return producer;
     }
-    
+   
+    /**
+     * from configuration:
+     * idf.mapper.idfMapper=scriptedIdfMapper,true,script1,script2::scriptedIdfMapper,true,script1,script2,script3::scriptedIdfProfileMapper,true,script1,script2
+     * @return
+     * @throws ParseException 
+     */
+    @Bean
+    public DscRecordCreator dscRecordCreator(IRecordProducer recordProducer) throws ParseException {
+        DscRecordCreator producer = new DscRecordCreator();
+        producer.setRecordProducer( recordProducer );
+        
+        List<IIdfMapper> recordMapperList = new ArrayList<IIdfMapper>();
+        List<IngridDocument> mappers = JsonUtil.parseJsonToListOfIngridDocument( DscSearchPlug.conf.idfMapper );
+        for (IngridDocument mapper : mappers) {
+            IIdfMapper recMap = null;
+            String type = mapper.getString( "type" );
+            if ("scriptedIdfMapper".equals( type ) ) {
+                recMap = (IIdfMapper) scriptedIdfMapper(mapper);
+            } else if ("scriptedIdfProfileMapper".equals( type ) ) {
+                recMap = (IIdfMapper) igcProfileIdfMapper(mapper);
+            }
+            recordMapperList.add( recMap );
+        }
+
+        producer.setRecord2IdfMapperList( recordMapperList  );
+        
+        return producer;
+    }
+
+    @Bean
+    // TODO: not needed for addresses
+    public IgcProfileIdfMapper igcProfileIdfMapper(IngridDocument doc) {
+        IgcProfileIdfMapper mapper = new IgcProfileIdfMapper();
+        mapper.setSql( doc.getString( "sql" ) );
+        return mapper;
+    }
+
+    @Bean
+    public PlugDescriptionConfiguredDatabaseRecordProducer recordProducer() {
+        PlugDescriptionConfiguredDatabaseRecordProducer producer = new PlugDescriptionConfiguredDatabaseRecordProducer();
+        producer.setIndexFieldID( DscSearchPlug.conf.indexFieldId );
+        return producer;
+    }
+
+    @Bean
+    public PlugDescriptionConfiguredDatabaseRecordSetProducer recordSetProducer() {
+        PlugDescriptionConfiguredDatabaseRecordSetProducer producer = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
+        producer.setRecordSql( DscSearchPlug.conf.indexMapperSql );
+        return producer;
+    }
+
     @Bean
     public static CreateIdfMapper createIdfMapper() {
         return new CreateIdfMapper();
     }
-    
+
+    private Resource[] convertToMappingScriptResources(List<Object> scripts) {
+        if (scripts == null) return new Resource[0];
+        Resource[] mappingScripts = new Resource[scripts.size()];
+        for (int i=0; i<scripts.size(); i++) {
+            mappingScripts[i] = new ClassPathResource( (String) scripts.get( i ) );
+        }
+        return mappingScripts;
+    }
 }
