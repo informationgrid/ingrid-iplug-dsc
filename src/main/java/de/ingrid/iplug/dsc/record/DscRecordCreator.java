@@ -63,10 +63,10 @@ public class DscRecordCreator {
 
     protected static final Logger log = Logger.getLogger(DscRecordCreator.class);
 
-    @Autowired
+    //@Autowired
     private IRecordProducer recordProducer = null;
 
-    @Autowired
+    //@Autowired
     private List<IIdfMapper> record2IdfMapperList = null;
 
     private boolean compressed = false;

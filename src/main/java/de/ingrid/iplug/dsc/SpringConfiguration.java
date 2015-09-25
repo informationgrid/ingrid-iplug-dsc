@@ -68,9 +68,9 @@ public class SpringConfiguration {
         return mapper;
     }
 
-    //@Bean
+    // @Bean
     public ScriptedIdfMapper scriptedIdfMapper(IngridDocument doc) {
-        //Log.debug( DscSearchPlug.conf.databaseUrl );
+        // Log.debug( DscSearchPlug.conf.databaseUrl );
         ScriptedIdfMapper mapper = new ScriptedIdfMapper();
         List<Object> scripts = doc.getArrayList( "scripts" );
         Resource[] mappingScripts = convertToMappingScriptResources( scripts );
@@ -79,57 +79,60 @@ public class SpringConfiguration {
         return mapper;
     }
 
-    
     @Bean
     public DscDocumentProducer dscDocumentProducer(IRecordSetProducer recordSetProducer) throws ParseException {
         DscDocumentProducer producer = new DscDocumentProducer();
-        
+
         producer.setRecordSetProducer( recordSetProducer );
-        
+
         List<IRecordMapper> recordMapperList = new ArrayList<IRecordMapper>();
         List<IngridDocument> mappers = JsonUtil.parseJsonToListOfIngridDocument( DscSearchPlug.conf.indexMapper );
         for (IngridDocument mapper : mappers) {
             IRecordMapper recMap = null;
             String type = mapper.getString( "type" );
-            if ("indexMapper".equals( type ) ) {
-                recMap = (IRecordMapper) indexMapper(mapper);
-            } else if ("indexProfileMapper".equals( type ) ) {
-                recMap = (IRecordMapper) indexProfileMapper(mapper);
+            if ("indexMapper".equals( type )) {
+                recMap = (IRecordMapper) indexMapper( mapper );
+            } else if ("indexProfileMapper".equals( type )) {
+                recMap = (IRecordMapper) indexProfileMapper( mapper );
             }
             recordMapperList.add( recMap );
         }
-        
+
         producer.setRecordMapperList( recordMapperList );
-        
+
         return producer;
     }
-   
+
     /**
      * from configuration:
-     * idf.mapper.idfMapper=scriptedIdfMapper,true,script1,script2::scriptedIdfMapper,true,script1,script2,script3::scriptedIdfProfileMapper,true,script1,script2
+     * idf.mapper.idfMapper=scriptedIdfMapper,true,script1,script2::scriptedIdfMapper,true,script1,script2,script3::scriptedIdfProfileMapper
+     * ,true,script1,script2
+     * 
      * @return
-     * @throws ParseException 
+     * @throws ParseException
      */
     @Bean
     public DscRecordCreator dscRecordCreator(IRecordProducer recordProducer) throws ParseException {
         DscRecordCreator producer = new DscRecordCreator();
         producer.setRecordProducer( recordProducer );
-        
+
         List<IIdfMapper> recordMapperList = new ArrayList<IIdfMapper>();
         List<IngridDocument> mappers = JsonUtil.parseJsonToListOfIngridDocument( DscSearchPlug.conf.idfMapper );
         for (IngridDocument mapper : mappers) {
             IIdfMapper recMap = null;
             String type = mapper.getString( "type" );
-            if ("scriptedIdfMapper".equals( type ) ) {
-                recMap = (IIdfMapper) scriptedIdfMapper(mapper);
-            } else if ("scriptedIdfProfileMapper".equals( type ) ) {
-                recMap = (IIdfMapper) igcProfileIdfMapper(mapper);
+            if ("scriptedIdfMapper".equals( type )) {
+                recMap = (IIdfMapper) scriptedIdfMapper( mapper );
+            } else if ("scriptedIdfProfileMapper".equals( type )) {
+                recMap = (IIdfMapper) igcProfileIdfMapper( mapper );
+            } else if ("createIdfMapper".equals( type )) {
+                recMap = (IIdfMapper) new CreateIdfMapper();
             }
             recordMapperList.add( recMap );
         }
 
-        producer.setRecord2IdfMapperList( recordMapperList  );
-        
+        producer.setRecord2IdfMapperList( recordMapperList );
+
         return producer;
     }
 
@@ -161,9 +164,10 @@ public class SpringConfiguration {
     }
 
     private Resource[] convertToMappingScriptResources(List<Object> scripts) {
-        if (scripts == null) return new Resource[0];
+        if (scripts == null)
+            return new Resource[0];
         Resource[] mappingScripts = new Resource[scripts.size()];
-        for (int i=0; i<scripts.size(); i++) {
+        for (int i = 0; i < scripts.size(); i++) {
             mappingScripts[i] = new ClassPathResource( (String) scripts.get( i ) );
         }
         return mappingScripts;
