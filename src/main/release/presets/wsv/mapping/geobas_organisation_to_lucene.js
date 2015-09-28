@@ -20,6 +20,10 @@
  * limitations under the Licence.
  * **************************************************#
  */
+if (javaVersion.indexOf( "1.8" ) === 0) {
+    load("nashorn:mozilla_compat.js");
+}
+
 importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 importPackage(Packages.de.ingrid.geo.utils.transformation);
@@ -33,7 +37,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 }
 
 // ---------- organisation ----------
-var organisationId = sourceRecord.get(DatabaseSourceRecord.ID);
+var organisationId = sourceRecord.get("id");
 var organisationRows = SQL.all("SELECT * FROM organisation WHERE id=?", [organisationId]);
 for (i=0; i<organisationRows.size(); i++) {
     var organisationRow = organisationRows.get(i);

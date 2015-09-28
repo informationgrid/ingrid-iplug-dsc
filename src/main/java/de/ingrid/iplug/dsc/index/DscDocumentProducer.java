@@ -30,7 +30,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
@@ -48,13 +47,13 @@ import de.ingrid.utils.PlugDescription;
  * IRecordMapper. 
  * @author joachim
  */
-@Service
+//@Service
 public class DscDocumentProducer implements IDocumentProducer {
 
-    @Autowired
+    //@Autowired
     private IRecordSetProducer recordSetProducer = null;
 
-    @Autowired
+    //@Autowired
     private List<IRecordMapper> recordMapperList = null;
 
     final private static Log log = LogFactory.getLog(DscDocumentProducer.class);

@@ -22,16 +22,11 @@
  */
 package de.ingrid.iplug.dsc;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.io.ClassPathResource;
 
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertiesFiles;
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertyLocations;
@@ -41,6 +36,7 @@ import com.tngtech.configbuilder.annotation.valueextractor.PropertyValue;
 import de.ingrid.admin.IConfig;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
+import de.ingrid.iplug.dsc.migrate.ConfigMigration;
 import de.ingrid.utils.PlugDescription;
 
 @PropertiesFiles( {"config"} )
@@ -67,38 +63,43 @@ public class Configuration implements IConfig {
     public String databaseSchema;
     
     
+    /**
+     * Should be removed in future versions, when version <3.6.0.3 is nowhere being used!
+     */
     @PropertyValue("spring.profile")
+    @Deprecated
     public String springProfile;
     
     @PropertyValue("plugdescription.CORRESPONDENT_PROXY_SERVICE_URL")
     public String correspondentIPlug;
 
+    @PropertyValue("mapper.index.docSql")
+    public String indexMapperSql;
+
+    @PropertyValue("mapper.index.fieldId")
+    public String indexFieldId;
+
+    @PropertyValue("mapper.idf.beans")
+    public String idfMapper;
+    
+    @PropertyValue("mapper.index.beans")
+    public String indexMapper;
+
     @Override
     public void initialize() {
         
-        // activate the configured spring profile defined in SpringConfiguration.java
-        if ( springProfile != null ) {
-            System.setProperty( "spring.profiles.active", springProfile );
-        } else {
-            log.error( "Spring profile not set! In configuration set 'spring.profile' to one of 'object_internet', 'object_intranet', 'address_internet' or 'address_intranet'" );
-            System.exit( 1 );
+        // since 3.6.0.4 there's no profile for spring used anymore
+        // migrate necessary settings accordingly 
+        if (springProfile != null && (indexMapper == null || indexMapper.trim().isEmpty())) {
+            ConfigMigration.migrateSpringProfile( springProfile );
         }
+        
     }
 
     @Override
     public void addPlugdescriptionValues( PlugdescriptionCommandObject pdObject ) {
         pdObject.put( "iPlugClass", "de.ingrid.iplug.dsc.DscSearchPlug" );
 
-        String fieldFile = "fields_object.data";
-        if (springProfile.startsWith( "address" )) {
-            fieldFile = "fields_address.data";
-        }
-        List<String> fields = getFieldsFromFile( fieldFile );
-
-        for (String field : fields) {
-            pdObject.removeFromList( PlugDescription.FIELDS, field );
-            pdObject.addField( field );
-        }
         // add necessary fields so iBus actually will query us
         // remove field first to prevent multiple equal entries
         pdObject.removeFromList(PlugDescription.FIELDS, "incl_meta");
@@ -112,23 +113,6 @@ public class Configuration implements IConfig {
         pdObject.setConnection( dbc );
         
         pdObject.setCorrespondentProxyServiceURL( correspondentIPlug );
-    }
-
-    private List<String> getFieldsFromFile(String fieldsFileName) {
-        List<String> fieldsAsLine = new ArrayList<String>();
-        ClassPathResource fieldsFile = new ClassPathResource( fieldsFileName );
-        BufferedReader br;
-        try {
-            br = new BufferedReader(new InputStreamReader(fieldsFile.getInputStream()));
-            String line;
-            while ((line = br.readLine()) != null) {
-                 fieldsAsLine.add( line );
-            }
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return fieldsAsLine;
     }
 
     @Override
