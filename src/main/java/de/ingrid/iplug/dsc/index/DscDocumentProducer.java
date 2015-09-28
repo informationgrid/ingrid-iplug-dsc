@@ -50,10 +50,10 @@ import de.ingrid.utils.PlugDescription;
 //@Service
 public class DscDocumentProducer implements IDocumentProducer {
 
-    @Autowired
+    //@Autowired
     private IRecordSetProducer recordSetProducer = null;
 
-    @Autowired
+    //@Autowired
     private List<IRecordMapper> recordMapperList = null;
 
     final private static Log log = LogFactory.getLog(DscDocumentProducer.class);

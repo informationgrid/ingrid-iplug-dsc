@@ -73,41 +73,16 @@ public class Configuration implements IConfig {
     @PropertyValue("plugdescription.CORRESPONDENT_PROXY_SERVICE_URL")
     public String correspondentIPlug;
 
-    @PropertyValue("mapper.index.profile.sql")
-    public String indexProfileMapperSql;
-
-    @PropertyValue("mapper.idf.profile.sql")
-    public String idfProfileMapperSql;
-
-    @PropertyValue("mapper.index.default.sql")
+    @PropertyValue("mapper.index.docSql")
     public String indexMapperSql;
 
     @PropertyValue("mapper.index.fieldId")
     public String indexFieldId;
 
-    @PropertyValue("mapper.index.scripts.files")
-    public List<String> indexMappingScripts;
-    @PropertyValue("mapper.index.scripts.compile")
-    @DefaultValue("true")
-    public boolean indexMappingScriptsCompile;
-
-    @PropertyValue("mapper.idf.scripts.files")
-    public List<String> idfMappingScripts;
-    @PropertyValue("mapper.idf.scripts.compile")
-    @DefaultValue("true")
-    public boolean idfMappingScriptsCompile;
-
-    @PropertyValue("mapper.idf.scriptsDQ.files")
-    public List<String> idfMappingScriptsDQ;
-    @PropertyValue("mapper.idf.scriptsDQ.compile")
-    @DefaultValue("true")
-    public boolean idfMappingScriptsDQCompile;
-    
-    
-    @PropertyValue("mapper.idf")
+    @PropertyValue("mapper.idf.beans")
     public String idfMapper;
     
-    @PropertyValue("mapper.index")
+    @PropertyValue("mapper.index.beans")
     public String indexMapper;
 
     @Override
@@ -115,17 +90,10 @@ public class Configuration implements IConfig {
         
         // since 3.6.0.4 there's no profile for spring used anymore
         // migrate necessary settings accordingly 
-        if (springProfile != null && (indexMapperSql == null || indexMapperSql.trim().isEmpty())) {
+        if (springProfile != null && (indexMapper == null || indexMapper.trim().isEmpty())) {
             ConfigMigration.migrateSpringProfile( springProfile );
         }
         
-        // activate the configured spring profile defined in SpringConfiguration.java
-//        if ( springProfile != null ) {
-//            System.setProperty( "spring.profiles.active", springProfile );
-//        } else {
-//            log.error( "Spring profile not set! In configuration set 'spring.profile' to one of 'object_internet', 'object_intranet', 'address_internet' or 'address_intranet'" );
-//            System.exit( 1 );
-//        }
     }
 
     @Override

@@ -25,6 +25,8 @@ package de.ingrid.iplug.dsc;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.parser.ParseException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,32 +52,31 @@ import de.ingrid.utils.json.JsonUtil;
 @Configuration
 // @EnableAutoConfiguration
 public class SpringConfiguration {
+    
+    private static Log log = LogFactory.getLog(SpringConfiguration.class);
 
-    @Bean
     public IgcProfileDocumentMapper indexProfileMapper(IngridDocument doc) {
         IgcProfileDocumentMapper mapper = new IgcProfileDocumentMapper();
         mapper.setSql( doc.getString( "sql" ) );
         return mapper;
     }
 
-    @Bean
     public ScriptedDocumentMapper indexMapper(IngridDocument doc) {
         ScriptedDocumentMapper mapper = new ScriptedDocumentMapper();
         List<Object> scripts = doc.getArrayList( "scripts" );
         Resource[] mappingScripts = convertToMappingScriptResources( scripts );
         mapper.setMappingScripts( mappingScripts );
-        mapper.setCompile( doc.getBoolean( "compile" ) );
+        mapper.setCompile( (Boolean) doc.getOrDefault( "compile", true ) );
         return mapper;
     }
 
-    // @Bean
     public ScriptedIdfMapper scriptedIdfMapper(IngridDocument doc) {
         // Log.debug( DscSearchPlug.conf.databaseUrl );
         ScriptedIdfMapper mapper = new ScriptedIdfMapper();
         List<Object> scripts = doc.getArrayList( "scripts" );
         Resource[] mappingScripts = convertToMappingScriptResources( scripts );
         mapper.setMappingScripts( mappingScripts );
-        mapper.setCompile( doc.getBoolean( "compile" ) );
+        mapper.setCompile( (Boolean) doc.getOrDefault( "compile", true ) );
         return mapper;
     }
 
@@ -85,6 +86,7 @@ public class SpringConfiguration {
 
         producer.setRecordSetProducer( recordSetProducer );
 
+        if (DscSearchPlug.conf.indexMapper == null) log.error( "indexMapper (mapper.index.beans) is/are not defined!" );
         List<IRecordMapper> recordMapperList = new ArrayList<IRecordMapper>();
         List<IngridDocument> mappers = JsonUtil.parseJsonToListOfIngridDocument( DscSearchPlug.conf.indexMapper );
         for (IngridDocument mapper : mappers) {
@@ -116,6 +118,7 @@ public class SpringConfiguration {
         DscRecordCreator producer = new DscRecordCreator();
         producer.setRecordProducer( recordProducer );
 
+        if (DscSearchPlug.conf.idfMapper == null) log.error( "idfMapper (mapper.idf.beans) is/are not defined!" );
         List<IIdfMapper> recordMapperList = new ArrayList<IIdfMapper>();
         List<IngridDocument> mappers = JsonUtil.parseJsonToListOfIngridDocument( DscSearchPlug.conf.idfMapper );
         for (IngridDocument mapper : mappers) {
@@ -136,8 +139,6 @@ public class SpringConfiguration {
         return producer;
     }
 
-    @Bean
-    // TODO: not needed for addresses
     public IgcProfileIdfMapper igcProfileIdfMapper(IngridDocument doc) {
         IgcProfileIdfMapper mapper = new IgcProfileIdfMapper();
         mapper.setSql( doc.getString( "sql" ) );
@@ -156,11 +157,6 @@ public class SpringConfiguration {
         PlugDescriptionConfiguredDatabaseRecordSetProducer producer = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
         producer.setRecordSql( DscSearchPlug.conf.indexMapperSql );
         return producer;
-    }
-
-    @Bean
-    public static CreateIdfMapper createIdfMapper() {
-        return new CreateIdfMapper();
     }
 
     private Resource[] convertToMappingScriptResources(List<Object> scripts) {
