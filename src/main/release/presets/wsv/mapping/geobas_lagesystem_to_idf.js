@@ -1,3 +1,7 @@
+if (javaVersion.indexOf( "1.8" ) === 0) {
+    load("nashorn:mozilla_compat.js");
+}
+
 importPackage(Packages.org.w3c.dom);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 
@@ -13,7 +17,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
 
 // ========== lagesystem ==========
-var lagesystemId = sourceRecord.get(DatabaseSourceRecord.ID);
+var lagesystemId = sourceRecord.get("id");
 var lagesystemRows = SQL.all("SELECT * FROM lagesystem WHERE id=?", [lagesystemId]);
 for (i=0; i<lagesystemRows.size(); i++) {
     var lagesystemRow = lagesystemRows.get(i);

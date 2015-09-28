@@ -1,3 +1,7 @@
+if (javaVersion.indexOf( "1.8" ) === 0) {
+    load("nashorn:mozilla_compat.js");
+}
+
 importPackage(Packages.org.w3c.dom);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 
@@ -13,7 +17,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
 
 // ========== bundesland ==========
-var objId = sourceRecord.get(DatabaseSourceRecord.ID);
+var objId = sourceRecord.get("id");
 var objRows = SQL.all("SELECT * FROM bundesland WHERE id=?", [objId]);
 for (i=0; i<objRows.size(); i++) {
     var bundeslandRow = objRows.get(i);

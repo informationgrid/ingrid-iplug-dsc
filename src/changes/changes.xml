@@ -42,6 +42,12 @@
         Make mapping with javascript thread safe using java 1.8 and nashorn (now synchronized map method).
       </action>
     </release>
+
+    <release version="3.6.0.4" date="2015-09-28" description="Release 3.6.0.4">
+      <action type="add" dev="wemove" issue="REDMINE-161">
+        More flexible configuration for mappers, which is needed for correct updates.
+      </action>
+    </release>
     
     <release version="3.6.0.3" date="2015-09-8" description="Release 3.6.0.3">
       <action type="fix" dev="wemove" issue="REDMINE-130">

@@ -1,3 +1,7 @@
+if (javaVersion.indexOf( "1.8" ) === 0) {
+    load("nashorn:mozilla_compat.js");
+}
+
 importPackage(Packages.org.w3c.dom);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 
@@ -13,7 +17,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
 
 // ========== hoehensystem ==========
-var hoehensystemId = sourceRecord.get(DatabaseSourceRecord.ID);
+var hoehensystemId = sourceRecord.get("id");
 var hoehensystemRows = SQL.all("SELECT * FROM hoehensystem WHERE id=?", [hoehensystemId]);
 for (i=0; i<hoehensystemRows.size(); i++) {
     var hoehensystemRow = hoehensystemRows.get(i);

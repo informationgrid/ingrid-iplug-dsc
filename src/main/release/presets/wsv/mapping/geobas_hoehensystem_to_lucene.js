@@ -1,3 +1,7 @@
+if (javaVersion.indexOf( "1.8" ) === 0) {
+    load("nashorn:mozilla_compat.js");
+}
+
 importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 importPackage(Packages.de.ingrid.geo.utils.transformation);
@@ -11,7 +15,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 }
 
 // ---------- hoehensystem ----------
-var hoehensystemId = sourceRecord.get(DatabaseSourceRecord.ID);
+var hoehensystemId = sourceRecord.get("id");
 var hoehensystemRows = SQL.all("SELECT * FROM hoehensystem WHERE id=?", [hoehensystemId]);
 for (i=0; i<hoehensystemRows.size(); i++) {
     var hoehensystemRow = hoehensystemRows.get(i);

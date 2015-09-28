@@ -1,3 +1,7 @@
+if (javaVersion.indexOf( "1.8" ) === 0) {
+    load("nashorn:mozilla_compat.js");
+}
+
 importPackage(Packages.org.w3c.dom);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 
@@ -13,7 +17,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
 
 // ========== liniekennzeichen ==========
-var liniekennzeichenId = sourceRecord.get(DatabaseSourceRecord.ID);
+var liniekennzeichenId = sourceRecord.get("id");
 var liniekennzeichenRows = SQL.all("SELECT * FROM liniekennzeichen WHERE id=?", [liniekennzeichenId]);
 for (i=0; i<liniekennzeichenRows.size(); i++) {
     var liniekennzeichenRow = liniekennzeichenRows.get(i);

@@ -1,3 +1,7 @@
+if (javaVersion.indexOf( "1.8" ) === 0) {
+    load("nashorn:mozilla_compat.js");
+}
+
 importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 importPackage(Packages.de.ingrid.geo.utils.transformation);
@@ -11,7 +15,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 }
 
 // ---------- bundesland ----------
-var objId = sourceRecord.get(DatabaseSourceRecord.ID);
+var objId = sourceRecord.get("id");
 var objRows = SQL.all("SELECT * FROM bundesland WHERE id=?", [objId]);
 for (i=0; i<objRows.size(); i++) {
     var row = objRows.get(i);
