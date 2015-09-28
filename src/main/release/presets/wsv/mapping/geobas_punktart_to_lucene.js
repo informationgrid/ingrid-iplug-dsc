@@ -20,6 +20,10 @@
  * limitations under the Licence.
  * **************************************************#
  */
+if (javaVersion.indexOf( "1.8" ) === 0) {
+    load("nashorn:mozilla_compat.js");
+}
+
 importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 importPackage(Packages.de.ingrid.geo.utils.transformation);
@@ -33,7 +37,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 }
 
 // ---------- punktart ----------
-var punktartId = sourceRecord.get(DatabaseSourceRecord.ID);
+var punktartId = sourceRecord.get("id");
 var punktartRows = SQL.all("SELECT * FROM punktart WHERE id=?", [punktartId]);
 for (i=0; i<punktartRows.size(); i++) {
     var punktartRow = punktartRows.get(i);

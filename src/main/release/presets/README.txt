@@ -1,8 +1,6 @@
-Subdirectories contain spring configurations and mapping scripts for extending default behaviour !
+Subdirectories contain override configurations and mapping scripts for extending default behaviour !
 
 Copy the
-- spring*.xml file to WEB-INF/override
-- and the mapping scripts to conf/mapping
-
-NOTICE:
-The spring*.xml files may not be up to date yet and maybe have to be adapted to current state of the according java classes.
+- adapt config.override.properties in conf-directory
+- and copy the mapping scripts to conf/mapping
+- make sure boosting is disabled in elasticsearch.properties!!!

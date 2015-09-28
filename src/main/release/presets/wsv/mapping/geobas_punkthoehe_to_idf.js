@@ -20,6 +20,10 @@
  * limitations under the Licence.
  * **************************************************#
  */
+if (javaVersion.indexOf( "1.8" ) === 0) {
+    load("nashorn:mozilla_compat.js");
+}
+
 importPackage(Packages.org.w3c.dom);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 
@@ -35,7 +39,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
 
 // ========== punkthoehe ==========
-var punkthoeheId = sourceRecord.get(DatabaseSourceRecord.ID);
+var punkthoeheId = sourceRecord.get("id");
 var punkthoeheRows = SQL.all("SELECT * FROM punkthoehe WHERE id=?", [punkthoeheId]);
 for (i=0; i<punkthoeheRows.size(); i++) {
     var punkthoeheRow = punkthoeheRows.get(i);
