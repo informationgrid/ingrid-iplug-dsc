@@ -66,17 +66,18 @@ public class SpringConfiguration {
         List<Object> scripts = doc.getArrayList( "scripts" );
         Resource[] mappingScripts = convertToMappingScriptResources( scripts );
         mapper.setMappingScripts( mappingScripts );
-        mapper.setCompile( (Boolean) doc.getOrDefault( "compile", true ) );
+        Boolean compile = (Boolean) doc.get( "compile" );
+        mapper.setCompile( compile == null ? true : compile );
         return mapper;
     }
 
     public ScriptedIdfMapper scriptedIdfMapper(IngridDocument doc) {
-        // Log.debug( DscSearchPlug.conf.databaseUrl );
         ScriptedIdfMapper mapper = new ScriptedIdfMapper();
         List<Object> scripts = doc.getArrayList( "scripts" );
         Resource[] mappingScripts = convertToMappingScriptResources( scripts );
         mapper.setMappingScripts( mappingScripts );
-        mapper.setCompile( (Boolean) doc.getOrDefault( "compile", true ) );
+        Boolean compile = (Boolean) doc.get( "compile" );
+        mapper.setCompile( compile == null ? true : compile );
         return mapper;
     }
 
