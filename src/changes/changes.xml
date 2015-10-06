@@ -41,6 +41,9 @@
       <action type="fix" dev="wemove" issue="REDMINE-119">
         Make mapping with javascript thread safe using java 1.8 and nashorn (now synchronized map method).
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-176">
+        Fixed query problem with wildcards.
+      </action>
     </release>
 
     <release version="3.6.0.4" date="2015-09-28" description="Release 3.6.0.4">
