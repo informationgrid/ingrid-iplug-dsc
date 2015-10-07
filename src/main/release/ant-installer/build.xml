@@ -119,7 +119,7 @@
         <then>
             <propertyfile file="${config}">
                 <entry key="mapper.index.fieldId" value="t02_address.id" />
-                <entry key="mapper.index.docSql" value="SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND publish_id=1" />
+                <entry key="mapper.index.docSql" value="SELECT DISTINCT id FROM t02_address WHERE work_state='V' AND publish_id=1" />
                 <entry key="mapper.index.beans" value='[ { "type": "indexMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/igc_to_lucene_address.js"]} ]' />
                 <entry key="mapper.idf.beans" value='[ { "type": "createIdfMapper" }, { "type": "scriptedIdfMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/igc_to_idf_address.js"] } ]' />
             </propertyfile>
@@ -131,7 +131,7 @@
         <then>
             <propertyfile file="${config}">
                 <entry key="mapper.index.fieldId" value="t02_address.id" />
-                <entry key="mapper.index.docSql" value="SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND (publish_id=1 OR publish_id=2)" />
+                <entry key="mapper.index.docSql" value="SELECT DISTINCT id FROM t02_address WHERE work_state='V' AND (publish_id=1 OR publish_id=2)" />
                 <entry key="mapper.index.beans" value='[ { "type": "indexMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/igc_to_lucene_address.js"]} ]' />
                 <entry key="mapper.idf.beans" value='[ { "type": "createIdfMapper" }, { "type": "scriptedIdfMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/igc_to_idf_address.js"] } ]' />
             </propertyfile>
