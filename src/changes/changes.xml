@@ -29,6 +29,9 @@
   </properties>
   <body>
     <release version="3.6.1-SNAPSHOT" date="???" description="???">
+      <action type="add" dev="wemove" issue="REDMINE-13">
+        Add useConstraints to index and IDF.
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-13">
         Update mapping of Geo-Dataset/-Service: Separate namespace and resource identifier with "/" instead of "#". 
       </action>

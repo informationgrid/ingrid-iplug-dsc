@@ -366,6 +366,11 @@ for (i=0; i<objRows.size(); i++) {
     for (j=0; j<rows.size(); j++) {
         addObjectUse(rows.get(j));
     }
+    // ---------- object_use_constraint ----------
+    var rows = SQL.all("SELECT * FROM object_use_constraint WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addObjectUseConstraint(rows.get(j));
+    }
     // ---------- object_conformity ----------
     var rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [objId]);
     for (j=0; j<rows.size(); j++) {
@@ -897,6 +902,11 @@ function addObjectUse(row) {
     IDX.add("object_use.line", row.get("line"));
     IDX.add("object_use.terms_of_use_key", row.get("terms_of_use_key"));
     IDX.add("object_use.terms_of_use_value", row.get("terms_of_use_value"));
+}
+function addObjectUseConstraint(row) {
+    IDX.add("object_use_constraint.line", row.get("line"));
+    IDX.add("object_use_constraint.license_key", row.get("license_key"));
+    IDX.add("object_use_constraint.license_value", row.get("license_value"));
 }
 function addObjectConformity(row) {
     IDX.add("object_conformity.line", row.get("line"));
