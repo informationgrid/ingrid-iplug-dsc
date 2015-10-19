@@ -32,6 +32,9 @@
                 <echo>Patching spring.xml file in basedir: </echo>
                 <patchFile patchFile="patches/3.3.1/spring_${springConfig}.xml.patch" originalFile="${installDir}/webapp/WEB-INF/spring.xml" />
             </then>
+            <else>
+              <echo>Nothing to do!</echo>
+            </else>
         </if>
     </target>
 
@@ -45,6 +48,9 @@
                 <echo>Patching spring.xml file in basedir: </echo>
                 <patchFile patchFile="patches/3.3.2/spring_${springConfig}.xml.patch" originalFile="${installDir}/webapp/WEB-INF/spring.xml" />
             </then>
+            <else>
+              <echo>Nothing to do!</echo>
+            </else>
         </if>
     </target>
     
@@ -58,6 +64,9 @@
                 <echo>Removing old index directory, which is replaced by ElasticSearch </echo>
                 <delete dir="${installDir}/index" />
             </then>
+            <else>
+              <echo>Nothing to do!</echo>
+            </else>
         </if>
     </target>
 
