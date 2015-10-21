@@ -9,12 +9,12 @@
 # Licensed under the EUPL, Version 1.1 or – as soon they will be
 # approved by the European Commission - subsequent versions of the
 # EUPL (the "Licence");
-# 
+#
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at:
-# 
+#
 # http://ec.europa.eu/idabc/eupl5
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the Licence is distributed on an "AS IS" basis,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -122,6 +122,41 @@ stopNoExitIplug()
 }
 
 
+prepareJavaStatement()
+{
+    # some Java parameters
+    if [ "$INGRID_JAVA_HOME" != "" ]; then
+      #echo "run java in $INGRID_JAVA_HOME"
+      JAVA_HOME=$INGRID_JAVA_HOME
+    fi
+
+    if [ "$JAVA_HOME" = "" ]; then
+      echo "Error: JAVA_HOME is not set."
+      exit 1
+    fi
+
+    JAVA=$JAVA_HOME/bin/java
+
+    # so that filenames w/ spaces are handled correctly in loops below
+    IFS=
+    # add libs to CLASSPATH
+    CLASSPATH=${CLASSPATH}:${INGRID_CONF_DIR:=$INGRID_HOME/conf}
+    for f in $INGRID_HOME/lib/*.jar; do
+      CLASSPATH=${CLASSPATH}:$f;
+    done
+    # restore ordinary behaviour
+    unset IFS
+
+    # cygwin path translation
+    if expr `uname` : 'CYGWIN*' > /dev/null; then
+      CLASSPATH=`cygpath -p -w "$CLASSPATH"`
+    fi
+
+    # run it
+    export CLASSPATH="$CLASSPATH"
+    INGRID_OPTS="-Dingrid_home=$INGRID_HOME $INGRID_OPTS"
+}
+
 startIplug()
 {
   echo "Try starting jetty ($INGRID_HOME)..."
@@ -134,37 +169,8 @@ startIplug()
       fi
   fi
 
-  # some Java parameters
-  if [ "$INGRID_JAVA_HOME" != "" ]; then
-    #echo "run java in $INGRID_JAVA_HOME"
-    JAVA_HOME=$INGRID_JAVA_HOME
-  fi
+  prepareJavaStatement
 
-  if [ "$JAVA_HOME" = "" ]; then
-    echo "Error: JAVA_HOME is not set."
-    exit 1
-  fi
-
-  JAVA=$JAVA_HOME/bin/java
-  
-  # so that filenames w/ spaces are handled correctly in loops below
-  IFS=
-  # add libs to CLASSPATH
-  CLASSPATH=${CLASSPATH}:${INGRID_CONF_DIR:=$INGRID_HOME/conf}
-  for f in $INGRID_HOME/lib/*.jar; do
-    CLASSPATH=${CLASSPATH}:$f;
-  done
-  # restore ordinary behaviour
-  unset IFS
-
-  # cygwin path translation
-  if expr `uname` : 'CYGWIN*' > /dev/null; then
-    CLASSPATH=`cygpath -p -w "$CLASSPATH"`
-  fi
-
-  # run it
-  export CLASSPATH="$CLASSPATH"
-  INGRID_OPTS="-Dingrid_home=$INGRID_HOME $INGRID_OPTS"
   CLASS=de.ingrid.iplug.dsc.DscSearchPlug
 
   exec nohup "$JAVA" $INGRID_OPTS $CLASS > console.log &
@@ -172,6 +178,8 @@ startIplug()
   echo "jetty ($INGRID_HOME) started."
   echo $! > $PID
 }
+
+
 
 # make sure the current user has the privilege to execute that script
 if [ "$INGRID_USER" = "" ]; then
@@ -215,8 +223,13 @@ case "$1" in
       echo "process is not running. Exit."
     fi
     ;;
+  resetPassword)
+    prepareJavaStatement
+    CLASS=de.ingrid.admin.command.AdminManager
+    exec "$JAVA" $INGRID_OPTS $CLASS reset_password $2
+    ;;
   *)
-    echo "Usage: $0 {start|stop|restart|status}"
+    echo "Usage: $0 {start|stop|restart|status|resetPassword <newPassword>}"
     exit 1
     ;;
 esac
