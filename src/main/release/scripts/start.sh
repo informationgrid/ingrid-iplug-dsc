@@ -121,7 +121,6 @@ stopNoExitIplug()
     fi
 }
 
-
 prepareJavaStatement()
 {
     # some Java parameters
@@ -227,6 +226,7 @@ case "$1" in
     prepareJavaStatement
     CLASS=de.ingrid.admin.command.AdminManager
     exec "$JAVA" $INGRID_OPTS $CLASS reset_password $2
+    echo "Please restart the iPlug to read updated configuration."
     ;;
   *)
     echo "Usage: $0 {start|stop|restart|status|resetPassword <newPassword>}"
