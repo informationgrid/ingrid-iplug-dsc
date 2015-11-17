@@ -1617,7 +1617,7 @@ function getMdKeywords(rows) {
             // INSPIRE always has to be in ENGLISH for correct mapping in IGE CSW Import
             var type = row.get("type");
             if (type.equals("I")) {
-                keywordValue = TRANSF.getIGCSyslistEntryName(6100, row.get("entry_id"), "en");
+                keywordValue = TRANSF.getIGCSyslistEntryName(6100, row.get("entry_id"), "de");
             }
 
         // "t011_obj_serv_type" table
