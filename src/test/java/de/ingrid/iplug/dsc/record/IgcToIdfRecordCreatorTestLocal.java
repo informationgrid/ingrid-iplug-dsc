@@ -43,7 +43,7 @@ import de.ingrid.utils.xml.PlugdescriptionSerializer;
 public class IgcToIdfRecordCreatorTestLocal extends TestCase {
 
 	// set num threads here !!!
-	int numThreads = 3;
+	int numThreads = 10;
 	
 	DscRecordCreator recordCreator;
 
@@ -113,7 +113,9 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
 					threadsFinished = false;
 					Thread.sleep(500);
 					break;
-				}
+                } else if (threads[i].getException() != null) {
+                    throw new RuntimeException( "Thread " + threads[i] + " threw exception: ", threads[i].getException() );
+                }
 			}
 		}
     }
@@ -122,13 +124,13 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
         String[] t01ObjectIds = new String[] {
         		"6667",		// class 0 = Organisationseinheit/Fachaufgabe
         		"3776",		// class 1 = Geo-Information/Karte -> coupled mit Dienst ID 7897096
+//                "3776",     // class 1 = Geo-Information/Karte, "Coupled Data" !!! (BUT t011_obj_serv_op_connpoint HAS TO BE CONNECTED IN DB MANUALLY !? missing !?)
         		"3778",		// class 1 = Geo-Information/Karte -> t0114_env_category, t0114_env_topic -> gmd:descriptiveKeywords + object_data_quality DQ !!!
         		"6672",		// class 1 = Geo-Information/Karte, mit t011_obj_geo_symc + object_reference.special_ref 3555
         		"6146",		// class 1 = Geo-Information/Karte, mit t011_obj_geo.keyc_incl_w_dataset + t011_obj_geo_supplinfo + DQ
         		"5388",		// class 1 = Geo-Information/Karte, mit t011_obj_geo.keyc_incl_w_dataset + object_reference.special_ref 3535 + DQ
         		"5933",		// class 1 = Geo-Information/Karte, mit multiple t012_obj_adr associations + DQ
         		"3787",		// class 1 = Geo-Information/Karte, t012_obj_adr.type = 5 -> gmd:distributorContact + DQ
-        		"3776",		// class 1 = Geo-Information/Karte, "Coupled Data" !!! (BUT t011_obj_serv_op_connpoint HAS TO BE CONNECTED IN DB MANUALLY !? missing !?)
         		"3919",		// class 2 = Dokument/Bericht/Literatur + DQ
         		"3918",		// class 2 = Dokument/Bericht/Literatur, object_reference.special_ref -> srv:SV_CouplingType "loose"
         		"7897096",	// class 3 = Geodatendienst, t011_obj_serv gefuellt
@@ -174,6 +176,8 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
     	private int threadNumber;
     	private boolean isRunning = false;
 
+    	private Exception myException = null;
+
     	public TestDscRecordCreatorThread(int threadNumber) {
     		this.threadNumber = threadNumber;
     	}
@@ -186,7 +190,9 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
         		doTestDscRecordCreator();    			
     		} catch (Exception ex) {
         		System.out.println("!!!!!!!!!! Thread " + threadNumber + " EXCEPTION: " + ex);
-        		throw new RuntimeException(ex);
+                isRunning = false;
+                myException = ex;
+                throw new RuntimeException( ex );
     		}
 
     		long endTime = System.currentTimeMillis();
@@ -205,5 +211,13 @@ public class IgcToIdfRecordCreatorTestLocal extends TestCase {
     	public boolean isRunning() {
     		return isRunning;
     	}
+
+        public Exception getException() {
+            return myException;
+        }
+
+        public String toString() {
+            return "THREAD " + threadNumber;
+        }
     }
 }

@@ -42,12 +42,18 @@ public interface IIdfMapper {
     /**
      * Map a {@link SourceRecord} to an InGrid Detail data Format (IDF). The
      * implementing class must take care that all required parameters are
-     * present in the {@link SourceRecord}.
+     * present in the {@link SourceRecord}.<br>
+     * <b>NOTICE: With Java 1.8 and nashorn:mozilla_compat.js mapping engine is
+     * NOT THREAD SAFE ANYMORE !!! So make this method synchronized in
+     * implementation if Java 1.8 and nashorn:mozilla_compat.js is used
+     * (nashorn) !!!<br>
+     * see
+     * https://blogs.oracle.com/nashorn/entry/nashorn_multi_threading_and_mt</b>
      * 
      * @param record
      * @param doc
      * @throws Exception
      */
-    public void map(SourceRecord record, Document doc) throws Exception;
+    public/* synchronized ? */void map(SourceRecord record, Document doc) throws Exception;
 
 }

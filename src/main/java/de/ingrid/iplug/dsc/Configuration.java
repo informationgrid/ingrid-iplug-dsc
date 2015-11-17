@@ -22,7 +22,6 @@
  */
 package de.ingrid.iplug.dsc;
 
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;

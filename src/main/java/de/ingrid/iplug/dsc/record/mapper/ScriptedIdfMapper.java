@@ -69,7 +69,7 @@ public class ScriptedIdfMapper implements IIdfMapper {
     private static final Logger log = Logger.getLogger(ScriptedIdfMapper.class);
 
     @Override
-    public void map(SourceRecord record, Document doc) throws Exception {
+    public synchronized void map(SourceRecord record, Document doc) throws Exception {
         if (mappingScripts == null) {
             log.error("Mapping script(s) not set!");
             throw new IllegalArgumentException("Mapping script(s) not set!");

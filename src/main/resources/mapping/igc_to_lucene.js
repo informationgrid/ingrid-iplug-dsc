@@ -366,6 +366,11 @@ for (i=0; i<objRows.size(); i++) {
     for (j=0; j<rows.size(); j++) {
         addObjectUse(rows.get(j));
     }
+    // ---------- object_use_constraint ----------
+    var rows = SQL.all("SELECT * FROM object_use_constraint WHERE obj_id=?", [objId]);
+    for (j=0; j<rows.size(); j++) {
+        addObjectUseConstraint(rows.get(j));
+    }
     // ---------- object_conformity ----------
     var rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [objId]);
     for (j=0; j<rows.size(); j++) {
@@ -558,7 +563,8 @@ function addT011ObjServOpPlatform(row) {
 }
 function addT011ObjServVersion(row) {
     IDX.add("t011_obj_serv_version.line", row.get("line"));
-    IDX.add("t011_obj_serv_version.version", row.get("serv_version"));
+    IDX.add("t011_obj_serv_version.version_key", row.get("version_key"));
+    IDX.add("t011_obj_serv_version.version_value", row.get("version_value"));
 }
 function addT011ObjServScale(row) {
     IDX.add("t011_obj_serv_scale.line", row.get("line"));
@@ -846,7 +852,7 @@ function addServiceLinkInfo(row, capabilitiyUrl, dsIdentifier, catalog) {
 function addNamespace(identifier, catalog) {
     var myNamespace = "";
     // check if namespace already exists
-    var idTokens = identifier.split("#");
+    var idTokens = identifier.split("/");
     if (idTokens.length > 1 && hasValue(idTokens[0])) {
         return identifier;
     }
@@ -860,13 +866,13 @@ function addNamespace(identifier, catalog) {
         if (!hasValue(dbCatalog)) {
             dbCatalog = catRow.get("cat_name");
         }
-        myNamespace = "http://portalu.de/" + dbCatalog;
+        myNamespace = "https://registry.gdi-de.org/id/" + dbCatalog;
         // JS String !
         myNamespaceLength = myNamespace.length;
     }
     
-    if (myNamespaceLength > 0 && myNamespace.substring(myNamespaceLength-1) != "#") {
-        myNamespace = myNamespace + "#";
+    if (myNamespaceLength > 0 && myNamespace.substring(myNamespaceLength-1) != "/") {
+        myNamespace = myNamespace + "/";
     }
 
     return myNamespace + identifier;
@@ -896,6 +902,11 @@ function addObjectUse(row) {
     IDX.add("object_use.line", row.get("line"));
     IDX.add("object_use.terms_of_use_key", row.get("terms_of_use_key"));
     IDX.add("object_use.terms_of_use_value", row.get("terms_of_use_value"));
+}
+function addObjectUseConstraint(row) {
+    IDX.add("object_use_constraint.line", row.get("line"));
+    IDX.add("object_use_constraint.license_key", row.get("license_key"));
+    IDX.add("object_use_constraint.license_value", row.get("license_value"));
 }
 function addObjectConformity(row) {
     IDX.add("object_conformity.line", row.get("line"));

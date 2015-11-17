@@ -32,6 +32,9 @@
                 <echo>Patching spring.xml file in basedir: </echo>
                 <patchFile patchFile="patches/3.3.1/spring_${springConfig}.xml.patch" originalFile="${installDir}/webapp/WEB-INF/spring.xml" />
             </then>
+            <else>
+              <echo>Nothing to do!</echo>
+            </else>
         </if>
     </target>
 
@@ -45,6 +48,9 @@
                 <echo>Patching spring.xml file in basedir: </echo>
                 <patchFile patchFile="patches/3.3.2/spring_${springConfig}.xml.patch" originalFile="${installDir}/webapp/WEB-INF/spring.xml" />
             </then>
+            <else>
+              <echo>Nothing to do!</echo>
+            </else>
         </if>
     </target>
     
@@ -58,10 +64,36 @@
                 <echo>Removing old index directory, which is replaced by ElasticSearch </echo>
                 <delete dir="${installDir}/index" />
             </then>
+            <else>
+              <echo>Nothing to do!</echo>
+            </else>
+        </if>
+    </target>
+    
+    <target name="patchFromVersion3.6.0.4">
+        <compareVersion value1="${oldVersion}" value2="3.6.0.4" prop="compResult"/>
+        <if>
+            <not>
+                <equals arg1="${compResult}" arg2="1" />
+            </not>
+            <then>
+                <echo>Migrating password</echo>
+                <java classname="de.ingrid.admin.command.AdminManager" fork="true" dir="${installDir}">
+                    <arg value="migrate_password" />
+                    <classpath>
+                        <fileset dir="${installDir}/lib">
+                           <include name="**/*.jar"/>
+                        </fileset>
+                    </classpath>
+                </java>
+            </then>
+            <else>
+              <echo>Nothing to do!</echo>
+            </else>
         </if>
     </target>
 
-	<target name="patchFiles" depends="patchFromVersion3.3.0,patchFromVersion3.3.1,patchFromVersion3.5.0">
+	<target name="patchFiles" depends="patchFromVersion3.3.0,patchFromVersion3.3.1,patchFromVersion3.5.0,patchFromVersion3.6.0.4">
 		<!-- patch order determined through depends-order -->
 	</target>
 </project>

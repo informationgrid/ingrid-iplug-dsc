@@ -29,10 +29,10 @@ import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.utils.ElasticDocument;
 
 /**
- * Interface for all "source record to lucene document mapper" classes.
- * Document mapper have knowledge of the underlying datasource and how to
- * retrieve a dataset from the datasource based on a record from a
- * IRecordSetProducer and map the dataset to a LuceneDocument.
+ * Interface for all "source record to lucene document mapper" classes. Document
+ * mapper have knowledge of the underlying datasource and how to retrieve a
+ * dataset from the datasource based on a record from a IRecordSetProducer and
+ * map the dataset to a LuceneDocument.
  * 
  * @author joachim@wemove.com
  * 
@@ -43,12 +43,18 @@ public interface IRecordMapper {
      * Maps a source record into a lucene document. The content of the source
      * record may vary. It is up to the implementing class to interpret the
      * source record and throw exceptions, if the record does not comply with
-     * the needs of the mapper.
+     * the needs of the mapper.<br>
+     * <b>NOTICE: With Java 1.8 and nashorn:mozilla_compat.js mapping engine is
+     * NOT THREAD SAFE ANYMORE !!! So make this method synchronized in
+     * implementation if Java 1.8 and nashorn:mozilla_compat.js is used
+     * (nashorn) !!!<br>
+     * see
+     * https://blogs.oracle.com/nashorn/entry/nashorn_multi_threading_and_mt</b>
      * 
      * @param record
      * @param doc
      * @return
      */
-    void map(SourceRecord record, ElasticDocument doc) throws Exception;
+    /* synchronized ? */void map(SourceRecord record, ElasticDocument doc) throws Exception;
 
 }

@@ -28,6 +28,33 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.6.1" date="2015-11-17" description="Release InGrid 3.6.1">
+      <action type="add" dev="wemove" issue="REDMINE-13">
+        Add useConstraints to index and IDF.
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-13">
+        Update mapping of Geo-Dataset/-Service: Separate namespace and resource identifier with "/" instead of "#". 
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-47">
+        Update mapping of version of service to index and IDF (now syslist with key and value).
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-15">
+        Remove all references to PortalU.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-119">
+        Make mapping with javascript thread safe using java 1.8 and nashorn (now synchronized map method).
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-176">
+        Fixed query problem with wildcards.
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-106">
+        Use encrypted password for web interface.
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-207">
+        Use German INSPIRE topics as default.
+      </action>
+    </release>
+
     <release version="3.6.0.4" date="2015-09-28" description="Release 3.6.0.4">
       <action type="add" dev="wemove" issue="REDMINE-161">
         More flexible configuration for mappers, which is needed for correct updates.
@@ -42,7 +69,7 @@
         Fixed query generation.
       </action>
     </release>
-    
+
     <release version="3.6.0.2" date="2015-07-15" description="Release 3.6.0.2">
       <action type="fix" dev="wemove" issue="REDMINE-89">
         Handle requestedFields as lower case also when getting a single detail.

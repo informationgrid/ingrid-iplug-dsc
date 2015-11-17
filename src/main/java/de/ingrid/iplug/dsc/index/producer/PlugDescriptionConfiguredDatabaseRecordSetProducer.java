@@ -137,6 +137,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
     private void createRecordIdsFromDatabase() {
         try {
             List<String> recordIds = new ArrayList<String>();
+            log.debug("SQL: " + recordSql);
             PreparedStatement ps = connection.prepareStatement(recordSql);
             try {
                 ResultSet rs = ps.executeQuery();

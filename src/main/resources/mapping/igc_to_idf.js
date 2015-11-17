@@ -50,7 +50,7 @@ var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStan
 
 // ---------- <idf:html> ----------
 var idfHtml = XPATH.getNode(idfDoc, "/idf:html")
-DOM.addAttribute(idfHtml, "idf-version", "3.3.4");
+DOM.addAttribute(idfHtml, "idf-version", "3.6.1");
 
 // ---------- <idf:body> ----------
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
@@ -688,7 +688,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:identificationInfo/srv:serviceTypeVersion> ----------
         rows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [objServId]);
         for (i=0; i<rows.size(); i++) {
-            identificationInfo.addElement("srv:serviceTypeVersion/gco:CharacterString").addText(rows.get(i).get("serv_version"));
+            identificationInfo.addElement("srv:serviceTypeVersion/gco:CharacterString").addText(rows.get(i).get("version_value"));
         }
 
 
@@ -1229,16 +1229,12 @@ function getCitationIdentifier(objRow, otherObjId) {
     
     // analyze namespace, add default if not set
     var myNamespace = "";
-    var idTokens = id.split("#");
-    if (idTokens.length > 1) {
-        myNamespace = idTokens[0];
-    }
-
-    // namespace already part of id, ok ! 
-    if (hasValue(myNamespace)) {
+    var idTokens = id.split("/");
+    if (idTokens.length > 1 && hasValue(idTokens[0])) {
+        // namespace already part of id, ok ! 
         return id;
     }
-    
+
     // no namespace
     // namespace set in catalog ?
     myNamespace = catRow.get("cat_namespace");
@@ -1251,7 +1247,7 @@ function getCitationIdentifier(objRow, otherObjId) {
         if (!hasValue(dbCatalog)) {
             dbCatalog = catRow.get("cat_name");
         }
-        myNamespace = "http://portalu.de/" + dbCatalog;
+        myNamespace = "https://registry.gdi-de.org/id/" + dbCatalog;
         // JS String !
         myNamespaceLength = myNamespace.length;
     } else {
@@ -1259,8 +1255,8 @@ function getCitationIdentifier(objRow, otherObjId) {
         myNamespaceLength = myNamespace.length();
     }
     
-    if (myNamespaceLength > 0 && myNamespace.substring(myNamespaceLength-1) != "#") {
-        myNamespace = myNamespace + "#";
+    if (myNamespaceLength > 0 && myNamespace.substring(myNamespaceLength-1) != "/") {
+        myNamespace = myNamespace + "/";
     }
 
     id = myNamespace + id;
@@ -1618,10 +1614,10 @@ function getMdKeywords(rows) {
         if (hasValue(row.get("term"))) {
             keywordValue = row.get("term");
 
-            // INSPIRE always has to be in ENGLISH for correct mapping in IGE CSW Import
+            // INSPIRE does not have to be in ENGLISH anymore for correct mapping in IGE CSW Import
             var type = row.get("type");
             if (type.equals("I")) {
-                keywordValue = TRANSF.getIGCSyslistEntryName(6100, row.get("entry_id"), "en");
+                keywordValue = TRANSF.getIGCSyslistEntryName(6100, row.get("entry_id"), "de");
             }
 
         // "t011_obj_serv_type" table
@@ -1717,19 +1713,43 @@ function addResourceConstraints(identificationInfo, objRow) {
     for (var i=0; i<rows.size(); i++) {
         row = rows.get(i);
 
-        // IGC syslist entry or free entry ?
-        // NOTICE: Syslist depends from OpenData option !
-        var sysListId = 6020;
-        if (isOpenData) {
-            sysListId = 6500;
-        }
-        var termsOfUse = TRANSF.getIGCSyslistEntryName(sysListId, row.get("terms_of_use_key"));
-        if (!hasValue(termsOfUse)) {
-            termsOfUse = row.get("terms_of_use_value");
-        }            
-
+        // Always free entry now, see https://dev.informationgrid.eu/redmine/issues/13
+        var termsOfUse = row.get("terms_of_use_value");
         if (hasValue(termsOfUse)) {
-            identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation/gco:CharacterString").addText(termsOfUse);
+            identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString").addText(termsOfUse);
+        }
+    }
+
+    // mapping of object_use_constraint see https://dev.informationgrid.eu/redmine/issues/13
+    rows = SQL.all("SELECT * FROM object_use_constraint WHERE obj_id=?", [objId]);
+    for (var i=0; i<rows.size(); i++) {
+        row = rows.get(i);
+
+        var licenseText = TRANSF.getIGCSyslistEntryName(6500, row.get("license_key"));
+        if (!hasValue(licenseText)) {
+        	licenseText = row.get("license_value");
+        }
+        
+        if (hasValue(licenseText)) {
+            // i.S.v. INSPIRE
+        	identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString").addText(licenseText);
+
+            var mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
+            // i.S.v. ISO 19115
+            mdLegalConstraints.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
+            	.addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
+            	.addAttribute("codeListValue", "license");
+            // i.S.v. ISO 19115
+            mdLegalConstraints.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
+            	.addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
+            	.addAttribute("codeListValue", "otherRestrictions");
+            // i.S.v. ISO 19115
+            mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(licenseText);
+
+            var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
+            if (hasValue(licenseJSON)) {
+                mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(licenseJSON);            	
+            }
         }
     }
 
