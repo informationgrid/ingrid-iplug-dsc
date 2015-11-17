@@ -28,7 +28,7 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
-    <release version="3.6.1-SNAPSHOT" date="???" description="???">
+    <release version="3.6.1" date="2015-11-17" description="Release InGrid 3.6.1">
       <action type="add" dev="wemove" issue="REDMINE-13">
         Add useConstraints to index and IDF.
       </action>
@@ -49,6 +49,9 @@
       </action>
       <action type="update" dev="wemove" issue="REDMINE-106">
         Use encrypted password for web interface.
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-207">
+        Use German INSPIRE topics as default.
       </action>
     </release>
 

@@ -1614,7 +1614,7 @@ function getMdKeywords(rows) {
         if (hasValue(row.get("term"))) {
             keywordValue = row.get("term");
 
-            // INSPIRE always has to be in ENGLISH for correct mapping in IGE CSW Import
+            // INSPIRE does not have to be in ENGLISH anymore for correct mapping in IGE CSW Import
             var type = row.get("type");
             if (type.equals("I")) {
                 keywordValue = TRANSF.getIGCSyslistEntryName(6100, row.get("entry_id"), "de");
