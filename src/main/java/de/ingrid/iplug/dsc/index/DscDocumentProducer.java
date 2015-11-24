@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.producer.IRecordSetProducer;
@@ -129,6 +130,11 @@ public class DscDocumentProducer implements IDocumentProducer {
 
     public void setRecordMapperList(List<IRecordMapper> recordMapperList) {
         this.recordMapperList = recordMapperList;
+    }
+
+    @Override
+    public IndexInfo getIndexInfo() {
+        return null;
     }
 
 }

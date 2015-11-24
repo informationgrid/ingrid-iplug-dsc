@@ -97,6 +97,8 @@
     </util:map>
 
     <context:component-scan base-package="de.ingrid">
+        <context:exclude-filter type="regex" expression="de.ingrid.admin.object.DefaultDataType"/>
+        <context:exclude-filter type="regex" expression="de.ingrid.admin.object.BasePlug"/>
     </context:component-scan>
     
     <mvc:annotation-driven/>
