@@ -85,6 +85,7 @@ public class DscRecordCreator {
         try {
             datasource = recordProducer.openDatasource();
             SourceRecord sourceRecord = recordProducer.getRecord(idxDoc, datasource);
+            if (sourceRecord == null) return null;
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = dbf.newDocumentBuilder();
             org.w3c.dom.Document idfDoc = docBuilder.newDocument();

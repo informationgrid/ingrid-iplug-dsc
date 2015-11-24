@@ -81,7 +81,12 @@ public class PlugDescriptionConfiguredDatabaseRecordProducer implements IRecordP
         Object field = doc.get(indexFieldID);
 
         // TODO: what if field is a list?
-        return new DatabaseSourceRecord(field.toString(), ((ClosableDatabaseConnection) ds).getConnection());
+        try {
+            return new DatabaseSourceRecord(field.toString(), ((ClosableDatabaseConnection) ds).getConnection());
+            
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /*
