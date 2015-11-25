@@ -28,6 +28,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.6.2-SNAPSHOT" date="??" description="??">
+      <action type="update" dev="wemove" issue="REDMINE-223">
+        Fixes for GDI-DE conformity: When mapped to IDF add "Nutzungseinschränkungen: " / "Nutzungsbedingungen: " pre text to useLimitation / useConstraints (otherConstraints).
+      </action>
+    </release>
+    
     <release version="3.6.1" date="2015-11-17" description="Release InGrid 3.6.1">
       <action type="add" dev="wemove" issue="REDMINE-13">
         Add useConstraints to index and IDF.
