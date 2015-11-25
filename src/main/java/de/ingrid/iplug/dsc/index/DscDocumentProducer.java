@@ -56,6 +56,8 @@ public class DscDocumentProducer implements IDocumentProducer {
 
     //@Autowired
     private List<IRecordMapper> recordMapperList = null;
+    
+    private IndexInfo indexInfo = null;
 
     final private static Log log = LogFactory.getLog(DscDocumentProducer.class);
     
@@ -134,7 +136,11 @@ public class DscDocumentProducer implements IDocumentProducer {
 
     @Override
     public IndexInfo getIndexInfo() {
-        return null;
+        return this.indexInfo;
+    }
+
+    public void setIndexInfo(IndexInfo indexInfo) {
+        this.indexInfo = indexInfo;
     }
 
 }
