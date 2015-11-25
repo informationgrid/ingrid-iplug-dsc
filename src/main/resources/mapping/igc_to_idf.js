@@ -1716,7 +1716,8 @@ function addResourceConstraints(identificationInfo, objRow) {
         // Always free entry now, see https://dev.informationgrid.eu/redmine/issues/13
         var termsOfUse = row.get("terms_of_use_value");
         if (hasValue(termsOfUse)) {
-            identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString").addText(termsOfUse);
+        	// also add "Nutzungseinschränkungen: " according to GDI-DE Konventionen page 17 !
+            identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString").addText("Nutzungseinschränkungen: " + termsOfUse);
         }
     }
 
@@ -1732,7 +1733,8 @@ function addResourceConstraints(identificationInfo, objRow) {
         
         if (hasValue(licenseText)) {
             // i.S.v. INSPIRE
-        	identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString").addText(licenseText);
+        	// also add "Nutzungsbedingungen: " according to GDI-DE Konventionen page 17 !
+        	identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString").addText("Nutzungsbedingungen: " + licenseText);
 
             var mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
             // i.S.v. ISO 19115
@@ -1744,7 +1746,8 @@ function addResourceConstraints(identificationInfo, objRow) {
             	.addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
             	.addAttribute("codeListValue", "otherRestrictions");
             // i.S.v. ISO 19115
-            mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(licenseText);
+        	// also add "Nutzungsbedingungen: " according to GDI-DE Konventionen page 17 !
+            mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText("Nutzungsbedingungen: " + licenseText);
 
             var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
             if (hasValue(licenseJSON)) {
