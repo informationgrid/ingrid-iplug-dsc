@@ -53,5 +53,9 @@ public interface IRecordSetProducer {
      */
     public SourceRecord next() throws Exception;
 
-    
+    /**
+     * Resets the source where the documents come from and makes sure that the next
+     * hasNext()-call starts from the beginning again.
+     */
+    void reset();
 }

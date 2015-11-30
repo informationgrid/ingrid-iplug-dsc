@@ -84,10 +84,19 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         if (recordIdIterator.hasNext()) {
             return true;
         } else {
-            recordIdIterator =  null;
-            closeConnection();
+            reset();
             return false;
         }
+    }
+    
+    /**
+     * Closes the connection to the database and resets the iterator for the records. 
+     * After a reset, the hasNext() function will start from the beginning again.
+     */
+    @Override
+    public void reset() {
+        recordIdIterator =  null;
+        closeConnection();
     }
 
     /*
