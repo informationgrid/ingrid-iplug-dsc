@@ -58,4 +58,10 @@ public interface IRecordSetProducer {
      * hasNext()-call starts from the beginning again.
      */
     void reset();
+
+    /**
+     * Get the total number of documents.
+     * @return the total number of documents, otherwise 'null' if it cannot be determined before.
+     */
+    public int getDocCount();
 }

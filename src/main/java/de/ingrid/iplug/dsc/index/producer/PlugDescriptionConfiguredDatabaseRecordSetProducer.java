@@ -62,6 +62,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
     Connection connection = null;
     String recordSql = "";
     Iterator<String> recordIdIterator = null;
+    private int numRecords;
 
     final private static Log log = LogFactory
             .getLog(PlugDescriptionConfiguredDatabaseRecordSetProducer.class);
@@ -155,6 +156,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
                         recordIds.add(rs.getString(1));
                     }
                     recordIdIterator = recordIds.listIterator();
+                    numRecords = recordIds.size();
                 } catch (Exception e) {
                     throw e;
                 } finally {
@@ -168,6 +170,11 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         } catch (Exception e) {
             log.error("Error creating record ids.", e);
         }
+    }
+
+    @Override
+    public int getDocCount() {
+        return numRecords;
     }
 
 

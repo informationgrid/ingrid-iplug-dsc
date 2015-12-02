@@ -154,6 +154,16 @@ public class DscDocumentProducer implements IDocumentProducer {
         log.info("DscDocumentProducer: configuring...");
     }
 
+    @Override
+    public Integer getDocumentCount() {
+        try {
+            if (recordSetProducer.hasNext()) {
+                return recordSetProducer.getDocCount();
+            }
+        } catch (Exception e) {}
+        return null;
+    }
+    
     public IRecordSetProducer getRecordSetProducer() {
         return recordSetProducer;
     }
