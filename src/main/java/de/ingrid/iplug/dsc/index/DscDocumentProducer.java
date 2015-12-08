@@ -29,8 +29,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.producer.IRecordSetProducer;
@@ -55,6 +55,8 @@ public class DscDocumentProducer implements IDocumentProducer {
 
     //@Autowired
     private List<IRecordMapper> recordMapperList = null;
+    
+    private IndexInfo indexInfo = null;
 
     final private static Log log = LogFactory.getLog(DscDocumentProducer.class);
     
@@ -103,6 +105,43 @@ public class DscDocumentProducer implements IDocumentProducer {
             return null;
         }
     }
+    
+    /**
+     * Get a Elastic Search document by its given ID, which can be found
+     * under the given field
+     * @param id is the ID of the document
+     * @param field is the column of the database where the field is stored
+     * @return an Elastic Search document with the given ID
+     */
+    public ElasticDocument getById(String id, String field) {
+        ElasticDocument doc = new ElasticDocument();
+        // iterate through all docs to make sure connection is closed next time
+        try {
+            while (recordSetProducer.hasNext()) {
+                SourceRecord next = recordSetProducer.next();
+                if (id.equals( next.get( field ) )) {
+                    for (IRecordMapper mapper : recordMapperList) {
+                        long start = 0;
+                        if (log.isDebugEnabled()) {
+                            start = System.currentTimeMillis();
+                        }
+                        mapper.map(next, doc);
+                        if (log.isDebugEnabled()) {
+                            log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
+                        }
+                    }
+                    recordSetProducer.reset();
+                    break; 
+                }
+                
+            }
+        } catch (Exception e) {
+            log.error( "Exception occurred during getting document by ID and mapping it to lucene: " + e.getMessage() );
+            e.printStackTrace();
+            doc = null;
+        }
+        return doc;
+    }
 
     /*
      * (non-Javadoc)
@@ -115,6 +154,16 @@ public class DscDocumentProducer implements IDocumentProducer {
         log.info("DscDocumentProducer: configuring...");
     }
 
+    @Override
+    public Integer getDocumentCount() {
+        try {
+            if (recordSetProducer.hasNext()) {
+                return recordSetProducer.getDocCount();
+            }
+        } catch (Exception e) {}
+        return null;
+    }
+    
     public IRecordSetProducer getRecordSetProducer() {
         return recordSetProducer;
     }
@@ -129,6 +178,15 @@ public class DscDocumentProducer implements IDocumentProducer {
 
     public void setRecordMapperList(List<IRecordMapper> recordMapperList) {
         this.recordMapperList = recordMapperList;
+    }
+
+    @Override
+    public IndexInfo getIndexInfo() {
+        return this.indexInfo;
+    }
+
+    public void setIndexInfo(IndexInfo indexInfo) {
+        this.indexInfo = indexInfo;
     }
 
 }

@@ -62,6 +62,12 @@
         
         <mkdir dir="${installDir}/logs"/>
         <mkdir dir="${installDir}/webapp/WEB-INF/work"/>
+        
+        <echo>Schreiben des Admin-Ports in Konfiguration</echo>
+        <touch file="${config}"/>
+        <propertyfile file="${config}">
+          <entry key="jetty.port" value="${localServerPort}" />
+        </propertyfile>
     </target>
     
     <target name="extractUpdate">
@@ -79,66 +85,7 @@
             <fileset dir="./${componentName}"/>
         </move>
     </target>
-
-    
   
-    <target name="udkPreset" description="Set spring config.">
-        <echo>Verwende UDK-Konfiguration: ${springConfig}</echo>
-    	<touch file="${config}"/>
-  	    <propertyfile file="${config}">
-  	      <entry key="jetty.port" value="${localServerPort}" />
-  	    </propertyfile>
-        
-        
-        <if>
-            <equals arg1="${springConfig}" arg2="object_internet" />
-        <then>
-            <propertyfile file="${config}">
-                <entry key="mapper.index.fieldId" value="t01_object.id" />
-                <entry key="mapper.index.docSql" value="SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND publish_id=1" />
-                <entry key="mapper.index.beans" value='[ { "type": "indexMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/igc_to_lucene.js"]}, { "type": "indexProfileMapper", "sql": "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name=&apos;profileXML&apos;" }]' />
-                <entry key="mapper.idf.beans" value='[ { "type": "createIdfMapper" }, { "type": "scriptedIdfMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/idf_utils.js", "mapping/igc_to_idf.js"] }, { "type": "scriptedIdfMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/idf_utils.js", "mapping/igc_to_idf_obj_dq.js"] }, { "type": "scriptedIdfProfileMapper", "sql": "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name=&apos;profileXML&apos;"} ]' />
-            </propertyfile>
-        </then>
-        </if>
-                
-        <if>
-            <equals arg1="${springConfig}" arg2="object_intranet" />
-        <then>
-            <propertyfile file="${config}">
-                <entry key="mapper.index.fieldId" value="t01_object.id" />
-                <entry key="mapper.index.docSql" value="SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND (publish_id=1 OR publish_id=2)" />
-                <entry key="mapper.index.beans" value='[ { "type": "indexMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/igc_to_lucene.js"]}, { "type": "indexProfileMapper", "sql": "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name=&apos;profileXML&apos;" }]' />
-                <entry key="mapper.idf.beans" value='[ { "type": "createIdfMapper" }, { "type": "scriptedIdfMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/idf_utils.js", "mapping/igc_to_idf.js"] }, { "type": "scriptedIdfMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/idf_utils.js", "mapping/igc_to_idf_obj_dq.js"] }, { "type": "scriptedIdfProfileMapper", "sql": "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name=&apos;profileXML&apos;"} ]' />
-            </propertyfile>
-        </then>
-        </if>
-                
-        <if>
-            <equals arg1="${springConfig}" arg2="address_internet" />
-        <then>
-            <propertyfile file="${config}">
-                <entry key="mapper.index.fieldId" value="t02_address.id" />
-                <entry key="mapper.index.docSql" value="SELECT DISTINCT id FROM t02_address WHERE work_state='V' AND publish_id=1" />
-                <entry key="mapper.index.beans" value='[ { "type": "indexMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/igc_to_lucene_address.js"]} ]' />
-                <entry key="mapper.idf.beans" value='[ { "type": "createIdfMapper" }, { "type": "scriptedIdfMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/igc_to_idf_address.js"] } ]' />
-            </propertyfile>
-        </then>
-        </if>
-        
-        <if>
-            <equals arg1="${springConfig}" arg2="address_intranet" />
-        <then>
-            <propertyfile file="${config}">
-                <entry key="mapper.index.fieldId" value="t02_address.id" />
-                <entry key="mapper.index.docSql" value="SELECT DISTINCT id FROM t02_address WHERE work_state='V' AND (publish_id=1 OR publish_id=2)" />
-                <entry key="mapper.index.beans" value='[ { "type": "indexMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/igc_to_lucene_address.js"]} ]' />
-                <entry key="mapper.idf.beans" value='[ { "type": "createIdfMapper" }, { "type": "scriptedIdfMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/igc_to_idf_address.js"] } ]' />
-            </propertyfile>
-        </then>
-        </if>
-    </target>
-    
     <target name="startComponent">
         <echo>
 =================

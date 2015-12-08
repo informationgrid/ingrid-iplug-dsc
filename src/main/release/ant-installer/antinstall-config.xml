@@ -81,22 +81,6 @@
             <text property="localServerPort" displayText="Port für Adminoberfläche:" defaultValue="9667"/>
     </page>
 
-  <page
-            ifTarget    ="setInstallProperty"
-            type        ="input"
-            name        ="udkPreset"
-            displayText ="UDK Einstellung"
-            target      ="udkPreset">
-             
-        <select displayText="Zu verwendende UDK Konfiguration:" property="springConfig" defaultValue="true">
-	        <option text="Objekte (Veröffentlichung: Internet)" value="object_internet"/>
-	        <option text="Objekte (Veröffentlichung: Intranet+Internet)" value="object_intranet"/>
-	        <option text="Adresse (Veröffentlichung: Internet)" value="address_internet"/>
-	        <option text="Adresse (Veröffentlichung: Intranet+Internet)" value="address_intranet"/>
-        </select>
-        <comment displayText="" explanatoryText="Welche UDK Daten sollen zugänglich gemacht werden ? Es kann jederzeit ein eigenes Mapping definiert werden."/>
-    </page>
-    
     <!--  type="input" shows a list of editable options for the installer -->
     <page
             ifTarget    ="setInstallProperty"
