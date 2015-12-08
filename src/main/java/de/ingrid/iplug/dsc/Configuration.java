@@ -53,12 +53,15 @@ public class Configuration implements IConfig {
     public String databaseUrl;
     
     @PropertyValue("iplug.database.username")
+    @DefaultValue("")
     public String databaseUsername;
     
     @PropertyValue("iplug.database.password")
+    @DefaultValue("")
     public String databasePassword;
     
     @PropertyValue("iplug.database.schema")
+    @DefaultValue("")
     public String databaseSchema;
     
     
