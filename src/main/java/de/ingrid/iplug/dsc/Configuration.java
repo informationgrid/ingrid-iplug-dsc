@@ -72,9 +72,6 @@ public class Configuration implements IConfig {
     @Deprecated
     public String springProfile;
     
-    @PropertyValue("plugdescription.CORRESPONDENT_PROXY_SERVICE_URL")
-    public String correspondentIPlug;
-
     @PropertyValue("mapper.index.docSql")
     public String indexMapperSql;
 
@@ -113,8 +110,6 @@ public class Configuration implements IConfig {
         
         DatabaseConnection dbc = new DatabaseConnection( databaseDriver, databaseUrl, databaseUsername, databasePassword, databaseSchema );
         pdObject.setConnection( dbc );
-        
-        pdObject.setCorrespondentProxyServiceURL( correspondentIPlug );
     }
 
     @Override
