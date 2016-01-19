@@ -285,10 +285,10 @@ public class TransformationUtils {
                 try {
                     retValue = SQL.first("SELECT name FROM sys_list WHERE lst_id="+igcCodeListId+" AND lang_id='en' AND entry_id="+igcEntryId).get("name");
                 } catch (SQLException e) {
-                    log.error("Cannot transform IGC syslist entry -> listId '" + igcCodeListId +
+                    log.debug("Cannot transform IGC syslist entry -> listId '" + igcCodeListId +
                             "', entryId '" + igcEntryId + "' to ISO CodeList entry.");
                 } catch (NullPointerException e) {
-                    log.error("Cannot get name of syslist entry -> listId '" + igcCodeListId +
+                    log.debug("Cannot get name of syslist entry -> listId '" + igcCodeListId +
                             "', entryId '" + igcEntryId);
                 }
             }
@@ -316,7 +316,7 @@ public class TransformationUtils {
 		try {
 			retValue = SQL.first("SELECT name FROM sys_list WHERE lst_id="+igcCodeListId+" AND lang_id='"+langIdInCodelist+"' AND entry_id="+igcEntryId).get("name");
 		} catch (Exception ex) {
-            log.error("Cannot transform IGC syslist entry -> listId '" + igcCodeListId +
+            log.debug("Cannot transform IGC syslist entry -> listId '" + igcCodeListId +
             	"', entryId '" + igcEntryId + "', langId '" + langIdInCodelist + "' to entry of CodeList.");
 		}
         if (log.isDebugEnabled()) {
@@ -341,7 +341,7 @@ public class TransformationUtils {
 		try {
 			retValue = SQL.first("SELECT entry_id FROM sys_list WHERE lst_id="+codeListId+" AND name=?", new Object[] { entryValue }).get("entry_id");
 		} catch (Exception ex) {
-            log.error("Problems checking entryValue '" + entryValue + "' on ISO Code List '" + codeListId + "'.");
+            log.debug("Problems checking entryValue '" + entryValue + "' on ISO Code List '" + codeListId + "'.");
 		}
         if (log.isDebugEnabled()) {
             log.debug("Checking entryValue '" + entryValue + "' on ISO Code List '" + codeListId + "' delivers entryId '" + retValue + "'.");
@@ -360,7 +360,7 @@ public class TransformationUtils {
 		try {
 			retValue = SQL.first("SELECT data FROM sys_list WHERE lst_id="+codeListId+" AND name=?", new Object[] { entryValue }).get("data");
 		} catch (Exception ex) {
-            log.error("Problems checking entryValue '" + entryValue + "' on ISO Code List '" + codeListId + "'.");
+            log.debug("Problems checking entryValue '" + entryValue + "' on ISO Code List '" + codeListId + "'.");
 		}
         if (log.isDebugEnabled()) {
             log.debug("Checking entryValue '" + entryValue + "' on ISO Code List '" + codeListId + "' delivers data '" + retValue + "'.");
@@ -380,7 +380,7 @@ public class TransformationUtils {
         try {
             iso3166_1_Alpha_3 = UtilsCountryCodelist.getShortcut3FromCode(Integer.valueOf(numericCode));;
         } catch (NumberFormatException e) {
-            log.error("Cannot transform numeric language code '" + numericCode + "' to ISO3166-1 Alpha-3 code.");
+            log.warn("Cannot transform numeric language code '" + numericCode + "' to ISO3166-1 Alpha-3 code.");
             iso3166_1_Alpha_3 = numericCode;
         }
         if (log.isDebugEnabled()) {

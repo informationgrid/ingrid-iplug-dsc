@@ -29,7 +29,10 @@
   </properties>
   <body>
     <release version="3.6.2-SNAPSHOT" date="??" description="??">
-      <action type="update" dev="wemove" issue="REDMINE-223">
+      <action type="update" dev="wemove" issue="REDMINE-250">
+        During mapping log problems transforming syslist entries with debug to avoid lots of irrelevant error output.  
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-223">
         Fixes for GDI-DE conformity: When mapped to IDF add "Nutzungseinschränkungen: " / "Nutzungsbedingungen: " pre text to useLimitation / useConstraints (otherConstraints).
       </action>
     </release>
