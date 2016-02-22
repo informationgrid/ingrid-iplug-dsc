@@ -22,9 +22,10 @@
   **************************************************#
   -->
 
-<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
-http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+<web-app version="2.4"
+    xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
@@ -44,9 +45,10 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
     </servlet>
     <servlet-mapping>
         <servlet-name>springapp</servlet-name>
-        <url-pattern>/</url-pattern>
+        <url-pattern>*.html</url-pattern>
+        <url-pattern>*.json</url-pattern>
     </servlet-mapping>
-
+    
     <servlet>
         <servlet-name>forwarding</servlet-name>
         <servlet-class>de.ingrid.admin.SimpleForwardServlet</servlet-class>
@@ -56,7 +58,7 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
         <servlet-name>forwarding</servlet-name>
         <url-pattern>*.css</url-pattern>
     </servlet-mapping>
-     <servlet-mapping>
+    <servlet-mapping>
         <servlet-name>forwarding</servlet-name>
         <url-pattern>*.jpg</url-pattern>
     </servlet-mapping>
@@ -68,9 +70,9 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
         <servlet-name>forwarding</servlet-name>
         <url-pattern>*.js</url-pattern>
     </servlet-mapping>
-
-  	<listener>
-      <listener-class>de.ingrid.admin.ContextListener</listener-class>
+    
+    <listener>
+        <listener-class>de.ingrid.admin.ContextListener</listener-class>
     </listener>
     
     <filter>
@@ -87,19 +89,19 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
         <filter-name>CharacterEncodingFilter</filter-name>
         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
         <init-param>
-        <param-name>encoding</param-name>
-        <param-value>UTF-8</param-value>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
         </init-param>
         <init-param>
-        <param-name>forceEncoding</param-name>
-        <param-value>true</param-value>
+            <param-name>forceEncoding</param-name>
+            <param-value>true</param-value>
         </init-param>
     </filter>
     <filter-mapping>
-       <filter-name>CharacterEncodingFilter</filter-name>
-       <url-pattern>/*</url-pattern>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
- 
+    
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Any User</web-resource-name>
@@ -109,7 +111,7 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
             <role-name>*</role-name>
         </auth-constraint>
     </security-constraint>
-
+    
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Free</web-resource-name>
@@ -123,7 +125,7 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
             <url-pattern>/index.jsp</url-pattern>
         </web-resource-collection>
     </security-constraint>
-
+    
     <login-config>
         <auth-method>FORM</auth-method>
         <form-login-config>
@@ -131,7 +133,7 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
             <form-error-page>/base/auth/loginFailure.html</form-error-page>
         </form-login-config>
     </login-config>
-
+    
     <error-page>
         <error-code>403</error-code>
         <location>/base/auth/roleFailure.html</location>
@@ -143,7 +145,7 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
     </error-page>
     
     <error-page>
-       <exception-type>org.springframework.web.HttpSessionRequiredException</exception-type>
-       <location>/</location>
+        <exception-type>org.springframework.web.HttpSessionRequiredException</exception-type>
+        <location>/</location>
     </error-page>
 </web-app>
