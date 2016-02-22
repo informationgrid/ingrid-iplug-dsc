@@ -35,6 +35,9 @@
       <action type="fix" dev="wemove" issue="REDMINE-223">
         Fixes for GDI-DE conformity: When mapped to IDF add "Nutzungseinschränkungen: " / "Nutzungsbedingungen: " pre text to useLimitation / useConstraints (otherConstraints).
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-269">
+        Fixed redirect to welcome page for a logged in user.
+      </action>
     </release>
     
     <release version="3.6.1" date="2015-11-17" description="Release InGrid 3.6.1">
