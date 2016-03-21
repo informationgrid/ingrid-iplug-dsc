@@ -96,7 +96,7 @@
             <propertyfile file="${config}">
                 <entry key="mapper.index.fieldId" value="t01_object.id" />
                 <entry key="mapper.index.docSql" value="SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND publish_id=1" />
-                <entry key="mapper.index.beans" value='[ { "type": "indexMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/igc_to_lucene.js"]}, { "type": "indexProfileMapper", "sql": "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name=&apos;profileXML&apos;" }]' />
+                <entry key="mapper.index.beans" value='[ { "type": "indexMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/igc_to_lucene.js"]}, { "type": "indexProfileMapper", "sql": "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name=&apos;profileXML&apos;" }, {"type": "idfProducerIndexMapper"}]' />
                 <entry key="mapper.idf.beans" value='[ { "type": "createIdfMapper" }, { "type": "scriptedIdfMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/idf_utils.js", "mapping/igc_to_idf.js"] }, { "type": "scriptedIdfMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/idf_utils.js", "mapping/igc_to_idf_obj_dq.js"] }, { "type": "scriptedIdfProfileMapper", "sql": "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name=&apos;profileXML&apos;"} ]' />
             </propertyfile>
         </then>
@@ -108,7 +108,7 @@
             <propertyfile file="${config}">
                 <entry key="mapper.index.fieldId" value="t01_object.id" />
                 <entry key="mapper.index.docSql" value="SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND (publish_id=1 OR publish_id=2)" />
-                <entry key="mapper.index.beans" value='[ { "type": "indexMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/igc_to_lucene.js"]}, { "type": "indexProfileMapper", "sql": "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name=&apos;profileXML&apos;" }]' />
+                <entry key="mapper.index.beans" value='[ { "type": "indexMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/igc_to_lucene.js"]}, { "type": "indexProfileMapper", "sql": "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name=&apos;profileXML&apos;" }, {"type": "idfProducerIndexMapper"}]' />
                 <entry key="mapper.idf.beans" value='[ { "type": "createIdfMapper" }, { "type": "scriptedIdfMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/idf_utils.js", "mapping/igc_to_idf.js"] }, { "type": "scriptedIdfMapper", "compile": true, "scripts": ["mapping/global.js", "mapping/idf_utils.js", "mapping/igc_to_idf_obj_dq.js"] }, { "type": "scriptedIdfProfileMapper", "sql": "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name=&apos;profileXML&apos;"} ]' />
             </propertyfile>
         </then>

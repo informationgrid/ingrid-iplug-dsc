@@ -35,6 +35,7 @@ import org.springframework.core.io.Resource;
 
 import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
+import de.ingrid.iplug.dsc.index.mapper.IdfProducerDocumentMapper;
 import de.ingrid.iplug.dsc.index.mapper.IgcProfileDocumentMapper;
 import de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper;
 import de.ingrid.iplug.dsc.index.producer.IRecordSetProducer;
@@ -54,6 +55,12 @@ import de.ingrid.utils.json.JsonUtil;
 public class SpringConfiguration {
     
     private static Log log = LogFactory.getLog(SpringConfiguration.class);
+
+    public IdfProducerDocumentMapper idfProducerDocumentMapper(IngridDocument doc, DscRecordCreator dscRecordCreator) {
+	IdfProducerDocumentMapper mapper = new IdfProducerDocumentMapper();
+	mapper.setDscRecordProducer(dscRecordCreator);
+	return mapper;
+    }
 
     public IgcProfileDocumentMapper indexProfileMapper(IngridDocument doc) {
         IgcProfileDocumentMapper mapper = new IgcProfileDocumentMapper();
@@ -82,7 +89,7 @@ public class SpringConfiguration {
     }
 
     @Bean
-    public DscDocumentProducer dscDocumentProducer(IRecordSetProducer recordSetProducer) throws ParseException {
+    public DscDocumentProducer dscDocumentProducer(IRecordSetProducer recordSetProducer, DscRecordCreator dscRecordCreator) throws ParseException {
         DscDocumentProducer producer = new DscDocumentProducer();
 
         producer.setRecordSetProducer( recordSetProducer );
@@ -97,6 +104,8 @@ public class SpringConfiguration {
                 recMap = (IRecordMapper) indexMapper( mapper );
             } else if ("indexProfileMapper".equals( type )) {
                 recMap = (IRecordMapper) indexProfileMapper( mapper );
+            } else if ("idfProducerIndexMapper".equals( type)) {
+        	recMap = (IdfProducerDocumentMapper) idfProducerDocumentMapper( mapper, dscRecordCreator );
             }
             recordMapperList.add( recMap );
         }
