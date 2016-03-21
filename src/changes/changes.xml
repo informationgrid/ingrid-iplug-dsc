@@ -28,6 +28,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.6.0.6" date="2016-XX-XX" description="Release 3.6.0.6">
+      <action type="add" dev="wemove" issue="REDMINE-267">
+        Create IDF details while indexing and add it to index document. Use IDF from index document if exists. (NEEDS UPDATE OF config.override.properties.)
+      </action>
+    </release>
+
     <release version="3.6.0.4" date="2015-09-28" description="Release 3.6.0.4">
       <action type="add" dev="wemove" issue="REDMINE-161">
         More flexible configuration for mappers, which is needed for correct updates.
