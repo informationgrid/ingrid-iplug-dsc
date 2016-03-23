@@ -61,7 +61,23 @@
         </if>
     </target>
 
-	<target name="patchFiles" depends="patchFromVersion3.3.0,patchFromVersion3.3.1,patchFromVersion3.5.0">
+    <target name="patchFromVersion3.6.0.5">
+        <compareVersion value1="${oldVersion}" value2="3.6.0.5" prop="compResult"/>
+        <if>
+            <not>
+                <equals arg1="${compResult}" arg2="1" />
+            </not>
+            <then>
+                <echo>Add idfProducerIndexMapper to index mapper configuration.</echo>
+                <!-- object -->
+                <replaceregexp file="${config}" match="mapper.index.beans=(.*indexMapper.*indexProfileMapper.*)(profileXML['&quot;\s]+}\s*]\s*)$" replace="mapper.index.beans=\1profileXML'&quot;}, {&quot;type&quot;\\\\: &quot;idfProducerIndexMapper&quot;}]" byline="true"/>
+                <!-- address -->
+                <replaceregexp file="${config}" match="mapper.index.beans=(.*indexMapper.*)(\.js[&quot;\s\]\}]+)$" replace="mapper.index.beans=\1\.js&quot;]}, {&quot;type&quot;\\\\: &quot;idfProducerIndexMapper&quot;}]" byline="true"/>
+            </then>
+        </if>
+    </target>
+	
+	<target name="patchFiles" depends="patchFromVersion3.3.0,patchFromVersion3.3.1,patchFromVersion3.5.0,patchFromVersion3.6.0.5">
 		<!-- patch order determined through depends-order -->
 	</target>
 </project>
