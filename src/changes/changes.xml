@@ -29,6 +29,9 @@
   </properties>
   <body>
     <release version="3.6.2-SNAPSHOT" date="??" description="??">
+      <action type="add" dev="wemove" issue="REDMINE-267">
+        Create IDF details while indexing and add it to index document. Use IDF from index document if exists.
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-250">
         During mapping log problems transforming syslist entries with debug to avoid lots of irrelevant error output.  
       </action>

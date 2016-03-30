@@ -36,6 +36,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import de.ingrid.iplug.dsc.index.mapper.IdfProducerDocumentMapper;
 import de.ingrid.iplug.dsc.om.IClosableDataSource;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
@@ -58,15 +59,15 @@ import de.ingrid.utils.xml.XMLUtils;
  * @author joachim@wemove.com
  * 
  */
-//@Service
+// @Service
 public class DscRecordCreator {
 
-    protected static final Logger log = Logger.getLogger(DscRecordCreator.class);
+    protected static final Logger log = Logger.getLogger( DscRecordCreator.class );
 
-    //@Autowired
+    // @Autowired
     private IRecordProducer recordProducer = null;
 
-    //@Autowired
+    // @Autowired
     private List<IIdfMapper> record2IdfMapperList = null;
 
     private boolean compressed = false;
@@ -81,51 +82,61 @@ public class DscRecordCreator {
      * @throws Exception
      */
     public Record getRecord(ElasticDocument idxDoc) throws Exception {
-        IClosableDataSource datasource = null;
-        try {
-            datasource = recordProducer.openDatasource();
-            SourceRecord sourceRecord = recordProducer.getRecord(idxDoc, datasource);
-            if (sourceRecord == null) return null;
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = dbf.newDocumentBuilder();
-            org.w3c.dom.Document idfDoc = docBuilder.newDocument();
-            for (IIdfMapper record2IdfMapper : record2IdfMapperList) {
-                long start = 0;
-                if (log.isDebugEnabled()) {
-                    start = System.currentTimeMillis();
-                }
-                record2IdfMapper.map(sourceRecord, idfDoc);
-                if (log.isDebugEnabled()) {
-                    log.debug("Mapping of source record with " + record2IdfMapper + " took: "
-                            + (System.currentTimeMillis() - start) + " ms.");
-                }
-            }
-            Record record = new Record();
-            String data = XMLUtils.toString(idfDoc);
+        String data;
+
+        if (idxDoc.containsKey( IdfProducerDocumentMapper.DOCUMENT_FIELD_IDF )) {
             if (log.isDebugEnabled()) {
-                log.debug("Resulting IDF document:\n" + data);
+                log.debug( "Use content of index field 'idf'." );
             }
-            if (compressed) {
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                BufferedOutputStream bufos = new BufferedOutputStream(new GZIPOutputStream(bos));
-                bufos.write(data.getBytes());
-                bufos.close();
-                data = new String(bos.toByteArray());
-                bos.close();
-                record.put("compressed", "true");
-            } else {
-                record.put("compressed", "false");
-            }
-            record.put("data", data);
-            return record;
-        } catch (Exception e) {
-            log.error("Error creating IDF document.", e);
-            throw e;
-        } finally {
-            if (datasource != null) {
-                datasource.close();
+            data = (String) idxDoc.get( IdfProducerDocumentMapper.DOCUMENT_FIELD_IDF );
+        } else {
+
+            IClosableDataSource datasource = null;
+            try {
+                datasource = recordProducer.openDatasource();
+                SourceRecord sourceRecord = recordProducer.getRecord( idxDoc, datasource );
+                if (sourceRecord == null)
+                    return null;
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                DocumentBuilder docBuilder = dbf.newDocumentBuilder();
+                org.w3c.dom.Document idfDoc = docBuilder.newDocument();
+                for (IIdfMapper record2IdfMapper : record2IdfMapperList) {
+                    long start = 0;
+                    if (log.isDebugEnabled()) {
+                        start = System.currentTimeMillis();
+                    }
+                    record2IdfMapper.map( sourceRecord, idfDoc );
+                    if (log.isDebugEnabled()) {
+                        log.debug( "Mapping of source record with " + record2IdfMapper + " took: " + (System.currentTimeMillis() - start) + " ms." );
+                    }
+                }
+                data = XMLUtils.toString( idfDoc );
+            } catch (Exception e) {
+                log.error( "Error creating IDF document.", e );
+                throw e;
+            } finally {
+                if (datasource != null) {
+                    datasource.close();
+                }
             }
         }
+        Record record = new Record();
+        if (log.isDebugEnabled()) {
+            log.debug( "Resulting IDF document:\n" + data );
+        }
+        if (compressed) {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            BufferedOutputStream bufos = new BufferedOutputStream( new GZIPOutputStream( bos ) );
+            bufos.write( data.getBytes() );
+            bufos.close();
+            data = new String( bos.toByteArray() );
+            bos.close();
+            record.put( "compressed", "true" );
+        } else {
+            record.put( "compressed", "false" );
+        }
+        record.put( "data", data );
+        return record;
     }
 
     public IRecordProducer getRecordProducer() {
