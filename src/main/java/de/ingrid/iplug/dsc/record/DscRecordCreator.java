@@ -88,6 +88,9 @@ public class DscRecordCreator {
 	String data;
 
 	if (idxDoc.containsKey(IdfProducerDocumentMapper.DOCUMENT_FIELD_IDF)) {
+	    if (log.isDebugEnabled()) {
+		log.debug("Use content of index field 'idf'.");
+	    }
 	    data = (String) idxDoc.get(IdfProducerDocumentMapper.DOCUMENT_FIELD_IDF);
 	} else {
 

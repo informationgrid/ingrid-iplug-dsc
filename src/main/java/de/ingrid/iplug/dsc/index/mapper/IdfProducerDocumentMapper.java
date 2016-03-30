@@ -59,7 +59,7 @@ public class IdfProducerDocumentMapper implements IRecordMapper {
 	}
 
 	Record rec = dscRecordProducer.getRecord(doc);
-	doc.put("idf", IdfTool.getIdfDataFromRecord(rec));
+	doc.put(DOCUMENT_FIELD_IDF, IdfTool.getIdfDataFromRecord(rec));
 
     }
 
