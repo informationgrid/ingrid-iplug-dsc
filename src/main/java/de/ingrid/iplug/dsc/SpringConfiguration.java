@@ -53,13 +53,13 @@ import de.ingrid.utils.json.JsonUtil;
 @Configuration
 // @EnableAutoConfiguration
 public class SpringConfiguration {
-    
-    private static Log log = LogFactory.getLog(SpringConfiguration.class);
+
+    private static Log log = LogFactory.getLog( SpringConfiguration.class );
 
     public IdfProducerDocumentMapper idfProducerDocumentMapper(IngridDocument doc, DscRecordCreator dscRecordCreator) {
-	IdfProducerDocumentMapper mapper = new IdfProducerDocumentMapper();
-	mapper.setDscRecordProducer(dscRecordCreator);
-	return mapper;
+        IdfProducerDocumentMapper mapper = new IdfProducerDocumentMapper();
+        mapper.setDscRecordCreator( dscRecordCreator );
+        return mapper;
     }
 
     public IgcProfileDocumentMapper indexProfileMapper(IngridDocument doc) {
@@ -94,7 +94,8 @@ public class SpringConfiguration {
 
         producer.setRecordSetProducer( recordSetProducer );
 
-        if (DscSearchPlug.conf.indexMapper == null) log.error( "indexMapper (mapper.index.beans) is/are not defined!" );
+        if (DscSearchPlug.conf.indexMapper == null)
+            log.error( "indexMapper (mapper.index.beans) is/are not defined!" );
         List<IRecordMapper> recordMapperList = new ArrayList<IRecordMapper>();
         List<IngridDocument> mappers = JsonUtil.parseJsonToListOfIngridDocument( DscSearchPlug.conf.indexMapper );
         for (IngridDocument mapper : mappers) {
@@ -104,8 +105,8 @@ public class SpringConfiguration {
                 recMap = (IRecordMapper) indexMapper( mapper );
             } else if ("indexProfileMapper".equals( type )) {
                 recMap = (IRecordMapper) indexProfileMapper( mapper );
-            } else if ("idfProducerIndexMapper".equals( type)) {
-        	recMap = (IdfProducerDocumentMapper) idfProducerDocumentMapper( mapper, dscRecordCreator );
+            } else if ("idfProducerIndexMapper".equals( type )) {
+                recMap = (IdfProducerDocumentMapper) idfProducerDocumentMapper( mapper, dscRecordCreator );
             }
             recordMapperList.add( recMap );
         }
@@ -117,7 +118,9 @@ public class SpringConfiguration {
 
     /**
      * from configuration:
-     * idf.mapper.idfMapper=scriptedIdfMapper,true,script1,script2::scriptedIdfMapper,true,script1,script2,script3::scriptedIdfProfileMapper
+     * idf.mapper.idfMapper=scriptedIdfMapper,true,script1,script2
+     * ::scriptedIdfMapper
+     * ,true,script1,script2,script3::scriptedIdfProfileMapper
      * ,true,script1,script2
      * 
      * @return
@@ -128,7 +131,8 @@ public class SpringConfiguration {
         DscRecordCreator producer = new DscRecordCreator();
         producer.setRecordProducer( recordProducer );
 
-        if (DscSearchPlug.conf.idfMapper == null) log.error( "idfMapper (mapper.idf.beans) is/are not defined!" );
+        if (DscSearchPlug.conf.idfMapper == null)
+            log.error( "idfMapper (mapper.idf.beans) is/are not defined!" );
         List<IIdfMapper> recordMapperList = new ArrayList<IIdfMapper>();
         List<IngridDocument> mappers = JsonUtil.parseJsonToListOfIngridDocument( DscSearchPlug.conf.idfMapper );
         for (IngridDocument mapper : mappers) {

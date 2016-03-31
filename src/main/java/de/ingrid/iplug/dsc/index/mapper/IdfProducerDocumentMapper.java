@@ -61,12 +61,13 @@ public class IdfProducerDocumentMapper implements IRecordMapper {
 
     }
 
-    public DscRecordCreator getDscRecordProducer() {
+
+    public DscRecordCreator getDscRecordCreator() {
         return dscRecordCreator;
     }
 
-    public void setDscRecordProducer(DscRecordCreator dscRecordProducer) {
-        this.dscRecordCreator = dscRecordProducer;
+    public void setDscRecordCreator(DscRecordCreator dscRecordCreator) {
+        this.dscRecordCreator = dscRecordCreator;
     }
 
 }
