@@ -85,6 +85,8 @@ public class PlugDescriptionConfiguredDatabaseRecordProducer implements IRecordP
             return new DatabaseSourceRecord(field.toString(), ((ClosableDatabaseConnection) ds).getConnection());
             
         } catch (Exception e) {
+            log.error( "Value of " + indexFieldID + " in doc: " + field );
+            log.error( "Error during record generation:", e );
             return null;
         }
     }

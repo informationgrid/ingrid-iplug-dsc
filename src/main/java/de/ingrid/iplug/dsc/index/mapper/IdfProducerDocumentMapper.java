@@ -57,7 +57,15 @@ public class IdfProducerDocumentMapper implements IRecordMapper {
         }
 
         Record rec = dscRecordCreator.getRecord( doc );
-        doc.put( DOCUMENT_FIELD_IDF, IdfTool.getIdfDataFromRecord( rec ) );
+        // if a record could not be fetched, then this could mean that it is not supposed to be generated
+        // and excluded from the index to be found at all (e.g. "Daten nicht anzeigen" in address-person)
+        if (rec == null) {
+            if (log.isDebugEnabled()) {
+                log.debug( "Record could not be fetched from given document. This record could have been excluded from generation." );
+            }
+        } else {
+            doc.put( DOCUMENT_FIELD_IDF, IdfTool.getIdfDataFromRecord( rec ) );
+        }
 
     }
 
