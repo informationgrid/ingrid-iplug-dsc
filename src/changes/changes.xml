@@ -32,6 +32,9 @@
       <action type="add" dev="wemove" issue="REDMINE-267">
         Create IDF details while indexing and add it to index document. Use IDF from index document if exists.
       </action>
+      <action type="add" dev="wemove" issue="REDMINE-34">
+        Improved status messages while indexing.
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-250">
         During mapping log problems transforming syslist entries with debug to avoid lots of irrelevant error output.  
       </action>
