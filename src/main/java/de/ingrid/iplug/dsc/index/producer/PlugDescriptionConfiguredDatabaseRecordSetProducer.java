@@ -35,7 +35,9 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import de.ingrid.admin.elasticsearch.StatusProvider;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
@@ -58,6 +60,9 @@ import de.ingrid.utils.PlugDescription;
 public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         IRecordSetProducer, IConfigurable {
 
+    @Autowired
+    private StatusProvider statusProvider;
+    
     DatabaseConnection internalDatabaseConnection = null;
     Connection connection = null;
     String recordSql = "";
@@ -81,6 +86,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         if (recordIdIterator == null) {
             openConnection();
             createRecordIdsFromDatabase();
+            statusProvider.addState( "FETCH", "Found " + numRecords + " records in database.");
         }
         if (recordIdIterator.hasNext()) {
             return true;
@@ -147,7 +153,9 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
     private void createRecordIdsFromDatabase() {
         try {
             List<String> recordIds = new ArrayList<String>();
-            log.debug("SQL: " + recordSql);
+            if (log.isDebugEnabled()) {
+                log.debug("SQL: " + recordSql);
+            }
             PreparedStatement ps = connection.prepareStatement(recordSql);
             try {
                 ResultSet rs = ps.executeQuery();
