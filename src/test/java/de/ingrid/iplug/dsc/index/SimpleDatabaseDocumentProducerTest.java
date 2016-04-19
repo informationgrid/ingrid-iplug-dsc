@@ -29,6 +29,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import de.ingrid.admin.elasticsearch.StatusProvider;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.mapper.SimpleDatabaseRecord2DocumentMapper;
 import de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer;
@@ -37,9 +41,12 @@ import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
 
 public class SimpleDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCase {
+    
+    @Mock StatusProvider statusProvider;
 
     public SimpleDatabaseDocumentProducerTest(String name) {
         super( name );
+        MockitoAnnotations.initMocks( this );
         setDatasourceFileName( "src/test/resources/dataset.xml" );
     }
 
@@ -50,6 +57,7 @@ public class SimpleDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCase
         PlugDescription pd = new PlugdescriptionSerializer().deSerialize( plugDescriptionFile );
 
         PlugDescriptionConfiguredDatabaseRecordSetProducer p = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
+        p.setStatusProvider( statusProvider );
         p.setRecordSql( "SELECT * FROM TEST_TABLE" );
         p.configure( pd );
 

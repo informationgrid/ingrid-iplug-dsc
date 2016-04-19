@@ -62,7 +62,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
 
     @Autowired
     private StatusProvider statusProvider;
-    
+
     DatabaseConnection internalDatabaseConnection = null;
     Connection connection = null;
     String recordSql = "";
@@ -185,6 +185,8 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         return numRecords;
     }
 
-
+    public void setStatusProvider(StatusProvider statusProvider) {
+        this.statusProvider = statusProvider;
+    }
 
 }

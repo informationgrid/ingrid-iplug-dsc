@@ -41,7 +41,10 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ITableMetaData;
 import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+import de.ingrid.admin.elasticsearch.StatusProvider;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.mapper.IgcProfileDocumentMapper;
 import de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer;
@@ -49,11 +52,14 @@ import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
 
 public class IgcProfileDocumentProducerTest extends DBTestCase {
+    
+    @Mock StatusProvider statusProvider;
 
     public static String DATASOURCE_FILE_NAME = "src/test/resources/dataset_igc_profile.xml";
     
     public IgcProfileDocumentProducerTest(String name) {
         super( name );
+        MockitoAnnotations.initMocks( this );
         System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS, "org.hsqldb.jdbcDriver" );
         System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL, "jdbc:hsqldb:mem:sample" );
         System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_USERNAME, "sa" );
@@ -153,6 +159,7 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
                 .deSerialize(plugDescriptionFile);
 
         PlugDescriptionConfiguredDatabaseRecordSetProducer p = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
+        p.setStatusProvider( statusProvider );
         p.setRecordSql("SELECT id FROM t01_object");
         p.configure(pd);
 
@@ -172,7 +179,7 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
             assertEquals(doc.get("indexName0"), "test content for field id2");
             assertEquals(((List<Object>)doc.get("indexName5")).size(), 2);
         } else {
-            fail("No documnet produced");
+            fail("No document produced");
         }
         
     }
