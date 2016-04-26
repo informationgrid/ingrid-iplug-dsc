@@ -79,9 +79,11 @@ public class Configuration implements IConfig {
     public String indexFieldId;
 
     @PropertyValue("mapper.idf.beans")
+    @DefaultValue("[]")
     public String idfMapper;
     
     @PropertyValue("mapper.index.beans")
+    @DefaultValue("[]")
     public String indexMapper;
 
     @Override

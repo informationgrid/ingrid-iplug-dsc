@@ -394,6 +394,7 @@ public class TransformationUtils {
 	/** Transforms given IGC date string (e.g. t0, t1, t2 from index) to a valid ISO Date String.
 	 * Returns unchanged date (the passed one) if problems occur ! */
 	public String getISODateFromIGCDate(String igcDate) {
+	    if (igcDate == null) return null;
 	    String result = UtilsCSWDate.mapFromIgcToIso8601(igcDate);
 	    if (result == null) {
 	        result = igcDate;
