@@ -77,12 +77,12 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-base-webapp</artifactId>
-      <version>3.6.0.3</version>
+      <version>3.6.0.5</version>
     </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-base-webapp</artifactId>
-      <version>3.6.0.3</version>
+      <version>3.6.0.5</version>
       <classifier>res</classifier>
       <type>zip</type>
     </dependency>

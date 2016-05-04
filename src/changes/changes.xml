@@ -32,6 +32,9 @@
       <action type="add" dev="wemove" issue="REDMINE-267">
         Create IDF details while indexing and add it to index document. Use IDF from index document if exists. (NEEDS UPDATE OF config.override.properties.)
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-176">
+        Fixed query problem with wildcards and other fixes.
+      </action>
     </release>
 
     <release version="3.6.0.4" date="2015-09-28" description="Release 3.6.0.4">

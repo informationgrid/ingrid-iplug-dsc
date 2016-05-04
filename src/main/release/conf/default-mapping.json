@@ -9,6 +9,10 @@
                 "type": "string",
                 "index" : "not_analyzed"
             },
+            "t01_object.org_obj_id": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
             "t012_obj_adr.adr_id": {
                 "type": "string",
                 "index" : "not_analyzed"
@@ -21,7 +25,51 @@
                 "type": "string",
                 "index" : "not_analyzed"
             },
+            "t011_obj_geo.datasource_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "t022_adr_adr.adr_from_id": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "t022_adr_adr.adr_to_id": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "object_reference.obj_to_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "refering_service_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "refering.object_reference.obj_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
             "t02_address.adr_id": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "t02_address2.adr_id": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "t02_address3.adr_id": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "t02_address4.adr_id": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "t02_address5.adr_id": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "t02_address.org_adr_id": {
                 "type": "string",
                 "index" : "not_analyzed"
             },
@@ -42,6 +90,34 @@
                 "index" : "not_analyzed"
             },
             "parent.object_node.obj_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "children.object_node.obj_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "parent.address_node.addr_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "parent2.address_node.addr_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "parent3.address_node.addr_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "parent4.address_node.addr_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "parent5.address_node.addr_uuid": {
+                "type": "string",
+                "index" : "not_analyzed"
+            },
+            "children.address_node.addr_uuid": {
                 "type": "string",
                 "index" : "not_analyzed"
             },
@@ -73,8 +149,8 @@
             },
             "y2": {
                 "type": "double"
-             },
-            "idf": {
+            },
+             "idf": {
                 "type": "string",
                 "index": "no"
             }
