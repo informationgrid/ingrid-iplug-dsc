@@ -25,33 +25,30 @@
  */
 package de.ingrid.iplug.dsc.index.mapper;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.apache.log4j.Logger;
 
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.iplug.dsc.record.DscRecordCreator;
 import de.ingrid.utils.ElasticDocument;
+import de.ingrid.utils.dsc.Record;
+import de.ingrid.utils.idf.IdfTool;
 
 /**
- * Maps a {@link DatabaseSourceRecord} to a lucene document. The source database
- * record is retrieved from the database via the connection and the record id
- * specified in the {@link DatabaseSourceRecord}.
- * 
- * A SQL string can be defined to be executed to retrieve the database record.
+ * Maps a {@link DatabaseSourceRecord} to an IDF records and place it into a
+ * {@link ElasticDocument} document in the field 'idf'.
  * 
  * 
  * @author joachim@wemove.com
  * 
  */
-public class SimpleDatabaseRecord2DocumentMapper implements IRecordMapper {
+public class IdfProducerDocumentMapper implements IRecordMapper {
 
-    protected static final Logger log = Logger.getLogger( SimpleDatabaseRecord2DocumentMapper.class );
+    public static final String DOCUMENT_FIELD_IDF = "idf";
 
-    private String sql;
+    protected static final Logger log = Logger.getLogger( IdfProducerDocumentMapper.class );
+
+    private DscRecordCreator dscRecordCreator = null;
 
     @Override
     public void map(SourceRecord record, ElasticDocument doc) throws Exception {
@@ -59,31 +56,26 @@ public class SimpleDatabaseRecord2DocumentMapper implements IRecordMapper {
             throw new IllegalArgumentException( "Record is no DatabaseRecord!" );
         }
 
-        String id = (String) record.get( DatabaseSourceRecord.ID );
-        Connection connection = (Connection) record.get( DatabaseSourceRecord.CONNECTION );
-        try {
-            PreparedStatement ps = connection.prepareStatement( sql );
-            ps.setString( 1, id );
-            ResultSet rs = ps.executeQuery();
-            rs.next();
-
-            for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                String colName = rs.getMetaData().getColumnName( i );
-                String colValue = rs.getString( i );
-                doc.put( colName, colValue );
+        Record rec = dscRecordCreator.getRecord( doc );
+        // if a record could not be fetched, then this could mean that it is not supposed to be generated
+        // and excluded from the index to be found at all (e.g. "Daten nicht anzeigen" in address-person)
+        if (rec == null) {
+            if (log.isDebugEnabled()) {
+                log.debug( "Record could not be fetched from given document. This record could have been excluded from generation." );
             }
-        } catch (SQLException e) {
-            log.error( "Error mapping Record.", e );
-            throw e;
+        } else {
+            doc.put( DOCUMENT_FIELD_IDF, IdfTool.getIdfDataFromRecord( rec ) );
         }
+
     }
 
-    public String getSql() {
-        return sql;
+
+    public DscRecordCreator getDscRecordCreator() {
+        return dscRecordCreator;
     }
 
-    public void setSql(String sql) {
-        this.sql = sql;
+    public void setDscRecordCreator(DscRecordCreator dscRecordCreator) {
+        this.dscRecordCreator = dscRecordCreator;
     }
 
 }

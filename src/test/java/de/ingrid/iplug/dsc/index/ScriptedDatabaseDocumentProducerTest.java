@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -29,8 +29,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.core.io.ClassPathResource;
 
+import de.ingrid.admin.elasticsearch.StatusProvider;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper;
 import de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer;
@@ -39,9 +42,12 @@ import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
 
 public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCase {
+    
+    @Mock StatusProvider statusProvider;
 
     public ScriptedDatabaseDocumentProducerTest(String name) {
         super(name);
+        MockitoAnnotations.initMocks( this );
         setDatasourceFileName("src/test/resources/dataset.xml");
     }
 
@@ -54,6 +60,7 @@ public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCa
                 .deSerialize(plugDescriptionFile);
 
         PlugDescriptionConfiguredDatabaseRecordSetProducer p = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
+        p.setStatusProvider( statusProvider );
         p.setRecordSql("SELECT * FROM TEST_TABLE");
         p.configure(pd);
 
@@ -80,7 +87,7 @@ public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCa
                 assertTrue( doc.keySet().containsAll( keys ) );
             }
         } else {
-            fail("No documnet produced");
+            fail("No document produced");
         }
     }
     

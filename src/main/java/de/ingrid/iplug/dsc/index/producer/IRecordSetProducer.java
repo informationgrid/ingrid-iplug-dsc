@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -53,5 +53,15 @@ public interface IRecordSetProducer {
      */
     public SourceRecord next() throws Exception;
 
-    
+    /**
+     * Resets the source where the documents come from and makes sure that the next
+     * hasNext()-call starts from the beginning again.
+     */
+    void reset();
+
+    /**
+     * Get the total number of documents.
+     * @return the total number of documents, otherwise 'null' if it cannot be determined before.
+     */
+    public int getDocCount();
 }

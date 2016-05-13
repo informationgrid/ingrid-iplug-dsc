@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -35,7 +35,9 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import de.ingrid.admin.elasticsearch.StatusProvider;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
@@ -58,10 +60,14 @@ import de.ingrid.utils.PlugDescription;
 public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         IRecordSetProducer, IConfigurable {
 
+    @Autowired
+    private StatusProvider statusProvider;
+
     DatabaseConnection internalDatabaseConnection = null;
     Connection connection = null;
     String recordSql = "";
     Iterator<String> recordIdIterator = null;
+    private int numRecords;
 
     final private static Log log = LogFactory
             .getLog(PlugDescriptionConfiguredDatabaseRecordSetProducer.class);
@@ -80,14 +86,24 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         if (recordIdIterator == null) {
             openConnection();
             createRecordIdsFromDatabase();
+            statusProvider.addState( "FETCH", "Found " + numRecords + " records in database.");
         }
         if (recordIdIterator.hasNext()) {
             return true;
         } else {
-            recordIdIterator =  null;
-            closeConnection();
+            reset();
             return false;
         }
+    }
+    
+    /**
+     * Closes the connection to the database and resets the iterator for the records. 
+     * After a reset, the hasNext() function will start from the beginning again.
+     */
+    @Override
+    public void reset() {
+        recordIdIterator =  null;
+        closeConnection();
     }
 
     /*
@@ -137,7 +153,9 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
     private void createRecordIdsFromDatabase() {
         try {
             List<String> recordIds = new ArrayList<String>();
-            log.debug("SQL: " + recordSql);
+            if (log.isDebugEnabled()) {
+                log.debug("SQL: " + recordSql);
+            }
             PreparedStatement ps = connection.prepareStatement(recordSql);
             try {
                 ResultSet rs = ps.executeQuery();
@@ -146,6 +164,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
                         recordIds.add(rs.getString(1));
                     }
                     recordIdIterator = recordIds.listIterator();
+                    numRecords = recordIds.size();
                 } catch (Exception e) {
                     throw e;
                 } finally {
@@ -161,6 +180,13 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         }
     }
 
+    @Override
+    public int getDocCount() {
+        return numRecords;
+    }
 
+    public void setStatusProvider(StatusProvider statusProvider) {
+        this.statusProvider = statusProvider;
+    }
 
 }

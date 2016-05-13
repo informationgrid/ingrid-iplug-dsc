@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -33,6 +33,8 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.controller.AbstractController;
+import de.ingrid.iplug.dsc.Configuration;
+import de.ingrid.iplug.dsc.DscSearchPlug;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.webapp.validation.DatabaseConnectionValidator;
 
@@ -83,6 +85,17 @@ public class DatabaseParameterController extends AbstractController {
 
         // put values into plugdescription
         mapParamsToPD(commandObject, pdCommandObject);
+        
+        Configuration config = DscSearchPlug.conf;
+        if (!commandObject.getConnectionURL().equals( config.databaseUrl )) {
+            pdCommandObject.putBoolean( "needsRestart", true );
+        }
+        // save in config object
+        config.databaseDriver = commandObject.getDataBaseDriver();
+        config.databaseUrl = commandObject.getConnectionURL();
+        config.databaseUsername = commandObject.getUser();
+        config.databasePassword = commandObject.getPassword();
+        config.databaseSchema = commandObject.getSchema();
 
         return AdminViews.SAVE;
     }

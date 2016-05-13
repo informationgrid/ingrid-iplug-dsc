@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -53,12 +53,15 @@ public class Configuration implements IConfig {
     public String databaseUrl;
     
     @PropertyValue("iplug.database.username")
+    @DefaultValue("")
     public String databaseUsername;
     
     @PropertyValue("iplug.database.password")
+    @DefaultValue("")
     public String databasePassword;
     
     @PropertyValue("iplug.database.schema")
+    @DefaultValue("")
     public String databaseSchema;
     
     
@@ -69,9 +72,6 @@ public class Configuration implements IConfig {
     @Deprecated
     public String springProfile;
     
-    @PropertyValue("plugdescription.CORRESPONDENT_PROXY_SERVICE_URL")
-    public String correspondentIPlug;
-
     @PropertyValue("mapper.index.docSql")
     public String indexMapperSql;
 
@@ -79,9 +79,11 @@ public class Configuration implements IConfig {
     public String indexFieldId;
 
     @PropertyValue("mapper.idf.beans")
+    @DefaultValue("[]")
     public String idfMapper;
     
     @PropertyValue("mapper.index.beans")
+    @DefaultValue("[]")
     public String indexMapper;
 
     @Override
@@ -110,8 +112,6 @@ public class Configuration implements IConfig {
         
         DatabaseConnection dbc = new DatabaseConnection( databaseDriver, databaseUrl, databaseUsername, databasePassword, databaseSchema );
         pdObject.setConnection( dbc );
-        
-        pdObject.setCorrespondentProxyServiceURL( correspondentIPlug );
     }
 
     @Override

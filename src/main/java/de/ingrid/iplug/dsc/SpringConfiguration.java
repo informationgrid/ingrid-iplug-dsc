@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -35,6 +35,7 @@ import org.springframework.core.io.Resource;
 
 import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
+import de.ingrid.iplug.dsc.index.mapper.IdfProducerDocumentMapper;
 import de.ingrid.iplug.dsc.index.mapper.IgcProfileDocumentMapper;
 import de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper;
 import de.ingrid.iplug.dsc.index.producer.IRecordSetProducer;
@@ -52,8 +53,14 @@ import de.ingrid.utils.json.JsonUtil;
 @Configuration
 // @EnableAutoConfiguration
 public class SpringConfiguration {
-    
-    private static Log log = LogFactory.getLog(SpringConfiguration.class);
+
+    private static Log log = LogFactory.getLog( SpringConfiguration.class );
+
+    public IdfProducerDocumentMapper idfProducerDocumentMapper(IngridDocument doc, DscRecordCreator dscRecordCreator) {
+        IdfProducerDocumentMapper mapper = new IdfProducerDocumentMapper();
+        mapper.setDscRecordCreator( dscRecordCreator );
+        return mapper;
+    }
 
     public IgcProfileDocumentMapper indexProfileMapper(IngridDocument doc) {
         IgcProfileDocumentMapper mapper = new IgcProfileDocumentMapper();
@@ -82,12 +89,13 @@ public class SpringConfiguration {
     }
 
     @Bean
-    public DscDocumentProducer dscDocumentProducer(IRecordSetProducer recordSetProducer) throws ParseException {
+    public DscDocumentProducer dscDocumentProducer(IRecordSetProducer recordSetProducer, DscRecordCreator dscRecordCreator) throws ParseException {
         DscDocumentProducer producer = new DscDocumentProducer();
 
         producer.setRecordSetProducer( recordSetProducer );
 
-        if (DscSearchPlug.conf.indexMapper == null) log.error( "indexMapper (mapper.index.beans) is/are not defined!" );
+        if (DscSearchPlug.conf.indexMapper == null)
+            log.error( "indexMapper (mapper.index.beans) is/are not defined!" );
         List<IRecordMapper> recordMapperList = new ArrayList<IRecordMapper>();
         List<IngridDocument> mappers = JsonUtil.parseJsonToListOfIngridDocument( DscSearchPlug.conf.indexMapper );
         for (IngridDocument mapper : mappers) {
@@ -97,6 +105,8 @@ public class SpringConfiguration {
                 recMap = (IRecordMapper) indexMapper( mapper );
             } else if ("indexProfileMapper".equals( type )) {
                 recMap = (IRecordMapper) indexProfileMapper( mapper );
+            } else if ("idfProducerIndexMapper".equals( type )) {
+                recMap = (IdfProducerDocumentMapper) idfProducerDocumentMapper( mapper, dscRecordCreator );
             }
             recordMapperList.add( recMap );
         }
@@ -108,7 +118,9 @@ public class SpringConfiguration {
 
     /**
      * from configuration:
-     * idf.mapper.idfMapper=scriptedIdfMapper,true,script1,script2::scriptedIdfMapper,true,script1,script2,script3::scriptedIdfProfileMapper
+     * idf.mapper.idfMapper=scriptedIdfMapper,true,script1,script2
+     * ::scriptedIdfMapper
+     * ,true,script1,script2,script3::scriptedIdfProfileMapper
      * ,true,script1,script2
      * 
      * @return
@@ -119,7 +131,8 @@ public class SpringConfiguration {
         DscRecordCreator producer = new DscRecordCreator();
         producer.setRecordProducer( recordProducer );
 
-        if (DscSearchPlug.conf.idfMapper == null) log.error( "idfMapper (mapper.idf.beans) is/are not defined!" );
+        if (DscSearchPlug.conf.idfMapper == null)
+            log.error( "idfMapper (mapper.idf.beans) is/are not defined!" );
         List<IIdfMapper> recordMapperList = new ArrayList<IIdfMapper>();
         List<IngridDocument> mappers = JsonUtil.parseJsonToListOfIngridDocument( DscSearchPlug.conf.idfMapper );
         for (IngridDocument mapper : mappers) {

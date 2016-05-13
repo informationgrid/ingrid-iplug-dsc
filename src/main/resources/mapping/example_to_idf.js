@@ -28,7 +28,7 @@ importPackage(Packages.org.w3c.dom);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 
 if (log.isDebugEnabled()) {
-	log.debug("Mapping source record to idf document: " + sourceRecord.toString());
+    log.debug("Mapping source record to idf document: " + sourceRecord.toString());
 }
 
 if (!(sourceRecord instanceof DatabaseSourceRecord)) {
@@ -38,37 +38,33 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 // ---------- <idf:body> ----------
 var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
 
-// ========== bundeswasserstr ==========
+// ---------- CREATE DETAIL DATA (IDF) OF A RESULT ----------
+
+// extract id of the record and read record(s) from database
 var objId = sourceRecord.get("id");
-var objRows = SQL.all("SELECT * FROM bundeswasserstr WHERE id=?", [objId]);
+var objRows = SQL.all("SELECT * FROM [YOUR TABLE NAME] WHERE id=?", [objId]);
 for (i=0; i<objRows.size(); i++) {
-    var bundeswasserstrRow = objRows.get(i);
-    var row = bundeswasserstrRow;
-    DOM.addElement(idfBody, "h1").addText("Stammdaten BUNDESWASSERSTR: " + row.get("name") + ", " + row.get("kurzbezeichnung"));
+    var row = objRows.get(i);
+
+    // Create HTML with data
+    DOM.addElement(idfBody, "h1").addText(row.get("daten"));
     DOM.addElement(idfBody, "p");
 
 //    DOM.addElement(idfBody, "p").addText("Id: " + row.get("id"));
-    DOM.addElement(idfBody, "p").addText("BWST: " + row.get("kurzbezeichnung"));
-    DOM.addElement(idfBody, "p").addText("Name der Wasserstra\u00DFe: " + row.get("name"));
+    DOM.addElement(idfBody, "p").addText("Name: " + row.get("daten"));
+    DOM.addElement(idfBody, "p").addText("Kurzbezeichnung: " + row.get("kurzbeschreibung"));
 
-    // ---------- link to GEOBAS ----------
+    // Example of various datasource links via iterating different columns of record
     DOM.addElement(idfBody, "p");
-    DOM.addElement(idfBody, "p/a")
-        .addAttribute("href", "http://geobas.wsv.bvbs.bund.de/geobas_p1/main?cmd=view_details&id=" + bundeswasserstrRow.get("id") + "&table=bundeswasserstr")
-        .addAttribute("target", "_blank")
-        .addText("GEOBAS")
-}
-
-function hasValue(val) {
-    if (typeof val == "undefined") {
-        return false; 
-    } else if (val == null) {
-        return false; 
-    } else if (typeof val == "string" && val == "") {
-        return false;
-    } else if (typeof val == "object" && val.toString().equals("")) {
-        return false;
-    } else {
-      return true;
+    var sourceTypes = ["WMS", "Dateidownload", "FTP", "AtomFeeed", "Portal", "SOS", "WFS", "WMTS", "JSON", "WSDL"];
+    for (var i = 0; i < sourceTypes.length; i++) {
+        var key = sourceTypes[i].toLowerCase();
+        // hasValue function is defined in other script global.js also read by mapper !
+        if (hasValue(row.get(key))) {
+          DOM.addElement(idfBody, "p/a")
+              .addAttribute("href", row.get(key))
+              .addAttribute("target", "_blank")
+              .addText(sourceTypes[i]);
+        }
     }
 }

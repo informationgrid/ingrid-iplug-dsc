@@ -28,6 +28,21 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="3.6.2" date="2016-05-13" description="Release 3.6.2">
+      <action type="add" dev="wemove" issue="REDMINE-267">
+        Create IDF details while indexing and add it to index document. Use IDF from index document if exists.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-34">
+        Improved status messages while indexing.
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-250">
+        During mapping log problems transforming syslist entries with debug to avoid lots of irrelevant error output.  
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-269">
+        Fixed redirect to welcome page for a logged in user.
+      </action>
+    </release>
+    
     <release version="3.6.1" date="2015-11-17" description="Release InGrid 3.6.1">
       <action type="add" dev="wemove" issue="REDMINE-13">
         Add useConstraints to index and IDF.

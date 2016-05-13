@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -32,26 +32,26 @@ public class ConfigMigration {
             
             conf.indexFieldId = "t01_object.id";
             conf.indexMapperSql = "SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND publish_id=1";
-            conf.indexMapper = "[ { \"type\": \"indexMapper\", \"compile\": true, \"scripts\": [\"mapping/global.js\", \"mapping/igc_to_lucene.js\"]}, { \"type\": \"indexProfileMapper\", \"sql\": \"SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'\" }]";
+            conf.indexMapper = "[ { \"type\": \"indexMapper\", \"compile\": true, \"scripts\": [\"mapping/global.js\", \"mapping/igc_to_lucene.js\"]}, { \"type\": \"indexProfileMapper\", \"sql\": \"SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'\" }, {\"type\": \"idfProducerIndexMapper\"}]";
             conf.idfMapper = "[ { \"type\": \"createIdfMapper\" }, { \"type\": \"scriptedIdfMapper\", \"compile\": true, \"scripts\": [\"mapping/global.js\", \"mapping/idf_utils.js\", \"mapping/igc_to_idf.js\"] }, { \"type\": \"scriptedIdfMapper\", \"compile\": true, \"scripts\": [\"mapping/global.js\", \"mapping/idf_utils.js\", \"mapping/igc_to_idf_obj_dq.js\"] }, { \"type\": \"scriptedIdfProfileMapper\", \"sql\": \"SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'\"} ]";
             
         } else if ( "object_intranet".equals( profile )) {
             conf.indexFieldId = "t01_object.id";
             conf.indexMapperSql = "SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND (publish_id=1 OR publish_id=2)";
-            conf.indexMapper = "[ { \"type\": \"indexMapper\", \"compile\": true, \"scripts\": [\"mapping/global.js\", \"mapping/igc_to_lucene.js\"]}, { \"type\": \"indexProfileMapper\", \"sql\": \"SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'\" }]";
+            conf.indexMapper = "[ { \"type\": \"indexMapper\", \"compile\": true, \"scripts\": [\"mapping/global.js\", \"mapping/igc_to_lucene.js\"]}, { \"type\": \"indexProfileMapper\", \"sql\": \"SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'\" }, {\"type\": \"idfProducerIndexMapper\"}]";
             conf.idfMapper = "[ { \"type\": \"createIdfMapper\" }, { \"type\": \"scriptedIdfMapper\", \"compile\": true, \"scripts\": [\"mapping/global.js\", \"mapping/idf_utils.js\", \"mapping/igc_to_idf.js\"] }, { \"type\": \"scriptedIdfMapper\", \"compile\": true, \"scripts\": [\"mapping/global.js\", \"mapping/idf_utils.js\", \"mapping/igc_to_idf_obj_dq.js\"] }, { \"type\": \"scriptedIdfProfileMapper\", \"sql\": \"SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'\"} ]";
             
         } else if ("address_internet".equals( profile ) ) {
             conf.indexFieldId = "t02_address.id";
             conf.indexMapperSql = "SELECT DISTINCT id FROM t02_address WHERE work_state='V' AND publish_id=1";
-            conf.indexMapper = "[ { \"type\": \"indexMapper\", \"compile\": true, \"scripts\": [\"mapping/global.js\", \"mapping/igc_to_lucene_address.js\"]} ]";
+            conf.indexMapper = "[ { \"type\": \"indexMapper\", \"compile\": true, \"scripts\": [\"mapping/global.js\", \"mapping/igc_to_lucene_address.js\"]}, {\"type\": \"idfProducerIndexMapper\"} ]";
             conf.idfMapper = "[ { \"type\": \"createIdfMapper\" }, { \"type\": \"scriptedIdfMapper\", \"compile\": true, \"scripts\": [\"mapping/global.js\", \"mapping/igc_to_idf_address.js\"] } ]";
             
             
         } else if ( "address_intranet".equals( profile )) {
             conf.indexFieldId = "t02_address.id";
             conf.indexMapperSql = "SELECT DISTINCT id FROM t02_address WHERE work_state='V' AND (publish_id=1 OR publish_id=2)";
-            conf.indexMapper = "[ { \"type\": \"indexMapper\", \"compile\": true, \"scripts\": [\"mapping/global.js\", \"mapping/igc_to_lucene_address.js\"]} ]";
+            conf.indexMapper = "[ { \"type\": \"indexMapper\", \"compile\": true, \"scripts\": [\"mapping/global.js\", \"mapping/igc_to_lucene_address.js\"]}, {\"type\": \"idfProducerIndexMapper\"} ]";
             conf.idfMapper = "[ { \"type\": \"createIdfMapper\" }, { \"type\": \"scriptedIdfMapper\", \"compile\": true, \"scripts\": [\"mapping/global.js\", \"mapping/igc_to_idf_address.js\"] } ]";
         }
 
