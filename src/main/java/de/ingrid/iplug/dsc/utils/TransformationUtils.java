@@ -205,6 +205,8 @@ public class TransformationUtils {
 	private String preprocessIGCTimeField(String fieldName, String value) {
 		if (value == null) {
 			value = "";
+		} else {
+	        value = UtilsCSWDate.fixIgcDateString( value );		    
 		}
 
         // cut time expressions
