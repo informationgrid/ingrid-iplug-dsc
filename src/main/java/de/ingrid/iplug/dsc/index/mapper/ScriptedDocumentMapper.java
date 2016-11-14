@@ -35,11 +35,11 @@ import org.springframework.core.io.Resource;
 
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
-import de.ingrid.iplug.dsc.utils.IndexUtils;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
 import de.ingrid.iplug.dsc.utils.ScriptEngine;
 import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.utils.ElasticDocument;
+import de.ingrid.utils.index.IndexUtils;
 
 /**
  * Script based source record to lucene document mapping. This class takes a
