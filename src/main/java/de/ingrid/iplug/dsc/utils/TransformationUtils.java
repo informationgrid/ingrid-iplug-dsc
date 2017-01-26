@@ -205,16 +205,11 @@ public class TransformationUtils {
 	private String preprocessIGCTimeField(String fieldName, String value) {
 		if (value == null) {
 			value = "";
-		} else {
+		} else if (UtilsCSWDate.isCSWDate(value)) {
+	        // only fix date when the value satisfies a compatible date format
+		    // this value can also contain any String!!
 	        value = UtilsCSWDate.fixIgcDateString( value );		    
 		}
-
-        // cut time expressions
-        int lastPos = 8;
-        if (value.length() < lastPos) {
-            lastPos = value.length();
-        }
-        value = value.substring(0, lastPos);
 
         // remember time value for later postprocessing
         if (value.length() > 0) {
