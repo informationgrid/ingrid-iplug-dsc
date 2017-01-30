@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -205,14 +205,11 @@ public class TransformationUtils {
 	private String preprocessIGCTimeField(String fieldName, String value) {
 		if (value == null) {
 			value = "";
+		} else if (UtilsCSWDate.isCSWDate(value)) {
+	        // only fix date when the value satisfies a compatible date format
+		    // this value can also contain any String!!
+	        value = UtilsCSWDate.fixIgcDateString( value );		    
 		}
-
-        // cut time expressions
-        int lastPos = 8;
-        if (value.length() < lastPos) {
-            lastPos = value.length();
-        }
-        value = value.substring(0, lastPos);
 
         // remember time value for later postprocessing
         if (value.length() > 0) {

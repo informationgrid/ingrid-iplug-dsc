@@ -1,4 +1,4 @@
-/*
+/*-
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
@@ -20,35 +20,23 @@
  * limitations under the Licence.
  * **************************************************#
  */
-/**
- * 
- */
-package de.ingrid.iplug.dsc.om;
+package de.ingrid.iplug.dsc.utils;
 
-import java.sql.Connection;
+import static org.junit.Assert.assertEquals;
 
-/**
- * Represents a record set from a sql database.
- * 
- * @author joachim@wemove.com
- * 
- */
-public class DatabaseSourceRecord extends SourceRecord {
+import java.io.IOException;
+import java.util.Map;
 
-    private static final long serialVersionUID = 5660303708840795055L;
+import org.junit.Test;
 
-    public static final String CONNECTION = "connection";
+public class TransformationUtilsTest {
 
-    /**
-     * Creates a DatabaseRecord. It holds the source record id and the
-     * connection for further usage.
-     * 
-     * @param id
-     * @param connection
-     */
-    public DatabaseSourceRecord(String id, Connection connection) {
-        super(id);
-        this.put(CONNECTION, connection);
+    @Test
+    public void test() throws IOException {
+        TransformationUtils tu = new TransformationUtils(null);
+        Map<String, String> m = tu.transformIGCTimeFields( "0.0", "434566.23", "von" );
+        assertEquals( "0.0", m.get( "t1" ));
+        assertEquals( "434566.23", m.get( "t2" ));
     }
 
 }

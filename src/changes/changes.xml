@@ -28,6 +28,21 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="4.0.1" date="2016-01-30" description="Release 4.0.1">
+      <action type="fix" dev="wemove" issue="REDMINE-465">
+        Fixed wrong path to save data when using cygwin.
+      </action>
+      <action type="fix" dev="wemove">
+        Fixed transformation of time entries.
+      </action>
+    </release>
+    
+    <release version="3.6.2.3" date="2016-10-17" description="Bugfix Release 3.6.2.3">
+      <action type="fix" dev="wemove" issue="REDMINE-439">
+        Fix wrong date in IDF if date is before introduction of daylight saving time.
+      </action>
+    </release>
+    
     <release version="3.6.2" date="2016-05-13" description="Release 3.6.2">
       <action type="add" dev="wemove" issue="REDMINE-267">
         Create IDF details while indexing and add it to index document. Use IDF from index document if exists.

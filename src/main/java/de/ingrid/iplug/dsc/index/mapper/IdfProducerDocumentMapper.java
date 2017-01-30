@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -60,8 +60,8 @@ public class IdfProducerDocumentMapper implements IRecordMapper {
         // if a record could not be fetched, then this could mean that it is not supposed to be generated
         // and excluded from the index to be found at all (e.g. "Daten nicht anzeigen" in address-person)
         if (rec == null) {
-            if (log.isDebugEnabled()) {
-                log.debug( "Record could not be fetched from given document. This record could have been excluded from generation." );
+            if (log.isInfoEnabled()) {
+                log.info( "Record with id:" + record.get( SourceRecord.ID ) + " could not be fetched from given document. This record could have been excluded from generation (e.g. hidden address see t02_address.hide_address)." );
             }
         } else {
             doc.put( DOCUMENT_FIELD_IDF, IdfTool.getIdfDataFromRecord( rec ) );

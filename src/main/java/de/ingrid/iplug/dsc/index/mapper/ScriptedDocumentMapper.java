@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -35,11 +35,11 @@ import org.springframework.core.io.Resource;
 
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
-import de.ingrid.iplug.dsc.utils.IndexUtils;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
 import de.ingrid.iplug.dsc.utils.ScriptEngine;
 import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.utils.ElasticDocument;
+import de.ingrid.utils.index.IndexUtils;
 
 /**
  * Script based source record to lucene document mapping. This class takes a
