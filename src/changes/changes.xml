@@ -28,6 +28,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="4.0.1.1" date="2016-02-02" description="Release 4.0.1.1">
+      <action type="fix" dev="wemove" issue="REDMINE-534">
+        Fixed wrong conversion of date to ISO format.
+      </action>
+    </release>
+
     <release version="4.0.1" date="2016-01-30" description="Release 4.0.1">
       <action type="fix" dev="wemove" issue="REDMINE-465">
         Fixed wrong path to save data when using cygwin.
