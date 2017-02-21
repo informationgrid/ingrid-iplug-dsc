@@ -22,15 +22,23 @@ public class BwstrLocUtil {
 
     private HttpClient httpclient = null;
 
-    private String bwstrLocUrl = "https://atlas.wsv.bund.de/bwastr-locator/rest/geokodierung/query";
+    private String bwstrLocEndpoint = "https://atlas.wsv.bund.de/bwastr-locator/rest/geokodierung/query";
 
     private static final Logger log = Logger.getLogger( BwstrLocUtil.class );
 
     private HttpClient getHttpClient() {
         if (httpclient == null) {
-            httpclient = new HttpClient( new MultiThreadedHttpConnectionManager() );
+            httpclient = createHttpClient();
         }
         return httpclient;
+    }
+    
+    private HttpClient createHttpClient() {
+        HttpClient client = new HttpClient( new MultiThreadedHttpConnectionManager() );
+        if (System.getProperty("http.proxyHost") != null && System.getProperty("http.proxyPort") != null) {
+            client.getHostConfiguration().setProxy(System.getProperty("http.proxyHost"), Integer.parseInt(System.getProperty("http.proxyPort")));
+        }
+        return client;
     }
 
     /**
@@ -44,7 +52,7 @@ public class BwstrLocUtil {
     public String getResponse(String bwStrId, String kmFrom, String kmTo) {
         String response = null;
 
-        PostMethod post = new PostMethod( bwstrLocUrl );
+        PostMethod post = new PostMethod( bwstrLocEndpoint );
         post.setParameter( "Content-Type", "application/json" );
         
         try {
@@ -57,7 +65,7 @@ public class BwstrLocUtil {
             }
             response = post.getResponseBodyAsString();
         } catch (Exception e) {
-            log.error( "Error getting response from BwStrLocator at: " + bwstrLocUrl );
+            log.error( "Error getting response from BwStrLocator at: " + bwstrLocEndpoint );
         } finally {
             post.releaseConnection();
         }
@@ -174,8 +182,25 @@ public class BwstrLocUtil {
 
         return result;
     }
+    
+    /**
+     * Get the location names 'bwastr_name' and 'strecken_name' from the parsed response.
+     * 
+     * @param parsedResponse
+     * @return String array containing [bwastr_name, strecken_name] or null in case or parsing error.
+     */
+    public String[] getLocationNames(JSONObject parsedResponse) {
+        String[] result = null;
+        try {
+            JSONObject re = (JSONObject) ((JSONArray) parsedResponse.get( "result" )).get( 0 );
+            result = new String[] {(String)re.get( "bwastr_name" ), (String)re.get( "strecken_name" )};
+        } catch (Exception e) {
+            log.error( "Error getting 'bwastr_name' and 'strecken_name' from parsed response.", e );
+        }
+        return result;
+    }
 
-
+    
     static final Pattern BWSTRID_AND_KM_PATTERN = Pattern.compile( "[0-9]+\\-[0-9]+(\\.[0-9]+)?\\-[0-9]+(\\.[0-9]+)?" );
 
     /**
@@ -192,29 +217,64 @@ public class BwstrLocUtil {
 
         return BWSTRID_AND_KM_PATTERN.matcher( bwStrIdAndKm ).matches();
     }
-
+    
     /**
-     * Get center coordinates of Wasserstrassenabschnitt described by <Wasserstrassen
-     * ID>-<km_from>-<km_to>. If the distance is > 1 km then the locator is
-     * called with kmFrom = center-0.5km and kmTo = center+0.5km.
+     * Checks and parses a String according to the pattern <Wasserstrassen ID>-<km_from>-<km_to>.
+     * If the distance is > 1 km then the from to section is computed
+     * with kmFrom = center-0.5km and kmTo = center+0.5km.
      * 
      * @param bwStrIdAndKm
-     * @return An array of Double [centerLon, centerLat].
+     * @return Returns array with [Wasserstrassen ID, km_from, km_to].
      */
-    public Double[] getCenterFromBwstrIdAndKm(String bwStrIdAndKm) {
-
-        String[] parts = bwStrIdAndKm.split( "-" );
-
-        Double from = Double.parseDouble( parts[1] );
-        Double to = Double.parseDouble( parts[2] );
-        Double distance = to - from;
-        if (distance > 1.0) {
-            Double center = from + (to - from) / 2;
-            from = center - 0.5;
-            to = center + 0.5;
+    public String[] parseCenterSectionFromBwstrIdAndKm(String bwStrIdAndKm) {
+        String[] parts = parseBwstrIdAndKm(bwStrIdAndKm);
+        if (parts != null) {
+            Double from = Double.parseDouble( parts[1] );
+            Double to = Double.parseDouble( parts[2] );
+            Double distance = to - from;
+            if (distance > 1.0) {
+                Double center = from + (to - from) / 2;
+                from = center - 0.5;
+                to = center + 0.5;
+            }
+            return new String[] {parts[0], from.toString(), to.toString()};
         }
+        return null;
+    }
+    
+    /**
+     * Checks and parses a String according to the pattern <Wasserstrassen ID>-<km_from>-<km_to>.
+     * 
+     * @param bwStrIdAndKm
+     * @return Returns array with [Wasserstrassen ID, km_from, km_to].
+     */
+    public String[] parseBwstrIdAndKm(String bwStrIdAndKm) {
+        if (isBwstrIdAndKm(bwStrIdAndKm)) {
+            String[] parts = bwStrIdAndKm.split( "-" );
+            return parts;
+        }
+        return null;
+    }
+    
 
-        return getCenter( parse( getResponse( parts[0], from.toString(), to.toString() ) ) );
+    public String getBwstrLocUrl() {
+        return bwstrLocEndpoint;
     }
 
+    /**
+     * Sets the endpoint of the Bundeswasserstrassenlocator. Updates the httpClient with 
+     * the new endpoint.
+     * 
+     * Defaults to:
+     * 
+     * https://atlas.wsv.bund.de/bwastr-locator/rest/geokodierung/query
+     * 
+     * @param bwstrLocUrl
+     */
+    public void setBwstrLocUrl(String bwstrLocUrl) {
+        this.bwstrLocEndpoint = bwstrLocUrl;
+        httpclient = createHttpClient();
+    }
+    
+    
 }
