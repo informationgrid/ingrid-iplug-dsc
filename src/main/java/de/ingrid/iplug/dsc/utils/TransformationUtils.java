@@ -27,6 +27,8 @@ package de.ingrid.iplug.dsc.utils;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -387,6 +389,28 @@ public class TransformationUtils {
         return iso3166_1_Alpha_3;
 	    	    
 	}
+	
+	/** Format date to database timestamp. */
+    public String dateToTimestamp(Date date) {
+        try {
+            String out = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(date);
+            return out;
+        } catch (Exception ex){
+            return "";
+        }
+    }
+	
+    /** Transforms milliseconds to a valid ISO Date String.
+     * Returns unchanged date (the passed one) if problems occur ! */
+	public String getISODateFromMilliseconds(String millisecDate) {
+        if (millisecDate == null) return null;
+            Date in = new Date(Long.valueOf(millisecDate));
+            String result = UtilsCSWDate.mapFromIgcToIso8601(dateToTimestamp(in));
+            if (result == null) {
+                result = millisecDate;
+            }
+        return result;
+    }
 	
 	/** Transforms given IGC date string (e.g. t0, t1, t2 from index) to a valid ISO Date String.
 	 * Returns unchanged date (the passed one) if problems occur ! */
