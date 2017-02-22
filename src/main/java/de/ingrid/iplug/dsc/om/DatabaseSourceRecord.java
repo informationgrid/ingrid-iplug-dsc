@@ -27,6 +27,8 @@ package de.ingrid.iplug.dsc.om;
 
 import java.sql.Connection;
 
+import de.ingrid.utils.ElasticDocument;
+
 /**
  * Represents a record set from a sql database.
  * 
@@ -39,6 +41,8 @@ public class DatabaseSourceRecord extends SourceRecord {
 
     public static final String CONNECTION = "connection";
 
+    public static final String INDEX_DOCUMENT = "idxDoc";
+
     /**
      * Creates a DatabaseRecord. It holds the source record id and the
      * connection for further usage.
@@ -47,8 +51,21 @@ public class DatabaseSourceRecord extends SourceRecord {
      * @param connection
      */
     public DatabaseSourceRecord(String id, Connection connection) {
-        super(id);
-        this.put(CONNECTION, connection);
+        super( id );
+        this.put( CONNECTION, connection );
+    }
+
+    /**
+     * Creates a DatabaseRecord. It holds the source record id and the
+     * connection and an Elastic Index Document for further usage.
+     * 
+     * @param id
+     * @param connection
+     */
+    public DatabaseSourceRecord(String id, Connection connection, ElasticDocument idxDoc) {
+        super( id );
+        this.put( CONNECTION, connection );
+        this.put( INDEX_DOCUMENT, idxDoc );
     }
 
 }
