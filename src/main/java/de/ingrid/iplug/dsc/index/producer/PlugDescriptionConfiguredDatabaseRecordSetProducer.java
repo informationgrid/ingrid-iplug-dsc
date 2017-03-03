@@ -86,7 +86,6 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         if (recordIdIterator == null) {
             openConnection();
             createRecordIdsFromDatabase();
-            statusProvider.addState( "FETCH", "Found " + numRecords + " records in database.");
         }
         if (recordIdIterator.hasNext()) {
             return true;
