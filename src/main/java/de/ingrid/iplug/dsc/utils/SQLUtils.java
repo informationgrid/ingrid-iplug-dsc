@@ -129,8 +129,16 @@ public class SQLUtils {
             ps = connection.prepareStatement(sqlStr);
             if (sqlParams != null) {
                 for (int i = 0; i < sqlParams.length; i++) {
-                    if (sqlParams[i] != null) {
-                        ps.setString(i + 1, sqlParams[i].toString());
+                    Object sqlParam = sqlParams[i]; 
+                    if (sqlParam != null) {
+                        // Differentiate type in PreparedStatement to avoid error with postgres !
+                        // Cast all numbers to integers cause are ids from JavaScript, otherwise use strings !
+                        if (sqlParam instanceof Number) {
+                            int myId = ((Number)sqlParam).intValue();
+                            ps.setInt(i + 1, myId);
+                        } else {
+                            ps.setString(i + 1, sqlParams[i].toString());
+                        }
                     } else {
                         log.error("Prepared statement argument " + i + " in null for: " + sqlStr);
                         throw new SQLException("Prepared statement argument " + i + " is null for: " + sqlStr);

@@ -28,7 +28,10 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
-    <release version="4.0.1.x" date="2016-xx-xx" description="Release 4.0.1.x">
+    <release version="4.0.2-SNAPSHOT" date="2016-xx-xx" description="Release ???">
+      <action type="add" dev="wemove" issue="REDMINE-438">
+        Support PostgreSQL database: Added type specific values in SQL prepared statements (indexing, mapping ...).
+      </action>
       <action type="add" dev="wemove" issue="REDMINE-552">
         Add function to transform milliseconds to ISO date format.
       </action>
