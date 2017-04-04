@@ -85,6 +85,7 @@
                             <ul>
                                 <li>MySql: com.mysql.jdbc.Driver</li>
                                 <li>Oracle: oracle.jdbc.driver.OracleDriver</li>
+                                <li>PostgreSQL: org.postgresql.Driver</li>
                             </ul>
                             Falls die Datenbank nicht aufgeführt ist, dann muss der Treiber im lib-Verzeichnis des iPlugs vorhanden sein.
                             <p style="color: gray;">(Zum Beispiel: com.mysql.jdbc.Driver)</p>
@@ -99,7 +100,7 @@
                             <form:errors path="connectionURL" cssClass="error" element="div" />
                             <br />
                             Geben Sie eine Verbindungs-URL zur JDBC-Datenbank an.
-                            <p style="color: gray;">(Zum Beispiel: jdbc:mysql://localhost:3306/igc)</p>
+                            <p style="color: gray;">(Zum Beispiel: jdbc:mysql://localhost:3306/igc, jdbc:oracle:thin:@localhost:1521:XE, jdbc:postgresql://localhost:5432/igc)</p>
                         </td>
                     </tr>
                     <tr>
