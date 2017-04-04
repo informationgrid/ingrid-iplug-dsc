@@ -147,6 +147,9 @@ public class IgcProfileIdfMapper implements IIdfMapper {
                             if (System.getProperty( "java.version" ).startsWith( "1.8" )) {
                                 igcProfileCswMapping = "load('nashorn:mozilla_compat.js');" + igcProfileCswMapping;
                                 // somehow the contant cannot be accessed!?
+                                // convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
+                                igcProfileCswMapping = igcProfileCswMapping.replaceAll( "sourceRecord.get\\(DatabaseSourceRecord.ID\\)", "+sourceRecord.get(DatabaseSourceRecord.ID)" );
+                                // then replace placeholder
                                 igcProfileCswMapping = igcProfileCswMapping.replaceAll( "DatabaseSourceRecord.ID", "'" + DatabaseSourceRecord.ID + "'" );
                             }
                             engine.eval(new StringReader(igcProfileCswMapping), bindings);
