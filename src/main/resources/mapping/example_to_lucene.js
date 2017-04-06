@@ -41,7 +41,9 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 
 // extract id of the record and read record(s) from database
 var objId = sourceRecord.get("id");
-var objRows = SQL.all("SELECT * FROM [YOUR TABLE NAME] WHERE id=?", [objId]);
+
+// select via id, convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
+var objRows = SQL.all("SELECT * FROM [YOUR TABLE NAME] WHERE id=?", [+objId]);
 for (i=0; i<objRows.size(); i++) {
     var row = objRows.get(i);
     var title = "";

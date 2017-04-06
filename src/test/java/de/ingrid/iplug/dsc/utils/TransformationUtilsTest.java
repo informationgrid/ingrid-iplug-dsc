@@ -37,6 +37,16 @@ public class TransformationUtilsTest {
         Map<String, String> m = tu.transformIGCTimeFields( "0.0", "434566.23", "von" );
         assertEquals( "0.0", m.get( "t1" ));
         assertEquals( "434566.23", m.get( "t2" ));
+        
+        assertEquals( "2016-07-06T13:12:11.456+02:00", tu.getISODateFromIGCDate( "20160706131211456" ));
+        assertEquals( "2016-01-06T13:12:11.456+01:00", tu.getISODateFromIGCDate( "20160106131211456" ));
+        
+        assertEquals( "1968-01-06T13:12:11.456+01:00", tu.getISODateFromIGCDate( "19680106131211456" ));
+        // since wrong handling of summer time in IGE: INPUT 1950-07-06T14:12:11 stores 1950-07-06T13:12:11
+        // see https://dev.informationgrid.eu/redmine/issues/439
+        // see UtilsCSWDate.fixIgcDateString()
+        assertEquals( "1950-07-06T14:12:11+01:00", tu.getISODateFromIGCDate( "19500706131211" ));
+        
     }
-
+    
 }

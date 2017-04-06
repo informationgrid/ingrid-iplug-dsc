@@ -37,7 +37,8 @@ function getHierarchLevel(objClass) {
     if (objClass == "0") {
         hierarchyLevel = "nonGeographicDataset";
     } else if (objClass == "1") {
-        var rows = SQL.all("SELECT hierarchy_level FROM t011_obj_geo WHERE obj_id=?", [objId]);
+    	// select via id, convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
+        var rows = SQL.all("SELECT hierarchy_level FROM t011_obj_geo WHERE obj_id=?", [+objId]);
         // Should be only one row !
         for (j=0; j<rows.size(); j++) {
             hierarchyLevel = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(525, rows.get(j).get("hierarchy_level"));

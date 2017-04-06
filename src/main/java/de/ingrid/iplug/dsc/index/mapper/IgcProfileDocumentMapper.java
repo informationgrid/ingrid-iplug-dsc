@@ -109,7 +109,8 @@ public class IgcProfileDocumentMapper implements IRecordMapper {
                 }
                 if (!profileInfo.isEmpty()) {
                     ps = connection.prepareStatement("SELECT * FROM additional_field_data WHERE obj_id=?");
-                    ps.setString(1, objId);
+                    // convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
+                    ps.setInt(1, new Integer(objId));
                     mapAdditionalData(connection, ps, doc, profileInfo);
                     ps.close();
                 }
@@ -159,7 +160,8 @@ public class IgcProfileDocumentMapper implements IRecordMapper {
             String id = rs.getString("id");
             PreparedStatement psNew = connection
                     .prepareStatement("SELECT * FROM additional_field_data WHERE parent_field_id=?");
-            psNew.setString(1, id);
+            // convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
+            psNew.setInt(1, new Integer(id));
             mapAdditionalData(connection, psNew, doc, profileInfo);
             psNew.close();
         }

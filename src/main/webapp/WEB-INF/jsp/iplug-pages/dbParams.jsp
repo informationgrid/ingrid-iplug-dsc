@@ -54,7 +54,7 @@
     <c:import url="../base/subNavi.jsp"></c:import>
 
     <div id="contentBox" class="contentMiddle">
-        <h1 id="head">Datenbank Einstellungen</h1>
+        <h1 id="head">Datenbankeinstellungen</h1>
         <div class="controls">
             <a href="../base/extras.html">Zur&uuml;ck</a>
             <a href="../base/welcome.html">Abbrechen</a>
@@ -85,6 +85,7 @@
                             <ul>
                                 <li>MySql: com.mysql.jdbc.Driver</li>
                                 <li>Oracle: oracle.jdbc.driver.OracleDriver</li>
+                                <li>PostgreSQL: org.postgresql.Driver</li>
                             </ul>
                             Falls die Datenbank nicht aufgeführt ist, dann muss der Treiber im lib-Verzeichnis des iPlugs vorhanden sein.
                             <p style="color: gray;">(Zum Beispiel: com.mysql.jdbc.Driver)</p>
@@ -99,7 +100,7 @@
                             <form:errors path="connectionURL" cssClass="error" element="div" />
                             <br />
                             Geben Sie eine Verbindungs-URL zur JDBC-Datenbank an.
-                            <p style="color: gray;">(Zum Beispiel: jdbc:mysql://localhost:3306/igc)</p>
+                            <p style="color: gray;">(Zum Beispiel: jdbc:mysql://localhost:3306/igc, jdbc:oracle:thin:@localhost:1521:XE, jdbc:postgresql://localhost:5432/igc)</p>
                         </td>
                     </tr>
                     <tr>

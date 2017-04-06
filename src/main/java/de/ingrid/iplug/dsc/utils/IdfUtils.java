@@ -101,7 +101,8 @@ public class IdfUtils {
         try {
 
             if (igcProfileControlNode.getLocalName().equals("tableControl")) {
-                String id = (String) sourceRecord.get(DatabaseSourceRecord.ID);
+                // convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
+                Integer id = new Integer((String) sourceRecord.get(DatabaseSourceRecord.ID));
                 String igcProfileControlNodeId = xPathUtils.getString(igcProfileControlNode, "igcp:id");
                 List<Map<String, String>> contentRows = SQL.all("SELECT afd.sort, afd.field_key, afd.data "
                         + "FROM additional_field_data afd, additional_field_data afd_parent "
@@ -170,7 +171,8 @@ public class IdfUtils {
 
             } else {
                 // add the IDF data node
-                String id = (String) sourceRecord.get(DatabaseSourceRecord.ID);
+                // convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
+                Integer id = new Integer((String) sourceRecord.get(DatabaseSourceRecord.ID));
                 String igcProfileControlId = xPathUtils.getString(igcProfileControlNode, "igcp:id");
                 Map<String, String> content = SQL.first(
                         "SELECT data FROM additional_field_data WHERE obj_id=? AND field_key=?", new Object[] { id,
