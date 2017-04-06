@@ -28,22 +28,25 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
-    <release version="4.0.2-SNAPSHOT" date="2016-xx-xx" description="Release ???">
+    <release version="4.0.2" date="2017-04-06" description="Release 4.0.2">
       <action type="add" dev="wemove" issue="REDMINE-438">
         Support PostgreSQL database: Added type specific values in SQL prepared statements (indexing, mapping ...).
       </action>
       <action type="add" dev="wemove" issue="REDMINE-552">
         Add function to transform milliseconds to ISO date format.
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-439">
+        Fixed another issue with date generation.
+      </action>
     </release>
   
-    <release version="4.0.1.1" date="2016-02-02" description="Release 4.0.1.1">
+    <release version="4.0.1.1" date="2017-02-02" description="Release 4.0.1.1">
       <action type="fix" dev="wemove" issue="REDMINE-534">
         Fixed wrong conversion of date to ISO format.
       </action>
     </release>
 
-    <release version="4.0.1" date="2016-01-30" description="Release 4.0.1">
+    <release version="4.0.1" date="2017-01-30" description="Release 4.0.1">
       <action type="fix" dev="wemove" issue="REDMINE-465">
         Fixed wrong path to save data when using cygwin.
       </action>
