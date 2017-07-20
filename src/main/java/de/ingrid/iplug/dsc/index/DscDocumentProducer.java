@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
@@ -88,6 +89,11 @@ public class DscDocumentProducer implements IDocumentProducer {
     public ElasticDocument next() {
         ElasticDocument doc = new ElasticDocument();
         try {
+            
+            // add iPlug info to document, so that hit can be identified from where it came from
+            doc.put( "dataSourceName", JettyStarter.getInstance().config.datasourceName );
+            doc.put( "organisation", JettyStarter.getInstance().config.organisation );
+            
             SourceRecord record = recordSetProducer.next();
             for (IRecordMapper mapper : recordMapperList) {
                 long start = 0;
@@ -113,7 +119,8 @@ public class DscDocumentProducer implements IDocumentProducer {
      * @param field is the column of the database where the field is stored
      * @return an Elastic Search document with the given ID
      */
-    public ElasticDocument getById(String id, String field) {
+    // TODO: this should be synchronized, otherwise two users publishing an object at the same time access the same recordIterator!!! 
+    public synchronized ElasticDocument getById(String id, String field) {
         ElasticDocument doc = new ElasticDocument();
         // iterate through all docs to make sure connection is closed next time
         try {
