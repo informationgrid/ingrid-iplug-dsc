@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.admin.object.IDocumentProducer;
@@ -90,9 +91,12 @@ public class DscDocumentProducer implements IDocumentProducer {
         ElasticDocument doc = new ElasticDocument();
         try {
             
+            Config config = JettyStarter.getInstance().config;
+            
             // add iPlug info to document, so that hit can be identified from where it came from
-            doc.put( "dataSourceName", JettyStarter.getInstance().config.datasourceName );
-            doc.put( "organisation", JettyStarter.getInstance().config.organisation );
+            doc.put( "dataSourceName", config.datasourceName );
+            doc.put( "organisation", config.organisation );
+            doc.put( "iPlugId", config.communicationProxyUrl );
             
             SourceRecord record = recordSetProducer.next();
             for (IRecordMapper mapper : recordMapperList) {
