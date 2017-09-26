@@ -61,6 +61,7 @@ public class DatabaseConnectionUtils {
     public Connection openConnection(DatabaseConnection internalDatabaseConnection)
     		throws ClassNotFoundException, SQLException {
 
+        // check class existent !?
         Class.forName(internalDatabaseConnection.getDataBaseDriver());
         String url = internalDatabaseConnection.getConnectionURL();
         String user = internalDatabaseConnection.getUser();
@@ -74,14 +75,23 @@ public class DatabaseConnectionUtils {
             log.debug("database, set schema '" + schema + "'");
 // Throws Exception "AbstractMethod" seems to be not implemented in oracle driver !
 //        	conn.setSchema(schema);
-        	
-            // So we switch schema for Oracle like this ! HACK !?
-            String sql = "ALTER SESSION SET CURRENT_SCHEMA="+schema;
-            if (log.isDebugEnabled()) {
-            	log.debug("execute: " + sql);
+
+            // switch schema dependent from database type
+            String sql = null;
+            if (isOracle(internalDatabaseConnection)) {
+                // So we switch schema for Oracle like this ! HACK !?
+                sql = "ALTER SESSION SET CURRENT_SCHEMA="+schema;
+            } else if (isPostgres(internalDatabaseConnection)) {
+                sql = "SET search_path TO "+schema;
             }
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.execute();
+            
+            if (sql != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("execute: " + sql);
+                }
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.execute();                
+            }
         }
 
         return conn;
@@ -90,5 +100,26 @@ public class DatabaseConnectionUtils {
     public void closeConnection(Connection conn) throws SQLException {
         log.info("Closing database connection.");
         conn.close();
+    }
+    
+    public static boolean isOracle(DatabaseConnection dbConn) {
+        if (dbConn.getDataBaseDriver().contains( "oracle" ))
+            return true;
+        return false;        
+    }
+    public static boolean isPostgres(DatabaseConnection dbConn) {
+        if (dbConn.getDataBaseDriver().contains( "postgres" ))
+            return true;
+        return false;        
+    }
+    /** Returns "public" if postgres, username if oracle, else "" */
+    public static String getDefaultSchema(DatabaseConnection dbConn) {
+        if (isPostgres( dbConn )) {
+            return "public";
+        } else if (isOracle( dbConn )) {
+            return dbConn.getUser();
+        }
+
+        return "";
     }
 }

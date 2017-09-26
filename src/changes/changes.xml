@@ -29,6 +29,9 @@
   </properties>
   <body>
     <release version="4.0.4-SNAPSHOT" date="2017-xx-xx" description="Release 4.0.4">
+      <action type="fix" dev="wemove" issue="REDMINE-864">
+        Support schema in database connection over all supported databases.
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-438">
         Add missing postgres driver.
       </action>
