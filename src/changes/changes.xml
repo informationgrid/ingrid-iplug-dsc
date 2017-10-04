@@ -28,6 +28,14 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="4.1.0" date="2017-10-04" description="Release 4.1.0">
+      <action type="fix" dev="wemove" issue="REDMINE-864">
+        Support schema in database connection over all supported databases.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-438">
+        Add missing postgres driver.
+      </action>
+    </release>
     <release version="4.0.2" date="2017-04-06" description="Release 4.0.2">
       <action type="add" dev="wemove" issue="REDMINE-438">
         Support PostgreSQL database: Added type specific values in SQL prepared statements (indexing, mapping ...).
