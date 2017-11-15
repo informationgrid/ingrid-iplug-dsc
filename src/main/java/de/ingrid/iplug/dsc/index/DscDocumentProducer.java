@@ -32,8 +32,8 @@ import org.apache.commons.logging.LogFactory;
 
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.elasticsearch.IndexInfo;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.producer.IRecordSetProducer;
 import de.ingrid.iplug.dsc.om.SourceRecord;
