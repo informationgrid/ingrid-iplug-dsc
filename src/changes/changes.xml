@@ -28,6 +28,13 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+
+    <release version="4.2.0" date="2018-01-05" description="Release 4.2.0">
+      <action type="add" dev="wemove">
+        Added docker integration.
+      </action>
+    </release>
+    
     <release version="4.1.0" date="2017-10-04" description="Release 4.1.0">
       <action type="fix" dev="wemove" issue="REDMINE-864">
         Support schema in database connection over all supported databases.
