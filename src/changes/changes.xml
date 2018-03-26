@@ -29,6 +29,12 @@
   </properties>
   <body>
 
+    <release version="4.3.0" date="2018-03-26" description="Release 4.3.0">
+      <action type="update" dev="wemove">
+        Updated dependencies (current jars).
+      </action>
+    </release>
+
     <release version="4.2.0" date="2018-01-05" description="Release 4.2.0">
       <action type="add" dev="wemove">
         Added docker integration.
