@@ -73,19 +73,23 @@ public class ScriptedDocumentMapper implements IRecordMapper {
             SQLUtils sqlUtils = new SQLUtils(connection);
             IndexUtils idxUtils = new IndexUtils(doc);
             TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
-            
-			Map<String, Object> parameters = new Hashtable<String, Object>();
-			parameters.put("sourceRecord", record);
-			parameters.put("luceneDoc", doc);
-			parameters.put("log", log);
-			parameters.put("SQL", sqlUtils);
-			parameters.put("IDX", idxUtils);
-			parameters.put("TRANSF", trafoUtils);
-			parameters.put("javaVersion", System.getProperty( "java.version" ));
 
-			ScriptEngine.execute(this.mappingScripts, parameters, compile);
+            Map<String, Object> parameters = new Hashtable<String, Object>();
+            parameters.put("sourceRecord", record);
+            parameters.put("luceneDoc", doc);
+            parameters.put("log", log);
+            parameters.put("SQL", sqlUtils);
+            parameters.put("IDX", idxUtils);
+            parameters.put("TRANSF", trafoUtils);
+            parameters.put("javaVersion", System.getProperty("java.version"));
+
+            ScriptEngine.execute(this.mappingScripts, parameters, compile);
         } catch (Exception e) {
-            log.error("Error mapping source record to lucene document.", e);
+            if (e.getMessage().contains("SkipException")) {
+                log.warn("Skipping document: " + e.getMessage());
+            } else {
+                log.error("Error mapping source record to lucene document.", e);
+            }
             throw e;
         }
     }
