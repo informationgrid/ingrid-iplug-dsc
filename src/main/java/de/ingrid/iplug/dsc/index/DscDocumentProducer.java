@@ -111,7 +111,9 @@ public class DscDocumentProducer implements IDocumentProducer {
             }
             return doc;
         } catch (Exception e) {
-            log.error("Error obtaining next record.", e);
+            if (!e.getMessage().contains("SkipException")) {
+                log.error("Error obtaining next record.", e);
+            }
             return null;
         }
     }
