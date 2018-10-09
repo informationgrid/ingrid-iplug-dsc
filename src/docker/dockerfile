@@ -1,4 +1,4 @@
-FROM openjdk:8-jre-alpine
+FROM docker-registry.wemove.com/ingrid-java:jdk-8
 ENV INGRID_USER=root
 ENV RUN_DIRECTLY=true
 
@@ -15,6 +15,9 @@ RUN ln -sf /dev/stdout /opt/ingrid/ingrid-iplug-dsc/log.log
   # && ln -sf /dev/stderr /var/log/nginx/error.log
 
 RUN echo jetty.port=80 > /opt/ingrid/ingrid-iplug-dsc/conf/config.override.properties
+
+COPY ./files /
+
 WORKDIR /opt/ingrid/ingrid-iplug-dsc
 EXPOSE 80
 
