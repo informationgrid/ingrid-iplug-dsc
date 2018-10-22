@@ -149,8 +149,7 @@ public class DscDocumentProducer implements IDocumentProducer {
                 
             }
         } catch (Exception e) {
-            log.error( "Exception occurred during getting document by ID and mapping it to lucene: " + e.getMessage() );
-            e.printStackTrace();
+            log.error( "Exception occurred during getting document by ID and mapping it to lucene: ", e );
             doc = null;
         }
         return doc;

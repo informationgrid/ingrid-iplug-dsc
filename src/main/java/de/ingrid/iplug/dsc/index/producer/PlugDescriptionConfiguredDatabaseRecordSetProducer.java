@@ -136,6 +136,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
             }
         } catch (Exception e) {
             log.error("Error opening connection!", e);
+            statusProvider.addState("error", "Error opening connection: " + e.getMessage(), StatusProvider.Classification.ERROR);
         }
     }
 

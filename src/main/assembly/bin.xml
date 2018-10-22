@@ -29,25 +29,31 @@
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
-	<fileSet>
-      <directory>src/main/release/conf</directory>
+    <fileSet>
+      <directory>src/main/resources</directory>
       <outputDirectory>${project.artifactId}-${project.version}/conf</outputDirectory>
+      <includes>
+        <include>config.properties</include>
+        <include>elasticsearch.properties</include>
+        <include>ingrid.auth</include>
+        <include>log4j2.xml</include>
+      </includes>
     </fileSet>
     <fileSet>
       <directory>src/main/release/udk_presets</directory>
       <outputDirectory>${project.artifactId}-${project.version}/udk_presets</outputDirectory>
     </fileSet>
-<!-- No additional presets !
-    <fileSet>
-      <directory>src/main/release/presets</directory>
-      <outputDirectory>${project.artifactId}-${project.version}/presets</outputDirectory>
-    </fileSet>
--->
+    <!-- No additional presets !
+        <fileSet>
+          <directory>src/main/release/presets</directory>
+          <outputDirectory>${project.artifactId}-${project.version}/presets</outputDirectory>
+        </fileSet>
+    -->
     <fileSet>
       <directory>src/main/resources</directory>
       <outputDirectory>${project.artifactId}-${project.version}/conf</outputDirectory>
     </fileSet>
-	<fileSet>
+    <fileSet>
       <directory>src/main/release/scripts</directory>
       <outputDirectory>${project.artifactId}-${project.version}/</outputDirectory>
     </fileSet>
@@ -80,7 +86,7 @@
       <directory>target/logs</directory>
       <outputDirectory>${project.artifactId}-${project.version}/logs</outputDirectory>
     </fileSet>
-	<fileSet>
+    <fileSet>
       <directory>target/site</directory>
       <outputDirectory>${project.artifactId}-${project.version}/doc</outputDirectory>
     </fileSet>
