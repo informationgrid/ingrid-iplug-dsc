@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import de.ingrid.admin.JettyStarter;
 import org.dbunit.DBTestCase;
 import org.dbunit.PropertiesBasedJdbcDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
@@ -69,6 +70,7 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
     @Override
     protected void setUp() throws Exception {
         System.out.println("Try creating tables from data source file: " + DATASOURCE_FILE_NAME);
+        new JettyStarter(false);
         IDataSet ds = new XmlDataSet(new FileInputStream(DATASOURCE_FILE_NAME));
         createHsqldbTables(ds, this.getConnection().getConnection());
         super.setUp();
@@ -153,10 +155,8 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
     @SuppressWarnings("unchecked")
     public void testDscRecordCreator() throws Exception {
 
-        File plugDescriptionFile = new File(
-                "src/test/resources/plugdescription_db_test.xml");
-        PlugDescription pd = new PlugdescriptionSerializer()
-                .deSerialize(plugDescriptionFile);
+        File plugDescriptionFile = new File("src/test/resources/plugdescription_db_test.xml");
+        PlugDescription pd = new PlugdescriptionSerializer().deSerialize(plugDescriptionFile);
 
         PlugDescriptionConfiguredDatabaseRecordSetProducer p = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
         p.setStatusProvider( statusProvider );
@@ -166,7 +166,7 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
         IgcProfileDocumentMapper m = new IgcProfileDocumentMapper();
         m.setSql("SELECT VALUE AS igc_profile FROM TEST_TABLE WHERE KEY='igc_profile'");
 
-        List<IRecordMapper> mList = new ArrayList<IRecordMapper>();
+        List<IRecordMapper> mList = new ArrayList<>();
         mList.add(m);
         
         DscDocumentProducer dp = new DscDocumentProducer();
