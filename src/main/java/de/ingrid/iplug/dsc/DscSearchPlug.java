@@ -39,6 +39,7 @@ import de.ingrid.utils.query.IngridQuery;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 /**
@@ -47,6 +48,8 @@ import org.springframework.stereotype.Service;
  * @author joachim@wemove.com
  * 
  */
+@org.springframework.context.annotation.Configuration
+@PropertySource(value = {"classpath:config.properties", "classpath:config.override.properties"})
 @Service
 public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
