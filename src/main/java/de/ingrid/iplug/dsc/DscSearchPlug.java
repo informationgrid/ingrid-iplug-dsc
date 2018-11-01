@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,6 @@
  */
 package de.ingrid.iplug.dsc;
 
-import com.tngtech.configbuilder.ConfigBuilder;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.IndexScheduler;
 import de.ingrid.elasticsearch.search.IndexImpl;
@@ -39,17 +38,13 @@ import de.ingrid.utils.query.IngridQuery;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 /**
  * This iPlug connects to the iBus delivers search results based on a index.
- * 
+ *
  * @author joachim@wemove.com
- * 
  */
-@org.springframework.context.annotation.Configuration
-@PropertySource(value = {"classpath:config.properties", "classpath:config.override.properties"})
 @Service
 public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
@@ -58,10 +53,8 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
      */
     private static Log log = LogFactory.getLog(DscSearchPlug.class);
 
-    public static Configuration conf;
-
     private DscRecordCreator dscRecordProducer;
-    
+
     private final IndexImpl _indexSearcher;
     private final IndexScheduler indexScheduler;
 
@@ -83,8 +76,8 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
      */
     @Override
     public final IngridHits search(final IngridQuery query, final int start,
-            final int length) throws Exception {
-        
+                                   final int length) throws Exception {
+
         if (log.isDebugEnabled()) {
             log.debug("Incoming query: " + query.toString() + ", start="
                     + start + ", length=" + length);
@@ -98,7 +91,7 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
      */
     @Override
     public Record getRecord(IngridHit hit) throws Exception {
-        ElasticDocument document = _indexSearcher.getDocById( hit.getDocumentId() );
+        ElasticDocument document = _indexSearcher.getDocById(hit.getDocumentId());
         return dscRecordProducer.getRecord(document);
     }
 
@@ -115,7 +108,7 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
      */
     @Override
     public IngridHitDetail getDetail(IngridHit hit, IngridQuery query,
-            String[] fields) {
+                                     String[] fields) {
         return _indexSearcher.getDetail(hit, query, fields);
     }
 
@@ -126,7 +119,7 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
     public IngridHitDetail[] getDetails(IngridHit[] hits, IngridQuery query, String[] fields) {
         return _indexSearcher.getDetails(hits, query, fields);
     }
-    
+
     public DscRecordCreator getDscRecordProducer() {
         return dscRecordProducer;
     }
@@ -134,10 +127,9 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
     public void setDscRecordProducer(DscRecordCreator dscRecordProducer) {
         this.dscRecordProducer = dscRecordProducer;
     }
-    
+
     public static void main(String[] args) throws Exception {
-        conf = new ConfigBuilder<>(Configuration.class).withCommandLineArgs(args).build();
-        new JettyStarter( conf );
+        new JettyStarter();
     }
 
     @Override
@@ -153,5 +145,5 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
         return doc;
     }
-    
+
 }

@@ -20,18 +20,9 @@
  * limitations under the Licence.
  * **************************************************#
  */
-/**
- * 
- */
 package de.ingrid.iplug.dsc.index;
 
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import de.ingrid.admin.Config;
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.elasticsearch.IndexInfo;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
@@ -39,6 +30,11 @@ import de.ingrid.iplug.dsc.index.producer.IRecordSetProducer;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.PlugDescription;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * Implements de.ingrid.admin.object.IDocumentProducer from the base webapp 
@@ -51,6 +47,9 @@ import de.ingrid.utils.PlugDescription;
  */
 //@Service
 public class DscDocumentProducer implements IDocumentProducer {
+
+    @Autowired
+    private Config config;
 
     //@Autowired
     private IRecordSetProducer recordSetProducer = null;
@@ -90,8 +89,6 @@ public class DscDocumentProducer implements IDocumentProducer {
     public ElasticDocument next() {
         ElasticDocument doc = new ElasticDocument();
         try {
-            
-            Config config = JettyStarter.getInstance().config;
             
             // add iPlug info to document, so that hit can be identified from where it came from
             doc.put( "dataSourceName", config.datasourceName );

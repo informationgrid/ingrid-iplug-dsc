@@ -47,7 +47,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
     <bean id="indexInfo" class="de.ingrid.elasticsearch.IndexInfo">
         <property name="toIndex" value="dsc-test" />
         <property name="toType" value="default" />
-        <property name="docIdField" value="t01_object.obj_id" />
+        <property name="docIdField" value="id" />
     </bean>
 
     <!-- READ DATABASE -->
@@ -86,7 +86,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
     
     <!-- READ RECORD ID FROM INDEX, FIELDNAME ALSO SPECIFIED ABOVE -->
     <bean id="recordProducer" class="de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer">
-        <property name="indexFieldID" value="t01_object.id" />
+        <property name="indexFieldID" value="id" />
     </bean>
     
     <!-- BASIC STRUCTURE OF DETAIL DATA (IDF) -->

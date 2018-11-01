@@ -22,17 +22,6 @@
  */
 package de.ingrid.iplug.dsc;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.json.simple.parser.ParseException;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-
 import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.mapper.IdfProducerDocumentMapper;
@@ -49,12 +38,26 @@ import de.ingrid.iplug.dsc.record.producer.IRecordProducer;
 import de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.json.JsonUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 // @EnableAutoConfiguration
 public class SpringConfiguration {
 
     private static Log log = LogFactory.getLog( SpringConfiguration.class );
+
+    @Autowired
+    private de.ingrid.iplug.dsc.Configuration dscConfig;
 
     public IdfProducerDocumentMapper idfProducerDocumentMapper(IngridDocument doc, DscRecordCreator dscRecordCreator) {
         IdfProducerDocumentMapper mapper = new IdfProducerDocumentMapper();
@@ -94,10 +97,10 @@ public class SpringConfiguration {
 
         producer.setRecordSetProducer( recordSetProducer );
 
-        if (DscSearchPlug.conf.indexMapper == null)
+        if (dscConfig.indexMapper == null)
             log.error( "indexMapper (mapper.index.beans) is/are not defined!" );
         List<IRecordMapper> recordMapperList = new ArrayList<IRecordMapper>();
-        List<IngridDocument> mappers = JsonUtil.parseJsonToListOfIngridDocument( DscSearchPlug.conf.indexMapper );
+        List<IngridDocument> mappers = JsonUtil.parseJsonToListOfIngridDocument( dscConfig.indexMapper );
         for (IngridDocument mapper : mappers) {
             IRecordMapper recMap = null;
             String type = mapper.getString( "type" );
@@ -131,10 +134,10 @@ public class SpringConfiguration {
         DscRecordCreator producer = new DscRecordCreator();
         producer.setRecordProducer( recordProducer );
 
-        if (DscSearchPlug.conf.idfMapper == null)
+        if (dscConfig.idfMapper == null)
             log.error( "idfMapper (mapper.idf.beans) is/are not defined!" );
         List<IIdfMapper> recordMapperList = new ArrayList<IIdfMapper>();
-        List<IngridDocument> mappers = JsonUtil.parseJsonToListOfIngridDocument( DscSearchPlug.conf.idfMapper );
+        List<IngridDocument> mappers = JsonUtil.parseJsonToListOfIngridDocument( dscConfig.idfMapper );
         for (IngridDocument mapper : mappers) {
             IIdfMapper recMap = null;
             String type = mapper.getString( "type" );
@@ -162,14 +165,14 @@ public class SpringConfiguration {
     @Bean
     public PlugDescriptionConfiguredDatabaseRecordProducer recordProducer() {
         PlugDescriptionConfiguredDatabaseRecordProducer producer = new PlugDescriptionConfiguredDatabaseRecordProducer();
-        producer.setIndexFieldID( DscSearchPlug.conf.indexFieldId );
+        producer.setIndexFieldID( dscConfig.indexFieldId );
         return producer;
     }
 
     @Bean
     public PlugDescriptionConfiguredDatabaseRecordSetProducer recordSetProducer() {
         PlugDescriptionConfiguredDatabaseRecordSetProducer producer = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
-        producer.setRecordSql( DscSearchPlug.conf.indexMapperSql );
+        producer.setRecordSql( dscConfig.indexMapperSql );
         return producer;
     }
 
