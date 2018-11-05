@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -77,6 +78,7 @@ public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCa
         mList.add(m);
         
         DscDocumentProducer dp = new DscDocumentProducer();
+        dp.setConfig(new Config());
         dp.setRecordSetProducer(p);
         dp.setRecordMapperList(mList);
 

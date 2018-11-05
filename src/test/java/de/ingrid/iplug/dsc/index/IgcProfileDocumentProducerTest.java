@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 import org.dbunit.DBTestCase;
 import org.dbunit.PropertiesBasedJdbcDatabaseTester;
@@ -170,6 +171,7 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
         mList.add(m);
         
         DscDocumentProducer dp = new DscDocumentProducer();
+        dp.setConfig(new Config());
         dp.setRecordSetProducer(p);
         dp.setRecordMapperList(mList);
 

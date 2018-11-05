@@ -108,7 +108,7 @@ public class DscDocumentProducer implements IDocumentProducer {
             }
             return doc;
         } catch (Exception e) {
-            if (!e.getMessage().contains("SkipException")) {
+            if ( !( e.getMessage() != null && e.getMessage().contains("SkipException") )) {
                 log.error("Error obtaining next record.", e);
             }
             return null;
@@ -196,6 +196,10 @@ public class DscDocumentProducer implements IDocumentProducer {
 
     public void setIndexInfo(IndexInfo indexInfo) {
         this.indexInfo = indexInfo;
+    }
+
+    public void setConfig(Config config) {
+        this.config = config;
     }
 
 }
