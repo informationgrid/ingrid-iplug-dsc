@@ -2,6 +2,10 @@
     "_default_" : {
         "_source" : { "enabled" : true },
         "properties": {
+            "iPlugId": {
+                "type": "keyword",
+                "store": true
+            },
             "partner": {
                 "type": "keyword",
                 "store": true

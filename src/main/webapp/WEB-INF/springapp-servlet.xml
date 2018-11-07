@@ -77,8 +77,6 @@
     <property name="recordMapperList">
       <list>
         <ref bean="recordMapper"/>
-        <ref bean="recordMapperLgvHh"/>
-        <ref bean="recordProfileMapper"/>
       </list>
     </property>
   </bean>
