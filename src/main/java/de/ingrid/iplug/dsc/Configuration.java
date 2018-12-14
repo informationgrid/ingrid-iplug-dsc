@@ -52,6 +52,8 @@ public class Configuration implements IConfig {
     
     @Value("${iplug.database.schema:}")
     public String databaseSchema;
+
+    public DatabaseConnection dbConnection;
     
     
     /**
@@ -97,19 +99,12 @@ public class Configuration implements IConfig {
         pdObject.removeFromList(PlugDescription.FIELDS, "metaclass");
         pdObject.addField("metaclass");
         
-        DatabaseConnection dbc = new DatabaseConnection( databaseDriver, databaseUrl, databaseUsername, databasePassword, databaseSchema );
-        pdObject.setConnection( dbc );
+        this.dbConnection = new DatabaseConnection( databaseDriver, databaseUrl, databaseUsername, databasePassword, databaseSchema );
+        pdObject.setConnection( this.dbConnection );
     }
 
     @Override
     public void setPropertiesFromPlugdescription( Properties props, PlugdescriptionCommandObject pd ) {
-        DatabaseConnection connection = (DatabaseConnection) pd.getConnection();
-        databaseDriver = connection.getDataBaseDriver();
-        databaseUrl = connection.getConnectionURL();
-        databaseUsername = connection.getUser();
-        databasePassword = connection.getPassword();
-        databaseSchema = connection.getSchema();
-        
         props.setProperty( "iplug.database.driver", databaseDriver);
         props.setProperty( "iplug.database.url", databaseUrl);
         props.setProperty( "iplug.database.username", databaseUsername);

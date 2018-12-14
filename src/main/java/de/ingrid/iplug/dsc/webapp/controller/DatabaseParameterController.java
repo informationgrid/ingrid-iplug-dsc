@@ -96,6 +96,7 @@ public class DatabaseParameterController extends AbstractController {
         dscConfig.databaseUsername = commandObject.getUser();
         dscConfig.databasePassword = commandObject.getPassword();
         dscConfig.databaseSchema = commandObject.getSchema();
+        dscConfig.dbConnection = commandObject;
 
         return AdminViews.SAVE;
     }
