@@ -11,10 +11,6 @@ RUN unzip ingrid-iplug-*-installer.jar -d /tmp \
     && sed -ir 's/(<AppenderRef.*\/>)/\1<AppenderRef ref="Console" \/>/g' /opt/ingrid/ingrid-iplug-dsc/conf/log4j2.xml
     && rm ingrid-*.jar
 
-# forward request and error logs to docker log collector
-RUN ln -sf /dev/stdout /opt/ingrid/ingrid-iplug-dsc/log.log
-  # && ln -sf /dev/stderr /var/log/nginx/error.log
-
 RUN echo jetty.port=80 > /opt/ingrid/ingrid-iplug-dsc/conf/config.override.properties
 
 COPY ./files /
