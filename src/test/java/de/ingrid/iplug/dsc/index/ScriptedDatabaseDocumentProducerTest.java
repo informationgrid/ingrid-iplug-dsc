@@ -29,6 +29,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import de.ingrid.admin.Config;
+import de.ingrid.admin.JettyStarter;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.core.io.ClassPathResource;
@@ -45,10 +47,11 @@ public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCa
     
     @Mock StatusProvider statusProvider;
 
-    public ScriptedDatabaseDocumentProducerTest(String name) {
+    public ScriptedDatabaseDocumentProducerTest(String name) throws Exception {
         super(name);
         MockitoAnnotations.initMocks( this );
         setDatasourceFileName("src/test/resources/dataset.xml");
+        new JettyStarter(false);
     }
 
     public void testScriptedDatabaseDocumentProducer() throws Exception {
@@ -75,6 +78,7 @@ public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCa
         mList.add(m);
         
         DscDocumentProducer dp = new DscDocumentProducer();
+        dp.setConfig(new Config());
         dp.setRecordSetProducer(p);
         dp.setRecordMapperList(mList);
 

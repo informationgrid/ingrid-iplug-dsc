@@ -1,21 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>4.2.2</version>
+    <version>5.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-iplug-dsc</artifactId>
-  <version>4.7.0-SNAPSHOT</version>
+  <version>5.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>InGrid-iPlug DSC</name>
+  <name>InGrid iPlug DSC</name>
   <description>This iPlug indexes documents from a database and can be queried by the iBus.</description>
+
+  <!-- ==================== Source Code Management ==================== -->
   <scm>
     <connection>scm:git:git@github.com:informationgrid/ingrid-iplug-dsc.git</connection>
     <developerConnection>scm:git:git@github.com:informationgrid/ingrid-iplug-dsc.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
+
+  <!-- ==================== REPOSITORIES ==================== -->
   <repositories>
     <!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
     <repository>
@@ -24,6 +29,13 @@
       <url>https://nexus.informationgrid.eu/repository/maven-public</url>
     </repository>
   </repositories>
+
+  <!-- ==================== PROPERTIES ==================== -->
+  <properties>
+    <iplug.type>IPLUG_DSC</iplug.type>
+    <ingrid-base-webapp.version>5.0.0-SNAPSHOT</ingrid-base-webapp.version>
+  </properties>
+
   <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
   <dependencyManagement>
     <dependencies>
@@ -34,12 +46,13 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
   <!-- ==================== DEPENDENCIES ==================== -->
   <dependencies>
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-iplug</artifactId>
-      <version>3.6.2</version>
+      <version>5.0.0-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>ant</groupId>
@@ -62,34 +75,42 @@
           <artifactId>servlet-api</artifactId>
         </exclusion>
         <exclusion>
-            <groupId>jetty</groupId>
-            <artifactId>org.mortbay.jetty</artifactId>
+          <groupId>jetty</groupId>
+          <artifactId>org.mortbay.jetty</artifactId>
+        </exclusion>
+        <exclusion>
+          <artifactId>log4j</artifactId>
+          <groupId>log4j</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>spring-security-crypto</artifactId>
+          <groupId>org.springframework.security</groupId>
         </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-base-webapp</artifactId>
-      <version>4.7.0-SNAPSHOT</version>
+      <version>${ingrid-base-webapp.version}</version>
     </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-base-webapp</artifactId>
-      <version>4.7.0-SNAPSHOT</version>
+      <version>${ingrid-base-webapp.version}</version>
       <classifier>res</classifier>
       <type>zip</type>
     </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-utils</artifactId>
-      <version>4.2.2</version>
+      <version>5.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-utils-geo</artifactId>
-      <version>4.0.1</version>
+      <version>4.4.0</version>
     </dependency>
-<!-- The two following dependencies are needed for Jetty -->
+    <!-- The two following dependencies are needed for Jetty -->
     <dependency>
       <groupId>org.mortbay.jetty</groupId>
       <artifactId>jetty</artifactId>
@@ -107,7 +128,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-<!-- End of Jetty - Dependencies -->
+    <!-- End of Jetty - Dependencies -->
     <dependency>
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
@@ -134,10 +155,10 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-        <groupId>ojdbc</groupId>
-        <artifactId>ojdbc</artifactId>
-		<version>14</version>
-        <scope>runtime</scope>
+      <groupId>ojdbc</groupId>
+      <artifactId>ojdbc</artifactId>
+      <version>14</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
@@ -145,48 +166,28 @@
       <version>9.4.1212</version>
       <scope>runtime</scope>
     </dependency>
-	<dependency>
-	    <groupId>org.dbunit</groupId>
-	    <artifactId>dbunit</artifactId>
-	    <version>2.4.9</version>
-	    <scope>test</scope>
-	</dependency>
     <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>1.7.7</version>
+      <groupId>org.dbunit</groupId>
+      <artifactId>dbunit</artifactId>
+      <version>2.4.9</version>
+      <scope>test</scope>
     </dependency>
-	<dependency>
-	    <groupId>hsqldb</groupId>
-	    <artifactId>hsqldb</artifactId>
-	    <version>1.8.0.2</version>
-	</dependency>
-	<dependency>
-	    <groupId>org.mockito</groupId>
-	    <artifactId>mockito-core</artifactId>
-	    <version>2.0.44-beta</version>
-	</dependency>
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>1.8.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>2.0.44-beta</version>
+    </dependency>
   </dependencies>
+
+  <!-- ==================== Build Configuration ==================== -->
   <build>
     <finalName>${project.artifactId}-${project.version}</finalName>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <excludes>
-          <exclude>**/*</exclude>
-        </excludes>
-      </resource>
-    </resources>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <version>2.9</version>
-        <inherited>true</inherited>
-        <configuration>
-          <useProjectReferences>false</useProjectReferences>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -196,79 +197,14 @@
           </includes>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>unpack-base-webapp</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-				  <groupId>de.ingrid</groupId>
-				  <artifactId>ingrid-base-webapp</artifactId>
-				  <classifier>res</classifier>
-				  <type>zip</type>
-                  <outputDirectory>${project.build.directory}/base-webapp</outputDirectory>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-         <groupId>org.apache.maven.plugins</groupId>
-         <artifactId>maven-jar-plugin</artifactId>
-         <configuration>
-           <archive>
-             <manifestEntries>
-               <!-- see ingrid-utils:de.ingrid.utils.metadata.IPlugType-->
-               <iPlug-Type>IPLUG_DSC</iPlug-Type>
-             </manifestEntries>
-           </archive>
-         </configuration>
-      </plugin>
+
+      <!-- Activate maven-assembly-plugin from release pom to build installer -->
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-            <archive>
-              <manifestEntries>
-                <ingridComponentType>IPLUG_DSC</ingridComponentType>
-              </manifestEntries>
-            </archive>
-        </configuration>
-        <executions>
-          <execution>
-            <id>make-installer</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-          <archiveClasses>false</archiveClasses>
-          <archive>
-            <manifestEntries>
-              <!-- see ingrid-utils:de.ingrid.utils.metadata.IPlugType -->
-              <iPlug-Type>IPLUG_DSC</iPlug-Type>
-            </manifestEntries>
-          </archive>
-          <webResources>
-            <resource>
-                <directory>target/base-webapp</directory>
-            </resource>
-          </webResources>
-        </configuration>
-      </plugin>
+      <!--
+        This plugin configures the git-flow for this project
+      -->
       <plugin>
         <groupId>external.atlassian.jgitflow</groupId>
         <artifactId>jgitflow-maven-plugin</artifactId>

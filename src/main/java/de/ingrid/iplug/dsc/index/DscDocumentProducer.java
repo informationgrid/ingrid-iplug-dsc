@@ -20,23 +20,21 @@
  * limitations under the Licence.
  * **************************************************#
  */
-/**
- * 
- */
 package de.ingrid.iplug.dsc.index;
 
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import de.ingrid.admin.elasticsearch.IndexInfo;
+import de.ingrid.admin.Config;
 import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.elasticsearch.IndexInfo;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.producer.IRecordSetProducer;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.PlugDescription;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * Implements de.ingrid.admin.object.IDocumentProducer from the base webapp 
@@ -49,6 +47,9 @@ import de.ingrid.utils.PlugDescription;
  */
 //@Service
 public class DscDocumentProducer implements IDocumentProducer {
+
+    @Autowired
+    private Config config;
 
     //@Autowired
     private IRecordSetProducer recordSetProducer = null;
@@ -88,6 +89,12 @@ public class DscDocumentProducer implements IDocumentProducer {
     public ElasticDocument next() {
         ElasticDocument doc = new ElasticDocument();
         try {
+            
+            // add iPlug info to document, so that hit can be identified from where it came from
+            doc.put( "dataSourceName", config.datasourceName );
+            doc.put( "organisation", config.organisation );
+            doc.put( "iPlugId", config.communicationProxyUrl );
+            
             SourceRecord record = recordSetProducer.next();
             for (IRecordMapper mapper : recordMapperList) {
                 long start = 0;
@@ -101,7 +108,7 @@ public class DscDocumentProducer implements IDocumentProducer {
             }
             return doc;
         } catch (Exception e) {
-            if (!e.getMessage().contains("SkipException")) {
+            if ( !( e.getMessage() != null && e.getMessage().contains("SkipException") )) {
                 log.error("Error obtaining next record.", e);
             }
             return null;
@@ -115,7 +122,8 @@ public class DscDocumentProducer implements IDocumentProducer {
      * @param field is the column of the database where the field is stored
      * @return an Elastic Search document with the given ID
      */
-    public ElasticDocument getById(String id, String field) {
+    // TODO: this should be synchronized, otherwise two users publishing an object at the same time access the same recordIterator!!! 
+    public synchronized ElasticDocument getById(String id, String field) {
         ElasticDocument doc = new ElasticDocument();
         // iterate through all docs to make sure connection is closed next time
         try {
@@ -138,8 +146,7 @@ public class DscDocumentProducer implements IDocumentProducer {
                 
             }
         } catch (Exception e) {
-            log.error( "Exception occurred during getting document by ID and mapping it to lucene: " + e.getMessage() );
-            e.printStackTrace();
+            log.error( "Exception occurred during getting document by ID and mapping it to lucene: ", e );
             doc = null;
         }
         return doc;
@@ -189,6 +196,10 @@ public class DscDocumentProducer implements IDocumentProducer {
 
     public void setIndexInfo(IndexInfo indexInfo) {
         this.indexInfo = indexInfo;
+    }
+
+    public void setConfig(Config config) {
+        this.config = config;
     }
 
 }
