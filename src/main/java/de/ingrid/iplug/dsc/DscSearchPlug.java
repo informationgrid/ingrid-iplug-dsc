@@ -24,6 +24,8 @@ package de.ingrid.iplug.dsc;
 
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.IndexScheduler;
+import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.elasticsearch.IBusIndexManager;
 import de.ingrid.elasticsearch.search.IndexImpl;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.iplug.IPlugdescriptionFieldFilter;
@@ -34,6 +36,8 @@ import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.metadata.IMetadataInjector;
 import de.ingrid.utils.processor.IPostProcessor;
 import de.ingrid.utils.processor.IPreProcessor;
+import de.ingrid.utils.query.ClauseQuery;
+import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.query.IngridQuery;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,6 +56,12 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
      * The logging object
      */
     private static Log log = LogFactory.getLog(DscSearchPlug.class);
+
+    @Autowired
+    private ElasticConfig elasticConfig;
+
+    @Autowired
+    private IBusIndexManager iBusIndexManager;
 
     private DscRecordCreator dscRecordProducer;
 
@@ -83,6 +93,18 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     + start + ", length=" + length);
         }
         preProcess(query);
+
+        // request iBus directly to get search results from within this iPlug
+        // adapt query to only get results coming from this iPlug and activated in iBus
+        // But when not connected to an iBus then use direct connection to Elasticsearch
+        if (elasticConfig.esCommunicationThroughIBus) {
+
+            ClauseQuery cq = new ClauseQuery(true, false);
+            cq.addField(new FieldQuery(true, false, "iPlugId", elasticConfig.communicationProxyUrl));
+            query.addClause(cq);
+            return this.iBusIndexManager.search(query, start, length);
+        }
+
         return _indexSearcher.search(query, start, length);
     }
 
@@ -109,6 +131,13 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
     @Override
     public IngridHitDetail getDetail(IngridHit hit, IngridQuery query,
                                      String[] fields) {
+        // request iBus directly to get search results from within this iPlug
+        // adapt query to only get results coming from this iPlug and activated in iBus
+        // But when not connected to an iBus then use direct connection to Elasticsearch
+        if (elasticConfig.esCommunicationThroughIBus) {
+            return this.iBusIndexManager.getDetail(hit, query, fields);
+        }
+
         return _indexSearcher.getDetail(hit, query, fields);
     }
 
@@ -117,6 +146,13 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
      */
     @Override
     public IngridHitDetail[] getDetails(IngridHit[] hits, IngridQuery query, String[] fields) {
+        // request iBus directly to get search results from within this iPlug
+        // adapt query to only get results coming from this iPlug and activated in iBus
+        // But when not connected to an iBus then use direct connection to Elasticsearch
+        if (elasticConfig.esCommunicationThroughIBus) {
+            return this.iBusIndexManager.getDetails(hits, query, fields);
+        }
+
         return _indexSearcher.getDetails(hits, query, fields);
     }
 
