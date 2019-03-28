@@ -26,6 +26,7 @@ import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.IndexScheduler;
 import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.elasticsearch.IBusIndexManager;
+import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.elasticsearch.search.IndexImpl;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.iplug.IPlugdescriptionFieldFilter;
@@ -62,6 +63,9 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
     @Autowired
     private IBusIndexManager iBusIndexManager;
+
+    @Autowired
+    private IndexManager indexManager;
 
     private DscRecordCreator dscRecordProducer;
 
@@ -113,7 +117,13 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
      */
     @Override
     public Record getRecord(IngridHit hit) throws Exception {
-        ElasticDocument document = _indexSearcher.getDocById(hit.getDocumentId());
+
+        ElasticDocument document;
+        if (elasticConfig.esCommunicationThroughIBus) {
+            document = iBusIndexManager.getDocById(hit.getDocumentId());
+        } else {
+            document = indexManager.getDocById(hit.getDocumentId());
+        }
         return dscRecordProducer.getRecord(document);
     }
 
