@@ -45,7 +45,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
     
     <!-- GENERAL INFO ABOUT INDEX -->
     <bean id="indexInfo" class="de.ingrid.elasticsearch.IndexInfo">
-        <property name="toIndex" value="dsc-test" />
+        <property name="toIndex" value="dsc" />
         <property name="toType" value="default" />
         <property name="docIdField" value="id" />
     </bean>
