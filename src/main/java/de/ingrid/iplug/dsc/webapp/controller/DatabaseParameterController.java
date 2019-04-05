@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,6 +22,11 @@
  */
 package de.ingrid.iplug.dsc.webapp.controller;
 
+import de.ingrid.admin.command.PlugdescriptionCommandObject;
+import de.ingrid.admin.controller.AbstractController;
+import de.ingrid.iplug.dsc.Configuration;
+import de.ingrid.iplug.dsc.index.DatabaseConnection;
+import de.ingrid.iplug.dsc.webapp.validation.DatabaseConnectionValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -30,13 +35,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
-
-import de.ingrid.admin.command.PlugdescriptionCommandObject;
-import de.ingrid.admin.controller.AbstractController;
-import de.ingrid.iplug.dsc.Configuration;
-import de.ingrid.iplug.dsc.DscSearchPlug;
-import de.ingrid.iplug.dsc.index.DatabaseConnection;
-import de.ingrid.iplug.dsc.webapp.validation.DatabaseConnectionValidator;
 
 /**
  * Control the database parameter page.
@@ -48,6 +46,9 @@ import de.ingrid.iplug.dsc.webapp.validation.DatabaseConnectionValidator;
 @SessionAttributes("plugDescription")
 public class DatabaseParameterController extends AbstractController {
     private final DatabaseConnectionValidator _validator;
+
+    @Autowired
+    private Configuration dscConfig;
 
     @Autowired
     public DatabaseParameterController(DatabaseConnectionValidator validator) {
@@ -86,16 +87,16 @@ public class DatabaseParameterController extends AbstractController {
         // put values into plugdescription
         mapParamsToPD(commandObject, pdCommandObject);
         
-        Configuration config = DscSearchPlug.conf;
-        if (!commandObject.getConnectionURL().equals( config.databaseUrl )) {
+        if (!commandObject.getConnectionURL().equals( dscConfig.databaseUrl )) {
             pdCommandObject.putBoolean( "needsRestart", true );
         }
         // save in config object
-        config.databaseDriver = commandObject.getDataBaseDriver();
-        config.databaseUrl = commandObject.getConnectionURL();
-        config.databaseUsername = commandObject.getUser();
-        config.databasePassword = commandObject.getPassword();
-        config.databaseSchema = commandObject.getSchema();
+        dscConfig.databaseDriver = commandObject.getDataBaseDriver();
+        dscConfig.databaseUrl = commandObject.getConnectionURL();
+        dscConfig.databaseUsername = commandObject.getUser();
+        dscConfig.databasePassword = commandObject.getPassword();
+        dscConfig.databaseSchema = commandObject.getSchema();
+        dscConfig.dbConnection = commandObject;
 
         return AdminViews.SAVE;
     }

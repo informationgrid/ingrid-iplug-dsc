@@ -32,7 +32,7 @@
 
 <profile xmlns="http://www.portalu.de/igc-profile"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://www.portalu.de/igc-profile file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/docs/igc_profile.xsd" version="1.0.0">
+ xsi:schemaLocation="http://www.portalu.de/igc-profile igc_profile.xsd" version="1.0.0">
     <name>name0</name>
     <supportedLanguages>supportedLanguages0</supportedLanguages>
     <layoutRubric isLegacy="false">

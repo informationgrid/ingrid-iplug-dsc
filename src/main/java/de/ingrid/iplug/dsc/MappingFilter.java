@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -37,15 +37,11 @@ import de.ingrid.iplug.IPlugdescriptionFieldFilter;
 public class MappingFilter implements IPlugdescriptionFieldFilter {
 
 	public boolean filter(Object object) {
-/*
 		String key = object.toString();
 
-		if ("rankingMul".equals(key) ||
-			"rankingAdd".equals(key) ||
-			"mapping".equals(key)) {
+		if ("connection".equals(key)) {
 			return true;
 		}
-*/		
 		return false;
 	}
 }

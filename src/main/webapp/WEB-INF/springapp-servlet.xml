@@ -23,90 +23,102 @@
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:mvc="http://www.springframework.org/schema/mvc"
-    xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:util="http://www.springframework.org/schema/util"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
                 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
                 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
                 http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
 
-    <!-- import spring beans for the iPlug -->
-    <!-- <import resource="spring.xml"/>  -->   
-    
-    <!-- the application context definition for the springapp DispatcherServlet -->
-    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
-        <property name="prefix" value="/WEB-INF/jsp/"></property>
-        <property name="suffix" value=".jsp"></property>
-    </bean>
+  <!-- import spring beans for the iPlug -->
+  <!-- <import resource="spring.xml"/>  -->
 
-	<bean id="messageSource"
-		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
-		<property name="basenames">
-			<list>
-				<value>classpath:messages</value>
-				<value>classpath:messages_base</value>
-			</list>
-		</property>
-		<property name="cacheSeconds" value="0" />
-		<property name="fallbackToSystemLocale" value="false"></property>
-    <property name="defaultEncoding">
-      <value>UTF-8</value>
+  <!-- the application context definition for the springapp DispatcherServlet -->
+  <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+    <property name="prefix" value="/WEB-INF/jsp/"/>
+    <property name="suffix" value=".jsp"/>
+  </bean>
+
+  <bean id="messageSource"
+        class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+    <property name="basenames">
+      <list>
+        <value>classpath:messages</value>
+        <value>classpath:messages_base</value>
+      </list>
     </property>
-	</bean>
+    <property name="cacheSeconds" value="0"/>
+    <property name="fallbackToSystemLocale" value="false"/>
+    <property name="defaultEncoding" value="UTF-8"/>
+  </bean>
 
-    <!-- XML DEFINED BEANS WITH ACCORDING QUALIFIER TO BE AUTOWIRED VIA QUALIFIER ! -->
+  <!-- XML DEFINED BEANS WITH ACCORDING QUALIFIER TO BE AUTOWIRED VIA QUALIFIER ! -->
 
-    <!-- Single parsers are injected explicitly (but created via annotation mechanism) -->
-    <!-- Adapt number, type and order of parsers dependent from iPlug -->
-    <bean id="queryConverter" class="de.ingrid.admin.elasticsearch.converter.QueryConverter">
-        <property name="queryParsers">
-            <list>
-                <ref bean="defaultFieldsQueryConverter" />
-                <ref bean="datatypePartnerProviderQueryConverter" />
-                <ref bean="fieldQueryIGCConverter" />
-                <ref bean="rangeQueryConverter" />
-                <ref bean="wildcardQueryConverter" />
-                <ref bean="wildcardFieldQueryConverter" />
-                <ref bean="matchAllQueryConverter" />
-            </list>
-        </property>
-    </bean>
-    
-    <!--
-        Defines a facet definition filter. Will be applied before a facet 
-        definition is analyzed. This construct is used in igc dsc
-        iPlug to map incompatible queries to compatible.
-        
-        See also de.ingrid.iplug.dsc.IGCTopicsSearchPreProcessor.
+  <!-- Single parsers are injected explicitly (but created via annotation mechanism) -->
+  <!-- Adapt number, type and order of parsers dependent from iPlug -->
+  <bean id="queryConverter" class="de.ingrid.elasticsearch.search.converter.QueryConverter">
+    <property name="queryParsers">
+      <list>
+        <ref bean="IPlugIdQueryConverter"/>
+        <ref bean="defaultFieldsQueryConverter"/>
+        <ref bean="datatypePartnerProviderQueryConverter"/>
+        <ref bean="fieldQueryIGCConverter"/>
+        <ref bean="rangeQueryConverter"/>
+        <ref bean="wildcardQueryConverter"/>
+        <ref bean="wildcardFieldQueryConverter"/>
+        <ref bean="matchAllQueryConverter"/>
+      </list>
+    </property>
+  </bean>
 
-        This is IGC DB specific. Please comment for other databases.
-    -->
-    <bean id="configurableFacetDefinitionProcessors"
-        class="de.ingrid.admin.elasticsearch.facets.ConfigurableFacetClassProcessor" >
-        <property name="facetFilterDefinitions">
-            <map>
-                <entry key="type:topic" value-ref="topicFilterDef"/>
-            </map>                
-        </property>
-    </bean>
+  <bean id="dscDocumentProducer" class="de.ingrid.iplug.dsc.index.DscDocumentProducer">
+    <property name="recordSetProducer" ref="recordSetProducer" />
+    <property name="recordMapperList">
+      <list>
+        <ref bean="recordMapper"/>
+      </list>
+    </property>
+  </bean>
 
-    <util:map id="topicFilterDef" key-type="java.lang.String">
-        <entry key="datatype:topics" value="t01_object.is_catalog_data:y" />
-    </util:map>
+  <bean id="indexInfo" class="de.ingrid.elasticsearch.IndexInfo">
+    <property name="toIndex" value="dsc"/>
+  </bean>
 
-    <context:component-scan base-package="de.ingrid">
-        <context:exclude-filter type="regex" expression="de.ingrid.admin.object.DefaultDataType"/>
-        <context:exclude-filter type="regex" expression="de.ingrid.admin.object.BasePlug"/>
-    </context:component-scan>
-    
-    <mvc:annotation-driven/>
-    <mvc:resources mapping="/css/**" location="/css/" />
-    <mvc:resources mapping="/img/**" location="/img/" />
+  <!--
+      Defines a facet definition filter. Will be applied before a facet
+      definition is analyzed. This construct is used in igc dsc
+      iPlug to map incompatible queries to compatible.
 
-    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"> 
-		<property name="maxUploadSize" value="1000000"/> 
-	</bean>
-    
+      See also de.ingrid.iplug.dsc.IGCTopicsSearchPreProcessor.
+
+      This is IGC DB specific. Please comment for other databases.
+  -->
+  <bean id="configurableFacetDefinitionProcessors"
+        class="de.ingrid.elasticsearch.search.facets.ConfigurableFacetClassProcessor">
+    <property name="facetFilterDefinitions">
+      <map>
+        <entry key="type:topic" value-ref="topicFilterDef"/>
+      </map>
+    </property>
+  </bean>
+
+  <util:map id="topicFilterDef" key-type="java.lang.String">
+    <entry key="datatype:topics" value="t01_object.is_catalog_data:y"/>
+  </util:map>
+
+  <context:component-scan base-package="de.ingrid">
+    <context:exclude-filter type="regex" expression="de.ingrid.admin.object.DefaultDataType"/>
+    <context:exclude-filter type="regex" expression="de.ingrid.admin.object.BasePlug"/>
+  </context:component-scan>
+
+  <mvc:annotation-driven/>
+  <mvc:resources mapping="/css/**" location="/css/"/>
+  <mvc:resources mapping="/img/**" location="/img/"/>
+
+  <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    <property name="maxUploadSize" value="1000000"/>
+  </bean>
+
 </beans>

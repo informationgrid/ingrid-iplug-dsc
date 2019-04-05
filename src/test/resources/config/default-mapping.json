@@ -1,87 +1,76 @@
-{ 
-    "_default_" : { 
-        "_source" : { "enabled" : true }, 
-        "properties": {
-            "t01_object.mod_time": {
-                "type": "string"
-            },
-            "t01_object.obj_id": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t012_obj_adr.adr_id": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t01_object.mod_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t01_object.responsible_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t02_address.adr_id": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t02_address.mod_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t02_address.responsible_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t03_catalogue.cat_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t03_catalogue.mod_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "parent.object_node.obj_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "parent.address_node.addr_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "boost": {
-                "type": "float",
-                "store": true,
-                "null_value" : 0.0
-            },
-            "title": {
-                "analyzer": "german",
-                "type": "string"
-            },
-            "summary": {
-                "analyzer": "german",
-                "type": "string"
-            },
-            "content": {
-                "analyzer": "german",
-                "type": "string"
-            },
-            "x1": {
-                "type": "double"
-            },
-            "x2": {
-                "type": "double"
-            },
-            "y1": {
-                "type": "double"
-            },
-            "y2": {
-                "type": "double"
-            },
-            "idf": {
-                "type": "string",
-                "index": "no"
-            }
-        }
-    } 
+{
+  "_source": {
+    "enabled": true
+  },
+  "properties": {
+    "t01_object.mod_time": {
+      "type": "text"
+    },
+    "t01_object.obj_id": {
+      "type": "keyword"
+    },
+    "t012_obj_adr.adr_id": {
+      "type": "keyword"
+    },
+    "t01_object.mod_uuid": {
+      "type": "keyword"
+    },
+    "t01_object.responsible_uuid": {
+      "type": "keyword"
+    },
+    "t02_address.adr_id": {
+      "type": "keyword"
+    },
+    "t02_address.mod_uuid": {
+      "type": "keyword"
+    },
+    "t02_address.responsible_uuid": {
+      "type": "keyword"
+    },
+    "t03_catalogue.cat_uuid": {
+      "type": "keyword"
+    },
+    "t03_catalogue.mod_uuid": {
+      "type": "keyword"
+    },
+    "parent.object_node.obj_uuid": {
+      "type": "keyword"
+    },
+    "parent.address_node.addr_uuid": {
+      "type": "keyword"
+    },
+    "boost": {
+      "type": "float",
+      "store": true,
+      "null_value": 0.0
+    },
+    "title": {
+      "analyzer": "german",
+      "type": "text"
+    },
+    "summary": {
+      "analyzer": "german",
+      "type": "text"
+    },
+    "content": {
+      "analyzer": "german",
+      "type": "text"
+    },
+    "x1": {
+      "type": "double"
+    },
+    "x2": {
+      "type": "double"
+    },
+    "y1": {
+      "type": "double"
+    },
+    "y2": {
+      "type": "double"
+    },
+    "idf": {
+      "type": "text",
+      "index": false
+    }
+  }
 }

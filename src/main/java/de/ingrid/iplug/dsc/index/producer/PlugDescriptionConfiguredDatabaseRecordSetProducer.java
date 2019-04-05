@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -136,6 +136,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
             }
         } catch (Exception e) {
             log.error("Error opening connection!", e);
+            statusProvider.addState("error", "Error opening connection: " + e.getMessage(), StatusProvider.Classification.ERROR);
         }
     }
 

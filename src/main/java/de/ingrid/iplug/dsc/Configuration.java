@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,68 +22,57 @@
  */
 package de.ingrid.iplug.dsc;
 
-import java.util.Properties;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertiesFiles;
-import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertyLocations;
-import com.tngtech.configbuilder.annotation.valueextractor.DefaultValue;
-import com.tngtech.configbuilder.annotation.valueextractor.PropertyValue;
-
 import de.ingrid.admin.IConfig;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.migrate.ConfigMigration;
 import de.ingrid.utils.PlugDescription;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
 
-@PropertiesFiles( {"config"} )
-@PropertyLocations(directories = {"conf"}, fromClassLoader = true)
+import java.util.Properties;
+
+@org.springframework.context.annotation.Configuration
 public class Configuration implements IConfig {
     
     private static Log log = LogFactory.getLog(Configuration.class);
     
-    @PropertyValue("iplug.database.driver")
-    @DefaultValue("com.mysql.jdbc.Driver")
+    @Value("${iplug.database.driver:com.mysql.jdbc.Driver}")
     public String databaseDriver;
     
-    @PropertyValue("iplug.database.url")
-    @DefaultValue("jdbc:mysql://localhost:3306/igc")
+    @Value("${iplug.database.url:jdbc:mysql://localhost:3306/igc}")
     public String databaseUrl;
     
-    @PropertyValue("iplug.database.username")
-    @DefaultValue("")
+    @Value("${iplug.database.username:}")
     public String databaseUsername;
     
-    @PropertyValue("iplug.database.password")
-    @DefaultValue("")
+    @Value("${iplug.database.password:}")
     public String databasePassword;
     
-    @PropertyValue("iplug.database.schema")
-    @DefaultValue("")
+    @Value("${iplug.database.schema:}")
     public String databaseSchema;
+
+    public DatabaseConnection dbConnection;
     
     
     /**
      * Should be removed in future versions, when version <3.6.0.3 is nowhere being used!
      */
-    @PropertyValue("spring.profile")
+    @Value("${spring.profile}")
     @Deprecated
     public String springProfile;
     
-    @PropertyValue("mapper.index.docSql")
+    @Value("${mapper.index.docSql}")
     public String indexMapperSql;
 
-    @PropertyValue("mapper.index.fieldId")
+    @Value("${mapper.index.fieldId}")
     public String indexFieldId;
 
-    @PropertyValue("mapper.idf.beans")
-    @DefaultValue("[]")
+    @Value("${mapper.idf.beans:[]}")
     public String idfMapper;
     
-    @PropertyValue("mapper.index.beans")
-    @DefaultValue("[]")
+    @Value("${mapper.index.beans:[]}")
     public String indexMapper;
 
     @Override
@@ -92,7 +81,7 @@ public class Configuration implements IConfig {
         // since 3.6.0.4 there's no profile for spring used anymore
         // migrate necessary settings accordingly 
         if (springProfile != null && (indexMapper == null || indexMapper.trim().isEmpty())) {
-            ConfigMigration.migrateSpringProfile( springProfile );
+            ConfigMigration.migrateSpringProfile( springProfile, this );
         }
         
     }
@@ -110,19 +99,12 @@ public class Configuration implements IConfig {
         pdObject.removeFromList(PlugDescription.FIELDS, "metaclass");
         pdObject.addField("metaclass");
         
-        DatabaseConnection dbc = new DatabaseConnection( databaseDriver, databaseUrl, databaseUsername, databasePassword, databaseSchema );
-        pdObject.setConnection( dbc );
+        this.dbConnection = new DatabaseConnection( databaseDriver, databaseUrl, databaseUsername, databasePassword, databaseSchema );
+        pdObject.setConnection( this.dbConnection );
     }
 
     @Override
     public void setPropertiesFromPlugdescription( Properties props, PlugdescriptionCommandObject pd ) {
-        DatabaseConnection connection = (DatabaseConnection) pd.getConnection();
-        databaseDriver = connection.getDataBaseDriver();
-        databaseUrl = connection.getConnectionURL();
-        databaseUsername = connection.getUser();
-        databasePassword = connection.getPassword();
-        databaseSchema = connection.getSchema();
-        
         props.setProperty( "iplug.database.driver", databaseDriver);
         props.setProperty( "iplug.database.url", databaseUrl);
         props.setProperty( "iplug.database.username", databaseUsername);
