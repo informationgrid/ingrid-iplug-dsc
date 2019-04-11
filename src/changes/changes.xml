@@ -29,6 +29,12 @@
   </properties>
   <body>
 
+    <release version="5.0.1" date="2019-04-11" description="Release 5.0.1">
+      <action type="fix" dev="wemove">
+        Fix index name generation.
+      </action>
+    </release>
+
     <release version="5.0.0" date="2019-04-05" description="Release 5.0.0">
       <action type="update" dev="wemove" issue="835">
         Use central index for indexing data.
