@@ -86,6 +86,7 @@ public class BwstrLocUtil {
                 throw new Exception( "Invalid HTTP Response Code.: " + resp );
             }
             response = post.getResponseBodyAsString();
+            log.debug(String.format("Geocoding response from BWaStr. Locator for BWaStr. ID: %s, start km: %s, end km: %s, is: %s", bwStrId, kmFrom, kmTo, response));
         } catch (Exception e) {
             log.error( "Error getting response from BwStrLocator at: " + bwstrLocEndpoint );
         } finally {
@@ -117,17 +118,12 @@ public class BwstrLocUtil {
      * @param parsedResponse
      * @return The center in Double[centerLon, centerLat].
      */
-    public Double[] getCenter(JSONObject parsedResponse) {
-
-        Double[] result = null;
-        
-        
+    public double[] getCenter(JSONObject parsedResponse) {
+        double[] result = { Double.NaN, Double.NaN };
         try {
             JSONObject re = (JSONObject) ((JSONArray) parsedResponse.get( "result" )).get( 0 );
             JSONArray coordinates = (JSONArray) ((JSONObject) re.get( "geometry" )).get( "coordinates" );
             int maxNoOfCoordinates = 0;
-            Double centerLon = null;
-            Double centerLat = null;
             for (int i = 0; i < coordinates.size(); i++) {
                 JSONArray a = (JSONArray) coordinates.get( i );
                 maxNoOfCoordinates += a.size();
@@ -143,18 +139,15 @@ public class BwstrLocUtil {
                     double lon = (Double) aa.get( 0 );
                     double lat = (Double) aa.get( 1 );
                     if (cnt == centerCnt) {
-                        centerLon = lon;
-                        centerLat = lat;
+                        result[0] = lon;
+                        result[1] = lat;
                         break;
                     }
                 }
             }
-
-            result = new Double[] { centerLon, centerLat };
         } catch (Exception e) {
             log.error( "Error parsing BwstrLoc response: " + parsedResponse.toJSONString(), e );
         }
-
         return result;
     }
 

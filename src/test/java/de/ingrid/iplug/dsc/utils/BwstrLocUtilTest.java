@@ -40,7 +40,7 @@ public class BwstrLocUtilTest {
     @Test
     public void testGetCenter() {
         BwstrLocUtil blo = new BwstrLocUtil();
-        Double[] o = blo
+        double[] o = blo
                 .getCenter( blo
                         .parse( "{ \"result\": [ { \"qid\": 1, \"bwastrid\": \"3901\", \"stationierung\": { \"km_von\": 729, \"km_bis\": 776, \"offset\": 0 }, \"spatialReference\": { \"wkid\": 4326 }, \"bwastr_name\": \"Rhein\", \"strecken_name\": \"Hauptstrecke\", \"geometry\": { \"type\": \"MultiLineString\", \"coordinates\": [ [ [ 6.79684033835204, 51.163654438625 ], [ 6.79697299471522, 51.1639443860597 ], [ 6.7970996759491, 51.1642352410417 ], [ 6.79722042477812, 51.1645270919987 ], [ 6.79733428546954, 51.1648174395211 ], [ 6.7974422273486, 51.1651085412906 ] ], [ [ 6.72644832190901, 51.3270606108592 ], [ 6.72629234256014, 51.3271567116764 ], [ 6.72613603175844, 51.3272526010672 ], [ 6.72597939023267, 51.3273482785834 ] ] ], \"measures\": [ 729, 729.033, 729.067, 729.1, 729.133, 729.167, 729.2, 729.233, 729.267, 729.3, 729.333, 729.367, 729.4, 729.433, 729.467, 729.5, 729.533, 729.567 ] } } ]}" ) );
         Assert.assertNotNull( o );
