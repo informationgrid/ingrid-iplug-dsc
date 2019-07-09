@@ -368,6 +368,21 @@ public class TransformationUtils {
 		return retValue;
 	}
 
+	public String getISOCodeListEntryIdByDataFilter(Long codeListId, String dataFilter) {
+		if (dataFilter == null) {
+			return null;
+		}
+
+		String retValue = null;
+		try {
+			retValue = SQL.first("SELECT entry_id FROM sys_list WHERE lst_id=" + codeListId + " AND data LIKE '%" + dataFilter + "%'").get("entry_id");
+		} catch (Exception ex) {
+			log.debug("Problems checking data for '" + dataFilter + "' on ISO Code List '" + codeListId + "'.");
+		}
+
+		return retValue;
+	}
+
 	/**
 	 * Returns a ISO3166-1 Alpha-3 code based on a given numeric id.
 	 * 

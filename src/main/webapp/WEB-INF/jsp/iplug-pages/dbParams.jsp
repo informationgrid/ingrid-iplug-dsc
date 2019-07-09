@@ -37,7 +37,7 @@
 </head>
 <body>
     <div id="header">
-        <img src="../images/base/logo.gif" width="168" height="60" alt="Portal U" />
+        <img src="../images/base/logo.gif" width="168" height="60" alt="Portal" />
         <h1><fmt:message key="DatabaseConfig.main.configuration"/></h1>
         <%
           java.security.Principal  principal = request.getUserPrincipal();
