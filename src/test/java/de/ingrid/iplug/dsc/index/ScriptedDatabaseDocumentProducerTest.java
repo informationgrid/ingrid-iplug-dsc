@@ -31,11 +31,11 @@ import java.util.Map;
 
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.utils.statusprovider.StatusProviderService;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.core.io.ClassPathResource;
 
-import de.ingrid.admin.elasticsearch.StatusProvider;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper;
 import de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer;
@@ -45,7 +45,7 @@ import de.ingrid.utils.xml.PlugdescriptionSerializer;
 
 public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCase {
     
-    @Mock StatusProvider statusProvider;
+    StatusProviderService statusProviderService;
 
     public ScriptedDatabaseDocumentProducerTest(String name) throws Exception {
         super(name);
@@ -63,7 +63,7 @@ public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCa
                 .deSerialize(plugDescriptionFile);
 
         PlugDescriptionConfiguredDatabaseRecordSetProducer p = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
-        p.setStatusProvider( statusProvider );
+        p.setStatusProviderService( statusProviderService );
         p.setRecordSql("SELECT * FROM TEST_TABLE");
         p.configure(pd);
 

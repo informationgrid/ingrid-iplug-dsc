@@ -33,6 +33,7 @@ import java.util.Map;
 
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.utils.statusprovider.StatusProviderService;
 import org.dbunit.DBTestCase;
 import org.dbunit.PropertiesBasedJdbcDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
@@ -46,7 +47,6 @@ import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import de.ingrid.admin.elasticsearch.StatusProvider;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
 import de.ingrid.iplug.dsc.index.mapper.IgcProfileDocumentMapper;
 import de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer;
@@ -55,13 +55,13 @@ import de.ingrid.utils.xml.PlugdescriptionSerializer;
 
 public class IgcProfileDocumentProducerTest extends DBTestCase {
     
-    @Mock StatusProvider statusProvider;
+    StatusProviderService statusProviderService;
 
     public static String DATASOURCE_FILE_NAME = "src/test/resources/dataset_igc_profile.xml";
     
     public IgcProfileDocumentProducerTest(String name) {
         super( name );
-        MockitoAnnotations.initMocks( this );
+        statusProviderService = new StatusProviderService();
         System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS, "org.hsqldb.jdbcDriver" );
         System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL, "jdbc:hsqldb:mem:sample" );
         System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_USERNAME, "sa" );
@@ -160,7 +160,7 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
         PlugDescription pd = new PlugdescriptionSerializer().deSerialize(plugDescriptionFile);
 
         PlugDescriptionConfiguredDatabaseRecordSetProducer p = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
-        p.setStatusProvider( statusProvider );
+        p.setStatusProviderService( statusProviderService );
         p.setRecordSql("SELECT id FROM t01_object");
         p.configure(pd);
 
