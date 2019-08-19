@@ -25,7 +25,6 @@ package de.ingrid.iplug.dsc;
 import de.ingrid.admin.IConfig;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
-import de.ingrid.iplug.dsc.migrate.ConfigMigration;
 import de.ingrid.utils.PlugDescription;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,14 +54,6 @@ public class Configuration implements IConfig {
 
     public DatabaseConnection dbConnection;
     
-    
-    /**
-     * Should be removed in future versions, when version <3.6.0.3 is nowhere being used!
-     */
-    @Value("${spring.profile}")
-    @Deprecated
-    public String springProfile;
-    
     @Value("${mapper.index.docSql}")
     public String indexMapperSql;
 
@@ -77,13 +68,7 @@ public class Configuration implements IConfig {
 
     @Override
     public void initialize() {
-        
-        // since 3.6.0.4 there's no profile for spring used anymore
-        // migrate necessary settings accordingly 
-        if (springProfile != null && (indexMapper == null || indexMapper.trim().isEmpty())) {
-            ConfigMigration.migrateSpringProfile( springProfile, this );
-        }
-        
+
     }
 
     @Override
