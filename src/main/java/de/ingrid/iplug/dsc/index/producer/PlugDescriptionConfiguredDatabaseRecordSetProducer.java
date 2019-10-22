@@ -33,11 +33,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import de.ingrid.utils.statusprovider.StatusProvider;
+import de.ingrid.utils.statusprovider.StatusProviderService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import de.ingrid.admin.elasticsearch.StatusProvider;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
@@ -61,7 +62,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         IRecordSetProducer, IConfigurable {
 
     @Autowired
-    private StatusProvider statusProvider;
+    private StatusProviderService statusProviderService;
 
     DatabaseConnection internalDatabaseConnection = null;
     Connection connection = null;
@@ -136,7 +137,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
             }
         } catch (Exception e) {
             log.error("Error opening connection!", e);
-            statusProvider.addState("error", "Error opening connection: " + e.getMessage(), StatusProvider.Classification.ERROR);
+            statusProviderService.getDefaultStatusProvider().addState("error", "Error opening connection: " + e.getMessage(), StatusProvider.Classification.ERROR);
         }
     }
 
@@ -185,8 +186,8 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         return numRecords;
     }
 
-    public void setStatusProvider(StatusProvider statusProvider) {
-        this.statusProvider = statusProvider;
+    public void setStatusProviderService(StatusProviderService statusProviderService) {
+        this.statusProviderService = statusProviderService;
     }
 
 }

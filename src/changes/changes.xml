@@ -29,6 +29,12 @@
   </properties>
   <body>
 
+    <release version="5.2.0" date="2019-10-21" description="Release 5.2.0">
+      <action type="fix" dev="wemove" issue="">
+        Fix duplicated values in index fields
+      </action>
+    </release>
+
     <release version="5.1.0" date="2019-07-09" description="Release 5.1.0">
       <action type="fix" dev="wemove" issue="1380">
         Always return a non-null value for BWaStr centre

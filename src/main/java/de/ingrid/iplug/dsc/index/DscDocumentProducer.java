@@ -89,12 +89,6 @@ public class DscDocumentProducer implements IDocumentProducer {
     public ElasticDocument next() {
         ElasticDocument doc = new ElasticDocument();
         try {
-            
-            // add iPlug info to document, so that hit can be identified from where it came from
-            doc.put( "dataSourceName", config.datasourceName );
-            doc.put( "organisation", config.organisation );
-            doc.put( "iPlugId", config.communicationProxyUrl );
-            
             SourceRecord record = recordSetProducer.next();
             for (IRecordMapper mapper : recordMapperList) {
                 long start = 0;
