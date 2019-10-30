@@ -124,9 +124,7 @@ public class SQLUtils {
         if (log.isDebugEnabled()) {
             log.debug("Execute sql: '" + sqlStr + "' with parameters: " + Arrays.toString(sqlParams));
         }
-        PreparedStatement ps = null;
-        try {
-            ps = connection.prepareStatement(sqlStr);
+        try (PreparedStatement ps = connection.prepareStatement(sqlStr)) {
             if (sqlParams != null) {
                 for (int i = 0; i < sqlParams.length; i++) {
                     Object sqlParam = sqlParams[i]; 
@@ -148,25 +146,19 @@ public class SQLUtils {
 
             ResultSet rs = ps.executeQuery();
             List<Map<String, String>> result = toList(rs);
-            rs.close();
-
             return result;
 
         } catch (SQLException ex) {
             log.error("Error fetching all records from SQL. Sql: " + sqlStr + ", sqlParams: " + Arrays.toString(sqlParams)
                     + ", Exception: " + ex);
             throw ex;
-        } finally {
-            if (ps != null) {
-                ps.close();
-            }
         }
     }
 
     /**
      * Helper method that converts a ResultSet into a list of maps, one per row
      * 
-     * @param query
+     * @param rs
      *            ResultSet
      * @return list of maps, one per column row, with column names as keys and
      *         column values as String (can be null)
@@ -183,9 +175,9 @@ public class SQLUtils {
      * Helper method that maps a ResultSet into a list of maps, one per row.
      * NOTICE: Calls trim() to remove whitespaces from values
      * 
-     * @param query
+     * @param rs
      *            ResultSet
-     * @param list
+     * @param wantedColumnNames
      *            of columns names to include in the result map
      * @return list of maps, one per column row, with column names as keys and
      *         column values as String (can be null)
@@ -215,7 +207,7 @@ public class SQLUtils {
     /**
      * Return all column names as a list of strings
      * 
-     * @param database
+     * @param rs
      *            query result set
      * @return list of column name strings
      * @throws SQLException
