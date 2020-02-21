@@ -113,6 +113,16 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
      */
     @Override
     public SourceRecord next() {
+        try {
+            // try to refresh the database connection if invalid of
+            // see https://redmine.informationgrid.eu/issues/1547
+            if (connection == null || connection.isClosed() || !connection.isValid(1000)) {
+                log.info("Database connection closed or invalid. Try to reconnect.");
+                openConnection();
+            }
+        } catch (SQLException e) {
+            log.error("Error Refreshing the database connection.");
+        }
         return new DatabaseSourceRecord(recordIdIterator.next(), connection);
     }
 
@@ -132,9 +142,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
 
     private void openConnection() {
         try {
-            if (connection == null || connection.isClosed()) {
-            	connection = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection);
-            }
+           	connection = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection);
         } catch (Exception e) {
             log.error("Error opening connection!", e);
             statusProviderService.getDefaultStatusProvider().addState("error", "Error opening connection: " + e.getMessage(), StatusProvider.Classification.ERROR);
