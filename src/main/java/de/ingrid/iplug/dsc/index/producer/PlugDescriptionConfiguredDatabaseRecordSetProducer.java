@@ -25,6 +25,7 @@
  */
 package de.ingrid.iplug.dsc.index.producer;
 
+import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -69,6 +70,8 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
     String recordSql = "";
     Iterator<String> recordIdIterator = null;
     private int numRecords;
+
+    private boolean databaseConnectionSupportsIsValid = false;
 
     final private static Log log = LogFactory
             .getLog(PlugDescriptionConfiguredDatabaseRecordSetProducer.class);
@@ -116,12 +119,16 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         try {
             // try to refresh the database connection if invalid of
             // see https://redmine.informationgrid.eu/issues/1547
-            if (connection == null || connection.isClosed() || !connection.isValid(1000)) {
+            if (connection == null || connection.isClosed()) {
                 log.info("Database connection closed or invalid. Try to reconnect.");
                 openConnection();
             }
+            if (databaseConnectionSupportsIsValid && !connection.isValid(1000)) {
+                log.info("Database connection invalid. Try to reconnect.");
+                openConnection();
+            }
         } catch (SQLException e) {
-            log.error("Error Refreshing the database connection.");
+            log.error("Error Refreshing the database connection.", e);
         }
         return new DatabaseSourceRecord(recordIdIterator.next(), connection);
     }
@@ -146,6 +153,14 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         } catch (Exception e) {
             log.error("Error opening connection!", e);
             statusProviderService.getDefaultStatusProvider().addState("error", "Error opening connection: " + e.getMessage(), StatusProvider.Classification.ERROR);
+        }
+        try {
+            if (!Modifier.isAbstract(connection.getClass().getMethod("isValid").getModifiers())) {
+                databaseConnectionSupportsIsValid = true;
+            }
+        } catch (NoSuchMethodException e) {
+            log.info("Database jdbc driver does not support isValid method.");
+            databaseConnectionSupportsIsValid = false;
         }
     }
 
