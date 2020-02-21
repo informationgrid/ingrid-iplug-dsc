@@ -25,22 +25,21 @@
  */
 package de.ingrid.iplug.dsc.record.producer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
-import de.ingrid.iplug.dsc.om.ClosableDatabaseConnection;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
-import de.ingrid.iplug.dsc.om.IClosableDataSource;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.sql.Connection;
 
 /**
  * This class retrieves a record from a database data source. It retrieves an
- * database id from a lucene document ({@link getRecord}) and creates a
+ * database id from a lucene document (getRecord) and creates a
  * {@link DatabaseSourceRecord} containing the database ID that identifies the
  * database record and the open connection to the database.
  * 
@@ -68,21 +67,17 @@ public class PlugDescriptionConfiguredDatabaseRecordProducer implements IRecordP
      * .document.Document)
      */
     @Override
-    public SourceRecord getRecord(ElasticDocument doc, IClosableDataSource ds) {
+    public SourceRecord getRecord(ElasticDocument doc, Connection connection) {
         if (indexFieldID == null) {
             log.error("Name of ID-Field in Lucene Doc is not set!");
             throw new IllegalArgumentException("Name of ID-Field in Lucene Doc is not set!");
-        }
-        if (!(ds instanceof ClosableDatabaseConnection)) {
-            log.error("Datasource is no database datasource!");
-            throw new IllegalArgumentException("Datasource is no database datasource!");
         }
 
         Object field = doc.get(indexFieldID);
 
         // TODO: what if field is a list?
         try {
-            return new DatabaseSourceRecord(field.toString(), ((ClosableDatabaseConnection) ds).getConnection(), doc);
+            return new DatabaseSourceRecord(field.toString(), connection, doc);
             
         } catch (Exception e) {
             log.error( "Value of " + indexFieldID + " in doc: " + field );
@@ -109,10 +104,9 @@ public class PlugDescriptionConfiguredDatabaseRecordProducer implements IRecordP
      * @see de.ingrid.iplug.dsc.record.IRecordProducer#openDatasource()
      */
     @Override
-    public IClosableDataSource openDatasource() {
+    public Connection openDatasource() {
         try {
-            return new ClosableDatabaseConnection(DatabaseConnectionUtils.getInstance().openConnection(
-                    internalDatabaseConnection));
+            return DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection);
         } catch (Exception e) {
             log.error("Error opening connection!", e);
         }

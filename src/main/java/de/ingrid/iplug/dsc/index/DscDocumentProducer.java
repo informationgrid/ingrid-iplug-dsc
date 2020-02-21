@@ -89,15 +89,16 @@ public class DscDocumentProducer implements IDocumentProducer {
     public ElasticDocument next() {
         ElasticDocument doc = new ElasticDocument();
         try {
-            SourceRecord record = recordSetProducer.next();
-            for (IRecordMapper mapper : recordMapperList) {
-                long start = 0;
-                if (log.isDebugEnabled()) {
-                    start = System.currentTimeMillis();
-                }
-                mapper.map(record, doc);
-                if (log.isDebugEnabled()) {
-                    log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
+            try (SourceRecord record = recordSetProducer.next()) {
+                for (IRecordMapper mapper : recordMapperList) {
+                    long start = 0;
+                    if (log.isDebugEnabled()) {
+                        start = System.currentTimeMillis();
+                    }
+                    mapper.map(record, doc);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
+                    }
                 }
             }
             return doc;

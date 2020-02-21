@@ -31,7 +31,7 @@ import java.util.HashMap;
  * @author joachim@wemove.com
  * 
  */
-public class SourceRecord extends HashMap<String, Object> {
+public class SourceRecord extends HashMap<String, Object> implements AutoCloseable {
 
     public static final String ID = "id";
 
@@ -41,4 +41,8 @@ public class SourceRecord extends HashMap<String, Object> {
         this.put(ID, id);
     }
 
+    @Override
+    public void close() throws Exception {
+        // implement if necessary to close ressources
+    }
 }

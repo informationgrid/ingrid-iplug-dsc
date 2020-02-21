@@ -30,6 +30,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import de.ingrid.utils.statusprovider.StatusProvider;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.log4j.Logger;
 
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
@@ -46,6 +48,8 @@ public class DatabaseConnectionUtils {
     
 	private static DatabaseConnectionUtils myInstance;
 
+    private BasicDataSource dataSource;
+
 	/** Get The Singleton. */
 	public static synchronized DatabaseConnectionUtils getInstance() {
 		if (myInstance == null) {
@@ -57,55 +61,59 @@ public class DatabaseConnectionUtils {
 	private DatabaseConnectionUtils() {
 	}
 
-
-    public Connection openConnection(DatabaseConnection internalDatabaseConnection)
-    		throws ClassNotFoundException, SQLException {
-
-        // check class existent !?
-        Class.forName(internalDatabaseConnection.getDataBaseDriver());
-        String url = internalDatabaseConnection.getConnectionURL();
-        String user = internalDatabaseConnection.getUser();
-        String password = internalDatabaseConnection.getPassword();
-
-        log.debug("Opening database connection: " + url);
-        Connection conn = DriverManager.getConnection(url, user, password); 
-
-        String schema = internalDatabaseConnection.getSchema();
-        if (schema != null && schema.length() > 0) {
-            log.debug("database, set schema '" + schema + "'");
-// Throws Exception "AbstractMethod" seems to be not implemented in oracle driver !
-//        	conn.setSchema(schema);
-
-            // switch schema dependent from database type
-            String sql = null;
-            if (isOracle(internalDatabaseConnection)) {
-                // So we switch schema for Oracle like this ! HACK !?
-                sql = "ALTER SESSION SET CURRENT_SCHEMA="+schema;
-            } else if (isPostgres(internalDatabaseConnection)) {
-                sql = "SET search_path TO "+schema;
-            }
-            
-            if (sql != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("execute: " + sql);
+	private void openDataSource(DatabaseConnection internalDatabaseConnection) {
+        try {
+            if (dataSource != null) {
+                try {
+                    dataSource.close();
+                } catch (SQLException e) {
+                    log.error("Error closing database connection pool. Create a new one.");
                 }
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ps.execute();                
             }
+            dataSource = new BasicDataSource();
+            dataSource.setDriverClassName(internalDatabaseConnection.getDataBaseDriver());
+            dataSource.setUrl(internalDatabaseConnection.getConnectionURL());
+            dataSource.setUsername(internalDatabaseConnection.getUser());
+            dataSource.setPassword(internalDatabaseConnection.getPassword());
+            dataSource.setDefaultSchema(internalDatabaseConnection.getSchema());
+            //dataSource.setMaxActive(5);
+            dataSource.setMaxIdle(2);
+            dataSource.setInitialSize(2);
+            if (DatabaseConnectionUtils.isOracle(internalDatabaseConnection)) {
+                dataSource.setValidationQuery("select 1 from dual");
+            } else if (DatabaseConnectionUtils.isHSQLDB(internalDatabaseConnection)) {
+                dataSource.setValidationQuery("SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS");
+            } else {
+                dataSource.setValidationQuery("select 1");
+            }
+        } catch (Exception e) {
+            log.error("Error opening connection!", e);
         }
 
-        return conn;
     }
 
-    public void closeConnection(Connection conn) throws SQLException {
-        log.info("Closing database connection.");
-        conn.close();
+    public Connection openConnection(DatabaseConnection internalDatabaseConnection) throws SQLException {
+        if (dataSource == null || dataSource.isClosed()) {
+            openDataSource(internalDatabaseConnection);
+        }
+	    return dataSource.getConnection();
     }
-    
+
+    public void closeDataSource() throws SQLException {
+	    if (dataSource != null) {
+	        dataSource.close();
+        }
+    }
+
     public static boolean isOracle(DatabaseConnection dbConn) {
         if (dbConn.getDataBaseDriver().contains( "oracle" ))
             return true;
         return false;        
+    }
+    public static boolean isHSQLDB(DatabaseConnection dbConn) {
+        if (dbConn.getDataBaseDriver().toLowerCase().contains( "hsqldb" ))
+            return true;
+        return false;
     }
     public static boolean isPostgres(DatabaseConnection dbConn) {
         if (dbConn.getDataBaseDriver().contains( "postgres" ))

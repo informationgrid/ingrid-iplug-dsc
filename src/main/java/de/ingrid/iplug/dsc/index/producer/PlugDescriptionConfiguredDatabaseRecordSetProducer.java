@@ -25,7 +25,18 @@
  */
 package de.ingrid.iplug.dsc.index.producer;
 
-import java.lang.reflect.Modifier;
+import de.ingrid.iplug.dsc.index.DatabaseConnection;
+import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
+import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
+import de.ingrid.utils.IConfigurable;
+import de.ingrid.utils.PlugDescription;
+import de.ingrid.utils.statusprovider.StatusProvider;
+import de.ingrid.utils.statusprovider.StatusProviderService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,19 +44,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import de.ingrid.utils.statusprovider.StatusProvider;
-import de.ingrid.utils.statusprovider.StatusProviderService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import de.ingrid.iplug.dsc.index.DatabaseConnection;
-import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
-import de.ingrid.iplug.dsc.om.SourceRecord;
-import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
-import de.ingrid.utils.IConfigurable;
-import de.ingrid.utils.PlugDescription;
 
 /**
  * Takes care of selecting all source record Ids from a database. The SQL 
@@ -66,12 +64,12 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
     private StatusProviderService statusProviderService;
 
     DatabaseConnection internalDatabaseConnection = null;
-    Connection connection = null;
-    String recordSql = "";
-    Iterator<String> recordIdIterator = null;
-    private int numRecords;
 
-    private boolean databaseConnectionSupportsIsValid = false;
+    String recordSql = "";
+
+    Iterator<String> recordIdIterator = null;
+
+    private int numRecords;
 
     final private static Log log = LogFactory
             .getLog(PlugDescriptionConfiguredDatabaseRecordSetProducer.class);
@@ -88,7 +86,6 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
     @Override
     public boolean hasNext() {
         if (recordIdIterator == null) {
-            openConnection();
             createRecordIdsFromDatabase();
         }
         if (recordIdIterator.hasNext()) {
@@ -106,7 +103,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
     @Override
     public void reset() {
         recordIdIterator =  null;
-        closeConnection();
+        closeDatasource();
     }
 
     /*
@@ -116,19 +113,12 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
      */
     @Override
     public SourceRecord next() {
+        Connection connection = null;
         try {
-            // try to refresh the database connection if invalid of
-            // see https://redmine.informationgrid.eu/issues/1547
-            if (connection == null || connection.isClosed()) {
-                log.info("Database connection closed or invalid. Try to reconnect.");
-                openConnection();
-            }
-            if (databaseConnectionSupportsIsValid && !connection.isValid(1000)) {
-                log.info("Database connection invalid. Try to reconnect.");
-                openConnection();
-            }
+            // connection will be closed in autoclosable DatabaseSourceRecord
+            connection = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection);
         } catch (SQLException e) {
-            log.error("Error Refreshing the database connection.", e);
+            log.error("Error getting connection from datasource.", e);
         }
         return new DatabaseSourceRecord(recordIdIterator.next(), connection);
     }
@@ -147,30 +137,11 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         this.recordSql = recordSql;
     }
 
-    private void openConnection() {
+    private void closeDatasource() {
         try {
-           	connection = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection);
-        } catch (Exception e) {
-            log.error("Error opening connection!", e);
-            statusProviderService.getDefaultStatusProvider().addState("error", "Error opening connection: " + e.getMessage(), StatusProvider.Classification.ERROR);
-        }
-        try {
-            if (!Modifier.isAbstract(connection.getClass().getMethod("isValid").getModifiers())) {
-                databaseConnectionSupportsIsValid = true;
-            }
-        } catch (NoSuchMethodException e) {
-            log.info("Database jdbc driver does not support isValid method.");
-            databaseConnectionSupportsIsValid = false;
-        }
-    }
-
-    private void closeConnection() {
-        if (connection != null) {
-            try {
-            	DatabaseConnectionUtils.getInstance().closeConnection(connection);
-            } catch (SQLException e) {
-                log.error("Error closing connection.", e);
-            }
+            DatabaseConnectionUtils.getInstance().closeDataSource();
+        } catch (SQLException e) {
+            log.error("Error closing datasource.", e);
         }
     }
 
@@ -180,24 +151,14 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
             if (log.isDebugEnabled()) {
                 log.debug("SQL: " + recordSql);
             }
-            PreparedStatement ps = connection.prepareStatement(recordSql);
-            try {
-                ResultSet rs = ps.executeQuery();
-                try {
+            try (PreparedStatement ps = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection).prepareStatement(recordSql)) {
+                try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         recordIds.add(rs.getString(1));
                     }
                     recordIdIterator = recordIds.listIterator();
                     numRecords = recordIds.size();
-                } catch (Exception e) {
-                    throw e;
-                } finally {
-                    rs.close();
                 }
-            } catch (Exception e) {
-                throw e;
-            } finally {
-                ps.close();
             }
         } catch (Exception e) {
             log.error("Error creating record ids.", e);
