@@ -123,22 +123,22 @@ public class DscDocumentProducer implements IDocumentProducer {
         // iterate through all docs to make sure connection is closed next time
         try {
             while (recordSetProducer.hasNext()) {
-                SourceRecord next = recordSetProducer.next();
-                if (id.equals( next.get( field ) )) {
-                    for (IRecordMapper mapper : recordMapperList) {
-                        long start = 0;
-                        if (log.isDebugEnabled()) {
-                            start = System.currentTimeMillis();
+                try (SourceRecord next = recordSetProducer.next()) {
+                    if (id.equals(next.get(field))) {
+                        for (IRecordMapper mapper : recordMapperList) {
+                            long start = 0;
+                            if (log.isDebugEnabled()) {
+                                start = System.currentTimeMillis();
+                            }
+                            mapper.map(next, doc);
+                            if (log.isDebugEnabled()) {
+                                log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
+                            }
                         }
-                        mapper.map(next, doc);
-                        if (log.isDebugEnabled()) {
-                            log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
-                        }
+                        recordSetProducer.reset();
+                        break;
                     }
-                    recordSetProducer.reset();
-                    break; 
                 }
-                
             }
         } catch (Exception e) {
             log.error( "Exception occurred during getting document by ID and mapping it to lucene: ", e );
