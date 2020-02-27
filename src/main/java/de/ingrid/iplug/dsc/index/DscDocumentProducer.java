@@ -111,37 +111,32 @@ public class DscDocumentProducer implements IDocumentProducer {
     }
     
     /**
-     * Get a Elastic Search document by its given ID, which can be found
-     * under the given field
+     * Get a Elastic Search document by its given ID. The underlying IRecordSetProducer implementation
+     * must know how to interpret the id.
+     *
      * @param id is the ID of the document
-     * @param field is the column of the database where the field is stored
      * @return an Elastic Search document with the given ID
      */
     // TODO: this should be synchronized, otherwise two users publishing an object at the same time access the same recordIterator!!! 
-    public synchronized ElasticDocument getById(String id, String field) {
-        ElasticDocument doc = new ElasticDocument();
-        // iterate through all docs to make sure connection is closed next time
-        try {
-            while (recordSetProducer.hasNext()) {
-                try (SourceRecord next = recordSetProducer.next()) {
-                    if (id.equals(next.get(field))) {
-                        for (IRecordMapper mapper : recordMapperList) {
-                            long start = 0;
-                            if (log.isDebugEnabled()) {
-                                start = System.currentTimeMillis();
-                            }
-                            mapper.map(next, doc);
-                            if (log.isDebugEnabled()) {
-                                log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
-                            }
-                        }
-                        recordSetProducer.reset();
-                        break;
+    public synchronized ElasticDocument getById(String id) {
+        ElasticDocument doc = null;
+        try (SourceRecord record = recordSetProducer.getRecordById(id)) {
+            if (record != null) {
+                doc = new ElasticDocument();
+                for (IRecordMapper mapper : recordMapperList) {
+                    long start = 0;
+                    if (log.isDebugEnabled()) {
+                        start = System.currentTimeMillis();
+                    }
+                    mapper.map(record, doc);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
                     }
                 }
             }
         } catch (Exception e) {
-            log.error( "Exception occurred during getting document by ID and mapping it to lucene: ", e );
+            log.error( "Exception occurred during getting document by ID '" + id + "' and mapping it to lucene: ", e );
+            // explicit set to null as only one mapper failure out of n should lead to an error
             doc = null;
         }
         return doc;

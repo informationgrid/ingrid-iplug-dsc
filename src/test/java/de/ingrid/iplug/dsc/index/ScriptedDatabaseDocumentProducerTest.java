@@ -31,6 +31,7 @@ import java.util.Map;
 
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.statusprovider.StatusProviderService;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -93,6 +94,49 @@ public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCa
         } else {
             fail("No document produced");
         }
+    }
+
+    public void testScriptedDatabaseDocumentByIdProducer() throws Exception {
+        this.setDatasourceFileName("src/test/resources/dataset.xml");
+
+        File plugDescriptionFile = new File(
+                "src/test/resources/plugdescription_db_test.xml");
+        PlugDescription pd = new PlugdescriptionSerializer()
+                .deSerialize(plugDescriptionFile);
+
+        PlugDescriptionConfiguredDatabaseRecordSetProducer p = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
+        p.setStatusProviderService( statusProviderService );
+        p.setRecordSql("SELECT * FROM TEST_TABLE");
+        p.setRecordByIdSql("SELECT ID FROM TEST_TABLE WHERE ID=?");
+        p.configure(pd);
+
+        ScriptedDocumentMapper m = new ScriptedDocumentMapper();
+        ClassPathResource[] mappingScripts = {
+                new ClassPathResource("scripts/record2index_database_test.js")
+        };
+        m.setMappingScripts(mappingScripts);
+        m.setCompile(false);
+
+        List<IRecordMapper> mList = new ArrayList<IRecordMapper>();
+        mList.add(m);
+
+        DscDocumentProducer dp = new DscDocumentProducer();
+        dp.setConfig(new Config());
+        dp.setRecordSetProducer(p);
+        dp.setRecordMapperList(mList);
+
+        ElasticDocument doc = dp.getById("3");
+        assertNotNull(doc);
+        Collection<String> keys = Arrays.asList( "ID", "COL1", "COL2" );
+        assertTrue( doc.keySet().containsAll( keys ) );
+        assertEquals("3", (String)doc.get("ID"));
+
+        doc = dp.getById("12334");
+        assertNull(doc);
+
+        doc = dp.getById(null);
+        assertNull(doc);
+
     }
     
 }
