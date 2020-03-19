@@ -31,7 +31,6 @@ import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
-import de.ingrid.utils.statusprovider.StatusProvider;
 import de.ingrid.utils.statusprovider.StatusProviderService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -212,7 +211,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
             // connection will be closed in autoclosable DatabaseSourceRecord
             conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection);
             try (PreparedStatement ps = conn.prepareStatement(recordByIdSql)) {
-                ps.setString(1, id);
+                ps.setLong(1, Long.parseLong( id ));
                 try (ResultSet rs = ps.executeQuery()) {
                     String recordId = null;
                     if (rs.next()) {
