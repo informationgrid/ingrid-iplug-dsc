@@ -111,8 +111,12 @@ public class DscDocumentProducer implements IDocumentProducer {
     }
     
     /**
-     * Get a Elastic Search document by its given ID. The underlying IRecordSetProducer implementation
-     * must know how to interpret the id.
+     * <p>Produce an ElasticDocument from an underlying store. The document is specified by is ID.
+     * The underlying IRecordSetProducer implementation must know how to interpret the ID and delivers
+     * a SourceRecord. The SourceRecord is then transformed based on the List of IRecordMapper.</p>
+     *
+     * <p>The usual use case will be to get a record from the database, transform is to an IDF document
+     * and deploy certain fields to an ElasticDocument.</p>
      *
      * @param id is the ID of the document
      * @return an Elastic Search document with the given ID
