@@ -7,7 +7,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-iplug-dsc</artifactId>
-  <version>5.3.0</version>
+  <version>5.4.0</version>
   <packaging>jar</packaging>
   <name>InGrid iPlug DSC</name>
   <description>This iPlug indexes documents from a database and can be queried by the iBus.</description>
@@ -32,7 +32,7 @@
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
     <iplug.type>IPLUG_DSC</iplug.type>
-    <ingrid-base-webapp.version>5.2.0</ingrid-base-webapp.version>
+    <ingrid-base-webapp.version>5.4.0</ingrid-base-webapp.version>
   </properties>
 
   <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
@@ -102,7 +102,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-utils</artifactId>
-      <version>5.3.0</version>
+      <version>5.4.0</version>
     </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
@@ -148,6 +148,12 @@
       <version>4.11</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-dbcp2</artifactId>
+      <version>2.7.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <version>5.1.33</version>
@@ -172,9 +178,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>hsqldb</groupId>
+      <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
-      <version>1.8.0.2</version>
+      <version>1.8.0.10</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>

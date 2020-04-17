@@ -25,6 +25,17 @@
  */
 package de.ingrid.iplug.dsc.index.producer;
 
+import de.ingrid.iplug.dsc.index.DatabaseConnection;
+import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
+import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
+import de.ingrid.utils.IConfigurable;
+import de.ingrid.utils.PlugDescription;
+import de.ingrid.utils.statusprovider.StatusProviderService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,19 +43,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import de.ingrid.utils.statusprovider.StatusProvider;
-import de.ingrid.utils.statusprovider.StatusProviderService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import de.ingrid.iplug.dsc.index.DatabaseConnection;
-import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
-import de.ingrid.iplug.dsc.om.SourceRecord;
-import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
-import de.ingrid.utils.IConfigurable;
-import de.ingrid.utils.PlugDescription;
 
 /**
  * Takes care of selecting all source record Ids from a database. The SQL 
@@ -65,9 +63,13 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
     private StatusProviderService statusProviderService;
 
     DatabaseConnection internalDatabaseConnection = null;
-    Connection connection = null;
+
     String recordSql = "";
+
+    String recordByIdSql = "";
+
     Iterator<String> recordIdIterator = null;
+
     private int numRecords;
 
     final private static Log log = LogFactory
@@ -85,7 +87,6 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
     @Override
     public boolean hasNext() {
         if (recordIdIterator == null) {
-            openConnection();
             createRecordIdsFromDatabase();
         }
         if (recordIdIterator.hasNext()) {
@@ -103,7 +104,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
     @Override
     public void reset() {
         recordIdIterator =  null;
-        closeConnection();
+        closeDatasource();
     }
 
     /*
@@ -113,7 +114,23 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
      */
     @Override
     public SourceRecord next() {
-        return new DatabaseSourceRecord(recordIdIterator.next(), connection);
+        Connection connection = null;
+        try {
+            // connection will be closed in autoclosable DatabaseSourceRecord
+            connection = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection);
+            return new DatabaseSourceRecord(recordIdIterator.next(), connection);
+        } catch (SQLException e) {
+            log.error("Error getting connection from datasource.", e);
+        }
+        // make sure connnection is closed after failure
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                log.error("Error closing connection after failure.", e);
+            }
+        }
+        return null;
     }
 
     @Override
@@ -130,24 +147,19 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         this.recordSql = recordSql;
     }
 
-    private void openConnection() {
-        try {
-            if (connection == null || connection.isClosed()) {
-            	connection = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection);
-            }
-        } catch (Exception e) {
-            log.error("Error opening connection!", e);
-            statusProviderService.getDefaultStatusProvider().addState("error", "Error opening connection: " + e.getMessage(), StatusProvider.Classification.ERROR);
-        }
+    public String getRecordByIdSql() {
+        return recordByIdSql;
     }
 
-    private void closeConnection() {
-        if (connection != null) {
-            try {
-            	DatabaseConnectionUtils.getInstance().closeConnection(connection);
-            } catch (SQLException e) {
-                log.error("Error closing connection.", e);
-            }
+    public void setRecordByIdSql(String recordByIdSql) {
+        this.recordByIdSql = recordByIdSql;
+    }
+
+    private void closeDatasource() {
+        try {
+            DatabaseConnectionUtils.getInstance().closeDataSource();
+        } catch (SQLException e) {
+            log.error("Error closing datasource.", e);
         }
     }
 
@@ -157,24 +169,16 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
             if (log.isDebugEnabled()) {
                 log.debug("SQL: " + recordSql);
             }
-            PreparedStatement ps = connection.prepareStatement(recordSql);
-            try {
-                ResultSet rs = ps.executeQuery();
-                try {
-                    while (rs.next()) {
-                        recordIds.add(rs.getString(1));
+            try (Connection conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection)) {
+                try (PreparedStatement ps = conn.prepareStatement(recordSql)) {
+                    try (ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            recordIds.add(rs.getString(1));
+                        }
+                        recordIdIterator = recordIds.listIterator();
+                        numRecords = recordIds.size();
                     }
-                    recordIdIterator = recordIds.listIterator();
-                    numRecords = recordIds.size();
-                } catch (Exception e) {
-                    throw e;
-                } finally {
-                    rs.close();
                 }
-            } catch (Exception e) {
-                throw e;
-            } finally {
-                ps.close();
             }
         } catch (Exception e) {
             log.error("Error creating record ids.", e);
@@ -184,6 +188,59 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
     @Override
     public int getDocCount() {
         return numRecords;
+    }
+
+    /**
+     * Returns a DatabaseSourceRecord based on the database ID of the record.
+     * Note that the result can be null if the publication conditions are not
+     * met based on the SQL provided in property recordByIdSql, even if the
+     * database ID exists.
+     *
+     * @param id The id of the record.
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public SourceRecord getRecordById(String id) throws Exception {
+        if (recordByIdSql == null || recordByIdSql.length() == 0) {
+            throw new RuntimeException("Property recordByIdSql not set.");
+        }
+
+        Connection conn = null;
+        try {
+            // connection will be closed in autoclosable DatabaseSourceRecord
+            conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection);
+            try (PreparedStatement ps = conn.prepareStatement(recordByIdSql)) {
+                ps.setLong(1, Long.parseLong( id ));
+                try (ResultSet rs = ps.executeQuery()) {
+                    String recordId = null;
+                    if (rs.next()) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Record with ID '" + id + "' found by SQL: '" + recordByIdSql + "'");
+                        }
+                        return new DatabaseSourceRecord(rs.getString(1), conn);
+                    } else {
+                        // no record found
+                        // this can happen if the publication conditions based on
+                        // SQL in recordByIdSql are not met
+                        if (log.isDebugEnabled()) {
+                            log.debug("Record with ID '" + id + "' could be found by SQL: '" + recordByIdSql + "'");
+                        }
+                        // close connection explicit if no record could be obtained.
+                        if (conn != null) {
+                            conn.close();
+                        }
+                        return null;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error obtaining record with ID '" + id + "' by SQL: '" + recordByIdSql + "'", e);
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return null;
     }
 
     public void setStatusProviderService(StatusProviderService statusProviderService) {

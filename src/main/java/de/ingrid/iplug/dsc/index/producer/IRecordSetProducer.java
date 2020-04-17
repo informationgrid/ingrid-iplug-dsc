@@ -64,4 +64,15 @@ public interface IRecordSetProducer {
      * @return the total number of documents, otherwise 'null' if it cannot be determined before.
      */
     public int getDocCount();
+
+
+    /**
+     * Get a single record by ist ID. The implementing class decides how
+     * to interpret the id.
+     *
+     * @param id The id of the record.
+     * @return
+     * @throws Exception
+     */
+    public SourceRecord getRecordById(String id) throws Exception;
 }

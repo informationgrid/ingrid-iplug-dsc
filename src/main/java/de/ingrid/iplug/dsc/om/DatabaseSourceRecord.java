@@ -68,4 +68,13 @@ public class DatabaseSourceRecord extends SourceRecord {
         this.put( INDEX_DOCUMENT, idxDoc );
     }
 
+    @Override
+    public void close() throws Exception {
+        if (this.get(CONNECTION) !=null ) {
+            Connection connection = (Connection) this.get(CONNECTION);
+            if (!connection.isClosed()) {
+                connection.close();
+            }
+        }
+    }
 }

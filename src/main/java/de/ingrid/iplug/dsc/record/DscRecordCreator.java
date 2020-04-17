@@ -54,7 +54,7 @@ import de.ingrid.utils.xml.XMLUtils;
  * Detaildata Format) mapper, implementing the {@link IIdfMapper} interface.
  * <p/>
  * The IDF data can optionally be compressed using a {@link GZIPOutputStream} by
- * setting the property {@link compressed} to true.
+ * setting the property compressed to true.
  * 
  * @author joachim@wemove.com
  * 
@@ -91,33 +91,28 @@ public class DscRecordCreator {
             data = (String) idxDoc.get( IdfProducerDocumentMapper.DOCUMENT_FIELD_IDF );
         } else {
 
-            IClosableDataSource datasource = null;
             try {
-                datasource = recordProducer.openDatasource();
-                SourceRecord sourceRecord = recordProducer.getRecord( idxDoc, datasource );
-                if (sourceRecord == null)
-                    return null;
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                DocumentBuilder docBuilder = dbf.newDocumentBuilder();
-                org.w3c.dom.Document idfDoc = docBuilder.newDocument();
-                for (IIdfMapper record2IdfMapper : record2IdfMapperList) {
-                    long start = 0;
-                    if (log.isDebugEnabled()) {
-                        start = System.currentTimeMillis();
+                try (SourceRecord sourceRecord = recordProducer.getRecord( idxDoc, recordProducer.openDatasource() )) {
+                    if (sourceRecord == null)
+                        return null;
+                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder docBuilder = dbf.newDocumentBuilder();
+                    org.w3c.dom.Document idfDoc = docBuilder.newDocument();
+                    for (IIdfMapper record2IdfMapper : record2IdfMapperList) {
+                        long start = 0;
+                        if (log.isDebugEnabled()) {
+                            start = System.currentTimeMillis();
+                        }
+                        record2IdfMapper.map( sourceRecord, idfDoc );
+                        if (log.isDebugEnabled()) {
+                            log.debug( "Mapping of source record with " + record2IdfMapper + " took: " + (System.currentTimeMillis() - start) + " ms." );
+                        }
                     }
-                    record2IdfMapper.map( sourceRecord, idfDoc );
-                    if (log.isDebugEnabled()) {
-                        log.debug( "Mapping of source record with " + record2IdfMapper + " took: " + (System.currentTimeMillis() - start) + " ms." );
-                    }
+                    data = XMLUtils.toString( idfDoc );
                 }
-                data = XMLUtils.toString( idfDoc );
             } catch (Exception e) {
                 log.error( "Error creating IDF document.", e );
                 throw e;
-            } finally {
-                if (datasource != null) {
-                    datasource.close();
-                }
             }
         }
         Record record = new Record();

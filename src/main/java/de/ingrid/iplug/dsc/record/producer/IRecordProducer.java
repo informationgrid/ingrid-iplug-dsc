@@ -25,9 +25,10 @@
  */
 package de.ingrid.iplug.dsc.record.producer;
 
-import de.ingrid.iplug.dsc.om.IClosableDataSource;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.utils.ElasticDocument;
+
+import java.sql.Connection;
 
 /**
  * Defines all aspects a record producer must implement. The record producer is
@@ -41,23 +42,23 @@ public interface IRecordProducer {
 
     /**
      * Open the data source. The functionality depends on the type of data
-     * source. Returns a closable data source.
+     * source. Returns a {@link Connection} resource.
      * 
      * The parameters in {@link SourceRecord} returned by {@link getRecord} may
      * contain a reference to the data source, so that the following mapping
      * step can access the data source as well.
      * 
      */
-    IClosableDataSource openDatasource();
+    Connection openDatasource();
 
     /**
      * Get a record from the data source. How the record must be derived from
      * the fields of the lucene document.
      * 
      * @param doc
-     * @param ds
+     * @param connection
      * @return
      */
-    SourceRecord getRecord(ElasticDocument doc, IClosableDataSource ds);
+    SourceRecord getRecord(ElasticDocument doc, Connection connection);
 
 }
