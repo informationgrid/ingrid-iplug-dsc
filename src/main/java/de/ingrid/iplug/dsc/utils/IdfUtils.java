@@ -25,10 +25,11 @@
  */
 package de.ingrid.iplug.dsc.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import de.ingrid.utils.udk.UtilsLanguageCodelist;
+import de.ingrid.utils.xml.XMLUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -265,4 +266,101 @@ public class IdfUtils {
         return additionalDataSection;
 
     }
+
+    public IdfElement addLocalizedCharacterstring(IdfElement el, String content) {
+        String str = content.trim();
+        if (str.contains("@locale-")) {
+            Map<String, String> localizedStrings = new HashMap<>();
+            String[] locStrArray = str.split("@locale-");
+            String defaultStr = null;
+
+            if (str.startsWith("@locale-")) {
+                // special case, starts with localized string, no default
+                // use the localized string als as default
+                // sample "@locale-eng:This is a text"
+                String locStr = locStrArray[1].substring(locStrArray[1].indexOf(":")+1, locStrArray[1].length());
+                locStrArray[0] = locStr;
+            }
+            for (int i=0; i<locStrArray.length; i++) {
+                if (i==0) {
+                    defaultStr = locStrArray[i];
+                } else {
+                    String locale = locStrArray[i].substring(0, locStrArray[i].indexOf(":"));
+                    String locStr = locStrArray[i].substring(locStrArray[i].indexOf(":")+1, locStrArray[i].length());
+                    localizedStrings.put(locale, locStr);
+                }
+            }
+
+            el.addAttribute("xsi:type", "PT_FreeText_PropertyType");
+            el.addElement("gco:CharacterString").addText(defaultStr);
+            DOMUtils.IdfElement ptFreeText = el.addElement("gmd:PT_FreeText");
+            for (String locale : localizedStrings.keySet()) {
+                ptFreeText.addElement("gmd:textGroup")
+                        .addElement("gmd:LocalisedCharacterString")
+                        .addAttribute("locale", "#locale-" + locale)
+                        .addText(localizedStrings.get(locale).trim());
+            }
+        } else {
+            el.addElement("gco:CharacterString").addText(str.trim());
+        }
+        return el;
+    }
+
+    public void addPTLocaleDefinitions(Document idfDoc) {
+        String[] siblingsReverseOrder = {"//idf:idfMdMetadata/gmd:locale",
+                "//idf:idfMdMetadata/gmd:dataSetURI",
+                "//idf:idfMdMetadata/gmd:metadataStandardVersion",
+                "//idf:idfMdMetadata/gmd:metadataStandardName",
+                "//idf:idfMdMetadata/gmd:dateStamp"};
+
+        // get locales from xml document
+        NodeList nl = xPathUtils.getNodeList(idfDoc, "//gmd:LocalisedCharacterString/@locale");
+        Set<String> localeSet = new HashSet<>();
+        for (int i=0; i<nl.getLength(); i++) {
+            String locale = nl.item(i).getTextContent();
+            if (locale.startsWith("#locale-")) {
+                localeSet.add(locale.substring(8));
+            }
+        }
+
+        // add PT_Locale Elements
+        if (!localeSet.isEmpty()) {
+            for (String locale : localeSet) {
+                IdfElement idfE = getLastSibling(idfDoc, siblingsReverseOrder);
+                if (idfE != null) {
+                    IdfElement ptLocale = idfE.addElementAsSibling("gmd:locale/gmd:PT_Locale");
+                    IdfElement languageCode = ptLocale.addAttribute("id", "locale-" + locale)
+                            .addElement("gmd:languageCode/gmd:LanguageCode");
+                    languageCode.addAttribute("codeList", "http://www.loc.gov/standards/iso639-2")
+                            .addAttribute("codeListValue", locale);
+                    String languageCodeString = UtilsLanguageCodelist.getNameFromIso639_2(locale, "en");
+                    if (languageCodeString != null) {
+                        languageCode.addText(languageCodeString);
+                    }
+                    ptLocale.addElement("gmd:characterEncoding/gmd:MD_CharacterSetCode")
+                            .addAttribute("codeList", "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_CharacterSetCode")
+                            .addAttribute("codeListValue", "utf8")
+                            .addText("UTF-8");
+                }
+            }
+        }
+    }
+
+    public IdfElement getLastSibling(Document idfDoc,  String[] siblingsInReverseOrder) {
+        Node nodeRef = null;
+        for (String sibling : siblingsInReverseOrder) {
+            nodeRef = xPathUtils.getNode(idfDoc, sibling + "[last()]");
+            if (nodeRef != null) {
+                break;
+            }
+        }
+        if (nodeRef != null) {
+            return DOM.convertToIdfElement((Element) nodeRef);
+        } else {
+            return null;
+        }
+    }
+
+
+
 }
