@@ -90,7 +90,9 @@
                         </gmd:PT_FreeText>
                         <gmd:PT_FreeText>
                             <gmd:textGroup>
-                                <gmd:LocalisedCharacterString locale="#locale-eng">English for INSPIRE HH AI 3 GN</gmd:LocalisedCharacterString>
+                                <gmd:LocalisedCharacterString locale="#locale-eng">
+                                    English for INSPIRE HH AI 3 GN
+                                </gmd:LocalisedCharacterString>
                             </gmd:textGroup>
                         </gmd:PT_FreeText>
                     </gmd:alternateTitle>

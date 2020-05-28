@@ -25,24 +25,21 @@
  */
 package de.ingrid.iplug.dsc.utils;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
+import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
+import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.iplug.dsc.utils.DOMUtils.IdfElement;
 import de.ingrid.utils.udk.UtilsLanguageCodelist;
-import de.ingrid.utils.xml.XMLUtils;
+import de.ingrid.utils.xml.ConfigurableNamespaceContext;
+import de.ingrid.utils.xml.IDFNamespaceContext;
+import de.ingrid.utils.xml.IgcProfileNamespaceContext;
+import de.ingrid.utils.xpath.XPathUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
-import de.ingrid.iplug.dsc.om.SourceRecord;
-import de.ingrid.iplug.dsc.utils.DOMUtils.IdfElement;
-import de.ingrid.utils.xml.ConfigurableNamespaceContext;
-import de.ingrid.utils.xml.IDFNamespaceContext;
-import de.ingrid.utils.xml.IgcProfileNamespaceContext;
-import de.ingrid.utils.xpath.XPathUtils;
+import java.util.*;
 
 /**
  * This class provides helper functions for mapping certain data structures into
@@ -63,6 +60,10 @@ public class IdfUtils {
     private DOMUtils DOM = null;
 
     private XPathUtils xPathUtils = null;
+
+    // Prefix for localized string used in IGC fields
+    // correspondents to prefix in attribute gmd:LocalisedCharacterString@locale
+    private static final String LOCALIZEDSTRING_PREFIX= "#locale-";
 
     public IdfUtils(SQLUtils sqlUtils, DOMUtils domUtils, XPathUtils xPathUtils) {
         this.SQL = sqlUtils;
@@ -267,14 +268,42 @@ public class IdfUtils {
 
     }
 
-    public IdfElement addLocalizedCharacterstring(IdfElement el, String content) {
+    /**
+     * Adds a ISO localized string structure to the IdfElement e.
+     *
+     * The localization in content is expected to follow:
+     *
+     * <pre>
+     * DEFAULT TEXT[#locale-<i>ISO-639-2</i>:LOCALIZED TEXT][#locale-...]
+     * </pre>
+     *
+     * The created structure looks as:
+     *
+     * <pre>{@code
+     * <gmd:title xsi:type="PT_FreeText_PropertyType">
+     *   <gco:CharacterString>DEFAULT TEXT</gco:CharacterString>
+     *   <gmd:PT_FreeText>
+     *     <gmd:textGroup>
+     *       <gmd:LocalisedCharacterString locale="#locale-<ISO-639-2>">LOCALIZED TEXT</gmd:LocalisedCharacterString>
+     *     </gmd:textGroup>
+     *   </gmd:PT_FreeText>
+     * </gmd:title>
+     * }
+     * </pre>
+     *
+     *
+     * @param e
+     * @param content Will be trimmed.
+     * @return
+     */
+    public IdfElement addLocalizedCharacterstring(IdfElement e, String content) {
         String str = content.trim();
-        if (str.contains("@locale-")) {
+        if (str.contains(LOCALIZEDSTRING_PREFIX)) {
             Map<String, String> localizedStrings = new HashMap<>();
-            String[] locStrArray = str.split("@locale-");
+            String[] locStrArray = str.split(LOCALIZEDSTRING_PREFIX);
             String defaultStr = null;
 
-            if (str.startsWith("@locale-")) {
+            if (str.startsWith(LOCALIZEDSTRING_PREFIX)) {
                 // special case, starts with localized string, no default
                 // use the localized string als as default
                 // sample "@locale-eng:This is a text"
@@ -291,20 +320,21 @@ public class IdfUtils {
                 }
             }
 
-            el.addAttribute("xsi:type", "PT_FreeText_PropertyType");
-            el.addElement("gco:CharacterString").addText(defaultStr);
-            DOMUtils.IdfElement ptFreeText = el.addElement("gmd:PT_FreeText");
+            e.addAttribute("xsi:type", "PT_FreeText_PropertyType");
+            e.addElement("gco:CharacterString").addText(defaultStr);
+            DOMUtils.IdfElement ptFreeText = e.addElement("gmd:PT_FreeText");
             for (String locale : localizedStrings.keySet()) {
                 ptFreeText.addElement("gmd:textGroup")
                         .addElement("gmd:LocalisedCharacterString")
-                        .addAttribute("locale", "#locale-" + locale)
+                        .addAttribute("locale", LOCALIZEDSTRING_PREFIX + locale)
                         .addText(localizedStrings.get(locale).trim());
             }
         } else {
-            el.addElement("gco:CharacterString").addText(str.trim());
+            e.addElement("gco:CharacterString").addText(str.trim());
         }
-        return el;
+        return e;
     }
+
 
     public void addPTLocaleDefinitions(Document idfDoc) {
         String[] siblingsReverseOrder = {"//idf:idfMdMetadata/gmd:locale",
@@ -345,6 +375,51 @@ public class IdfUtils {
             }
         }
     }
+
+    /**
+     * Parse the given Node for gco:CharacterString and for localizations
+     * (based on gmd:PT_FreeText, gmd:LocalisedCharacterString>. Supports a
+     * gco:CharacterString Node or its's parent.
+     *
+     * The locale is expected in gmd:LocalisedCharacterString/@locale in the
+     * format <pre>#locale-<i>ISO-639-2</i></pre>
+
+     * Returns a localized String according to
+     *
+     * <pre>
+     * DEFAULT TEXT[#locale-<i>ISO-639-2</i>:LOCALIZED TEXT][#locale-...]
+     * </pre>
+     *
+     *
+     *
+     * @param n
+     * @return
+     */
+    public String getLocalisedIgcString(Node n) {
+        Node refNode = n;
+        if (n.getLocalName().equals("CharacterString")) {
+            refNode = n.getParentNode();
+        }
+        String value = xPathUtils.getString(refNode, "gco:CharacterString");
+        if (value != null) {
+            value = value.trim();
+        }
+        NodeList nl = xPathUtils.getNodeList(refNode, ".//gmd:LocalisedCharacterString");
+        if (nl.getLength() > 0) {
+            StringBuilder sb = new StringBuilder(value);
+            for (int i=0; i<nl.getLength(); i++) {
+                Node lcsNode = nl.item(i);
+                String lcsLocale = xPathUtils.getString(lcsNode, "./@locale");
+                String lcsValue = xPathUtils.getString(lcsNode, ".");
+                if (lcsValue != null && lcsLocale != null && lcsLocale.startsWith(LOCALIZEDSTRING_PREFIX)) {
+                    sb.append(lcsLocale.trim()).append(":").append(lcsValue.trim());
+                }
+            }
+            value = sb.toString();
+        }
+        return value;
+    }
+
 
     public IdfElement getLastSibling(Document idfDoc,  String[] siblingsInReverseOrder) {
         Node nodeRef = null;
