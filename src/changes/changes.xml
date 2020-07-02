@@ -5,6 +5,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="5.5.0-SNAPSHOT" date="2020-xx-xx" description="Release 5.5.0">
+      <action type="add" dev="wemove" issue="1898">
+        Change the container’s privilege to a non-root user.
+      </action>
+    </release>
+
     <release version="5.4.0" date="2020-04-17" description="Release 5.4.0">
       <action type="update" dev="wemove" issue="1547">
         Use connection pooling fo database access in whole import/export process.
