@@ -25,23 +25,21 @@
  */
 package de.ingrid.iplug.dsc.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
+import de.ingrid.iplug.dsc.om.SourceRecord;
+import de.ingrid.iplug.dsc.utils.DOMUtils.IdfElement;
+import de.ingrid.utils.udk.UtilsLanguageCodelist;
+import de.ingrid.utils.xml.ConfigurableNamespaceContext;
+import de.ingrid.utils.xml.IDFNamespaceContext;
+import de.ingrid.utils.xml.IgcProfileNamespaceContext;
+import de.ingrid.utils.xpath.XPathUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
-import de.ingrid.iplug.dsc.om.SourceRecord;
-import de.ingrid.iplug.dsc.utils.DOMUtils.IdfElement;
-import de.ingrid.utils.xml.ConfigurableNamespaceContext;
-import de.ingrid.utils.xml.IDFNamespaceContext;
-import de.ingrid.utils.xml.IgcProfileNamespaceContext;
-import de.ingrid.utils.xpath.XPathUtils;
+import java.util.*;
 
 /**
  * This class provides helper functions for mapping certain data structures into
@@ -62,6 +60,10 @@ public class IdfUtils {
     private DOMUtils DOM = null;
 
     private XPathUtils xPathUtils = null;
+
+    // Prefix for localized string used in IGC fields
+    // correspondents to prefix in attribute gmd:LocalisedCharacterString@locale
+    private static final String LOCALIZEDSTRING_PREFIX= "#locale-";
 
     public IdfUtils(SQLUtils sqlUtils, DOMUtils domUtils, XPathUtils xPathUtils) {
         this.SQL = sqlUtils;
@@ -265,4 +267,175 @@ public class IdfUtils {
         return additionalDataSection;
 
     }
+
+    /**
+     * Adds a ISO localized string structure to the IdfElement e.
+     *
+     * The localization in content is expected to follow:
+     *
+     * <pre>
+     * DEFAULT TEXT[#locale-<i>ISO-639-2</i>:LOCALIZED TEXT][#locale-...]
+     * </pre>
+     *
+     * The created structure looks as:
+     *
+     * <pre>{@code
+     * <gmd:title xsi:type="PT_FreeText_PropertyType">
+     *   <gco:CharacterString>DEFAULT TEXT</gco:CharacterString>
+     *   <gmd:PT_FreeText>
+     *     <gmd:textGroup>
+     *       <gmd:LocalisedCharacterString locale="#locale-<ISO-639-2>">LOCALIZED TEXT</gmd:LocalisedCharacterString>
+     *     </gmd:textGroup>
+     *   </gmd:PT_FreeText>
+     * </gmd:title>
+     * }
+     * </pre>
+     *
+     *
+     * @param e
+     * @param content Will be trimmed.
+     * @return
+     */
+    public IdfElement addLocalizedCharacterstring(IdfElement e, String content) {
+        String str = content.trim();
+        if (str.contains(LOCALIZEDSTRING_PREFIX)) {
+            Map<String, String> localizedStrings = new HashMap<>();
+            String[] locStrArray = str.split(LOCALIZEDSTRING_PREFIX);
+            String defaultStr = null;
+
+            if (str.startsWith(LOCALIZEDSTRING_PREFIX)) {
+                // special case, starts with localized string, no default
+                // use the localized string als as default
+                // sample "@locale-eng:This is a text"
+                String locStr = locStrArray[1].substring(locStrArray[1].indexOf(":")+1, locStrArray[1].length());
+                locStrArray[0] = locStr;
+            }
+            for (int i=0; i<locStrArray.length; i++) {
+                if (i==0) {
+                    defaultStr = locStrArray[i];
+                } else {
+                    String locale = locStrArray[i].substring(0, locStrArray[i].indexOf(":"));
+                    String locStr = locStrArray[i].substring(locStrArray[i].indexOf(":")+1, locStrArray[i].length());
+                    localizedStrings.put(locale, locStr);
+                }
+            }
+
+            e.addAttribute("xsi:type", "PT_FreeText_PropertyType");
+            e.addElement("gco:CharacterString").addText(defaultStr);
+            DOMUtils.IdfElement ptFreeText = e.addElement("gmd:PT_FreeText");
+            for (String locale : localizedStrings.keySet()) {
+                ptFreeText.addElement("gmd:textGroup")
+                        .addElement("gmd:LocalisedCharacterString")
+                        .addAttribute("locale", LOCALIZEDSTRING_PREFIX + locale)
+                        .addText(localizedStrings.get(locale).trim());
+            }
+        } else {
+            e.addElement("gco:CharacterString").addText(str.trim());
+        }
+        return e;
+    }
+
+
+    public void addPTLocaleDefinitions(Document idfDoc) {
+        String[] siblingsReverseOrder = {"//idf:idfMdMetadata/gmd:locale",
+                "//idf:idfMdMetadata/gmd:dataSetURI",
+                "//idf:idfMdMetadata/gmd:metadataStandardVersion",
+                "//idf:idfMdMetadata/gmd:metadataStandardName",
+                "//idf:idfMdMetadata/gmd:dateStamp"};
+
+        // get locales from xml document
+        NodeList nl = xPathUtils.getNodeList(idfDoc, "//gmd:LocalisedCharacterString/@locale");
+        Set<String> localeSet = new HashSet<>();
+        for (int i=0; i<nl.getLength(); i++) {
+            String locale = nl.item(i).getTextContent();
+            if (locale.startsWith("#locale-")) {
+                localeSet.add(locale.substring(8));
+            }
+        }
+
+        // add PT_Locale Elements
+        if (!localeSet.isEmpty()) {
+            for (String locale : localeSet) {
+                IdfElement idfE = getLastSibling(idfDoc, siblingsReverseOrder);
+                if (idfE != null) {
+                    IdfElement ptLocale = idfE.addElementAsSibling("gmd:locale/gmd:PT_Locale");
+                    IdfElement languageCode = ptLocale.addAttribute("id", "locale-" + locale)
+                            .addElement("gmd:languageCode/gmd:LanguageCode");
+                    languageCode.addAttribute("codeList", "http://www.loc.gov/standards/iso639-2")
+                            .addAttribute("codeListValue", locale);
+                    String languageCodeString = UtilsLanguageCodelist.getNameFromIso639_2(locale, "en");
+                    if (languageCodeString != null) {
+                        languageCode.addText(languageCodeString);
+                    }
+                    ptLocale.addElement("gmd:characterEncoding/gmd:MD_CharacterSetCode")
+                            .addAttribute("codeList", "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_CharacterSetCode")
+                            .addAttribute("codeListValue", "utf8")
+                            .addText("UTF-8");
+                }
+            }
+        }
+    }
+
+    /**
+     * Parse the given Node for gco:CharacterString and for localizations
+     * (based on gmd:PT_FreeText, gmd:LocalisedCharacterString>. Supports a
+     * gco:CharacterString Node or its's parent.
+     *
+     * The locale is expected in gmd:LocalisedCharacterString/@locale in the
+     * format <pre>#locale-<i>ISO-639-2</i></pre>
+
+     * Returns a localized String according to
+     *
+     * <pre>
+     * DEFAULT TEXT[#locale-<i>ISO-639-2</i>:LOCALIZED TEXT][#locale-...]
+     * </pre>
+     *
+     *
+     *
+     * @param n
+     * @return
+     */
+    public String getLocalisedIgcString(Node n) {
+        Node refNode = n;
+        if (n.getLocalName().equals("CharacterString")) {
+            refNode = n.getParentNode();
+        }
+        String value = xPathUtils.getString(refNode, "gco:CharacterString");
+        if (value != null) {
+            value = value.trim();
+        }
+        NodeList nl = xPathUtils.getNodeList(refNode, ".//gmd:LocalisedCharacterString");
+        if (nl.getLength() > 0) {
+            StringBuilder sb = new StringBuilder(value);
+            for (int i=0; i<nl.getLength(); i++) {
+                Node lcsNode = nl.item(i);
+                String lcsLocale = xPathUtils.getString(lcsNode, "./@locale");
+                String lcsValue = xPathUtils.getString(lcsNode, ".");
+                if (lcsValue != null && lcsLocale != null && lcsLocale.startsWith(LOCALIZEDSTRING_PREFIX)) {
+                    sb.append(lcsLocale.trim()).append(":").append(lcsValue.trim());
+                }
+            }
+            value = sb.toString();
+        }
+        return value;
+    }
+
+
+    public IdfElement getLastSibling(Document idfDoc,  String[] siblingsInReverseOrder) {
+        Node nodeRef = null;
+        for (String sibling : siblingsInReverseOrder) {
+            nodeRef = xPathUtils.getNode(idfDoc, sibling + "[last()]");
+            if (nodeRef != null) {
+                break;
+            }
+        }
+        if (nodeRef != null) {
+            return DOM.convertToIdfElement((Element) nodeRef);
+        } else {
+            return null;
+        }
+    }
+
+
+
 }

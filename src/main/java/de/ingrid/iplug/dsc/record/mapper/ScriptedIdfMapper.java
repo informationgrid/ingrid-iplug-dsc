@@ -29,6 +29,7 @@ import java.sql.Connection;
 import java.util.Hashtable;
 import java.util.Map;
 
+import de.ingrid.iplug.dsc.utils.*;
 import org.apache.log4j.Logger;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
@@ -36,10 +37,6 @@ import org.w3c.dom.Document;
 
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
-import de.ingrid.iplug.dsc.utils.DOMUtils;
-import de.ingrid.iplug.dsc.utils.SQLUtils;
-import de.ingrid.iplug.dsc.utils.ScriptEngine;
-import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.utils.capabilities.CapabilitiesUtils;
 import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xpath.XPathUtils;
@@ -93,6 +90,7 @@ public class ScriptedIdfMapper implements IIdfMapper {
 			parameters.put("XPATH", xpathUtils);
 			parameters.put("TRANSF", trafoUtils);
 			parameters.put("DOM", domUtils);
+            parameters.put("IDF_UTIL", new IdfUtils(sqlUtils, domUtils, xpathUtils));
             parameters.put("CAPABILITIES", new CapabilitiesUtils());
 			parameters.put("javaVersion", System.getProperty( "java.version" ));
 
