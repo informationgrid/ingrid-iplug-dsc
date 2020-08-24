@@ -95,9 +95,15 @@ public class DscDocumentProducer implements IDocumentProducer {
                     if (log.isDebugEnabled()) {
                         start = System.currentTimeMillis();
                     }
-                    mapper.map(record, doc);
-                    if (log.isDebugEnabled()) {
-                        log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
+                    Object docClass = doc.get("t01_object.obj_class");
+                    if (docClass == null) {
+                        docClass = doc.get("t02_address.typ");
+                    }
+                    if(doc.isEmpty() || !docClass.equals("1000")) {
+                        mapper.map(record, doc);
+                        if (log.isDebugEnabled()) {
+                            log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
+                        }
                     }
                 }
             }
