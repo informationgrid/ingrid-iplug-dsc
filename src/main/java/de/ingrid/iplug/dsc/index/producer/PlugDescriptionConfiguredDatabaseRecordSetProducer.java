@@ -181,6 +181,9 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
                             if(udkClass.equals("1000")) {
                                 // Check if folder has published children documents
                                 if(isFolderWithPublishDoc(uuid)) {
+                                    if (log.isDebugEnabled()) {
+                                        log.debug("Index folder with UUID: " + uuid);
+                                    }
                                     addValue = true;
                                 }
                             } else {
