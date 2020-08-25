@@ -67,6 +67,8 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
     String recordSql = "";
 
     String recordByIdSql = "";
+    
+    String recordSqlValidateFolderChildren = "";
 
     Iterator<String> recordIdIterator = null;
 
@@ -155,6 +157,14 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         this.recordByIdSql = recordByIdSql;
     }
 
+    public String getRecordSqlValidateFolderChildren() {
+        return recordSqlValidateFolderChildren;
+    }
+
+    public void setRecordSqlValidateFolderChildren(String recordSqlValidateFolderChildren) {
+        this.recordSqlValidateFolderChildren = recordSqlValidateFolderChildren;
+    }
+
     private void closeDatasource() {
         try {
             DatabaseConnectionUtils.getInstance().closeDataSource();
@@ -173,7 +183,26 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
                 try (PreparedStatement ps = conn.prepareStatement(recordSql)) {
                     try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
-                            recordIds.add(rs.getString(1));
+                            String id = rs.getString(1);
+                            String uuid = rs.getString(2);
+                            String udkClass = rs.getString(3);
+                            boolean addValue = false;
+                            if(uuid != null && udkClass != null) {
+                                if(udkClass.equals("1000")) {
+                                    // Check if folder has published children documents
+                                    if(isFolderWithPublishDoc(uuid)) {
+                                        if (log.isDebugEnabled()) {
+                                            log.debug("Index folder with UUID: " + uuid);
+                                        }
+                                        addValue = true;
+                                    }
+                                } else {
+                                    addValue = true;
+                                }
+                            }
+                            if(addValue) {
+                                recordIds.add(id);
+                            }
                         }
                         recordIdIterator = recordIds.listIterator();
                         numRecords = recordIds.size();
@@ -183,6 +212,37 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         } catch (Exception e) {
             log.error("Error creating record ids.", e);
         }
+    }
+
+    private boolean isFolderWithPublishDoc(String uuid) {
+        boolean hasPublishDoc = false;
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("SQL: " + recordSqlValidateFolderChildren);
+            }
+            try (Connection conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection)) {
+                try (PreparedStatement ps = conn.prepareStatement(recordSqlValidateFolderChildren)) {
+                    ps.setString(1, uuid);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            String uuidChild = rs.getString(1);
+                            String publishedId = rs.getString(2);
+                            if(publishedId != null) {
+                                hasPublishDoc = true;
+                            } else {
+                                hasPublishDoc = this.isFolderWithPublishDoc(uuidChild);
+                            }
+                            if(hasPublishDoc) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error creating record ids.", e);
+        }
+        return hasPublishDoc;
     }
 
     @Override

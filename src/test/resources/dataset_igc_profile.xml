@@ -282,8 +282,12 @@ if (content) {
     </table>
     <table name="t01_object">
         <column>id</column>
+        <column>obj_uuid</column>
+        <column>obj_class</column>
         <row>
           <value>2</value>
+          <value>3</value>
+          <value>1</value>
         </row>
     </table>
 </dataset>
