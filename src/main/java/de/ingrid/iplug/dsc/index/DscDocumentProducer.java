@@ -100,7 +100,7 @@ public class DscDocumentProducer implements IDocumentProducer {
                 if (docClass == null) {
                     docClass = doc.get("t02_address.typ");
                 }
-                if(mapper instanceof ScriptedDocumentMapper || !docClass.equals("1000")) {
+                if(mapper instanceof ScriptedDocumentMapper || doc.isEmpty() || !docClass.equals("1000")) {
                     mapper.map(record, doc);
                     if (log.isDebugEnabled()) {
                         log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
