@@ -26,6 +26,7 @@ import de.ingrid.admin.Config;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.elasticsearch.IndexInfo;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
+import de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper;
 import de.ingrid.iplug.dsc.index.producer.IRecordSetProducer;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.utils.ElasticDocument;
@@ -95,11 +96,12 @@ public class DscDocumentProducer implements IDocumentProducer {
                     if (log.isDebugEnabled()) {
                         start = System.currentTimeMillis();
                     }
+                    // Disable IDF mapper for folders
                     Object docClass = doc.get("t01_object.obj_class");
                     if (docClass == null) {
                         docClass = doc.get("t02_address.typ");
                     }
-                    if(doc.isEmpty() || !docClass.equals("1000")) {
+                    if(mapper instanceof ScriptedDocumentMapper || !docClass.equals("1000")) {
                         mapper.map(record, doc);
                         if (log.isDebugEnabled()) {
                             log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
