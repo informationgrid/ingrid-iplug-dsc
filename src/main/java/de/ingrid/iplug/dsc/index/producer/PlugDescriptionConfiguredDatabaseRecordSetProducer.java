@@ -210,7 +210,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
                                     addValue = true;
                                 }
                                 if(addValue) { 
-                                    addValue = isParentPublishDoc(uuid);
+                                    addValue = isParentPublishDoc(uuid, addValue);
                                 }
                             }
                             if(addValue) {
@@ -227,25 +227,29 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         }
     }
 
-    private boolean isParentPublishDoc(String uuid) {
+    private boolean isParentPublishDoc(String uuid, boolean addValue) {
         boolean hasPublishDoc = false;
         try {
             if (log.isDebugEnabled()) {
                 log.debug("SQL: " + recordSqlValidateParentPublishDoc);
             }
-            try (Connection conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection)) {
-                try (PreparedStatement ps = conn.prepareStatement(recordSqlValidateParentPublishDoc)) {
-                    ps.setString(1, uuid);
-                    try (ResultSet rs = ps.executeQuery()) {
-                        while (rs.next()) {
-                            String fkUuidParent = rs.getString(1);
-                            hasPublishDoc = true;
-                            if(fkUuidParent != null) {
-                                hasPublishDoc = this.isParentPublishDoc(fkUuidParent);
+            if(!recordSqlValidateParentPublishDoc.isEmpty()) {
+                try (Connection conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection)) {
+                    try (PreparedStatement ps = conn.prepareStatement(recordSqlValidateParentPublishDoc)) {
+                        ps.setString(1, uuid);
+                        try (ResultSet rs = ps.executeQuery()) {
+                            while (rs.next()) {
+                                String fkUuidParent = rs.getString(1);
+                                hasPublishDoc = true;
+                                if(fkUuidParent != null) {
+                                    hasPublishDoc = this.isParentPublishDoc(fkUuidParent, addValue);
+                                }
                             }
                         }
                     }
                 }
+            } else {
+                return addValue;
             }
         } catch (Exception e) {
             log.error("Error creating record ids.", e);
