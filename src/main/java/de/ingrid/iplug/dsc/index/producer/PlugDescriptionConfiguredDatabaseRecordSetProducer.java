@@ -70,6 +70,8 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
     
     String recordSqlValidateFolderChildren = "";
 
+    String recordSqlValidateParentPublishDoc = "";
+
     Iterator<String> recordIdIterator = null;
 
     private int numRecords;
@@ -165,6 +167,14 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         this.recordSqlValidateFolderChildren = recordSqlValidateFolderChildren;
     }
 
+    public String getRecordSqlValidateParentPublishDoc() {
+        return recordSqlValidateParentPublishDoc;
+    }
+
+    public void setRecordSqlValidateParentPublishDoc(String recordSqlValidateParentPublishDoc) {
+        this.recordSqlValidateParentPublishDoc = recordSqlValidateParentPublishDoc;
+    }
+
     private void closeDatasource() {
         try {
             DatabaseConnectionUtils.getInstance().closeDataSource();
@@ -199,6 +209,9 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
                                 } else {
                                     addValue = true;
                                 }
+                                if(addValue) { 
+                                    addValue = isParentPublishDoc(uuid);
+                                }
                             }
                             if(addValue) {
                                 recordIds.add(id);
@@ -212,6 +225,34 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         } catch (Exception e) {
             log.error("Error creating record ids.", e);
         }
+    }
+
+    private boolean isParentPublishDoc(String uuid) {
+        boolean hasPublishDoc = false;
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("SQL: " + recordSqlValidateParentPublishDoc);
+            }
+            try (Connection conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection)) {
+                try (PreparedStatement ps = conn.prepareStatement(recordSqlValidateParentPublishDoc)) {
+                    ps.setString(1, uuid);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if(rs.getRow() != 0) {
+                            while (rs.next()) {
+                                String fkUuidParent = rs.getString(1);
+                                hasPublishDoc = true;
+                                if(fkUuidParent != null) {
+                                    hasPublishDoc = this.isParentPublishDoc(fkUuidParent);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error creating record ids.", e);
+        }
+        return hasPublishDoc;
     }
 
     private boolean isFolderWithPublishDoc(String uuid) {
