@@ -234,13 +234,11 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
                 try (PreparedStatement ps = conn.prepareStatement(recordSqlValidateParentPublishDoc)) {
                     ps.setString(1, uuid);
                     try (ResultSet rs = ps.executeQuery()) {
-                        if(rs.getRow() != 0) {
-                            while (rs.next()) {
-                                String fkUuidParent = rs.getString(1);
-                                hasPublishDoc = true;
-                                if(fkUuidParent != null) {
-                                    hasPublishDoc = this.isParentPublishDoc(fkUuidParent);
-                                }
+                        while (rs.next()) {
+                            String fkUuidParent = rs.getString(1);
+                            hasPublishDoc = true;
+                            if(fkUuidParent != null) {
+                                hasPublishDoc = this.isParentPublishDoc(fkUuidParent);
                             }
                         }
                     }
