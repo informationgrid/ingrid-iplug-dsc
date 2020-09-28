@@ -72,6 +72,10 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
 
     String recordSqlValidateParentPublishDoc = "";
 
+    String recordParentFolderByIdSql = "";
+
+    String recordParentFolderByUuidSql = "";
+
     Iterator<String> recordIdIterator = null;
 
     private int numRecords;
@@ -175,6 +179,22 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         this.recordSqlValidateParentPublishDoc = recordSqlValidateParentPublishDoc;
     }
 
+    public String getRecordParentFolderByIdSql() {
+        return recordParentFolderByIdSql;
+    }
+
+    public void setRecordParentFolderByIdSql(String recordParentFolderByIdSql) {
+        this.recordParentFolderByIdSql = recordParentFolderByIdSql;
+    }
+
+    public String getRecordParentFolderByUuidSql() {
+        return recordParentFolderByUuidSql;
+    }
+
+    public void setRecordParentFolderByUuidSql(String recordParentFolderByUuidSql) {
+        this.recordParentFolderByUuidSql = recordParentFolderByUuidSql;
+    }
+
     private void closeDatasource() {
         try {
             DatabaseConnectionUtils.getInstance().closeDataSource();
@@ -227,7 +247,8 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         }
     }
 
-    private boolean isParentPublishDoc(String uuid, boolean addValue) {
+    @Override
+    public boolean isParentPublishDoc(String uuid, boolean addValue) {
         boolean hasPublishDoc = false;
         try {
             if (log.isDebugEnabled()) {
@@ -257,7 +278,8 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         return hasPublishDoc;
     }
 
-    private boolean isFolderWithPublishDoc(String uuid) {
+    @Override
+    public boolean isFolderWithPublishDoc(String uuid) {
         boolean hasPublishDoc = false;
         try {
             if (log.isDebugEnabled()) {
@@ -339,6 +361,62 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
             }
         } catch (Exception e) {
             log.error("Error obtaining record with ID '" + id + "' by SQL: '" + recordByIdSql + "'", e);
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return null;
+    }
+
+    public SourceRecord getRecordParentFolderById(String id, boolean isUuid) throws Exception {
+        String sql = null;
+
+        if(isUuid) {
+            sql = recordParentFolderByUuidSql;
+            if (recordParentFolderByUuidSql == null || recordParentFolderByUuidSql.length() == 0) {
+                throw new RuntimeException("Property recordParentFolderByUuidSql not set.");
+            }
+        } else {
+            sql = recordParentFolderByIdSql;
+            if (recordParentFolderByIdSql == null || recordParentFolderByIdSql.length() == 0) {
+                throw new RuntimeException("Property recordParentFolderByIdSql not set.");
+            }
+        }
+
+        Connection conn = null;
+        try {
+            // connection will be closed in autoclosable DatabaseSourceRecord
+            conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection);
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                if(!isUuid) {
+                    ps.setLong(1, Long.parseLong( id ));
+                } else {
+                    ps.setString(1, id);
+                }
+                
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Record with ID '" + id + "' found by SQL: '" + sql + "'");
+                        }
+                        return new DatabaseSourceRecord(rs.getString(1), conn);
+                    } else {
+                        // no record found
+                        // this can happen if the publication conditions based on
+                        // SQL in recordByIdSql are not met
+                        if (log.isDebugEnabled()) {
+                            log.debug("Record with ID '" + id + "' could be found by SQL: '" + sql + "'");
+                        }
+                        // close connection explicit if no record could be obtained.
+                        if (conn != null) {
+                            conn.close();
+                        }
+                        return null;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error obtaining record with ID '" + id + "' by SQL: '" + sql + "'", e);
             if (conn != null) {
                 conn.close();
             }
