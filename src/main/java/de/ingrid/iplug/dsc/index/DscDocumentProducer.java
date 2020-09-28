@@ -153,6 +153,41 @@ public class DscDocumentProducer implements IDocumentProducer {
         return doc;
     }
 
+    public synchronized ElasticDocument getParentFolderById(String id, boolean isUuid) {
+        ElasticDocument doc = null;
+        try {
+            SourceRecord record = recordSetProducer.getRecordParentFolderById(id, isUuid);
+            if (record != null) {
+                doc = new ElasticDocument();
+                for (IRecordMapper mapper : recordMapperList) {
+                    long start = 0;
+                    if (log.isDebugEnabled()) {
+                        start = System.currentTimeMillis();
+                    }
+                    // Disable IDF mapper for folders
+                    Object docClass = doc.get("t01_object.obj_class");
+                    if (docClass == null) {
+                        docClass = doc.get("t02_address.typ");
+                    }
+                    if(mapper instanceof ScriptedDocumentMapper || doc.isEmpty() || !docClass.equals("1000")) {
+                        mapper.map(record, doc);
+                    }
+                    if (log.isDebugEnabled()) {
+                        log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error( "Exception occurred during getting document by ID '" + id + "' and mapping it to lucene: ", e );
+            // explicit set to null as only one mapper failure out of n should lead to an error
+            doc = null;
+        }
+        return doc;
+    }
+    
+    public synchronized boolean isFolderWithPublishDoc(String uuid) {
+        return recordSetProducer.isFolderWithPublishDoc(uuid);
+    }
     /*
      * (non-Javadoc)
      * 

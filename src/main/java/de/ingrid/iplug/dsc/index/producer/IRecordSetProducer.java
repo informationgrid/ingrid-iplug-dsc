@@ -64,4 +64,33 @@ public interface IRecordSetProducer {
      * @return the total number of documents, otherwise 'null' if it cannot be determined before.
      */
     public int getDocCount();
+    
+    
+    /**
+     * Get parent folder by ID or UUID.
+     * 
+     * @param id The id or UUID of the record.
+     * @param isUuid Set to true if is a UUID
+     * @return get parent folder record
+     * @throws Exception
+     */
+    public SourceRecord getRecordParentFolderById(String id, boolean isUuid) throws Exception;
+    
+    /**
+     * Check folder has public records.
+     * 
+     * @param uuid UUID of record to check.
+     * @return true if folder has published records.
+     */
+    public boolean isFolderWithPublishDoc(String uuid);
+    
+    /**
+     * Check parent folder is publish folder.
+     * 
+     * @param uuid UUID of a record.
+     * @param addValue true to add record id. 
+     * @return
+     */
+    public boolean isParentPublishDoc(String uuid, boolean addValue);
+    
 }
