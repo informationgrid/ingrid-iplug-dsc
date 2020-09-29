@@ -29,7 +29,7 @@
   </properties>
   <body>
 
-    <release version="5.3.12-SNAPSHOT" date="2020-xx-xx" description="Release 5.3.12">
+    <release version="5.3.12" date="2020-09-29" description="Release 5.3.12">
       <action type="add" dev="wemove" issue="1102">
         Add display folder on portal catalog tree.
       </action>
