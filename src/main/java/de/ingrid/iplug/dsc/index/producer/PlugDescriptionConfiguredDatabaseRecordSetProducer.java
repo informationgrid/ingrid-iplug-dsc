@@ -210,7 +210,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
                         if(uuid != null && udkClass != null) {
                             if(udkClass.equals("1000")) {
                                 // Check if folder has published children documents
-                                if(isFolderWithPublishDoc(uuid)) {
+                                if(isFolderWithPublishDoc(uuid, connection)) {
                                     if (log.isDebugEnabled()) {
                                         log.debug("Index folder with UUID: " + uuid);
                                     }
@@ -220,7 +220,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
                                 addValue = true;
                             }
                             if(addValue) { 
-                                addValue = isParentPublishDoc(uuid, addValue);
+                                addValue = isParentPublishDoc(uuid, addValue, connection);
                             }
                         }
                         if(addValue) {
@@ -245,23 +245,21 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
     }
 
     @Override
-    public boolean isParentPublishDoc(String uuid, boolean addValue) {
+    public boolean isParentPublishDoc(String uuid, boolean addValue, Connection conn) {
         boolean hasPublishDoc = false;
         try {
             if (log.isDebugEnabled()) {
                 log.debug("SQL: " + recordSqlValidateParentPublishDoc);
             }
             if(!recordSqlValidateParentPublishDoc.isEmpty()) {
-                try (Connection conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection)) {
-                    try (PreparedStatement ps = conn.prepareStatement(recordSqlValidateParentPublishDoc)) {
-                        ps.setString(1, uuid);
-                        try (ResultSet rs = ps.executeQuery()) {
-                            while (rs.next()) {
-                                String fkUuidParent = rs.getString(1);
-                                hasPublishDoc = true;
-                                if(fkUuidParent != null) {
-                                    hasPublishDoc = this.isParentPublishDoc(fkUuidParent, addValue);
-                                }
+                try (PreparedStatement ps = conn.prepareStatement(recordSqlValidateParentPublishDoc)) {
+                    ps.setString(1, uuid);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            String fkUuidParent = rs.getString(1);
+                            hasPublishDoc = true;
+                            if(fkUuidParent != null) {
+                                hasPublishDoc = this.isParentPublishDoc(fkUuidParent, addValue, conn);
                             }
                         }
                     }
@@ -277,26 +275,36 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
 
     @Override
     public boolean isFolderWithPublishDoc(String uuid) {
+        try {
+            try (Connection conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection)) {
+                return this.isFolderWithPublishDoc(uuid, conn);
+            }
+        } catch (Exception e) {
+            log.error("Error creating record ids.", e);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isFolderWithPublishDoc(String uuid, Connection conn) {
         boolean hasPublishDoc = false;
         try {
             if (log.isDebugEnabled()) {
                 log.debug("SQL: " + recordSqlValidateFolderChildren);
             }
-            try (Connection conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection)) {
-                try (PreparedStatement ps = conn.prepareStatement(recordSqlValidateFolderChildren)) {
-                    ps.setString(1, uuid);
-                    try (ResultSet rs = ps.executeQuery()) {
-                        while (rs.next()) {
-                            String uuidChild = rs.getString(1);
-                            String publishedId = rs.getString(2);
-                            if(publishedId != null) {
-                                hasPublishDoc = true;
-                            } else {
-                                hasPublishDoc = this.isFolderWithPublishDoc(uuidChild);
-                            }
-                            if(hasPublishDoc) {
-                                break;
-                            }
+            try (PreparedStatement ps = conn.prepareStatement(recordSqlValidateFolderChildren)) {
+                ps.setString(1, uuid);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        String uuidChild = rs.getString(1);
+                        String publishedId = rs.getString(2);
+                        if(publishedId != null) {
+                            hasPublishDoc = true;
+                        } else {
+                            hasPublishDoc = this.isFolderWithPublishDoc(uuidChild, conn);
+                        }
+                        if(hasPublishDoc) {
+                            break;
                         }
                     }
                 }

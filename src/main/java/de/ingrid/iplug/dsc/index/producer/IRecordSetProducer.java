@@ -25,6 +25,8 @@
  */
 package de.ingrid.iplug.dsc.index.producer;
 
+import java.sql.Connection;
+
 import de.ingrid.iplug.dsc.om.SourceRecord;
 
 /**
@@ -83,7 +85,9 @@ public interface IRecordSetProducer {
      * @return true if folder has published records.
      */
     public boolean isFolderWithPublishDoc(String uuid);
-    
+
+    public boolean isFolderWithPublishDoc(String uuid, Connection conn);
+
     /**
      * Check parent folder is publish folder.
      * 
@@ -91,6 +95,6 @@ public interface IRecordSetProducer {
      * @param addValue true to add record id. 
      * @return
      */
-    public boolean isParentPublishDoc(String uuid, boolean addValue);
+    public boolean isParentPublishDoc(String uuid, boolean addValue, Connection conn);
     
 }
