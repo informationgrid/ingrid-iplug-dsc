@@ -292,12 +292,12 @@ public class IdfUtils {
      * </pre>
      *
      *
-     * @param e
+     * @param element the place to add the localized string
      * @param content Will be trimmed.
-     * @return
+     * @return a localized trimmed string
      */
-    public IdfElement addLocalizedCharacterstring(IdfElement e, String content) {
-        String str = content.trim();
+    public IdfElement addLocalizedCharacterstring(IdfElement element, String content) {
+        String str = content == null ? " " : content.trim();
         if (str.contains(LOCALIZEDSTRING_PREFIX)) {
             Map<String, String> localizedStrings = new HashMap<>();
             String[] locStrArray = str.split(LOCALIZEDSTRING_PREFIX);
@@ -320,9 +320,9 @@ public class IdfUtils {
                 }
             }
 
-            e.addAttribute("xsi:type", "PT_FreeText_PropertyType");
-            e.addElement("gco:CharacterString").addText(defaultStr);
-            DOMUtils.IdfElement ptFreeText = e.addElement("gmd:PT_FreeText");
+            element.addAttribute("xsi:type", "PT_FreeText_PropertyType");
+            element.addElement("gco:CharacterString").addText(defaultStr);
+            DOMUtils.IdfElement ptFreeText = element.addElement("gmd:PT_FreeText");
             for (String locale : localizedStrings.keySet()) {
                 ptFreeText.addElement("gmd:textGroup")
                         .addElement("gmd:LocalisedCharacterString")
@@ -330,9 +330,9 @@ public class IdfUtils {
                         .addText(localizedStrings.get(locale).trim());
             }
         } else {
-            e.addElement("gco:CharacterString").addText(str.trim());
+            element.addElement("gco:CharacterString").addText(str.trim());
         }
-        return e;
+        return element;
     }
 
 
