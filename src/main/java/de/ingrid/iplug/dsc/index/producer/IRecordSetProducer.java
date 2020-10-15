@@ -25,6 +25,8 @@
  */
 package de.ingrid.iplug.dsc.index.producer;
 
+import java.sql.Connection;
+
 import de.ingrid.iplug.dsc.om.SourceRecord;
 
 /**
@@ -75,4 +77,35 @@ public interface IRecordSetProducer {
      * @throws Exception
      */
     public SourceRecord getRecordById(String id) throws Exception;
+    
+    
+    /**
+     * Get parent folder by ID or UUID.
+     * 
+     * @param id The id or UUID of the record.
+     * @param isUuid Set to true if is a UUID
+     * @return get parent folder record
+     * @throws Exception
+     */
+    public SourceRecord getRecordParentFolderById(String id, boolean isUuid) throws Exception;
+    
+    /**
+     * Check folder has public records.
+     * 
+     * @param uuid UUID of record to check.
+     * @return true if folder has published records.
+     */
+    public boolean isFolderWithPublishDoc(String uuid);
+
+    public boolean isFolderWithPublishDoc(String uuid, Connection conn);
+
+    /**
+     * Check parent folder is publish folder.
+     * 
+     * @param uuid UUID of a record.
+     * @param addValue true to add record id. 
+     * @return
+     */
+    public boolean isParentPublishDoc(String uuid, boolean addValue, Connection conn);
+    
 }

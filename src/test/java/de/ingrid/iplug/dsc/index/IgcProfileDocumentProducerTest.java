@@ -161,7 +161,7 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
 
         PlugDescriptionConfiguredDatabaseRecordSetProducer p = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
         p.setStatusProviderService( statusProviderService );
-        p.setRecordSql("SELECT id FROM t01_object");
+        p.setRecordSql("SELECT id, obj_uuid, obj_class FROM t01_object");
         p.configure(pd);
 
         IgcProfileDocumentMapper m = new IgcProfileDocumentMapper();

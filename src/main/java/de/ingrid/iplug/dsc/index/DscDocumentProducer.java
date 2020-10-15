@@ -26,6 +26,7 @@ import de.ingrid.admin.Config;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.elasticsearch.IndexInfo;
 import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
+import de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper;
 import de.ingrid.iplug.dsc.index.producer.IRecordSetProducer;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.utils.ElasticDocument;
@@ -95,9 +96,16 @@ public class DscDocumentProducer implements IDocumentProducer {
                     if (log.isDebugEnabled()) {
                         start = System.currentTimeMillis();
                     }
-                    mapper.map(record, doc);
-                    if (log.isDebugEnabled()) {
-                        log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
+                    // Disable IDF mapper for folders
+                    Object docClass = doc.get("t01_object.obj_class");
+                    if (docClass == null) {
+                        docClass = doc.get("t02_address.typ");
+                    }
+                    if(mapper instanceof ScriptedDocumentMapper || doc.isEmpty() || !docClass.equals("1000")) {
+                        mapper.map(record, doc);
+                        if (log.isDebugEnabled()) {
+                            log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
+                        }
                     }
                 }
             }
@@ -146,6 +154,40 @@ public class DscDocumentProducer implements IDocumentProducer {
         return doc;
     }
 
+    public synchronized ElasticDocument getParentFolderById(String id, boolean isUuid) {
+        ElasticDocument doc = null;
+        try (SourceRecord record = recordSetProducer.getRecordParentFolderById(id, isUuid)) {
+            if (record != null) {
+                doc = new ElasticDocument();
+                for (IRecordMapper mapper : recordMapperList) {
+                    long start = 0;
+                    if (log.isDebugEnabled()) {
+                        start = System.currentTimeMillis();
+                    }
+                    // Disable IDF mapper for folders
+                    Object docClass = doc.get("t01_object.obj_class");
+                    if (docClass == null) {
+                        docClass = doc.get("t02_address.typ");
+                    }
+                    if(mapper instanceof ScriptedDocumentMapper || doc.isEmpty() || !docClass.equals("1000")) {
+                        mapper.map(record, doc);
+                    }
+                    if (log.isDebugEnabled()) {
+                        log.debug("Mapping of source record with " + mapper + " took: " + (System.currentTimeMillis() - start) + " ms.");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error( "Exception occurred during getting document by ID '" + id + "' and mapping it to lucene: ", e );
+            // explicit set to null as only one mapper failure out of n should lead to an error
+            doc = null;
+        }
+        return doc;
+    }
+    
+    public synchronized boolean isFolderWithPublishDoc(String uuid) {
+        return recordSetProducer.isFolderWithPublishDoc(uuid);
+    }
     /*
      * (non-Javadoc)
      * 
