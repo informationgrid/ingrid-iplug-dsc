@@ -5,6 +5,11 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="5.10.0-SNAPSHOT" date="2021-xx-xx" description="Release 5.10.0-SNAPSHOT">
+      <action type="add" dev="wemove" issue="2085">
+        Improve InGrid Search - Add ngram Analyzer and additional sort hash.
+      </action>
+    </release>
 
     <release version="5.7.0" date="2021-01-18" description="Release 5.7.0">
       <action type="add" dev="wemove" issue="2211">
@@ -89,7 +94,7 @@
         Added docker integration.
       </action>
     </release>
-    
+
     <release version="4.1.0" date="2017-10-04" description="Release 4.1.0">
       <action type="fix" dev="wemove" issue="REDMINE-864">
         Support schema in database connection over all supported databases.
@@ -109,7 +114,7 @@
         Fixed another issue with date generation.
       </action>
     </release>
-  
+
     <release version="4.0.1.1" date="2017-02-02" description="Release 4.0.1.1">
       <action type="fix" dev="wemove" issue="REDMINE-534">
         Fixed wrong conversion of date to ISO format.
@@ -124,13 +129,13 @@
         Fixed transformation of time entries.
       </action>
     </release>
-    
+
     <release version="3.6.2.3" date="2016-10-17" description="Bugfix Release 3.6.2.3">
       <action type="fix" dev="wemove" issue="REDMINE-439">
         Fix wrong date in IDF if date is before introduction of daylight saving time.
       </action>
     </release>
-    
+
     <release version="3.6.2" date="2016-05-13" description="Release 3.6.2">
       <action type="add" dev="wemove" issue="REDMINE-267">
         Create IDF details while indexing and add it to index document. Use IDF from index document if exists.
@@ -139,19 +144,19 @@
         Improved status messages while indexing.
       </action>
       <action type="update" dev="wemove" issue="REDMINE-250">
-        During mapping log problems transforming syslist entries with debug to avoid lots of irrelevant error output.  
+        During mapping log problems transforming syslist entries with debug to avoid lots of irrelevant error output.
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-269">
         Fixed redirect to welcome page for a logged in user.
       </action>
     </release>
-    
+
     <release version="3.6.1" date="2015-11-17" description="Release InGrid 3.6.1">
       <action type="add" dev="wemove" issue="REDMINE-13">
         Add useConstraints to index and IDF.
       </action>
       <action type="update" dev="wemove" issue="REDMINE-13">
-        Update mapping of Geo-Dataset/-Service: Separate namespace and resource identifier with "/" instead of "#". 
+        Update mapping of Geo-Dataset/-Service: Separate namespace and resource identifier with "/" instead of "#".
       </action>
       <action type="update" dev="wemove" issue="REDMINE-47">
         Update mapping of version of service to index and IDF (now syslist with key and value).
@@ -178,7 +183,7 @@
         More flexible configuration for mappers, which is needed for correct updates.
       </action>
     </release>
-    
+
     <release version="3.6.0.3" date="2015-09-8" description="Release 3.6.0.3">
       <action type="fix" dev="wemove" issue="REDMINE-130">
         Fixed mapping of index to handle UUIDs as whole, otherwise a wrong dataset could be fetched.
@@ -196,7 +201,7 @@
         Introducing spring override mechanism to easily change configuration, like mapping scripts.
       </action>
     </release>
-    
+
     <release version="3.6.0" date="2015-06-19" description="Release 3.6.0">
       <action type="add" dev="wemove" issue="REDMINE-6">
         Added elastic search as new indexing method.
@@ -208,7 +213,7 @@
         Coupled resources can be referenced externally now.
       </action>
     </release>
-    
+
     <release version="3.5.1" date="2015-xx-xx" description="Release InGrid 3.5.1">
       <action type="update" dev="wemove" issue="REDMINE-17">
           Map coupled resources that are externally linked to an object.
@@ -217,7 +222,7 @@
           Opendata keywords are listed combined now instead of separately (internal REDMINE-559)
       </action>
     </release>
-    
+
     <release version="3.5.0" date="2015-01-30" description="Release InGrid 3.5.0">
       <action type="update" dev="wemove" issue="">
           Rename component from ingrid-iplug-dsc-scripted to ingrid-iplug-dsc
