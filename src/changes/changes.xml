@@ -9,6 +9,9 @@
       <action type="add" dev="wemove" issue="2085">
         Improve InGrid Search - Add ngram Analyzer and additional sort hash.
       </action>
+      <action type="add" dev="wemove" issue="2184">
+        Add new timeField option
+      </action>
     </release>
 
     <release version="5.7.0" date="2021-01-18" description="Release 5.7.0">
