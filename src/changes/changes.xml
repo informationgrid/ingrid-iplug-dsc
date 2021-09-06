@@ -6,6 +6,12 @@
   </properties>
   <body>
 
+    <release version="5.9.2" date="2021-XX-XX" description="Release 5.9.2">
+      <action type="add" dev="wemove" issue="2184">
+        Add new timeField option
+      </action>
+    </release>
+
     <release version="5.7.0" date="2021-01-18" description="Release 5.7.0">
       <action type="add" dev="wemove" issue="2211">
         Fix Redmine issue link generation for changes.
