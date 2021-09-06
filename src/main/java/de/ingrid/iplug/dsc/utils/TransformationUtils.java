@@ -163,7 +163,7 @@ public class TransformationUtils {
 			retMap.put("t1", preprocessIGCTimeField("t1", time_from));
 			retMap.put("t2", preprocessIGCTimeField("t2", time_to));
 
-		} else if ("seit".equals(time_type)) {
+		} else if ("seit".equals(time_type) || "seitX".equals(time_type)) {
 			retMap.put("t1", preprocessIGCTimeField("t1", time_from));
 
 		} else if ("am".equals(time_type)) {
