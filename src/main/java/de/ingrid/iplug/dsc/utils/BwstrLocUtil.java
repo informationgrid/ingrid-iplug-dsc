@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -44,6 +45,7 @@ public class BwstrLocUtil {
 
     private HttpClient httpclient = null;
 
+    private String bwstrLocSearch = "https://atlas.wsv.bund.de/bwastr-locator/rest/bwastrinfo/query?limit=1&searchfield=bwastrid&searchterm=";
     private String bwstrLocEndpoint = "https://atlas.wsv.bund.de/bwastr-locator/rest/geokodierung/query";
 
     private static final Logger log = Logger.getLogger( BwstrLocUtil.class );
@@ -74,9 +76,37 @@ public class BwstrLocUtil {
     public String getResponse(String bwStrId, String kmFrom, String kmTo) {
         String response = null;
 
+        if((kmFrom == null || kmFrom.isEmpty()) && (kmTo == null || kmTo.isEmpty())) {
+            GetMethod get = new GetMethod( bwstrLocSearch + bwStrId );
+            int resp;
+            try {
+                resp = getHttpClient().executeMethod( get );
+                if (resp != 200) {
+                    throw new Exception( "Invalid HTTP Response Code.: " + resp );
+                }
+                response = get.getResponseBodyAsString();
+                JSONObject questJson = parse( response );
+                if(questJson.containsKey("result")) {
+                    JSONArray questJsonArray = (JSONArray) questJson.get( "result" );
+                    for (int i = 0; i < questJsonArray.size(); i++) {
+                        JSONObject questJsonEntry = (JSONObject) questJsonArray.get( i );
+                        if(questJsonEntry.containsKey("km_von") && questJsonEntry.containsKey("km_bis")) {
+                            kmFrom = questJsonEntry.get( "km_von" ).toString();
+                            kmTo = questJsonEntry.get( "km_bis" ).toString();
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error( "Error getting response from BwStrLocSearch at: " + bwstrLocEndpoint + bwStrId);
+            } finally {
+                get.releaseConnection();
+            }
+        }
+
         PostMethod post = new PostMethod( bwstrLocEndpoint );
         post.setParameter( "Content-Type", "application/json" );
-        
+
         try {
             RequestEntity reqE = new StringRequestEntity( "{\"queries\":[{\"qid\":1,\"bwastrid\":\"" + bwStrId + "\",\"stationierung\":{\"km_von\":" + kmFrom + ",\"km_bis\":"
                     + kmTo + ",\"offset\":0},\"spatialReference\":{\"wkid\":4326}}]}", "application/json", "UTF-8" );
