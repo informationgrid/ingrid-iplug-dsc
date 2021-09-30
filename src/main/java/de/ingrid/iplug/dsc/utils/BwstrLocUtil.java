@@ -103,24 +103,27 @@ public class BwstrLocUtil {
                 get.releaseConnection();
             }
         }
-
-        PostMethod post = new PostMethod( bwstrLocEndpoint );
-        post.setParameter( "Content-Type", "application/json" );
-
-        try {
-            RequestEntity reqE = new StringRequestEntity( "{\"queries\":[{\"qid\":1,\"bwastrid\":\"" + bwStrId + "\",\"stationierung\":{\"km_von\":" + kmFrom + ",\"km_bis\":"
-                    + kmTo + ",\"offset\":0},\"spatialReference\":{\"wkid\":4326}}]}", "application/json", "UTF-8" );
-            post.setRequestEntity( reqE );
-            int resp = getHttpClient().executeMethod( post );
-            if (resp != 200) {
-                throw new Exception( "Invalid HTTP Response Code.: " + resp );
+        if(kmFrom != null && !kmFrom.isEmpty() && kmTo != null && !kmTo.isEmpty()) {
+            PostMethod post = new PostMethod( bwstrLocEndpoint );
+            post.setParameter( "Content-Type", "application/json" );
+    
+            try {
+                RequestEntity reqE = new StringRequestEntity( "{\"queries\":[{\"qid\":1,\"bwastrid\":\"" + bwStrId + "\",\"stationierung\":{\"km_von\":" + kmFrom + ",\"km_bis\":"
+                        + kmTo + ",\"offset\":0},\"spatialReference\":{\"wkid\":4326}}]}", "application/json", "UTF-8" );
+                post.setRequestEntity( reqE );
+                int resp = getHttpClient().executeMethod( post );
+                if (resp != 200) {
+                    throw new Exception( "Invalid HTTP Response Code.: " + resp );
+                }
+                response = post.getResponseBodyAsString();
+                log.debug(String.format("Geocoding response from BWaStr. Locator for BWaStr. ID: %s, start km: %s, end km: %s, is: %s", bwStrId, kmFrom, kmTo, response));
+            } catch (Exception e) {
+                log.error( "Error getting response from BwStrLocator at: " + bwstrLocEndpoint );
+            } finally {
+                post.releaseConnection();
             }
-            response = post.getResponseBodyAsString();
-            log.debug(String.format("Geocoding response from BWaStr. Locator for BWaStr. ID: %s, start km: %s, end km: %s, is: %s", bwStrId, kmFrom, kmTo, response));
-        } catch (Exception e) {
-            log.error( "Error getting response from BwStrLocator at: " + bwstrLocEndpoint );
-        } finally {
-            post.releaseConnection();
+        } else {
+            log.error( "No BwStrLocator data found for ID: " + bwStrId );
         }
         return response;
     }
