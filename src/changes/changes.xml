@@ -6,7 +6,7 @@
   </properties>
   <body>
 
-    <release version="5.9.2" date="2021-XX-XX" description="Release 5.9.2">
+    <release version="5.9.2" date="2021-10-11" description="Release 5.9.2">
       <action type="add" dev="wemove" issue="2184">
         Add new timeField option
       </action>
