@@ -45,16 +45,70 @@
       "null_value": 0.0
     },
     "title": {
+      "type": "text",
       "analyzer": "german",
-      "type": "text"
+      "store": true,
+      "fields": {
+        "phrase": {
+          "type":  "text",
+          "analyzer": "ngram_phrase",
+          "search_analyzer": "phrase"
+        },
+        "ngram": {
+          "type":  "text",
+          "analyzer": "ngram",
+          "search_analyzer": "german"
+        },
+        "edge_ngram": {
+          "type":  "text",
+          "analyzer": "edge_ngram",
+          "search_analyzer": "german"
+        }
+      }
     },
     "summary": {
+      "type": "text",
       "analyzer": "german",
-      "type": "text"
+      "store": true,
+      "fields": {
+        "phrase": {
+          "type":  "text",
+          "analyzer": "ngram_phrase",
+          "search_analyzer": "phrase"
+        },
+        "ngram": {
+          "type":  "text",
+          "analyzer": "ngram",
+          "search_analyzer": "german"
+        },
+        "edge_ngram": {
+          "type":  "text",
+          "analyzer": "edge_ngram",
+          "search_analyzer": "german"
+        }
+      }
     },
     "content": {
+      "type": "text",
       "analyzer": "german",
-      "type": "text"
+      "store": true,
+      "fields": {
+        "phrase": {
+          "type":  "text",
+          "analyzer": "ngram_phrase",
+          "search_analyzer": "phrase"
+        },
+        "ngram": {
+          "type":  "text",
+          "analyzer": "ngram",
+          "search_analyzer": "german"
+        },
+        "edge_ngram": {
+          "type":  "text",
+          "analyzer": "edge_ngram",
+          "search_analyzer": "german"
+        }
+      }
     },
     "x1": {
       "type": "double"
