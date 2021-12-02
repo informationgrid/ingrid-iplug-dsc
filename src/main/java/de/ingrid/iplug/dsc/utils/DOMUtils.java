@@ -93,6 +93,12 @@ public class DOMUtils {
             return new IdfElement(newElement);
         }
 
+        public IdfElement addElement(Element element) {
+            Element parent = e;
+            parent.appendChild(element);
+            return new IdfElement(parent);
+        }
+
         public IdfElement addElementAsFirst(String qualifiedName) {
             String[] qNames = qualifiedName.split("/");
             Element parent = e;
