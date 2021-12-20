@@ -5,7 +5,7 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
-    <release version="5.11.0-SNAPSHOT" date="2021-xx-xx" description="Release 5.11.0-SNAPSHOT">
+    <release version="5.10.2-SNAPSHOT" date="2021-xx-xx" description="Release 5.10.2-SNAPSHOT">
     </release>
 
     <release version="5.10.0" date="2021-10-20" description="Release 5.10.0">
