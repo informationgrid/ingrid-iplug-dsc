@@ -47,6 +47,7 @@ public class TransformationUtilsTest {
         // see UtilsCSWDate.fixIgcDateString()
         assertEquals( "1950-07-06T14:12:11+01:00", tu.getISODateFromIGCDate( "19500706131211" ));
         
+        assertEquals("20211220185853321", tu.millisecondsToTimestamp("1640023133321"));
     }
     
 }
