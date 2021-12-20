@@ -6,6 +6,9 @@
   </properties>
   <body>
     <release version="5.10.2-SNAPSHOT" date="2021-xx-xx" description="Release 5.10.2-SNAPSHOT">
+      <action type="add" dev="wemove" issue="">
+        Add millisecondsToTimestamp function
+      </action>
     </release>
 
     <release version="5.10.0" date="2021-10-20" description="Release 5.10.0">
