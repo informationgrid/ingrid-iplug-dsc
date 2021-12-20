@@ -414,6 +414,16 @@ public class TransformationUtils {
             return "";
         }
     }
+
+    /** Format date to database timestamp. */
+    public String millisecondsToTimestamp(String millisec) {
+        try {
+            String out = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date(Long.parseLong(millisec)));
+            return out;
+        } catch (Exception ex){
+            return "";
+        }
+    }
 	
     /** Transforms milliseconds to a valid ISO Date String.
      * Returns unchanged date (the passed one) if problems occur ! */
