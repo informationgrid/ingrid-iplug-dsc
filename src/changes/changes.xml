@@ -5,9 +5,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
-    <release version="5.11.0-SNAPSHOT" date="2021-xx-xx" description="Release 5.11.0-SNAPSHOT">
+    <release version="5.11.0" date="2021-01-18" description="Release 5.11.0">
       <action type="add" dev="wemove" issue="">
         Add millisecondsToTimestamp function
+      </action>
+      <action type="fix" dev="wemove" issue="3292">
+        Fix log4j security hole.
       </action>
     </release>
 
