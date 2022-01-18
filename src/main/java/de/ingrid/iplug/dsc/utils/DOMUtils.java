@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -91,6 +91,12 @@ public class DOMUtils {
                 parent = newElement;
             }
             return new IdfElement(newElement);
+        }
+
+        public IdfElement addElement(Element element) {
+            Element parent = e;
+            parent.appendChild(element);
+            return new IdfElement(parent);
         }
 
         public IdfElement addElementAsFirst(String qualifiedName) {

@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -409,6 +409,16 @@ public class TransformationUtils {
     public String dateToTimestamp(Date date) {
         try {
             String out = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(date);
+            return out;
+        } catch (Exception ex){
+            return "";
+        }
+    }
+
+    /** Format date to database timestamp. */
+    public String millisecondsToTimestamp(String millisec) {
+        try {
+            String out = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date(Long.parseLong(millisec)));
             return out;
         } catch (Exception ex){
             return "";
