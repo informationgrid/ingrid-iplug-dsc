@@ -26,6 +26,8 @@ import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Map;
+
 public class BwstrLocUtilTest {
 
     @Test
@@ -101,6 +103,28 @@ public class BwstrLocUtilTest {
         Assert.assertArrayEquals( new String[] {"3901", "729.0", "730.0"}, blo.parseCenterSectionFromBwstrIdAndKm( "3901-729-730" ) );
         Assert.assertNull( blo.parseCenterSectionFromBwstrIdAndKm( "3901-23.45-34,56" ) );
         Assert.assertNull( blo.parseCenterSectionFromBwstrIdAndKm( null ) );
+    }
+
+    @Test
+    public void testDoBWaStrInfoQuery() {
+        BwstrLocUtil blo = new BwstrLocUtil();
+        Map<String, String> result;
+
+        result = blo.doBWaStrInfoQuery("400");
+        Assert.assertNotNull(result);
+        Assert.assertEquals("0400", result.get("bwastrid"));
+        Assert.assertEquals("Donau", result.get("bwastr_name"));
+        Assert.assertEquals("Haupt- und Nebenstrecken", result.get("strecken_name"));
+
+        result = blo.doBWaStrInfoQuery("0401");
+        Assert.assertEquals("0401", result.get("bwastrid"));
+        Assert.assertEquals("Donau", result.get("bwastr_name"));
+        Assert.assertEquals("Hauptstrecke", result.get("strecken_name"));
+
+        result = blo.doBWaStrInfoQuery("3915");
+        Assert.assertEquals("3915", result.get("bwastrid"));
+        Assert.assertEquals("Rhein", result.get("bwastr_name"));
+        Assert.assertEquals("Nebenarm Mühlarm Nackenheim", result.get("strecken_name"));
     }
 
 }
