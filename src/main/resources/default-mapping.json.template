@@ -47,11 +47,6 @@
             "analyzer": "german",
             "store": true,
             "fields": {
-                "phrase": {
-                    "type":  "text",
-                    "analyzer": "ngram_phrase",
-                    "search_analyzer": "phrase"
-                },
                 "ngram": {
                     "type":  "text",
                     "analyzer": "ngram",
@@ -69,11 +64,6 @@
             "analyzer": "german",
             "store": true,
             "fields": {
-                "phrase": {
-                    "type":  "text",
-                    "analyzer": "ngram_phrase",
-                    "search_analyzer": "phrase"
-                },
                 "ngram": {
                     "type":  "text",
                     "analyzer": "ngram",
@@ -91,11 +81,6 @@
             "analyzer": "german",
             "store": true,
             "fields": {
-                "phrase": {
-                    "type":  "text",
-                    "analyzer": "ngram_phrase",
-                    "search_analyzer": "phrase"
-                },
                 "ngram": {
                     "type":  "text",
                     "analyzer": "ngram",

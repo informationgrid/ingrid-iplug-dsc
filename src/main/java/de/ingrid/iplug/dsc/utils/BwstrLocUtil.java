@@ -22,6 +22,9 @@
  */
 package de.ingrid.iplug.dsc.utils;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -310,6 +313,60 @@ public class BwstrLocUtil {
     }
 
     /**
+     * Uses the BWaStr-Locator to get the waterway name and the waterway-stretch
+     * name for the provieded BWaStr-ID. This method adds leading zeros to the
+     * provided BWaStr.-ID. Also one is added to BWaStr.-IDs ending in 00.
+     * Examples of converted BWaStr.IDs are: 400 -> 0401 and 3900 -> 3901.
+     * Following parameters are returned:
+     * <ul>
+     *     <li>{@code bwastrid}: the BWaStr.-ID used for the query (converted if necessary)</li>
+     *     <li>{@code bwastr_name}: Name of the waterway for the first hit returned by the BWaStr.-Locator</li>
+     *     <li>{@code strecken_name}: Name of the waterway-stretch for the first hit returned by the BWaStr.-Locator</li>
+     * </ul>
+     *
+     * @param bwastrId BWaStr.-ID for the query
+     * @return BWaStr-ID used for the query, waterway name of the first hit, waterway-stretch name of the first hit
+     */
+    public Map<String, String> doBWaStrInfoQuery(String bwastrId) {
+        while(bwastrId.length() < 4) {
+            bwastrId = "0" + bwastrId;
+        }
+
+        // BWaStr.-Locator database doesn't include collective "Haupt- und
+        // Nebenstrecken" entries. Convert these to the ID for the "Hauptstrecke"
+        String id = bwastrId.replaceAll("00$", "01");
+        GetMethod get = new GetMethod(bwstrLocSearch + id);
+        get.setRequestHeader("Content-Type", "application/json");
+
+        try {
+            int responseCode = getHttpClient().executeMethod(get);
+            if (responseCode != 200) {
+                log.error("Invalid HTTP Response code from BWaStr.-Locator: " + responseCode);
+            }
+            String responseString = get.getResponseBodyAsString();
+            JSONObject responseJson = parse(responseString);
+            JSONArray arr = (JSONArray) responseJson.get("result");
+            JSONObject firstHit = (JSONObject) arr.get(0);
+
+            Map<String, String> result = new HashMap<>();
+            result.put("bwastrid", bwastrId);
+            result.put("bwastr_name", (String) firstHit.get("bwastr_name"));
+
+            if (bwastrId.endsWith("00")) {
+                result.put("strecken_name", "Haupt- und Nebenstrecken");
+            } else {
+                result.put("strecken_name", (String) firstHit.get("strecken_name"));
+            }
+
+            return result;
+        } catch (IOException e) {
+            log.error( "Error getting response from BwStrLocator at: " + bwstrLocSearch, e );
+        }
+
+        return null;
+    }
+
+    /**
      * Sets the endpoint of the Bundeswasserstrassenlocator. Updates the httpClient with 
      * the new endpoint.
      * 
@@ -323,6 +380,6 @@ public class BwstrLocUtil {
         this.bwstrLocEndpoint = bwstrLocUrl;
         httpclient = createHttpClient();
     }
-    
-    
+
+
 }
