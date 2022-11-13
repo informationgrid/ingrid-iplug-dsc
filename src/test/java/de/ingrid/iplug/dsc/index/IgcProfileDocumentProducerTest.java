@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,20 @@
  * **************************************************#
  */
 package de.ingrid.iplug.dsc.index;
+
+import de.ingrid.admin.Config;
+import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
+import de.ingrid.iplug.dsc.index.mapper.IgcProfileDocumentMapper;
+import de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer;
+import de.ingrid.utils.PlugDescription;
+import de.ingrid.utils.statusprovider.StatusProviderService;
+import de.ingrid.utils.xml.PlugdescriptionSerializer;
+import org.dbunit.DBTestCase;
+import org.dbunit.PropertiesBasedJdbcDatabaseTester;
+import org.dbunit.database.DatabaseConfig;
+import org.dbunit.dataset.*;
+import org.dbunit.dataset.xml.XmlDataSet;
+import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,47 +45,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import de.ingrid.admin.Config;
-import de.ingrid.admin.JettyStarter;
-import de.ingrid.utils.statusprovider.StatusProviderService;
-import org.dbunit.DBTestCase;
-import org.dbunit.PropertiesBasedJdbcDatabaseTester;
-import org.dbunit.database.DatabaseConfig;
-import org.dbunit.dataset.Column;
-import org.dbunit.dataset.DataSetException;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
-import org.dbunit.dataset.ITableMetaData;
-import org.dbunit.dataset.xml.XmlDataSet;
-import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import de.ingrid.iplug.dsc.index.mapper.IRecordMapper;
-import de.ingrid.iplug.dsc.index.mapper.IgcProfileDocumentMapper;
-import de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer;
-import de.ingrid.utils.PlugDescription;
-import de.ingrid.utils.xml.PlugdescriptionSerializer;
-
 public class IgcProfileDocumentProducerTest extends DBTestCase {
-    
+
     StatusProviderService statusProviderService;
 
     public static String DATASOURCE_FILE_NAME = "src/test/resources/dataset_igc_profile.xml";
-    
+
     public IgcProfileDocumentProducerTest(String name) {
-        super( name );
+        super(name);
         statusProviderService = new StatusProviderService();
-        System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS, "org.hsqldb.jdbcDriver" );
-        System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL, "jdbc:hsqldb:mem:sample" );
-        System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_USERNAME, "sa" );
-        System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_PASSWORD, "" );
+        System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS, "org.hsqldb.jdbcDriver");
+        System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL, "jdbc:hsqldb:mem:sample");
+        System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_USERNAME, "sa");
+        System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_PASSWORD, "");
     }
 
     @Override
     protected void setUp() throws Exception {
         System.out.println("Try creating tables from data source file: " + DATASOURCE_FILE_NAME);
-        new JettyStarter(false);
+//        new JettyStarter(false);
         IDataSet ds = new XmlDataSet(new FileInputStream(DATASOURCE_FILE_NAME));
         createHsqldbTables(ds, this.getConnection().getConnection());
         super.setUp();
@@ -94,7 +86,7 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
         return ds;
     }
 
-    
+
     @Override
     protected void setUpDatabaseConfig(DatabaseConfig config) {
         config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new HsqldbDataTypeFactory());
@@ -106,48 +98,50 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
 
         String sql = "";
         for (String tableName : tableNames) {
-          ITable table = dataSet.getTable(tableName);
-          ITableMetaData metadata = table.getTableMetaData();
-          Column[] columns = metadata.getColumns();
+            ITable table = dataSet.getTable(tableName);
+            ITableMetaData metadata = table.getTableMetaData();
+            Column[] columns = metadata.getColumns();
 
-          sql = "create memory table " + tableName + "( ";
-          boolean first = true;
-          for (Column column : columns) {
-            if (!first) {
-              sql += ", ";
+            sql = "create memory table " + tableName + "( ";
+            boolean first = true;
+            for (Column column : columns) {
+                if (!first) {
+                    sql += ", ";
+                }
+                String columnName = column.getColumnName();
+                String type = resolveType((String) table.getValue(0, columnName));
+                sql += columnName + " " + type;
+                if (first) {
+                    sql += " primary key";
+                    first = false;
+                }
             }
-            String columnName = column.getColumnName();
-            String type = resolveType((String) table.getValue(0, columnName));
-            sql += columnName + " " + type;
-            if (first) {
-              sql += " primary key";
-              first = false;
-            }
-          }
-          sql += "); ";
-          PreparedStatement pp = connection.prepareStatement(sql);
-          pp.executeUpdate();
-          pp.close();
+            sql += "); ";
+            PreparedStatement pp = connection.prepareStatement(sql);
+            pp.executeUpdate();
+            pp.close();
         }
     }
 
     private String resolveType(String str) {
-      try {
-        if (new Double(str).toString().equals(str)) {
-          return "double";
+        try {
+            if (new Double(str).toString().equals(str)) {
+                return "double";
+            }
+        } catch (Exception e) {
         }
-      } catch (Exception e) {}
 
-      try {
-        if (new Integer(str).toString().equals(str)) {
-          return "int";
+        try {
+            if (new Integer(str).toString().equals(str)) {
+                return "int";
+            }
+        } catch (Exception e) {
         }
-      } catch (Exception e) {}
 
-      return "varchar(255)";
+        return "varchar(255)";
     }
-    
-    
+
+
     public String getDatasourceFileName() {
         return DATASOURCE_FILE_NAME;
     }
@@ -160,7 +154,7 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
         PlugDescription pd = new PlugdescriptionSerializer().deSerialize(plugDescriptionFile);
 
         PlugDescriptionConfiguredDatabaseRecordSetProducer p = new PlugDescriptionConfiguredDatabaseRecordSetProducer();
-        p.setStatusProviderService( statusProviderService );
+        p.setStatusProviderService(statusProviderService);
         p.setRecordSql("SELECT id, obj_uuid, obj_class FROM t01_object");
         p.configure(pd);
 
@@ -169,7 +163,7 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
 
         List<IRecordMapper> mList = new ArrayList<>();
         mList.add(m);
-        
+
         DscDocumentProducer dp = new DscDocumentProducer();
         dp.setConfig(new Config());
         dp.setRecordSetProducer(p);
@@ -179,11 +173,11 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
             Map<String, Object> doc = dp.next();
             assertNotNull(doc);
             assertEquals(doc.get("indexName0"), "test content for field id2");
-            assertEquals(((List<Object>)doc.get("indexName5")).size(), 2);
+            assertEquals(((List<Object>) doc.get("indexName5")).size(), 2);
         } else {
             fail("No document produced");
         }
-        
+
     }
 
 }
