@@ -136,6 +136,19 @@
       <artifactId>commons-fileupload</artifactId>
       <version>1.4</version>
     </dependency>
+
+    <!-- JS support -->
+    <dependency>
+      <groupId>org.graalvm.js</groupId>
+      <artifactId>js</artifactId>
+      <version>22.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.graalvm.js</groupId>
+      <artifactId>js-scriptengine</artifactId>
+      <version>22.2.0</version>
+    </dependency>
+    
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

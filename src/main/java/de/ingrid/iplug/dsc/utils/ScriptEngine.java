@@ -116,6 +116,7 @@ public class ScriptEngine {
         String extension = scriptName.substring(scriptName.lastIndexOf('.') + 1, scriptName.length());
 		if (!engines.containsKey(extension)) {
 			javax.script.ScriptEngine engine = scriptEngineManager.getEngineByExtension(extension);
+			engine.createBindings().put("polyglot.js.allowAllAccess", true);
 			engines.put(extension, engine);
 		}
 		return engines.get(extension);

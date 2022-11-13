@@ -1,7 +1,7 @@
 FROM alpine AS builder
 
 COPY ingrid-iplug-*-installer.jar ./files /
-RUN unzip ingrid-iplug-*-installer.jar -d /tmp \
+RUN unzip -q ingrid-iplug-*-installer.jar -d /tmp \
     && export INSTALL_DIR=`ls -d1 /tmp/ingrid-iplug-*` \
     && touch $INSTALL_DIR/pattern \
     && cp run.sh $INSTALL_DIR/ \

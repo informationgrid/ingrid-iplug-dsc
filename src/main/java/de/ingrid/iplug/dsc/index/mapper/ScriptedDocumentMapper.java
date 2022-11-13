@@ -41,6 +41,8 @@ import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.index.IndexUtils;
 
+import javax.script.Bindings;
+
 /**
  * Script based source record to lucene document mapping. This class takes a
  * {@link Resource} as parameter to specify the mapping script. The scripting
@@ -81,11 +83,10 @@ public class ScriptedDocumentMapper implements IRecordMapper {
             parameters.put("SQL", sqlUtils);
             parameters.put("IDX", idxUtils);
             parameters.put("TRANSF", trafoUtils);
-            parameters.put("javaVersion", System.getProperty("java.version"));
 
             ScriptEngine.execute(this.mappingScripts, parameters, compile);
         } catch (Exception e) {
-            if (e.getMessage().contains("SkipException")) {
+            if (e.getMessage() != null && e.getMessage().contains("SkipException")) {
                 log.warn("Skipping document: " + e.getMessage());
             } else {
                 log.error("Error mapping source record to lucene document.", e);

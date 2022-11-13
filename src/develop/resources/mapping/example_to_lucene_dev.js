@@ -20,25 +20,16 @@
  * limitations under the Licence.
  * **************************************************#
  */
-if (javaVersion.indexOf( "1.8" ) === 0) {
-    load("nashorn:mozilla_compat.js");
-}
 
-importPackage(Packages.org.w3c.dom);
-importPackage(Packages.de.ingrid.iplug.dsc.om);
+let DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
 
-if (log.isDebugEnabled()) {
-    log.debug("Mapping source record to idf document: " + sourceRecord.toString());
-}
+log.debug("Mapping source record to lucene document: " + sourceRecord.toString());
 
 if (!(sourceRecord instanceof DatabaseSourceRecord)) {
-    throw new IllegalArgumentException("Record is no DatabaseRecord!");
+  throw new IllegalArgumentException("Record is no DatabaseRecord!");
 }
 
-// ---------- <idf:body> ----------
-var idfBody = XPATH.getNode(idfDoc, "/idf:html/idf:body");
-
-// ---------- CREATE DETAIL DATA (IDF) OF A RESULT ----------
+// ---------- MAP RECORD INTO INDEX ----------
 
 // extract id of the record and read record(s) from database
 var objId = sourceRecord.get("id");
@@ -47,26 +38,37 @@ var objId = sourceRecord.get("id");
 var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [+objId]);
 for (i=0; i<objRows.size(); i++) {
     var row = objRows.get(i);
+    var title = "";
+    var summary = "";
 
-    // Create HTML with data
-    DOM.addElement(idfBody, "h1").addText(row.get("daten"));
-    DOM.addElement(idfBody, "p");
+    // Map id and data from record(s) into index
+    IDX.add("id", row.get("id"));
+    IDX.add("t01_object.obj_class", "1");
+    IDX.add("kurzbeschreibung", row.get("kurzbeschreibung"));
+    IDX.add("daten", row.get("daten"));
+    IDX.add("organisation", row.get("behoerde"));
+    // ...
 
-//    DOM.addElement(idfBody, "p").addText("Id: " + row.get("id"));
-    DOM.addElement(idfBody, "p").addText("Name: " + row.get("daten"));
-    DOM.addElement(idfBody, "p").addText("Kurzbezeichnung: " + row.get("kurzbeschreibung"));
+    // these fields are shown in result list !
+    title = title + row.get("daten");
+    summary = summary + row.get("kurzbeschreibung");
+    IDX.add("title", title);
+    IDX.add("summary", summary);
 
-    // Example of various datasource links via iterating different columns of record
-    DOM.addElement(idfBody, "p");
-    var sourceTypes = ["WMS", "Dateidownload", "FTP", "AtomFeeed", "Portal", "SOS", "WFS", "WMTS", "JSON", "WSDL"];
+    // add various HTML into special index field which is rendered in result list !
+    var addHtml = "";
+    var sourceTypes = ["WMS", "Dateidownload", "FTP", "AtomFeed", "Portal", "SOS", "WFS", "WMTS", "JSON", "WSDL"];
     for (var i = 0; i < sourceTypes.length; i++) {
         var key = sourceTypes[i].toLowerCase();
-        // hasValue function is defined in other script global.js also read by mapper !
-        if (hasValue(row.get(key))) {
-          DOM.addElement(idfBody, "p/a")
-              .addAttribute("href", row.get(key))
-              .addAttribute("target", "_blank")
-              .addText(sourceTypes[i]);
+        if( hasValue(row.get(key))){
+            addHtml += "<div><a href="+row.get(key)+">"+sourceTypes[i]+"</></div>";
         }
     }
+    IDX.add("additional_html_1", addHtml);
+
+    // deliver url or NOT !?
+    // changes display in result list !
+    // with URL the url is displayed below summary and title links to URL
+    // without url title links to detail view !
+    //IDX.add("url", "[YOUR URL]");
 }

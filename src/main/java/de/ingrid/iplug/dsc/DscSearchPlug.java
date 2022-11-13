@@ -22,6 +22,7 @@
  */
 package de.ingrid.iplug.dsc;
 
+import de.ingrid.admin.BaseWebappApplication;
 import de.ingrid.admin.Config;
 import de.ingrid.admin.elasticsearch.IndexScheduler;
 import de.ingrid.elasticsearch.ElasticConfig;
@@ -93,6 +94,7 @@ public class DscSearchPlug extends HeartBeatPlug implements IRecordLoader {
     public DscSearchPlug(final IndexImpl indexSearcher,
                          Config baseConfig,
                          Configuration externalConfig,
+//                         BaseWebappApplication baseWebappApplication,
                          IPlugdescriptionFieldFilter[] fieldFilters,
                          IMetadataInjector[] injector, IPreProcessor[] preProcessors,
                          IPostProcessor[] postProcessors, DscRecordCreator producer, IndexScheduler indexScheduler) {
