@@ -43,7 +43,7 @@ public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCa
 
     public ScriptedDatabaseDocumentProducerTest(String name) throws Exception {
         super(name);
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         setDatasourceFileName("src/test/resources/dataset.xml");
 //        new JettyStarter(false);
     }
