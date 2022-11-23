@@ -54,10 +54,10 @@ public class Configuration implements IConfig {
 
     public DatabaseConnection dbConnection;
     
-    @Value("${mapper.index.docSql}")
+    @Value("${mapper.index.docSql:}")
     public String indexMapperSql;
 
-    @Value("${mapper.index.fieldId}")
+    @Value("${mapper.index.fieldId:}")
     public String indexFieldId;
 
     @Value("${mapper.idf.beans:[]}")
