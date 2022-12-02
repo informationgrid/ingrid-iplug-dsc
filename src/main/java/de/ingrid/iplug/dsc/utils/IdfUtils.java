@@ -75,6 +75,16 @@ public class IdfUtils {
 
     }
 
+    public String getUUIDFromString(String text) {
+        String stringClean = text.replaceAll("\\s+", " ");
+        UUID uuid = UUID.nameUUIDFromBytes(stringClean.getBytes());
+        StringBuffer idcUuid = new StringBuffer(uuid.toString().toUpperCase());
+        while (idcUuid.length() < 36) {
+            idcUuid.append("0");
+        }
+        return idcUuid.toString();
+    }
+
     /**
      * Maps an additional data into the IDF document using the default structure
      * for additional data in idf:IDF_MD_Metadata_Type.
