@@ -133,6 +133,7 @@ public class IgcProfileIdfMapper implements IIdfMapper {
                             IdfUtils idfUtils = new IdfUtils(sqlUtils, domUtils, xpathUtils);
     
                             Bindings bindings = engine.createBindings();
+                            bindings.put("polyglot.js.allowAllAccess", true);
                             bindings.put("sourceRecord", record);
                             bindings.put("idfDoc", doc);
                             bindings.put("igcProfileControlNode", igcProfileNode);
