@@ -37,7 +37,8 @@ import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -63,8 +64,7 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
     @Override
     protected void setUp() throws Exception {
         System.out.println("Try creating tables from data source file: " + DATASOURCE_FILE_NAME);
-//        new JettyStarter(false);
-        IDataSet ds = new XmlDataSet(new FileInputStream(DATASOURCE_FILE_NAME));
+        IDataSet ds = new XmlDataSet(Files.newInputStream(Paths.get(DATASOURCE_FILE_NAME)));
         createHsqldbTables(ds, this.getConnection().getConnection());
         super.setUp();
     }
@@ -82,42 +82,41 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
     @Override
     protected IDataSet getDataSet() throws Exception {
         System.out.println("Populating from data source file: " + DATASOURCE_FILE_NAME);
-        IDataSet ds = new XmlDataSet(new FileInputStream(DATASOURCE_FILE_NAME));
-        return ds;
+        return new XmlDataSet(Files.newInputStream(Paths.get(DATASOURCE_FILE_NAME)));
     }
 
 
     @Override
     protected void setUpDatabaseConfig(DatabaseConfig config) {
         config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new HsqldbDataTypeFactory());
+        config.setProperty(DatabaseConfig.FEATURE_ALLOW_EMPTY_FIELDS, true);
     }
 
 
     private void createHsqldbTables(IDataSet dataSet, Connection connection) throws DataSetException, SQLException {
         String[] tableNames = dataSet.getTableNames();
 
-        String sql = "";
         for (String tableName : tableNames) {
             ITable table = dataSet.getTable(tableName);
             ITableMetaData metadata = table.getTableMetaData();
             Column[] columns = metadata.getColumns();
 
-            sql = "create memory table " + tableName + "( ";
+            StringBuilder sql = new StringBuilder("create memory table " + tableName + "( ");
             boolean first = true;
             for (Column column : columns) {
                 if (!first) {
-                    sql += ", ";
+                    sql.append(", ");
                 }
                 String columnName = column.getColumnName();
                 String type = resolveType((String) table.getValue(0, columnName));
-                sql += columnName + " " + type;
+                sql.append(columnName).append(" ").append(type);
                 if (first) {
-                    sql += " primary key";
+                    sql.append(" primary key");
                     first = false;
                 }
             }
-            sql += "); ";
-            PreparedStatement pp = connection.prepareStatement(sql);
+            sql.append("); ");
+            PreparedStatement pp = connection.prepareStatement(sql.toString());
             pp.executeUpdate();
             pp.close();
         }
@@ -125,25 +124,20 @@ public class IgcProfileDocumentProducerTest extends DBTestCase {
 
     private String resolveType(String str) {
         try {
-            if (new Double(str).toString().equals(str)) {
+            if (Double.valueOf(str).toString().equals(str)) {
                 return "double";
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         try {
-            if (new Integer(str).toString().equals(str)) {
+            if (Integer.valueOf(str).toString().equals(str)) {
                 return "int";
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
-        return "varchar(255)";
-    }
-
-
-    public String getDatasourceFileName() {
-        return DATASOURCE_FILE_NAME;
+        return "varchar(10550)";
     }
 
 

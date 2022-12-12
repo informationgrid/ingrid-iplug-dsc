@@ -7,28 +7,6 @@
             <value>1</value>
             <value>igc_profile</value>
             <value><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  **************************************************-
-  ingrid-iplug-dsc
-  ==================================================
-  Copyright (C) 2014 - 2015 wemove digital solutions GmbH
-  ==================================================
-  Licensed under the EUPL, Version 1.1 or – as soon they will be
-  approved by the European Commission - subsequent versions of the
-  EUPL (the "Licence");
-  
-  You may not use this work except in compliance with the Licence.
-  You may obtain a copy of the Licence at:
-  
-  http://ec.europa.eu/idabc/eupl5
-  
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the Licence is distributed on an "AS IS" basis,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the Licence for the specific language governing permissions and
-  limitations under the Licence.
-  **************************************************#
-  -->
 
 <profile xmlns="http://www.portalu.de/igc-profile"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -143,7 +121,7 @@ IDF.addAdditionalData(sourceRecord, idfDoc, igcProfileControlNode);
         <localizedHelp lang="de">Feature Catalog Compliance Code</localizedHelp>
         <localizedHelp lang="en">Feature Catalog Compliance Code</localizedHelp>
         <scriptedCswMapping>
-importPackage(Packages.de.ingrid.iplug.dsc.om);
+let DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
 
 // add Namespaces to Utility for convenient handling of NS !
 DOM.addNS("gmd", "http://www.isotc211.org/2005/gmd");
@@ -155,6 +133,8 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 
 var id = sourceRecord.get(DatabaseSourceRecord.ID);
 var igcProfileControlId = XPATH.getString(igcProfileControlNode, "igcp:id");
+
+log.info("ID: " + id);
 
 var content = SQL.first("SELECT data FROM additional_field_data WHERE obj_id=? AND field_key=?", [id, igcProfileControlId]);
 

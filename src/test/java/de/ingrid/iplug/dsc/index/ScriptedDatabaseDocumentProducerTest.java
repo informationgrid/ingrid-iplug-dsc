@@ -45,7 +45,6 @@ public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCa
         super(name);
         MockitoAnnotations.openMocks(this);
         setDatasourceFileName("src/test/resources/dataset.xml");
-//        new JettyStarter(false);
     }
 
     public void testScriptedDatabaseDocumentProducer() throws Exception {
@@ -68,7 +67,7 @@ public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCa
         m.setMappingScripts(mappingScripts);
         m.setCompile(false);
 
-        List<IRecordMapper> mList = new ArrayList<IRecordMapper>();
+        List<IRecordMapper> mList = new ArrayList<>();
         mList.add(m);
 
         DscDocumentProducer dp = new DscDocumentProducer();
@@ -110,7 +109,7 @@ public class ScriptedDatabaseDocumentProducerTest extends IgcDbUnitEnabledTestCa
         m.setMappingScripts(mappingScripts);
         m.setCompile(false);
 
-        List<IRecordMapper> mList = new ArrayList<IRecordMapper>();
+        List<IRecordMapper> mList = new ArrayList<>();
         mList.add(m);
 
         DscDocumentProducer dp = new DscDocumentProducer();
