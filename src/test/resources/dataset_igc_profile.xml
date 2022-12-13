@@ -131,10 +131,8 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
     throw new IllegalArgumentException("Record is no DatabaseRecord!");
 }
 
-var id = sourceRecord.get(DatabaseSourceRecord.ID);
+var id = sourceRecord.get("id");
 var igcProfileControlId = XPATH.getString(igcProfileControlNode, "igcp:id");
-
-log.info("ID: " + id);
 
 var content = SQL.first("SELECT data FROM additional_field_data WHERE obj_id=? AND field_key=?", [id, igcProfileControlId]);
 

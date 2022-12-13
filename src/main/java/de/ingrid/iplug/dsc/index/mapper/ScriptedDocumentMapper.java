@@ -20,9 +20,6 @@
  * limitations under the Licence.
  * **************************************************#
  */
-/**
- * 
- */
 package de.ingrid.iplug.dsc.index.mapper;
 
 import java.sql.Connection;
@@ -41,7 +38,6 @@ import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.index.IndexUtils;
 
-import javax.script.Bindings;
 
 /**
  * Script based source record to lucene document mapping. This class takes a
@@ -49,7 +45,7 @@ import javax.script.Bindings;
  * engine will be automatically determined from the extension of the mapping
  * script.
  * <p />
- * If the {@link compile} parameter is set to true, the script is compiled, if
+ * If the compile parameter is set to true, the script is compiled, if
  * the ScriptEngine supports compilation.
  * 
  * @author joachim@wemove.com
@@ -76,7 +72,7 @@ public class ScriptedDocumentMapper implements IRecordMapper {
             IndexUtils idxUtils = new IndexUtils(doc);
             TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
 
-            Map<String, Object> parameters = new Hashtable<String, Object>();
+            Map<String, Object> parameters = new Hashtable<>();
             parameters.put("sourceRecord", record);
             parameters.put("luceneDoc", doc);
             parameters.put("log", log);

@@ -20,9 +20,6 @@
  * limitations under the Licence.
  * **************************************************#
  */
-/**
- * 
- */
 package de.ingrid.iplug.dsc.record.mapper;
 
 import java.sql.Connection;
@@ -49,10 +46,10 @@ import de.ingrid.utils.xpath.XPathUtils;
  * script. The scripting engine will be automatically determined from the
  * extension of the mapping script.
  * <p />
- * If the {@link compile} parameter is set to true, the script is compiled, if
+ * If the compile parameter is set to true, the script is compiled, if
  * the ScriptEngine supports compilation.
  * <p/>
- * The mapper expects a base IDF format already present in {@link doc}. *
+ * The mapper expects a base IDF format already present in doc. *
  * 
  * @author joachim@wemove.com
  * 
@@ -82,7 +79,7 @@ public class ScriptedIdfMapper implements IIdfMapper {
             DOMUtils domUtils = new DOMUtils(doc, xpathUtils);
             domUtils.addNS("idf", "http://www.portalu.de/IDF/1.0");
 
-			Map<String, Object> parameters = new Hashtable<String, Object>();
+			Map<String, Object> parameters = new Hashtable<>();
 			parameters.put("sourceRecord", record);
 			parameters.put("idfDoc", doc);
 			parameters.put("log", log);
