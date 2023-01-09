@@ -62,7 +62,7 @@ import de.ingrid.utils.xpath.XPathUtils;
  * A SQL string can be set to retrieve the IGC profile. The profile is expected
  * to be in a SQL record property named "igc_profile".
  * <p/>
- * The mapper expects a base IDF format already present in {@link doc}.
+ * The mapper expects a base IDF format already present.
  * 
  * @author joachim@wemove.com
  * 
@@ -133,6 +133,7 @@ public class IgcProfileIdfMapper implements IIdfMapper {
                             IdfUtils idfUtils = new IdfUtils(sqlUtils, domUtils, xpathUtils);
     
                             Bindings bindings = engine.createBindings();
+                            bindings.put("polyglot.js.allowAllAccess", true);
                             bindings.put("sourceRecord", record);
                             bindings.put("idfDoc", doc);
                             bindings.put("igcProfileControlNode", igcProfileNode);
@@ -142,16 +143,7 @@ public class IgcProfileIdfMapper implements IIdfMapper {
                             bindings.put("TRANSF", trafoUtils);
                             bindings.put("DOM", domUtils);
                             bindings.put("IDF", idfUtils);
-    
-                            // backwards compatibility
-                            if (System.getProperty( "java.version" ).startsWith( "1.8" )) {
-                                igcProfileCswMapping = "load('nashorn:mozilla_compat.js');" + igcProfileCswMapping;
-                                // somehow the contant cannot be accessed!?
-                                // convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
-                                igcProfileCswMapping = igcProfileCswMapping.replaceAll( "sourceRecord.get\\(DatabaseSourceRecord.ID\\)", "+sourceRecord.get(DatabaseSourceRecord.ID)" );
-                                // then replace placeholder
-                                igcProfileCswMapping = igcProfileCswMapping.replaceAll( "DatabaseSourceRecord.ID", "'" + DatabaseSourceRecord.ID + "'" );
-                            }
+                            
                             engine.eval(new StringReader(igcProfileCswMapping), bindings);
                         } catch (Exception e) {
                             log.error("Error mapping source record to idf document.", e);

@@ -42,8 +42,8 @@ import org.springframework.core.io.Resource;
 public class ScriptEngine {
 
 	protected static ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
-	protected static Map<String, javax.script.ScriptEngine> engines = new Hashtable<String, javax.script.ScriptEngine>();
-	protected static Map<String, CompiledScript> compiledScripts = new Hashtable<String, CompiledScript>();
+	protected static Map<String, javax.script.ScriptEngine> engines = new Hashtable<>();
+	protected static Map<String, CompiledScript> compiledScripts = new Hashtable<>();
 
 	/**
 	 * Execute the given scripts with the given parameters
@@ -56,8 +56,8 @@ public class ScriptEngine {
 	 */
 	public static Map<String, Object> execute(Resource[] scripts, Map<String, Object> parameters, boolean compile) throws Exception {
 
-		Map<Integer, Bindings> bindings = new Hashtable<Integer, Bindings>();
-		Map<String, Object> results = new Hashtable<String, Object>();
+		Map<Integer, Bindings> bindings = new Hashtable<>();
+		Map<String, Object> results = new Hashtable<>();
 
 		for (Resource script : scripts) {
 			// get the engine for the script
@@ -116,6 +116,7 @@ public class ScriptEngine {
         String extension = scriptName.substring(scriptName.lastIndexOf('.') + 1, scriptName.length());
 		if (!engines.containsKey(extension)) {
 			javax.script.ScriptEngine engine = scriptEngineManager.getEngineByExtension(extension);
+			engine.createBindings().put("polyglot.js.allowAllAccess", true);
 			engines.put(extension, engine);
 		}
 		return engines.get(extension);

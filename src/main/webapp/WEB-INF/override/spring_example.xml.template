@@ -61,7 +61,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
             <list>
                 <!-- EXAMPLE SCRIPTS FROM conf/mapping -->
 	    		<value>classpath:mapping/global.js</value>
-	    		<value>classpath:mapping/example_to_lucene.js</value>
+	    		<value>classpath:mapping/example_to_lucene_dev.js</value>
             </list>
         </property> 
         <property name="compile" value="true" />
@@ -98,7 +98,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
             <list>
                 <!-- EXAMPLE SCRIPTS FROM conf/mapping -->
 	    		<value>classpath:mapping/global.js</value>
-	    		<value>classpath:mapping/example_to_idf.js</value>
+	    		<value>classpath:mapping/example_to_idf_dev.js</value>
             </list>
         </property> 
         <property name="compile" value="true" />

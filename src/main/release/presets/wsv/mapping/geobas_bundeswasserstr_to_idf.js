@@ -66,7 +66,7 @@ function hasValue(val) {
         return false; 
     } else if (typeof val == "string" && val == "") {
         return false;
-    } else if (typeof val == "object" && val.toString().equals("")) {
+    } else if (typeof val == "object" && Object.keys(val).length === 0) {
         return false;
     } else {
       return true;

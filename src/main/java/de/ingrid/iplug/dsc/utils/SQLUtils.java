@@ -20,9 +20,6 @@
  * limitations under the Licence.
  * **************************************************#
  */
-/**
- * 
- */
 package de.ingrid.iplug.dsc.utils;
 
 import java.sql.Connection;
@@ -48,7 +45,7 @@ public class SQLUtils {
 
     private static final Logger log = Logger.getLogger(SQLUtils.class);
 
-    private Connection connection = null;
+    private Connection connection;
 
     public SQLUtils(Connection connection) {
         this.connection = connection;
@@ -145,8 +142,7 @@ public class SQLUtils {
             }
 
             ResultSet rs = ps.executeQuery();
-            List<Map<String, String>> result = toList(rs);
-            return result;
+            return toList(rs);
 
         } catch (SQLException ex) {
             log.error("Error fetching all records from SQL. Sql: " + sqlStr + ", sqlParams: " + Arrays.toString(sqlParams)
@@ -185,10 +181,10 @@ public class SQLUtils {
      *             if the connection fails
      */
     private List<Map<String, String>> toList(ResultSet rs, List<String> wantedColumnNames) throws SQLException {
-        List<Map<String, String>> rows = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> rows = new ArrayList<>();
 
         while (rs.next()) {
-            Map<String, String> row = new LinkedHashMap<String, String>();
+            Map<String, String> row = new LinkedHashMap<>();
 
             for (String columnName : wantedColumnNames) {
                 String value = rs.getString(columnName);
@@ -213,8 +209,8 @@ public class SQLUtils {
      * @throws SQLException
      *             if the query fails
      */
-    private final List<String> getColumnNames(ResultSet rs) throws SQLException {
-        List<String> columnNames = new ArrayList<String>();
+    private List<String> getColumnNames(ResultSet rs) throws SQLException {
+        List<String> columnNames = new ArrayList<>();
 
         ResultSetMetaData meta = rs.getMetaData();
         int numColumns = meta.getColumnCount();

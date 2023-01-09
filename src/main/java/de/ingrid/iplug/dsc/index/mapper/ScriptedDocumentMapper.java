@@ -20,9 +20,6 @@
  * limitations under the Licence.
  * **************************************************#
  */
-/**
- * 
- */
 package de.ingrid.iplug.dsc.index.mapper;
 
 import java.sql.Connection;
@@ -41,13 +38,14 @@ import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.index.IndexUtils;
 
+
 /**
  * Script based source record to lucene document mapping. This class takes a
  * {@link Resource} as parameter to specify the mapping script. The scripting
  * engine will be automatically determined from the extension of the mapping
  * script.
  * <p />
- * If the {@link compile} parameter is set to true, the script is compiled, if
+ * If the compile parameter is set to true, the script is compiled, if
  * the ScriptEngine supports compilation.
  * 
  * @author joachim@wemove.com
@@ -74,18 +72,17 @@ public class ScriptedDocumentMapper implements IRecordMapper {
             IndexUtils idxUtils = new IndexUtils(doc);
             TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
 
-            Map<String, Object> parameters = new Hashtable<String, Object>();
+            Map<String, Object> parameters = new Hashtable<>();
             parameters.put("sourceRecord", record);
             parameters.put("luceneDoc", doc);
             parameters.put("log", log);
             parameters.put("SQL", sqlUtils);
             parameters.put("IDX", idxUtils);
             parameters.put("TRANSF", trafoUtils);
-            parameters.put("javaVersion", System.getProperty("java.version"));
 
             ScriptEngine.execute(this.mappingScripts, parameters, compile);
         } catch (Exception e) {
-            if (e.getMessage().contains("SkipException")) {
+            if (e.getMessage() != null && e.getMessage().contains("SkipException")) {
                 log.warn("Skipping document: " + e.getMessage());
             } else {
                 log.error("Error mapping source record to lucene document.", e);

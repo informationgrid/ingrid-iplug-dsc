@@ -37,7 +37,6 @@
       <includes>
         <include>config.properties</include>
         <include>elasticsearch.properties</include>
-        <include>ingrid.auth</include>
         <include>log4j2.xml</include>
       </includes>
     </fileSet>
@@ -75,14 +74,14 @@
     </fileSet>
     <fileSet>
       <directory>src/main/webapp</directory>
-      <outputDirectory>${project.artifactId}-${project.version}/webapp</outputDirectory>
+      <outputDirectory>${project.artifactId}-${project.version}/public</outputDirectory>
       <excludes>
         <exclude>**/WEB-INF/jetty-web.xml</exclude>
       </excludes>
     </fileSet>
     <fileSet>
       <directory>target/base-webapp</directory>
-      <outputDirectory>${project.artifactId}-${project.version}/webapp</outputDirectory>
+      <outputDirectory>${project.artifactId}-${project.version}/public</outputDirectory>
     </fileSet>
     <fileSet>
       <directory>target/logs</directory>
@@ -93,13 +92,6 @@
       <outputDirectory>${project.artifactId}-${project.version}/doc</outputDirectory>
     </fileSet>
   </fileSets>
-  <files>
-    <file>
-      <source>src/main/release/jetty/jetty-web.xml</source>
-      <outputDirectory>${project.artifactId}-${project.version}/webapp/WEB-INF</outputDirectory>
-      <filtered>true</filtered>
-    </file>
-  </files>
   <dependencySets>
     <dependencySet>
       <outputDirectory>${project.artifactId}-${project.version}/lib</outputDirectory>

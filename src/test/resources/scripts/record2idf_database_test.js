@@ -20,14 +20,7 @@
  * limitations under the Licence.
  * **************************************************#
  */
-if (javaVersion.indexOf( "1.8" ) === 0) {
-	load("nashorn:mozilla_compat.js");
-}
-
-importPackage(Packages.java.sql);
-importPackage(Packages.org.w3c.dom);
-importPackage(Packages.de.ingrid.utils.xml);
-importPackage(Packages.de.ingrid.iplug.dsc.om);
+let DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
 
 if (log.isDebugEnabled()) {
 	log.debug("Mapping source record to idf document: " + sourceRecord.toString());
@@ -49,8 +42,7 @@ try {
     for (var i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
         var colName = rs.getMetaData().getColumnName(i);
         var colValue = rs.getString(i);
-        XPathUtils.getXPathInstance().setNamespaceContext(new IDFNamespaceContext());
-        var body = XPathUtils.getNode(idfDoc, "/idf:html/idf:body");
+        var body = XPATH.getNode(idfDoc, "/idf:html/idf:body");
         var p = body.appendChild(idfDoc.createElementNS("http://www.portalu.de/IDF/1.0", "p"));
         var strong = p.appendChild(idfDoc.createElementNS("http://www.portalu.de/IDF/1.0", "strong"));
         strong.appendChild(idfDoc.createTextNode(colName+": "));

@@ -20,13 +20,8 @@
  * limitations under the Licence.
  * **************************************************#
  */
-if (javaVersion.indexOf( "1.8" ) === 0) {
-	load("nashorn:mozilla_compat.js");
-}
 
-importPackage(Packages.java.sql);
-importPackage(Packages.org.apache.lucene.document);
-importPackage(Packages.de.ingrid.iplug.dsc.om);
+let DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
 
 if (log.isDebugEnabled()) {
 	log.debug("Mapping source record to lucene document: " + sourceRecord.toString());
