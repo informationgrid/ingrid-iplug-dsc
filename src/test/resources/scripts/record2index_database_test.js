@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -20,13 +20,8 @@
  * limitations under the Licence.
  * **************************************************#
  */
-if (javaVersion.indexOf( "1.8" ) === 0) {
-	load("nashorn:mozilla_compat.js");
-}
 
-importPackage(Packages.java.sql);
-importPackage(Packages.org.apache.lucene.document);
-importPackage(Packages.de.ingrid.iplug.dsc.om);
+let DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
 
 if (log.isDebugEnabled()) {
 	log.debug("Mapping source record to lucene document: " + sourceRecord.toString());

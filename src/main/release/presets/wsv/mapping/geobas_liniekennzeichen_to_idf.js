@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -100,7 +100,7 @@ function hasValue(val) {
         return false; 
     } else if (typeof val == "string" && val == "") {
         return false;
-    } else if (typeof val == "object" && val.toString().equals("")) {
+    } else if (typeof val == "object" && Object.keys(val).length === 0) {
         return false;
     } else {
       return true;

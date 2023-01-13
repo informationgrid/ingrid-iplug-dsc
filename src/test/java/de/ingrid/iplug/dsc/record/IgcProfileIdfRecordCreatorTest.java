@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -24,6 +24,8 @@ package de.ingrid.iplug.dsc.record;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -65,7 +67,7 @@ public class IgcProfileIdfRecordCreatorTest extends DBTestCase {
     @Override
     protected void setUp() throws Exception {
         System.out.println("Try creating tables from data source file: " + DATASOURCE_FILE_NAME);
-        IDataSet ds = new XmlDataSet(new FileInputStream(DATASOURCE_FILE_NAME));
+        IDataSet ds = new XmlDataSet(Files.newInputStream(Paths.get(DATASOURCE_FILE_NAME)));
         createHsqldbTables(ds, this.getConnection().getConnection());
         super.setUp();
     }
@@ -83,7 +85,7 @@ public class IgcProfileIdfRecordCreatorTest extends DBTestCase {
     @Override
     protected IDataSet getDataSet() throws Exception {
         System.out.println("Populating from data source file: " + DATASOURCE_FILE_NAME);
-        IDataSet ds = new XmlDataSet(new FileInputStream(DATASOURCE_FILE_NAME));
+        IDataSet ds = new XmlDataSet(Files.newInputStream(Paths.get(DATASOURCE_FILE_NAME)));
         return ds;
     }
 
@@ -91,34 +93,34 @@ public class IgcProfileIdfRecordCreatorTest extends DBTestCase {
     @Override
     protected void setUpDatabaseConfig(DatabaseConfig config) {
         config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new HsqldbDataTypeFactory());
+        config.setProperty(DatabaseConfig.FEATURE_ALLOW_EMPTY_FIELDS, true);
     }
 
 
     private void createHsqldbTables(IDataSet dataSet, Connection connection) throws DataSetException, SQLException {
         String[] tableNames = dataSet.getTableNames();
 
-        String sql = "";
         for (String tableName : tableNames) {
           ITable table = dataSet.getTable(tableName);
           ITableMetaData metadata = table.getTableMetaData();
           Column[] columns = metadata.getColumns();
-
-          sql = "create memory table " + tableName + "( ";
+          
+          StringBuilder sql = new StringBuilder("create memory table " + tableName + "( ");
           boolean first = true;
           for (Column column : columns) {
             if (!first) {
-              sql += ", ";
+              sql.append(", ");
             }
             String columnName = column.getColumnName();
             String type = resolveType((String) table.getValue(0, columnName));
-            sql += columnName + " " + type;
+            sql.append(columnName).append(" ").append(type);
             if (first) {
-              sql += " primary key";
+              sql.append(" primary key");
               first = false;
             }
           }
-          sql += "); ";
-          PreparedStatement pp = connection.prepareStatement(sql);
+          sql.append("); ");
+          PreparedStatement pp = connection.prepareStatement(sql.toString());
           pp.executeUpdate();
           pp.close();
         }
@@ -126,26 +128,20 @@ public class IgcProfileIdfRecordCreatorTest extends DBTestCase {
 
     private String resolveType(String str) {
       try {
-        if (new Double(str).toString().equals(str)) {
+        if (Double.valueOf(str).toString().equals(str)) {
           return "double";
         }
-      } catch (Exception e) {}
+      } catch (Exception ignored) {}
 
       try {
-        if (new Integer(str).toString().equals(str)) {
+        if (Integer.valueOf(str).toString().equals(str)) {
           return "int";
         }
-      } catch (Exception e) {}
+      } catch (Exception ignored) {}
 
-      return "varchar(255)";
+      return "varchar(10550)";
     }
     
-    
-    public String getDatasourceFileName() {
-        return DATASOURCE_FILE_NAME;
-    }
-
-
     public void testDscRecordCreator() throws Exception {
 
         File plugDescriptionFile = new File(
@@ -161,7 +157,7 @@ public class IgcProfileIdfRecordCreatorTest extends DBTestCase {
         IgcProfileIdfMapper m2 = new IgcProfileIdfMapper();
         m2.setSql("SELECT VALUE AS igc_profile FROM TEST_TABLE WHERE KEY='igc_profile'");
 
-        List<IIdfMapper> mList = new ArrayList<IIdfMapper>();
+        List<IIdfMapper> mList = new ArrayList<>();
         mList.add(m1);
         mList.add(m2);
         
@@ -169,11 +165,11 @@ public class IgcProfileIdfRecordCreatorTest extends DBTestCase {
         dc.setRecordProducer(p);
         dc.setRecord2IdfMapperList(mList);
 
-        ElasticDocument idxDoc = new ElasticDocument();;
+        ElasticDocument idxDoc = new ElasticDocument();
         idxDoc.put("ID", "2");
         Record r = dc.getRecord(idxDoc);
         assertNotNull(r.get("data"));
-        assertTrue(r.getString("compressed").equals("false"));
+        assertEquals("false", r.getString("compressed"));
         assertTrue(r.getString("data").contains("test content for field id2"));
         System.out.println("Size of uncompressed IDF document: " + r.getString("data").length());
         

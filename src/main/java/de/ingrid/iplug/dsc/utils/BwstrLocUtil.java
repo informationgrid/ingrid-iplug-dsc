@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -48,8 +48,8 @@ public class BwstrLocUtil {
 
     private HttpClient httpclient = null;
 
-    private String bwstrLocSearch = "https://atlas.wsv.bund.de/bwastr-locator/rest/bwastrinfo/query?limit=1&searchfield=bwastrid&searchterm=";
-    private String bwstrLocEndpoint = "https://atlas.wsv.bund.de/bwastr-locator/rest/geokodierung/query";
+    private String bwstrLocSearch = "https://via.bund.de/wsv/bwastr-locator/rest/bwastrinfo/query?limit=1&searchfield=bwastrid&searchterm=";
+    private String bwstrLocEndpoint = "https://via.bund.de/wsv/bwastr-locator/rest/geokodierung/query";
 
     private static final Logger log = Logger.getLogger( BwstrLocUtil.class );
 

@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -113,17 +113,17 @@ public class BwstrLocUtilTest {
         result = blo.doBWaStrInfoQuery("400");
         Assert.assertNotNull(result);
         Assert.assertEquals("0400", result.get("bwastrid"));
-        Assert.assertEquals("Donau", result.get("bwastr_name"));
+        Assert.assertEquals("Donau, Hauptstrecke", result.get("bwastr_name"));
         Assert.assertEquals("Haupt- und Nebenstrecken", result.get("strecken_name"));
 
         result = blo.doBWaStrInfoQuery("0401");
         Assert.assertEquals("0401", result.get("bwastrid"));
-        Assert.assertEquals("Donau", result.get("bwastr_name"));
+        Assert.assertEquals("Donau, Hauptstrecke", result.get("bwastr_name"));
         Assert.assertEquals("Hauptstrecke", result.get("strecken_name"));
 
         result = blo.doBWaStrInfoQuery("3915");
         Assert.assertEquals("3915", result.get("bwastrid"));
-        Assert.assertEquals("Rhein", result.get("bwastr_name"));
+        Assert.assertEquals("Rhein, Nebenarm Mühlarm Nackenheim", result.get("bwastr_name"));
         Assert.assertEquals("Nebenarm Mühlarm Nackenheim", result.get("strecken_name"));
     }
 

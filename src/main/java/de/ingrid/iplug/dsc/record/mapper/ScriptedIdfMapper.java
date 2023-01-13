@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -19,9 +19,6 @@
  * See the Licence for the specific language governing permissions and
  * limitations under the Licence.
  * **************************************************#
- */
-/**
- * 
  */
 package de.ingrid.iplug.dsc.record.mapper;
 
@@ -49,10 +46,10 @@ import de.ingrid.utils.xpath.XPathUtils;
  * script. The scripting engine will be automatically determined from the
  * extension of the mapping script.
  * <p />
- * If the {@link compile} parameter is set to true, the script is compiled, if
+ * If the compile parameter is set to true, the script is compiled, if
  * the ScriptEngine supports compilation.
  * <p/>
- * The mapper expects a base IDF format already present in {@link doc}. *
+ * The mapper expects a base IDF format already present in doc. *
  * 
  * @author joachim@wemove.com
  * 
@@ -82,7 +79,7 @@ public class ScriptedIdfMapper implements IIdfMapper {
             DOMUtils domUtils = new DOMUtils(doc, xpathUtils);
             domUtils.addNS("idf", "http://www.portalu.de/IDF/1.0");
 
-			Map<String, Object> parameters = new Hashtable<String, Object>();
+			Map<String, Object> parameters = new Hashtable<>();
 			parameters.put("sourceRecord", record);
 			parameters.put("idfDoc", doc);
 			parameters.put("log", log);
@@ -92,7 +89,6 @@ public class ScriptedIdfMapper implements IIdfMapper {
 			parameters.put("DOM", domUtils);
             parameters.put("IDF_UTIL", new IdfUtils(sqlUtils, domUtils, xpathUtils));
             parameters.put("CAPABILITIES", new CapabilitiesUtils());
-			parameters.put("javaVersion", System.getProperty( "java.version" ));
 
 			ScriptEngine.execute(this.mappingScripts, parameters, compile);
         } catch (Exception e) {
