@@ -48,8 +48,8 @@ public class BwstrLocUtil {
 
     private HttpClient httpclient = null;
 
-    private String bwstrLocSearch = "https://atlas.wsv.bund.de/bwastr-locator/rest/bwastrinfo/query?limit=1&searchfield=bwastrid&searchterm=";
-    private String bwstrLocEndpoint = "https://atlas.wsv.bund.de/bwastr-locator/rest/geokodierung/query";
+    private String bwstrLocSearch = "https://via.bund.de/wsv/bwastr-locator/rest/bwastrinfo/query?limit=1&searchfield=bwastrid&searchterm=";
+    private String bwstrLocEndpoint = "https://via.bund.de/wsv/bwastr-locator/rest/geokodierung/query";
 
     private static final Logger log = Logger.getLogger( BwstrLocUtil.class );
 
