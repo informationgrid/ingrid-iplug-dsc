@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -20,18 +20,10 @@
  * limitations under the Licence.
  * **************************************************#
  */
-if (javaVersion.indexOf( "1.8" ) === 0) {
-    load("nashorn:mozilla_compat.js");
-}
 
-importPackage(Packages.org.apache.lucene.document);
-importPackage(Packages.de.ingrid.iplug.dsc.om);
-importPackage(Packages.de.ingrid.geo.utils.transformation);
-importPackage(Packages.de.ingrid.iplug.wfs.dsc.tools);
+let DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
 
-if (log.isDebugEnabled()) {
-  log.debug("Mapping source record to lucene document: " + sourceRecord.toString());
-}
+log.debug("Mapping source record to lucene document: " + sourceRecord.toString());
 
 if (!(sourceRecord instanceof DatabaseSourceRecord)) {
   throw new IllegalArgumentException("Record is no DatabaseRecord!");
@@ -51,6 +43,7 @@ for (i=0; i<objRows.size(); i++) {
 
     // Map id and data from record(s) into index
     IDX.add("id", row.get("id"));
+    IDX.add("t01_object.obj_class", "1");
     IDX.add("kurzbeschreibung", row.get("kurzbeschreibung"));
     IDX.add("daten", row.get("daten"));
     IDX.add("organisation", row.get("behoerde"));
@@ -64,7 +57,7 @@ for (i=0; i<objRows.size(); i++) {
 
     // add various HTML into special index field which is rendered in result list !
     var addHtml = "";
-    var sourceTypes = ["WMS", "Dateidownload", "FTP", "AtomFeeed", "Portal", "SOS", "WFS", "WMTS", "JSON", "WSDL"];
+    var sourceTypes = ["WMS", "Dateidownload", "FTP", "AtomFeed", "Portal", "SOS", "WFS", "WMTS", "JSON", "WSDL"];
     for (var i = 0; i < sourceTypes.length; i++) {
         var key = sourceTypes[i].toLowerCase();
         if( hasValue(row.get(key))){

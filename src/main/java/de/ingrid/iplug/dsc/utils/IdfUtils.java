@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -73,6 +73,16 @@ public class IdfUtils {
         nsc.addNamespaceContext(new IDFNamespaceContext());
         nsc.addNamespaceContext(new IgcProfileNamespaceContext());
 
+    }
+
+    public String getUUIDFromString(String text) {
+        String stringClean = text.replaceAll("\\s+", " ");
+        UUID uuid = UUID.nameUUIDFromBytes(stringClean.getBytes());
+        StringBuffer idcUuid = new StringBuffer(uuid.toString().toUpperCase());
+        while (idcUuid.length() < 36) {
+            idcUuid.append("0");
+        }
+        return idcUuid.toString();
     }
 
     /**

@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -54,10 +54,10 @@ public class Configuration implements IConfig {
 
     public DatabaseConnection dbConnection;
     
-    @Value("${mapper.index.docSql}")
+    @Value("${mapper.index.docSql:}")
     public String indexMapperSql;
 
-    @Value("${mapper.index.fieldId}")
+    @Value("${mapper.index.fieldId:}")
     public String indexFieldId;
 
     @Value("${mapper.idf.beans:[]}")
