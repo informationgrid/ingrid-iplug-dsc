@@ -5,6 +5,12 @@
     <author email="joachim.mueller@wemove.com">Joachim Mueller</author>
   </properties>
   <body>
+    <release version="6.0.1-SNAPSHOT" date="2023-xx-xx" description="Release 6.0.1-SNAPSHOT">
+      <action type="fix" dev="wemove" issue="4670">
+        Fix missing namespace prefix in ISO XML
+      </action>
+    </release>
+
     <release version="5.14.0" date="2022-10-04" description="Release 5.14.0">
       <action type="update" dev="wemove">
         Update Java to version 1.8.0.345.b01
