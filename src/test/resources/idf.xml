@@ -73,7 +73,7 @@
         <gmd:MD_DataIdentification uuid="https://registry.gdi-de.org/id/de.hh/7f36e1c5-0679-4346-b00f-24d57e10dd46">
             <gmd:citation>
                 <gmd:CI_Citation>
-                    <gmd:title xsi:type="PT_FreeText_PropertyType">
+                    <gmd:title xsi:type="gmd:PT_FreeText_PropertyType">
                         <gco:CharacterString>INSPIRE HH Geografische Bezeichnungen</gco:CharacterString>
                         <gmd:PT_FreeText>
                             <gmd:textGroup>
@@ -81,7 +81,7 @@
                             </gmd:textGroup>
                         </gmd:PT_FreeText>
                     </gmd:title>
-                    <gmd:alternateTitle xsi:type="PT_FreeText_PropertyType">
+                    <gmd:alternateTitle xsi:type="gmd:PT_FreeText_PropertyType">
                         <gco:CharacterString>INSPIRE HH AI 3 GN</gco:CharacterString>
                         <gmd:PT_FreeText>
                             <gmd:textGroup>

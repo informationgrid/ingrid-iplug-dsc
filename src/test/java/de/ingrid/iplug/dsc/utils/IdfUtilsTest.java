@@ -82,7 +82,7 @@ public class IdfUtilsTest {
 
         idfUtils.addLocalizedCharacterstring(testElement, "Das ist ein Test.#locale-eng:\n\tThis is a test.#locale-rus:Это тест.  \n");
 
-        Assert.assertEquals("PT_FreeText_PropertyType", xpu.getString(idfDoc, "//idf:testElement/@type"));
+        Assert.assertEquals("gmd:PT_FreeText_PropertyType", xpu.getString(idfDoc, "//idf:testElement/@type"));
         Assert.assertEquals("Das ist ein Test.", xpu.getString(idfDoc, "//idf:testElement/gco:CharacterString"));
         Assert.assertEquals("This is a test.", xpu.getString(idfDoc, "//idf:testElement/gmd:PT_FreeText/gmd:textGroup/gmd:LocalisedCharacterString[./@locale='#locale-eng']"));
         Assert.assertEquals("Это тест.", xpu.getString(idfDoc, "//idf:testElement/gmd:PT_FreeText/gmd:textGroup/gmd:LocalisedCharacterString[./@locale='#locale-rus']"));
@@ -105,7 +105,7 @@ public class IdfUtilsTest {
 
         idfUtils.addLocalizedCharacterstring(testElement, "\n\n#locale-rus:Это тест.");
 
-        Assert.assertEquals("PT_FreeText_PropertyType", xpu.getString(idfDoc, "//idf:testElement/@type"));
+        Assert.assertEquals("gmd:PT_FreeText_PropertyType", xpu.getString(idfDoc, "//idf:testElement/@type"));
         Assert.assertEquals("Это тест.", xpu.getString(idfDoc, "//idf:testElement/gco:CharacterString"));
         Assert.assertEquals("Это тест.", xpu.getString(idfDoc, "//idf:testElement/gmd:PT_FreeText/gmd:textGroup/gmd:LocalisedCharacterString[./@locale='#locale-rus']"));
     }
