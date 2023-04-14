@@ -290,7 +290,7 @@ public class IdfUtils {
      * The created structure looks as:
      *
      * <pre>{@code
-     * <gmd:title xsi:type="PT_FreeText_PropertyType">
+     * <gmd:title xsi:type="gmd:PT_FreeText_PropertyType">
      *   <gco:CharacterString>DEFAULT TEXT</gco:CharacterString>
      *   <gmd:PT_FreeText>
      *     <gmd:textGroup>
@@ -330,7 +330,7 @@ public class IdfUtils {
                 }
             }
 
-            element.addAttribute("xsi:type", "PT_FreeText_PropertyType");
+            element.addAttribute("xsi:type", "gmd:PT_FreeText_PropertyType");
             element.addElement("gco:CharacterString").addText(defaultStr);
             DOMUtils.IdfElement ptFreeText = element.addElement("gmd:PT_FreeText");
             for (String locale : localizedStrings.keySet()) {
