@@ -54,6 +54,7 @@ import java.sql.Connection;
 public class PlugDescriptionConfiguredDatabaseRecordProducer implements IRecordProducer, IConfigurable {
 
     private String indexFieldID;
+    private String publication;
 
     DatabaseConnection internalDatabaseConnection = null;
 
@@ -77,7 +78,7 @@ public class PlugDescriptionConfiguredDatabaseRecordProducer implements IRecordP
 
         // TODO: what if field is a list?
         try {
-            return new DatabaseSourceRecord(field.toString(), connection, doc);
+            return new DatabaseSourceRecord(field.toString(), getPublication(), connection, doc);
             
         } catch (Exception e) {
             log.error( "Value of " + indexFieldID + " in doc: " + field );
@@ -119,5 +120,13 @@ public class PlugDescriptionConfiguredDatabaseRecordProducer implements IRecordP
 
     public void setIndexFieldID(String indexFieldID) {
         this.indexFieldID = indexFieldID;
+    }
+
+    public String getPublication() {
+        return publication;
+    }
+
+    public void setPublication(String publication) {
+        this.publication = publication;
     }
 }

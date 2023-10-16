@@ -76,6 +76,8 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
 
     String recordParentFolderByUuidSql = "";
 
+    String recordPublication = "";
+
     Iterator<String> recordIdIterator = null;
 
     private int numRecords;
@@ -126,7 +128,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
         try {
             // connection will be closed in autoclosable DatabaseSourceRecord
             connection = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection);
-            return new DatabaseSourceRecord(recordIdIterator.next(), connection);
+            return new DatabaseSourceRecord(recordIdIterator.next(), recordPublication, connection);
         } catch (SQLException e) {
             log.error("Error getting connection from datasource.", e);
         }
@@ -193,6 +195,14 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
 
     public void setRecordParentFolderByUuidSql(String recordParentFolderByUuidSql) {
         this.recordParentFolderByUuidSql = recordParentFolderByUuidSql;
+    }
+
+    public String getRecordPublication() {
+        return recordPublication;
+    }
+
+    public void setRecordPublication(String recordPublication) {
+        this.recordPublication = recordPublication;
     }
 
     private void closeDatasource() {
@@ -351,7 +361,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
                         if (log.isDebugEnabled()) {
                             log.debug("Record with ID '" + id + "' found by SQL: '" + recordByIdSql + "'");
                         }
-                        return new DatabaseSourceRecord(rs.getString(1), conn);
+                        return new DatabaseSourceRecord(rs.getString(1), recordPublication, conn);
                     } else {
                         // no record found
                         // this can happen if the publication conditions based on
@@ -407,7 +417,7 @@ public class PlugDescriptionConfiguredDatabaseRecordSetProducer implements
                         if (log.isDebugEnabled()) {
                             log.debug("Record with ID '" + id + "' found by SQL: '" + sql + "'");
                         }
-                        return new DatabaseSourceRecord(rs.getString(1), conn);
+                        return new DatabaseSourceRecord(rs.getString(1), recordPublication, conn);
                     } else {
                         // no record found
                         // this can happen if the publication conditions based on
