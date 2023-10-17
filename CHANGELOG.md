@@ -1,4 +1,12 @@
 
+## 6.3.0 (17.10.2023)
+
+
+### Bugfixes
+
+* Portal: Verweise und Downloades unterschiedlich  (#5581)
+* Indizierte Felder werden doppelt in die Konfiguration geschrieben  (#5381)
+    
 ## 6.2.0 (10.07.2023)
 
 ### Features

@@ -41,6 +41,8 @@ public class DatabaseSourceRecord extends SourceRecord {
 
     public static final String CONNECTION = "connection";
 
+    public static final String PUBLICATION = "publication";
+
     public static final String INDEX_DOCUMENT = "idxDoc";
 
     /**
@@ -50,8 +52,9 @@ public class DatabaseSourceRecord extends SourceRecord {
      * @param id
      * @param connection
      */
-    public DatabaseSourceRecord(String id, Connection connection) {
+    public DatabaseSourceRecord(String id, String publication, Connection connection) {
         super( id );
+        this.put( PUBLICATION, publication );
         this.put( CONNECTION, connection );
     }
 
@@ -62,8 +65,9 @@ public class DatabaseSourceRecord extends SourceRecord {
      * @param id
      * @param connection
      */
-    public DatabaseSourceRecord(String id, Connection connection, ElasticDocument idxDoc) {
+    public DatabaseSourceRecord(String id, String publication, Connection connection, ElasticDocument idxDoc) {
         super( id );
+        this.put( PUBLICATION, publication );
         this.put( CONNECTION, connection );
         this.put( INDEX_DOCUMENT, idxDoc );
     }
