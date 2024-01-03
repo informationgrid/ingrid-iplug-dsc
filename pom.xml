@@ -38,7 +38,7 @@
     <!-- since spring 4.1 the quartz library 1.x is not supported anymore -->
     <spring.version>2.7.17</spring.version>
     <ingrid-base-webapp.version>7.0.0-SNAPSHOT</ingrid-base-webapp.version>
-    <log4j2.version>2.22.0</log4j2.version>
+    <log4j2.version>2.22.1</log4j2.version>
   </properties>
 
   <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
