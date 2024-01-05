@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>6.2.0</version>
+    <version>7.0.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-iplug-dsc</artifactId>
-  <version>6.3.0</version>
+  <version>7.0.0</version>
   <packaging>jar</packaging>
   <name>InGrid iPlug DSC</name>
   <description>This iPlug indexes documents from a database and can be queried by the iBus.</description>
@@ -36,9 +36,9 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <!-- since spring 4.1 the quartz library 1.x is not supported anymore -->
-    <spring.version>2.7.14</spring.version>
-    <ingrid-base-webapp.version>6.3.0</ingrid-base-webapp.version>
-    <log4j2.version>2.19.0</log4j2.version>
+    <spring.version>2.7.17</spring.version>
+    <ingrid-base-webapp.version>7.0.0</ingrid-base-webapp.version>
+    <log4j2.version>2.22.1</log4j2.version>
   </properties>
 
   <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
@@ -74,7 +74,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-iplug</artifactId>
-      <version>6.0.0</version>
+      <version>7.0.0</version>
       <exclusions>
         <exclusion>
           <groupId>ant</groupId>
@@ -125,12 +125,12 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-utils</artifactId>
-      <version>6.3.0</version>
+      <version>7.0.0</version>
     </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-utils-geo</artifactId>
-      <version>6.0.0</version>
+      <version>7.0.0</version>
     </dependency>
     <dependency>
       <groupId>commons-httpclient</groupId>
