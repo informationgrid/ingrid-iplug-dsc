@@ -7,7 +7,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-iplug-dsc</artifactId>
-  <version>7.0.0</version>
+  <version>7.1.0</version>
   <packaging>jar</packaging>
   <name>InGrid iPlug DSC</name>
   <description>This iPlug indexes documents from a database and can be queried by the iBus.</description>
@@ -37,7 +37,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <!-- since spring 4.1 the quartz library 1.x is not supported anymore -->
     <spring.version>2.7.17</spring.version>
-    <ingrid-base-webapp.version>7.0.0</ingrid-base-webapp.version>
+    <ingrid-base-webapp.version>7.1.0</ingrid-base-webapp.version>
     <log4j2.version>2.22.1</log4j2.version>
   </properties>
 
@@ -181,7 +181,7 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.5.0</version>
+      <version>42.7.2</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>

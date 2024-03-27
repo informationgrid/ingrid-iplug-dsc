@@ -1,4 +1,11 @@
 
+## 7.1.0 (27.03.2024)
+
+
+### Bugfixes
+
+* Aktualisierung sicherheitskritischer Libraries (#6018)
+    
 ## 7.0.0 (05.01.2024)
 
 ### Features
