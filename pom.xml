@@ -37,7 +37,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <!-- since spring 4.1 the quartz library 1.x is not supported anymore -->
     <spring.version>2.7.18</spring.version>
-    <ingrid-base-webapp.version>7.2.0-SNAPSHOT</ingrid-base-webapp.version>
+    <ingrid-base-webapp.version>7.2.0</ingrid-base-webapp.version>
     <jackson.version>2.17.1</jackson.version>
     <elastic.version>8.14.1</elastic.version>
     <log4j2.version>2.22.1</log4j2.version>
